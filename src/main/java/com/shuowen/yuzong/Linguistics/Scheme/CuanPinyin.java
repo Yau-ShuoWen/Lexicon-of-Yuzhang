@@ -2,6 +2,9 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.CuanStyle;
 import com.shuowen.yuzong.Linguistics.Format.StyleParams;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.util.List;
 
 /**
  * 四川话拼音
@@ -32,15 +35,33 @@ public class CuanPinyin extends UniPinyin
     @Override
     protected void scan()
     {
-        pinyin = pinyin
-                //汉语拼音代声母
-                .replace("yi", "i")
-                .replace("wu", "u")
-                .replace("yu", "v")
-                .replace("w", "u")
-                .replace("y", "i")
-                //ao
-                .replace("ao", "au");
+        pinyin = pinyin.toLowerCase();
+
+        final List<Pair<String, String>> rule = List.of(
+                Pair.of("yi", "i"),
+                Pair.of("y", "i"),
+                Pair.of("wu", "u"),
+                Pair.of("w", "u"),
+                Pair.of("yu", "v")
+        );
+
+        for (Pair<String, String> p : rule)
+        {
+            if (pinyin.startsWith(p.getLeft()))
+            {
+                pinyin = p.getRight() + pinyin.substring(p.getLeft().length());
+                break;
+            }
+        }
+
+        if (pinyin.endsWith("r"))
+        {
+            pinyin = pinyin.substring(0, pinyin.length() - 1);
+        }
+        if (pinyin.endsWith("ao"))
+        {
+            pinyin = pinyin.substring(0, pinyin.length() - 2) + "au";
+        }
     }
 
 
