@@ -58,7 +58,7 @@ public class CuanPinyin extends UniPinyin
         {
             pinyin = pinyin.substring(0, pinyin.length() - 1);
         }
-        if (pinyin.endsWith("ao"))
+        else if (pinyin.endsWith("ao"))
         {
             pinyin = pinyin.substring(0, pinyin.length() - 2) + "au";
         }
