@@ -46,7 +46,6 @@ public class NamPYServiceImpl implements NamPinyinService
     /**
      * 使用ipa资源动态生成ipa
      * @param code 传入数据
-     *
      * 把他拆分成声母韵母，
      *
      * @exception

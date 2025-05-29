@@ -28,7 +28,6 @@ public interface NamIPAMapper
     @Select ("select * from NC.nam_ipa order by code")
     List<NamIPA> findAll();
 
-
     /**
      * 通过带空位的code查询
      *
