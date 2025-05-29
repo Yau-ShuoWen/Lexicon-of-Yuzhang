@@ -1,14 +1,13 @@
 package com.shuowen.yuzong;
 
-import com.shuowen.yuzong.dto.NamCharDetial;
-import com.shuowen.yuzong.redis.RedisDao;
-import com.shuowen.yuzong.service.Interface.StudentService;
-import com.shuowen.yuzong.service.impl.MdrHZServiceImpl;
+import com.shuowen.yuzong.dao.model.PinyinIPA.NamIPA;
 import com.shuowen.yuzong.service.impl.NamHZServiceImpl;
 import com.shuowen.yuzong.service.impl.NamPYServiceImpl;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @SpringBootTest
@@ -17,15 +16,28 @@ class YuZongApplicationTests
     @Autowired
     private NamHZServiceImpl namHZServiceImpl;
 
+    @Autowired
+    NamPYServiceImpl namPYService;
+
     @Test
     void contextLoads()
     {
-        var s=namHZServiceImpl.getMenu("捏");
+        var a=namPYService.getAll();
 
-        for (var n:s)
+        List<String> s=new ArrayList<>();
+        int j=1;
+        for (var i:a)
         {
-            System.out.println(n);
+            String now=i.getCode();
+
+            NamIPA b=namPYService.constructCode(now);
+
+            if(b.toString().contains("-")) continue;
+            if(b.equals(i)) System.out.println(j++);
+            else System.out.println(i+"\n"+b);
         }
+
+
     }
 
 }
