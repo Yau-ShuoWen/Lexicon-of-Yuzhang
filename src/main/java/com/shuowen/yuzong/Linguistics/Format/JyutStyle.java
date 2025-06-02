@@ -2,15 +2,14 @@ package com.shuowen.yuzong.Linguistics.Format;
 
 public class JyutStyle extends StyleParams
 {
-
-
     /**
      * 統一管理參數
      *
      * @param plan    现有拼音方案 <ul>
      *                <li>0 - 通用粤语拼音（数据库处理格式）</li>
      *                <li>1 - 香港语言学学会方案</li>
-     *                <li>2 - 耶鲁大学拼音方案</li>
+     *                <li>2 - 耶鲁大学拼音方案（附标版本）</li>
+     *                <li>3 - 耶鲁大学拼音方案（全字母版本）</li>
      *                </ul>
      * @param capital 大写格式控制： <ul>
      *                <li>0 - 全部小写</li>
@@ -18,9 +17,8 @@ public class JyutStyle extends StyleParams
      *                <li>2 - 首字母大写</li>
      *                </ul>
      * @param num     使用什么表示音调 <ul>
-     *                <li>0 - 数字直接加在后面</li>
-     *                <li>1 - 加音调到元音</li>
-     *                <li>2 - 加音调直接到后面</li>
+     *                <li>0 - 不加音调</li>
+     *                <li>1 - 加入音调</li>
      *                </ul>
      */
     public JyutStyle(int plan, int capital, int num)
@@ -28,23 +26,19 @@ public class JyutStyle extends StyleParams
         this.num = num;
         this.plan = plan;
         this.capital = capital;
-
-        if (plan != 0)
-        {
-            this.num = 0;
-        }
     }
 
     public int plan = 1;
 
     public JyutStyle()
     {
+        plan=1;
+        num=1;
+        capital=0;
     }
 
     public JyutStyle(int[] a)
     {
 
     }
-
-
 }

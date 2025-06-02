@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class JyutPinyin extends UniPinyin
 {
-    int markSize;
+    private static final int markSize = 9;
 
     public JyutPinyin(String s)
     {
@@ -38,17 +38,17 @@ public class JyutPinyin extends UniPinyin
 
         if (pinyin == null || pinyin.isEmpty()) return false;
 
-        char last = pinyin.charAt(pinyin.length() - 1);
-        if (n >= 1 && n <= 6)
-        {
-            // 不是入声，但是结尾ptk
-            if (last == 'p' || last == 't' || last == 'k') rhythm = false;
-        }
-        if (n >= 7 && n <= 9)
-        {
-            // 为入声，但是韵尾非ptk
-            if (last != 'p' && last != 't' && last != 'k') rhythm = false;
-        }
+//        char last = pinyin.charAt(pinyin.length() - 1);
+//        if (n >= 1 && n <= 6)
+//        {
+//            // 不是入声，但是结尾ptk
+//            if (last == 'p' || last == 't' || last == 'k') rhythm = false;
+//        }
+//        if (n >= 7 && n <= 9)
+//        {
+//            // 为入声，但是韵尾非ptk
+//            if (last != 'p' && last != 't' && last != 'k') rhythm = false;
+//        }
         return range && rhythm;
     }
 
@@ -106,8 +106,10 @@ public class JyutPinyin extends UniPinyin
 
         JyutStyle p = (params instanceof JyutStyle) ? (JyutStyle) params : new JyutStyle();
 
-        addMark(p.num, p.plan);
+        // 香港语言学会的方案是音调数字直接加在后面，所以先设置格式免得被影响
         setFormat(p.plan, p.capital);
+        addMark(p.num, p.plan);
+
         return " //" + show + "// ";
     }
 
@@ -136,15 +138,18 @@ public class JyutPinyin extends UniPinyin
             }
             if (s.charAt(0) == 'u')
             {
-                // 祇有uk 和 ung 保留原型
-                if (!(s.equals("uk") || s.equals("ung")))
+                if (s.length() == 1) s = "wu";
+                else// 祇有uk 和 ung 保留原型
                 {
-                    s = 'w' + s;
+                    if (!(s.endsWith("uk") || s.endsWith("ung")))
+                        s = 'w' + s.substring(1);
                 }
             }
             if ((s.startsWith("gu") && s.length() > 2) || (s.startsWith("ku") && s.length() > 2))
             {
-                s = "" + s.charAt(0) + 'w' + s.substring(2);
+                //gu guk gung
+                if (!(s.endsWith("u") || s.endsWith("uk") || s.endsWith("ung")))
+                    s = "" + s.charAt(0) + 'w' + s.substring(2);
             }
             if (s.contains("v"))
             {
@@ -158,9 +163,50 @@ public class JyutPinyin extends UniPinyin
                 }
             }
         }
-        if (plan == 2)
+        if (plan == 2 || plan == 3)
         {
+            switch (s.charAt(0))
+            {
+                case 'z' -> s = 'j' + s.substring(1);
+                case 'c' -> s = "ch" + s.substring(1);
+                case 'i' ->
+                {
+                    if (s.length() == 1) s = "yi";
+                    else
+                    {
+                        char c = s.charAt(1);
+                        if (c == 'u' || c == 'm' || c == 'n' || c == 'p' || c == 't' || c == 'k')
+                            s = 'y' + s;
+                        else
+                            s = 'y' + s.substring(1);
+                    }
+                }
+                case 'u' ->
+                {
+                    if (s.length() == 1) s = "wu";
+                    else// 祇有uk 和 ung 保留原型
+                    {
+                        if (!(s.endsWith("uk") || s.endsWith("ung")))
+                            s = 'w' + s.substring(1);
+                    }
+                }
+            }
 
+            if ((s.startsWith("gu") && s.length() > 2) || (s.startsWith("ku") && s.length() > 2))
+            {
+                //gu guk gung
+                if (!(s.endsWith("u") || s.endsWith("uk") || s.endsWith("ung")))
+                    s = "" + s.charAt(0) + 'w' + s.substring(2);
+            }
+
+
+            final List<Pair<String, String>> rule = List.of(
+                    Pair.of("v", "yu"),
+                    Pair.of("oe", "eu"),
+                    Pair.of("eo", "eu")
+            );
+            for (Pair<String, String> p : rule)
+                s=s.replace(p.getLeft(), p.getRight());
         }
 
         if (capital > 0)
@@ -331,16 +377,90 @@ public class JyutPinyin extends UniPinyin
     protected void addMark(int num, int plan)
     {
         if (tone == 0) return;
+
+        tone = switch (tone)
+        {
+            case 7 -> 1;
+            case 8 -> 3;
+            case 9 -> 6;
+            default -> tone;
+        };
         if (plan == 1)
         {
-            tone = switch (tone)
+            show += tone;
+        }
+        if (plan == 2 || plan == 3)
+        {
+            StringBuilder sb = new StringBuilder(show);
+
+            int l = -1, r = -1;
+            String vowels = "aeiou";
+            for (int i = 0; i < sb.length(); i++)
             {
-                case 7 -> 1;
-                case 8 -> 2;
-                case 9 -> 3;
-                default -> tone;
-            };
-            show = pinyin + tone;
+                if (vowels.indexOf(sb.charAt(i)) >= 0)
+                {
+                    if (l == -1) l = i;
+                    r = i;
+                }
+            }
+            l++; r++;
+
+            // 没有任何元音m ng
+            if (l == 0)
+            {
+                l = 1;
+                r = sb.length();
+            }
+            if (plan == 2)
+            {
+                switch (tone)
+                {
+                    case 1:
+                        sb.insert(l, '̄');
+                        break;
+                    case 2:
+                        sb.insert(l, '́');
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        sb.insert(r, 'h');
+                        sb.insert(l, '̄');
+                        break;
+                    case 5:
+                        sb.insert(r, 'h');
+                        sb.insert(l, '́');
+                        break;
+                    case 6:
+                        sb.insert(r, 'h');
+                        break;
+                }
+            }
+            else
+            {
+                switch (tone)
+                {
+                    case 1:
+                        sb.insert(r, 'r');
+                        break;
+                    case 2:
+                        sb.insert(r, 'l');
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        sb.insert(r, "rh");
+                        break;
+                    case 5:
+                        sb.insert(r, "lh");
+                        break;
+                    case 6:
+                        sb.insert(r, 'h');
+                        break;
+                }
+            }
+
+            show = sb.toString();
         }
     }
 }
