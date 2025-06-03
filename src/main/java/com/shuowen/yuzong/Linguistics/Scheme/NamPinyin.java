@@ -11,7 +11,7 @@ import org.apache.commons.lang3.tuple.Pair;
 /**
  * 南昌话拼音方案
  *
- * @author 姚说文 豫章鸿也
+ * @author 说文 豫章鸿也
  */
 
 public class NamPinyin extends UniPinyin
@@ -25,7 +25,7 @@ public class NamPinyin extends UniPinyin
     // ͕   ͖   ͗   ͘   ͙   ͚   ͛   ͜   ͝   ͞   ͟   ͠   ͡   ͢   ͣ   ͤ
     // ͥ   ͦ   ͧ   ͨ   ͩ   ͪ   ͫ   ͬ   ͭ   ͮ   ͯ
 
-    static char[] mark = {' ', '̀', '́', '̌', '̄', '̃', '̏', '̋'};
+    static char[] mark = {' ', '̀', '́', '̌', '̄', '̃', '̋', '̏'};
 
     public NamPinyin(String s)
     {
@@ -37,6 +37,13 @@ public class NamPinyin extends UniPinyin
         super(s, v);
     }
 
+    /**
+     * 基本过程
+     * <ul>
+     *     <li>条件1：范围在0-7</li>
+     *     <li>条件2:1-5不是入声尾，6-7是（0，可以都是）</li>
+     * </ul>
+     */
     @Override
     protected boolean isToneValid(int n)
     {
@@ -147,6 +154,7 @@ public class NamPinyin extends UniPinyin
      * @param ii      ii 的处理方式：  <ul>
      *                <li>0 - 不处理</li>
      *                <li>1 - 替换为 i</li>
+     *                <li>1 - 直接用zcs</li>
      *                </ul>
      * @param ptk     入声尾音的处理（用于 t, k 结尾）：  <ul>
      *                <li>0 - 不处理</li>
@@ -170,6 +178,16 @@ public class NamPinyin extends UniPinyin
                           int ptk, int alt, int capital)
     {
         String s = show;
+
+        /*
+        * 新增流程：因为是先标注音调再
+        * */
+        Character numBack = null;
+        if (s.matches("\\p{L}+\\d"))
+        {
+            numBack = s.charAt(s.length() - 1);
+            s = s.substring(0, s.length() - 1);
+        }
 
         if (gn > 0)
         {
@@ -195,6 +213,7 @@ public class NamPinyin extends UniPinyin
         if (ii > 0)
         {
             if (ii == 1) s = s.replace("ii", "i");
+            if (ii == 2) s = s.replace("ii", "");
         }
         if (ptk > 0)
         {
@@ -243,6 +262,7 @@ public class NamPinyin extends UniPinyin
             if (capital == 1) s = s.toUpperCase();
             if (capital == 2) s = s.substring(0, 1).toUpperCase() + s.substring(1);
         }
+        if (numBack != null) s += numBack;
         show = s;
     }
 
@@ -278,7 +298,7 @@ public class NamPinyin extends UniPinyin
      *   </li>
      * </ol>
      *
-     * @return 编码后的五位字符串表示音节结构，例如 qiung->"13617"
+     * 编码后的五位字符串表示音节结构，例如 qiung->"13617"
      */
     @Override
     public void toCode()
@@ -354,7 +374,9 @@ public class NamPinyin extends UniPinyin
         }
         if (Sub.isEmpty())
         {
-            code = answer + "000";
+            if(S==3) code="00007";
+            if(S==14) code="00008";
+            if(S==10) code="00009";
             return;
         }
 
@@ -429,7 +451,7 @@ public class NamPinyin extends UniPinyin
                 case "oe":
                     Y += 5; break;
                 case "u":
-                    Y += 7; break;
+                    Y += 6; break;// 2025/6/3 代号修改为6 要空出7 8 9来给m n ng
             }
         }
         code = answer + W + J + Y;
@@ -445,12 +467,12 @@ public class NamPinyin extends UniPinyin
      *     <li>其他（唯一情況：m），標在最後</li>
      * </ol>
      *
-     * @param num <ul>
-     *                                                                                  <li>0 - 不加音调</li>
-     *                                                                                  <li>1 - 智能添加，符合规范</li>
-     *                                                                                  <li>2 - 符号音调加到后面</li>
-     *                                                                                  <li>3 - 数字音调加到后面</li>
-     *                                                                              </ul>
+     * @param num 标注声调的方式  <ol>
+     *            <li>0 - 不加音调</li>
+     *            <li>1 - 智能添加，符合规范</li>
+     *            <li>2 - 符号音调加到后面</li>
+     *            <li>3 - 数字音调加到后面</li>
+     *            </ol>
      */
     protected void addMark(int num)
     {
