@@ -173,14 +173,7 @@ public class CuanPinyin extends UniPinyin
             case 'd':
                 S += 5; break;
             case 't':
-                if (Str.length() > 1 && Str.charAt(1) == 'z')
-                {
-                    S += 19; l++;
-                }
-                else
-                {
-                    S += 6;
-                }
+                S += 6;
                 break;
             case 'n':
                 if (Str.length() > 1 && Str.charAt(1) == 'g')//ng
@@ -215,6 +208,9 @@ public class CuanPinyin extends UniPinyin
                 S += 17; break;
             case 's':
                 S += 18; break;
+            case 'r':
+                S += 19;
+                break;
             default:
                 l--;
                 break;
@@ -226,7 +222,7 @@ public class CuanPinyin extends UniPinyin
 
         String answer = (S < 10) ? ("0" + S) : ("" + S);
 
-        if (S >= 16 && Sub.equals("i"))//zi ci si tzi
+        if (S >= 16 && Sub.equals("i"))//zi ci si ri
         {
             code = answer + "100";
             return;
