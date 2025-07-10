@@ -3,10 +3,7 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 import com.shuowen.yuzong.Linguistics.Format.JyutStyle;
 import com.shuowen.yuzong.Linguistics.Format.StyleParams;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,7 +29,7 @@ public class JyutPinyin extends UniPinyin
     protected boolean isToneValid(int n)
     {
         //2025/04/29
-        boolean range = (n >= 0 && n < markSize);
+        boolean range = (n >= 0 && n <= markSize);
 
         boolean rhythm = true;
 
@@ -81,15 +78,7 @@ public class JyutPinyin extends UniPinyin
         }
 
         if (pinyin.endsWith("p") || pinyin.endsWith("t") || pinyin.endsWith("k"))
-        {
-            tone = switch (tone)
-            {
-                case 1 -> 7;
-                case 3 -> 8;
-                case 6 -> 9;
-                default -> tone;
-            };
-        }
+            tone=JyutPinyinMul.switchTone(tone,false);
     }
 
     @Override
@@ -113,6 +102,18 @@ public class JyutPinyin extends UniPinyin
         return " //" + show + "// ";
     }
 
+    public String toMulPlan()
+    {
+        String ans = "";
+        JyutStyle p = new JyutStyle();
+        for (int i = 0; i < p.getCnt(); i++)
+        {
+            p.setPlan(i);
+            ans += toString(p) + p.getPlanName()+'\n';
+        }
+        return ans;
+    }
+
     /**
      * 将输入的拼音字符串根据指定的参数选项进行风格转换，用于处理方言拼音的展示或输出格式。
      *
@@ -122,93 +123,14 @@ public class JyutPinyin extends UniPinyin
     {
         String s = show;
 
-        if (plan == 1)
+        s = switch (plan)
         {
-            if (s.charAt(0) == 'i')
-            {
-                if (s.length() == 1) s = "ji";
-                else
-                {
-                    char c = s.charAt(1);
-                    if (c == 'u' || c == 'm' || c == 'n' || c == 'p' || c == 't' || c == 'k')
-                        s = 'j' + s;
-                    else
-                        s = 'j' + s.substring(1);
-                }
-            }
-            if (s.charAt(0) == 'u')
-            {
-                if (s.length() == 1) s = "wu";
-                else// 祇有uk 和 ung 保留原型
-                {
-                    if (!(s.endsWith("uk") || s.endsWith("ung")))
-                        s = 'w' + s.substring(1);
-                }
-            }
-            if ((s.startsWith("gu") && s.length() > 2) || (s.startsWith("ku") && s.length() > 2))
-            {
-                //gu guk gung
-                if (!(s.endsWith("u") || s.endsWith("uk") || s.endsWith("ung")))
-                    s = "" + s.charAt(0) + 'w' + s.substring(2);
-            }
-            if (s.contains("v"))
-            {
-                if (s.charAt(0) == 'v')//vt->jyut
-                {
-                    s = s.replace("v", "jyu");
-                }
-                else //nvn->nyun
-                {
-                    s = s.replace("v", "yu");
-                }
-            }
-        }
-        if (plan == 2 || plan == 3)
-        {
-            switch (s.charAt(0))
-            {
-                case 'z' -> s = 'j' + s.substring(1);
-                case 'c' -> s = "ch" + s.substring(1);
-                case 'i' ->
-                {
-                    if (s.length() == 1) s = "yi";
-                    else
-                    {
-                        char c = s.charAt(1);
-                        if (c == 'u' || c == 'm' || c == 'n' || c == 'p' || c == 't' || c == 'k')
-                            s = 'y' + s;
-                        else
-                            s = 'y' + s.substring(1);
-                    }
-                }
-                case 'u' ->
-                {
-                    if (s.length() == 1) s = "wu";
-                    else// 祇有uk 和 ung 保留原型
-                    {
-                        if (!(s.endsWith("uk") || s.endsWith("ung")))
-                            s = 'w' + s.substring(1);
-                    }
-                }
-            }
-
-            if ((s.startsWith("gu") && s.length() > 2) || (s.startsWith("ku") && s.length() > 2))
-            {
-                //gu guk gung
-                if (!(s.endsWith("u") || s.endsWith("uk") || s.endsWith("ung")))
-                    s = "" + s.charAt(0) + 'w' + s.substring(2);
-            }
-
-
-            final List<Pair<String, String>> rule = List.of(
-                    Pair.of("v", "yu"),
-                    Pair.of("oe", "eu"),
-                    Pair.of("eo", "eu")
-            );
-            for (Pair<String, String> p : rule)
-                s=s.replace(p.getLeft(), p.getRight());
-        }
-
+            case 1, 2 -> JyutPinyinMul.toGwong(show);
+            case 3, 4 -> JyutPinyinMul.toYale(show);
+            case 5 -> JyutPinyinMul.toGuong(show);
+            case 6, 7 -> JyutPinyinMul.toMinistry(show);
+            default -> s;
+        };
         if (capital > 0)
         {
             if (capital == 1) s = s.toUpperCase();
@@ -378,89 +300,26 @@ public class JyutPinyin extends UniPinyin
     {
         if (tone == 0) return;
 
-        tone = switch (tone)
+        int t = tone;
+        if (plan != 2)
         {
-            case 7 -> 1;
-            case 8 -> 3;
-            case 9 -> 6;
-            default -> tone;
+            t = switch (tone)
+            {
+                case 7 -> 1;
+                case 8 -> 3;
+                case 9 -> 6;
+                default -> tone;
+            };
+        }
+
+        show = switch (plan)
+        {
+            case 0, 2, 7 -> show + tone;
+            case 1, 5, 6 -> show + JyutPinyinMul.switchTone(tone,true);//1 2的区别在于有没有换 5同1
+            case 3 -> JyutPinyinMul.toYaleAffix(show, t);
+            case 4 -> JyutPinyinMul.toYaleSuffix(show, t);
+            default -> show;
         };
-        if (plan == 1)
-        {
-            show += tone;
-        }
-        if (plan == 2 || plan == 3)
-        {
-            StringBuilder sb = new StringBuilder(show);
 
-            int l = -1, r = -1;
-            String vowels = "aeiou";
-            for (int i = 0; i < sb.length(); i++)
-            {
-                if (vowels.indexOf(sb.charAt(i)) >= 0)
-                {
-                    if (l == -1) l = i;
-                    r = i;
-                }
-            }
-            l++; r++;
-
-            // 没有任何元音m ng
-            if (l == 0)
-            {
-                l = 1;
-                r = sb.length();
-            }
-            if (plan == 2)
-            {
-                switch (tone)
-                {
-                    case 1:
-                        sb.insert(l, '̄');
-                        break;
-                    case 2:
-                        sb.insert(l, '́');
-                        break;
-                    case 3:
-                        break;
-                    case 4:
-                        sb.insert(r, 'h');
-                        sb.insert(l, '̄');
-                        break;
-                    case 5:
-                        sb.insert(r, 'h');
-                        sb.insert(l, '́');
-                        break;
-                    case 6:
-                        sb.insert(r, 'h');
-                        break;
-                }
-            }
-            else
-            {
-                switch (tone)
-                {
-                    case 1:
-                        sb.insert(r, 'r');
-                        break;
-                    case 2:
-                        sb.insert(r, 'l');
-                        break;
-                    case 3:
-                        break;
-                    case 4:
-                        sb.insert(r, "rh");
-                        break;
-                    case 5:
-                        sb.insert(r, "lh");
-                        break;
-                    case 6:
-                        sb.insert(r, 'h');
-                        break;
-                }
-            }
-
-            show = sb.toString();
-        }
     }
 }
