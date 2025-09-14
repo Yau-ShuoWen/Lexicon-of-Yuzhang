@@ -5,6 +5,7 @@ import com.shuowen.yuzong.Linguistics.Format.StyleParams;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -16,15 +17,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class NamPinyin extends UniPinyin
 {
-
-    //  ̀   ́   ̂   ̃   ̄   ̅   ̆   ̇   ̈   ̉   ̊   ̋   ̌   ̍   ̎   ̏   ̐   ̑   ̒
-    // ̓   ̔   ̕   ̖   ̗   ̘   ̙   ̚   ̛   ̜   ̝   ̞   ̟   ̠   ̡   ̢
-    //  ̣   ̤   ̥   ̦   ̧   ̨   ̩   ̪   ̫   ̬   ̭   ̮   ̯   ̰   ̱   ̲   ̳
-    // ̴   ̵   ̶   ̷   ̸   ̹   ̺   ̻   ̼   ̽   ̾   ̿   ̀   ́   ͂   ̓   ̈́
-    // ͅ   ͆   ͇   ͈   ͉   ͊   ͋   ͌   ͍   ͎   ͏   ͐   ͑   ͒   ͓   ͔
-    // ͕   ͖   ͗   ͘   ͙   ͚   ͛   ͜   ͝   ͞   ͟   ͠   ͡   ͢   ͣ   ͤ
-    // ͥ   ͦ   ͧ   ͨ   ͩ   ͪ   ͫ   ͬ   ͭ   ͮ   ͯ
-
     static char[] mark = {' ', '̀', '́', '̌', '̄', '̃', '̋', '̏'};
 
     public NamPinyin(String s)
@@ -45,15 +37,14 @@ public class NamPinyin extends UniPinyin
      * </ul>
      */
     @Override
-    protected boolean isToneValid(int n)
+    protected boolean toneValid()
     {
+        int n=tone;
+
         // 数字是否是[0,7]，如果要简单判断直接返回这句话即可
         boolean range = (n >= 0 && n < mark.length);
         // 是否配上合适的韵尾
         boolean rhythm = true;
-
-        if (pinyin == null || pinyin.isEmpty()) return false;
-        //虽然也不知道有没有用，反正放在这里
 
         char last = pinyin.charAt(pinyin.length() - 1);
         if (n >= 1 && n <= 5)
@@ -74,7 +65,7 @@ public class NamPinyin extends UniPinyin
     {
         pinyin = pinyin.toLowerCase();
 
-        final List<Pair<String, String>> rule = List.of(
+        final List<Pair<String, String>> rule1 = List.of(
                 Pair.of("yi", "i"),
                 Pair.of("wu", "u"),
                 Pair.of("yu", "v"),
@@ -85,7 +76,20 @@ public class NamPinyin extends UniPinyin
                 Pair.of("xu", "xv")
         );
 
-        for (Pair<String, String> p : rule)
+        final List<Pair<String, String>> rule2 = List.of(
+                Pair.of("ao", "au"),
+                Pair.of("ian", "ien"),
+                Pair.of("uen", "un"),
+                Pair.of("van", "ven"),
+                Pair.of("zi", "zii"),
+                Pair.of("ci", "cii"),
+                Pair.of("si", "sii"),
+                Pair.of("z", "zii"),
+                Pair.of("c", "cii"),
+                Pair.of("s", "sii")
+        );
+
+        for (Pair<String, String> p : rule1)
         {
             if (pinyin.startsWith(p.getLeft()))
             {
@@ -93,10 +97,13 @@ public class NamPinyin extends UniPinyin
                 break;
             }
         }
-
-        if (pinyin.endsWith("ao"))
+        for (Pair<String, String> p : rule2)
         {
-            pinyin = pinyin.substring(0, pinyin.length() - 2) + "au";
+            if (pinyin.endsWith(p.getLeft()))
+            {
+                pinyin = pinyin.substring(0, pinyin.length() - p.getLeft().length()) + p.getRight();
+                break;
+            }
         }
     }
 
@@ -118,7 +125,7 @@ public class NamPinyin extends UniPinyin
     @Override
     public String toString(StyleParams params)
     {
-        if (isInvalid()) return INVALID_PINYIN;
+        if (!valid) return INVALID_PINYIN;
         show = pinyin;
 
         NamStyle p = (params instanceof NamStyle) ? (NamStyle) params : new NamStyle();
@@ -180,8 +187,8 @@ public class NamPinyin extends UniPinyin
         String s = show;
 
         /*
-        * 新增流程：因为是先标注音调再
-        * */
+         * 新增流程：因为是先标注音调再
+         * */
         Character numBack = null;
         if (s.matches("\\p{L}+\\d"))
         {
@@ -268,42 +275,90 @@ public class NamPinyin extends UniPinyin
 
 
     /**
-     * 将一个音节字符串转码为一个五位数字字符串，便于音素结构的分析与处理。
-     *
      * <p>返回值为五位数字，表示该拼音音节的结构组成，包括声母、介音、韵尾和主元音。
      *
      * <p>编码格式如下：
      * <ol>
-     *   <li>前两位（第1-2位）：声母代码，从 01 开始编码，顺序如下：
-     *       <ul>
-     *         00 - 零声母（无声母） 01 - b，02 - p，03 - m，04 - f，05 - d，06 - t，07 - l，08 - g，09 - k
-     *         10 - ng，11 - h，12 - j，13 - q，14 - n，15 - x，16 - z，17 - c，18 - s
-     *       </ul>
-     *   </li>
-     *   <li>第三位：韵尾代码（W）：
-     *       <ul>
-     *         <li>0 - 无韵尾，1 - 用于ㄗㄘㄙ类，3 - i 尾，4 - u 尾，5 - n 尾</li>
-     *         <li>6 - ng 尾，7 - t 尾，8 - k 或 ʔ 尾，9 - l 尾</li>
-     *       </ul>
-     *   </li>
-     *   <li>第四位：介音（韵头）代码（J）：
-     *       <ul>
-     *         <li>0 - 无介音，1 - i，2 - u，3 - ü/v</li>
-     *       </ul>
-     *   </li>
-     *   <li>第五位：中心元音（Y）代码：
-     *       <ul>
-     *         <li>0 - 无主元音（默认），1 - a，2 - o，3 - e，4 - ee，5 - oe，7 - u</li>
-     *       </ul>
-     *   </li>
+     * <li>前两位，声母：<p>
+     * <code> 00: 零声母/无声母</code>|
+     * <code> 01: b</code>|
+     * <code> 02: p</code>|
+     * <code> 03: m</code>|
+     * <code> 04: f</code>|
+     * <code> 05: d</code>|
+     * <code> 06: t</code>|
+     * <code> 07: l</code>|
+     * <code> 08: g</code>|
+     * <code> 09: k</code>|
+     * <code> 10: ng</code>|
+     * <code> 11: h</code>|
+     * <code> 12: j</code>|
+     * <code> 13: q</code>|
+     * <code> 14: n</code>|
+     * <code> 15: x</code>|
+     * <code> 16: z</code>|
+     * <code> 17: c</code>|
+     * <code> 18: s</code>|
+     * </li>
+     * <p>
+     * <li>第三位，韵尾：<p>
+     * <code>0: 开元音韵尾/无韵尾</code>|
+     * <code>1: z c s的整体认读</code>|
+     * <code>3: i 尾</code>|
+     * <code>4: u 尾</code>|
+     * <code>5: n 尾</code>|
+     * <code>6: ng 尾</code>|
+     * <code>7: t 尾</code>|
+     * <code>8: k 或 ʔ 尾</code>|
+     * <code>9: l 尾</code>|
+     * </li>
+     * <p>
+     * <li>第四位，介音：<p>
+     * <code>0: 开口呼</code>|
+     * <code>1: 合口呼：i</code>|
+     * <code>2: 闭口呼：u</code>|
+     * <code>3: 撮口呼：ü/v</code>|
+     * </li>
+     * <p>
+     * <li>第五位：中心元音：<p>
+     * <code>0: 无主元音</code>|
+     * <code>1: a</code>|
+     * <code>2: o</code>|
+     * <code>3: e</code>|
+     * <code>4: ee</code>|
+     * <code>5: oe</code>|
+     * <code>6: u</code>|
+     * <code>7: 自成音节的m</code>|
+     * <code>8: 自成音节的n</code>|
+     * <code>9: 自成音节的ng</code>|
+     * </li>
      * </ol>
-     *
-     * 编码后的五位字符串表示音节结构，例如 qiung->"13617"
+     * <p>
+     * 编码后的五位字符串表示音节结构，例如 "qiung"-><code>13616</code>
      */
     @Override
-    public void toCode()
+    protected void toCode()//权限非公开是因为推荐的做法是使用getCode函数
     {
+
         String s = pinyin;
+
+        // 对特殊的韵母处理
+        if (s.length() <= 2)
+        {
+            String ans = switch (s)
+            {
+                case "m" -> "00007";
+                case "n" -> "00008";
+                case "ng" -> "00009";
+                default -> "";
+            };
+            if (!ans.isEmpty())
+            {
+                code = ans;
+                return;
+            }
+        }
+
         StringBuilder Str = new StringBuilder(s);
 
         int S = 0, J = 0, Y = 0, W = 0;
@@ -312,54 +367,40 @@ public class NamPinyin extends UniPinyin
 
         //声母
 
-        switch (Str.charAt(0))
+        S = switch (Str.charAt(0))
         {
-            case 'b':
-                S += 1; break;
-            case 'p':
-                S += 2; break;
-            case 'm':
-                S += 3; break;
-            case 'f':
-                S += 4; break;
-            case 'd':
-                S += 5; break;
-            case 't':
-                S += 6; break;
-            case 'l':
-                S += 7; break;
-            case 'g':
-                S += 8; break;
-            case 'k':
-                S += 9; break;
-            case 'h':
-                S += 11; break;
-            case 'j':
-                S += 12; break;
-            case 'q':
-                S += 13; break;
-            case 'n':
+            case 'b' -> 1;
+            case 'p' -> 2;
+            case 'm' -> 3;
+            case 'f' -> 4;
+            case 'd' -> 5;
+            case 't' -> 6;
+            case 'l' -> 7;
+            case 'g' -> 8;
+            case 'k' -> 9;
+            case 'h' -> 11;
+            case 'j' -> 12;
+            case 'q' -> 13;
+            case 'n' ->
+            {
                 if (Str.length() > 1 && Str.charAt(1) == 'g')
                 {
-                    S += 10; l++;
+                    l++; yield 10;
                 }
                 else
                 {
-                    S += 14;
+                    yield 14;
                 }
-                break;
-            case 'x':
-                S += 15; break;
-            case 'z':
-                S += 16; break;
-            case 'c':
-                S += 17; break;
-            case 's':
-                S += 18; break;
-            default:
-                l--;
-                break;
-        }
+            }
+            case 'x' -> 15;
+            case 'z' -> 16;
+            case 'c' -> 17;
+            case 's' -> 18;
+            default ->
+            {
+                l--; yield 0;
+            }
+        };
         l++;
 
         Sub = Str.substring(l, r);
@@ -372,32 +413,19 @@ public class NamPinyin extends UniPinyin
             code = answer + "100";
             return;
         }
-        if (Sub.isEmpty())
-        {
-            if(S==3) code="00007";
-            if(S==14) code="00008";
-            if(S==10) code="00009";
-            return;
-        }
-
 
         if (l < Str.length())
         {
-            switch (Sub.charAt(l))
+            J = switch (Sub.charAt(l))
             {
-                case 'i':
-                    J += 1;
-                    break;
-                case 'u':
-                    J += 2;
-                    break;
-                case 'v':
-                    J += 3;
-                    break;
-                default:
-                    l--;
-                    break;
-            }
+                case 'i' -> 1;
+                case 'u' -> 2;
+                case 'v' -> 3;
+                default ->
+                {
+                    l--; yield 0;
+                }
+            };
             l++;
         }
         Sub = Sub.substring(l, r);
@@ -405,56 +433,100 @@ public class NamPinyin extends UniPinyin
 
         if (!Sub.isEmpty())
         {
-            switch (Sub.charAt(Sub.length() - 1))
+            W = switch (Sub.charAt(Sub.length() - 1))
             {
-                case 'i':
-                    W += 3;
-                    break;
-                case 'u':
-                    W += 4;
-                    break;
-                case 'n':
-                    W += 5;
-                    break;
-                case 'g':
-                    W += 6; r--;
-                    break;
-                case 't':
-                    W += 7;
-                    break;
-                case 'k':
-                    W += 8;
-                    break;
-                case 'l':
-                    W += 9;
-                    break;
-                default:
+                case 'i' -> 3;
+                case 'u' -> 4;
+                case 'n' -> 5;
+                case 'g' ->
+                {
+                    r--; yield 6;
+                }
+                case 't' -> 7;
+                case 'k' -> 8;
+                case 'l' -> 9;
+                default ->
+                {
                     r++;
-                    break;
-            }
+                    yield 0;
+                }
+            };
             r--;
             Sub = Sub.substring(l, r);
         }
 
         if (!Sub.isEmpty())
         {
-            switch (Sub)
+            Y = switch (Sub)
             {
-                case "a":
-                    Y += 1; break;
-                case "o":
-                    Y += 2; break;
-                case "e":
-                    Y += 3; break;
-                case "ee":
-                    Y += 4; break;
-                case "oe":
-                    Y += 5; break;
-                case "u":
-                    Y += 6; break;// 2025/6/3 代号修改为6 要空出7 8 9来给m n ng
-            }
+                case "a" -> 1;
+                case "o" -> 2;
+                case "e" -> 3;
+                case "ee" -> 4;
+                case "oe" -> 5;
+                case "u" -> 6;
+                default -> 0;// 2025/6/3 代号修改为6 要空出7 8 9来给m n ng
+            };
         }
         code = answer + W + J + Y;
+    }
+
+
+    protected String constuctPinyin()
+    {
+        String c = code;
+        if (c.length() < 5) return "";
+        return switch ("" + c.charAt(0) + c.charAt(1))
+        {
+            case "01" -> "b";
+            case "02" -> "p";
+            case "03" -> "m";
+            case "04" -> "f";
+            case "05" -> "d";
+            case "06" -> "t";
+            case "07" -> "l";
+            case "08" -> "g";
+            case "09" -> "k";
+            case "10" -> "ng";
+            case "11" -> "h";
+            case "12" -> "j";
+            case "13" -> "q";
+            case "14" -> "n";
+            case "15" -> "x";
+            case "16" -> "z";
+            case "17" -> "c";
+            case "18" -> "s";
+            default -> "";
+        } + switch (c.charAt(3))
+        {
+            case '1' -> "i";
+            case '2' -> "u";
+            case '3' -> "v";
+            default -> "";
+        } + switch (c.charAt(4))
+        {
+            case '1' -> "a";
+            case '2' -> "o";
+            case '3' -> "e";
+            case '4' -> "ee";
+            case '5' -> "oe";
+            case '6' -> "u";
+            case '7' -> "m";
+            case '8' -> "n";
+            case '9' -> "ng";
+            default -> "";
+        } + switch (c.charAt(2))
+        {
+            case '1' -> "ii";
+            case '3' -> "i";
+            case '4' -> "u";
+            case '5' -> "n";
+            case '6' -> "ng";
+            case '7' -> "t";
+            case '8' -> "k";
+            case '9' -> "l";
+            default -> "";
+        };
     }
 
 
@@ -501,7 +573,6 @@ public class NamPinyin extends UniPinyin
                     {
                         idx = i; break;
                     }
-                    //TODO: 待办：是否需要iu并排标载后？ 回复：暂时不管
                     if (c == 'i' || c == 'u' || c == 'v')
                     {
                         idx = i;
@@ -516,7 +587,7 @@ public class NamPinyin extends UniPinyin
                 show = Str.toString();
                 break;
             case 2:
-                show = pinyin + mark[tone];
+                show = pinyin + " " + mark[tone];
                 break;
             case 3:
                 show = pinyin + tone;
@@ -525,21 +596,22 @@ public class NamPinyin extends UniPinyin
     }
 
 
-//    /**
-//     * 一列字符串读取为一个数组的拼音
-//     */
-//    public static List<NamPinyin> toPinyinList(String s)
-//    {
-//        String[] arr = s.split(" ");
-//        List<NamPinyin> list = new ArrayList<>();
-//        for (String str : arr)
-//        {
-//            NamPinyin np = new NamPinyin(str);
-//            if (np.pinyin != null) list.add(np);
-//        }
-//        return list;
-//    }
-//
+    /**
+     * 一列字符串读取为一个数组的拼音
+     */
+    public static List<NamPinyin> toPinyinList(String s)
+    {
+        String[] arr = s.split(" ");
+        List<NamPinyin> list = new ArrayList<>();
+        for (String str : arr)
+        {
+            NamPinyin np = new NamPinyin(str);
+            if (np.pinyin != null) list.add(np);
+        }
+        return list;
+    }
+
+    //
 //    /**
 //     * 一个数组的拼音转一个数组的字符串
 //     */
@@ -554,16 +626,16 @@ public class NamPinyin extends UniPinyin
 //    }
 //
 //
-//    public static List<String> toList(List<NamPinyin> list,
-//                                      StyleParams params)
-//    {
-//        List<String> ans = new ArrayList<>();
-//        for (NamPinyin np : list)
-//        {
-//            ans.add(np.toString(params));
-//        }
-//        return ans;
-//    }
+    public static List<String> toList(List<NamPinyin> list,
+                                      StyleParams params)
+    {
+        List<String> ans = new ArrayList<>();
+        for (NamPinyin np : list)
+        {
+            ans.add(np.toString(params));
+        }
+        return ans;
+    }
 
     public static String parseAndReplace(String str)
     {

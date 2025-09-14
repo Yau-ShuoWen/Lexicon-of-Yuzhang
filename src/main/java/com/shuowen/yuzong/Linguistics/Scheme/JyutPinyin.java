@@ -1,325 +1,331 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
-
-import com.shuowen.yuzong.Linguistics.Format.JyutStyle;
-import com.shuowen.yuzong.Linguistics.Format.StyleParams;
-import org.apache.commons.lang3.tuple.Pair;
-
-import java.util.List;
-
-/**
- * 粤语拼音方案
- *
- * @author 香港語言學會
- */
-public class JyutPinyin extends UniPinyin
-{
-    private static final int markSize = 9;
-
-    public JyutPinyin(String s)
-    {
-        super(s);
-    }
-
-    public JyutPinyin(String s, boolean b)
-    {
-        super(s, b);
-    }
-
-    @Override
-    protected boolean isToneValid(int n)
-    {
-        //2025/04/29
-        boolean range = (n >= 0 && n <= markSize);
-
-        boolean rhythm = true;
-
-        if (pinyin == null || pinyin.isEmpty()) return false;
-
-//        char last = pinyin.charAt(pinyin.length() - 1);
-//        if (n >= 1 && n <= 6)
+//package com.shuowen.yuzong.Linguistics.Scheme;
+//
+//import com.shuowen.yuzong.Linguistics.Format.JyutStyle;
+//import com.shuowen.yuzong.Linguistics.Format.StyleParams;
+//import org.apache.commons.lang3.tuple.Pair;
+//
+//import java.util.List;
+//
+///**
+// * 粤语拼音方案
+// *
+// * @author 香港語言學會
+// */
+//public class JyutPinyin extends UniPinyin
+//{
+//    private static final int markSize = 9;
+//
+//    public JyutPinyin(String s)
+//    {
+//        super(s);
+//    }
+//
+//    public JyutPinyin(String s, boolean b)
+//    {
+//        super(s, b);
+//    }
+//
+//    @Override
+//    protected boolean isToneValid(int n)
+//    {
+//        //2025/04/29
+//        boolean range = (n >= 0 && n <= markSize);
+//
+//        boolean rhythm = true;
+//
+//        if (pinyin == null || pinyin.isEmpty()) return false;
+//
+////        char last = pinyin.charAt(pinyin.length() - 1);
+////        if (n >= 1 && n <= 6)
+////        {
+////            // 不是入声，但是结尾ptk
+////            if (last == 'p' || last == 't' || last == 'k') rhythm = false;
+////        }
+////        if (n >= 7 && n <= 9)
+////        {
+////            // 为入声，但是韵尾非ptk
+////            if (last != 'p' && last != 't' && last != 'k') rhythm = false;
+////        }
+//        return range && rhythm;
+//    }
+//
+//
+//    @Override
+//    protected void scan()
+//    {
+//        pinyin = pinyin.toLowerCase();
+//
+//        final List<Pair<String, String>> rule = List.of(
+//                Pair.of("wu", "u"),
+//                Pair.of("w", "u"),
+//                Pair.of("jyu", "v"),
+//                Pair.of("yu", "v"),
+//                Pair.of("ji", "i"),
+//                Pair.of("j", "i"),
+//                Pair.of("yi", "i"),
+//                Pair.of("y", "i"),
+//                Pair.of("gw", "gu"),
+//                Pair.of("kw", "ku")
+//        );
+//
+//        for (Pair<String, String> p : rule)
 //        {
-//            // 不是入声，但是结尾ptk
-//            if (last == 'p' || last == 't' || last == 'k') rhythm = false;
+//            if (pinyin.startsWith(p.getLeft()))
+//            {
+//                pinyin = p.getRight() + pinyin.substring(p.getLeft().length());
+//                break;
+//            }
 //        }
-//        if (n >= 7 && n <= 9)
+//
+//        if (pinyin.endsWith("p") || pinyin.endsWith("t") || pinyin.endsWith("k"))
+//            tone=JyutPinyinMul.switchTone(tone,false);
+//    }
+//
+//    @Override
+//    public String toString()
+//    {
+//        return toString(new JyutStyle());
+//    }
+//
+//    @Override
+//    public String toString(StyleParams params)
+//    {
+//        if (isInvalid()) return INVALID_PINYIN;
+//        show = pinyin;
+//
+//        JyutStyle p = (params instanceof JyutStyle) ? (JyutStyle) params : new JyutStyle();
+//
+//        // 香港语言学会的方案是音调数字直接加在后面，所以先设置格式免得被影响
+//        setFormat(p.plan, p.capital);
+//        addMark(p.num, p.plan);
+//
+//        return " //" + show + "// ";
+//    }
+//
+//    public String toMulPlan()
+//    {
+//        String ans = "";
+//        JyutStyle p = new JyutStyle();
+//        for (int i = 0; i < p.getCnt(); i++)
 //        {
-//            // 为入声，但是韵尾非ptk
-//            if (last != 'p' && last != 't' && last != 'k') rhythm = false;
+//            p.setPlan(i);
+//            ans += toString(p) + p.getPlanName()+'\n';
 //        }
-        return range && rhythm;
-    }
-
-
-    @Override
-    protected void scan()
-    {
-        pinyin = pinyin.toLowerCase();
-
-        final List<Pair<String, String>> rule = List.of(
-                Pair.of("wu", "u"),
-                Pair.of("w", "u"),
-                Pair.of("jyu", "v"),
-                Pair.of("yu", "v"),
-                Pair.of("ji", "i"),
-                Pair.of("j", "i"),
-                Pair.of("yi", "i"),
-                Pair.of("y", "i"),
-                Pair.of("gw", "gu"),
-                Pair.of("kw", "ku")
-        );
-
-        for (Pair<String, String> p : rule)
-        {
-            if (pinyin.startsWith(p.getLeft()))
-            {
-                pinyin = p.getRight() + pinyin.substring(p.getLeft().length());
-                break;
-            }
-        }
-
-        if (pinyin.endsWith("p") || pinyin.endsWith("t") || pinyin.endsWith("k"))
-            tone=JyutPinyinMul.switchTone(tone,false);
-    }
-
-    @Override
-    public String toString()
-    {
-        return toString(new JyutStyle());
-    }
-
-    @Override
-    public String toString(StyleParams params)
-    {
-        if (isInvalid()) return INVALID_PINYIN;
-        show = pinyin;
-
-        JyutStyle p = (params instanceof JyutStyle) ? (JyutStyle) params : new JyutStyle();
-
-        // 香港语言学会的方案是音调数字直接加在后面，所以先设置格式免得被影响
-        setFormat(p.plan, p.capital);
-        addMark(p.num, p.plan);
-
-        return " //" + show + "// ";
-    }
-
-    public String toMulPlan()
-    {
-        String ans = "";
-        JyutStyle p = new JyutStyle();
-        for (int i = 0; i < p.getCnt(); i++)
-        {
-            p.setPlan(i);
-            ans += toString(p) + p.getPlanName()+'\n';
-        }
-        return ans;
-    }
-
-    /**
-     * 将输入的拼音字符串根据指定的参数选项进行风格转换，用于处理方言拼音的展示或输出格式。
-     *
-     * @param plan 1 香港語言學會方案
-     */
-    public void setFormat(int plan, int capital)
-    {
-        String s = show;
-
-        s = switch (plan)
-        {
-            case 1, 2 -> JyutPinyinMul.toGwong(show);
-            case 3, 4 -> JyutPinyinMul.toYale(show);
-            case 5 -> JyutPinyinMul.toGuong(show);
-            case 6, 7 -> JyutPinyinMul.toMinistry(show);
-            default -> s;
-        };
-        if (capital > 0)
-        {
-            if (capital == 1) s = s.toUpperCase();
-            if (capital == 2) s = s.substring(0, 1).toUpperCase() + s.substring(1);
-        }
-        show = s;
-    }
-
-    // aa a a o oe eo o i
-    // 0 i u n m ng p t k
-
-    @Override
-    protected void toCode()
-    {
-        String s = pinyin;
-        StringBuilder Str = new StringBuilder(s);
-
-        int S = 0, J = 0, Y = 0, W = 0;
-        int l = 0, r = s.length();
-        String Sub;
-
-        // 聲母
-        switch (Str.charAt(0))
-        {
-            case 'b':
-                S += 1; break;
-            case 'p':
-                S += 2; break;
-            case 'm':
-                S += 3; break;
-            case 'f':
-                S += 4; break;
-            case 'd':
-                S += 5; break;
-            case 't':
-                S += 6; break;
-            case 'n':
-                if (Str.length() > 1 && Str.charAt(1) == 'g')
-                {
-                    S += 12; l++;
-                }
-                else
-                {
-                    S += 7;
-                }
-                break;
-            case 'l':
-                S += 8; break;
-            case 'g':
-                S += 9; break;
-            case 'k':
-                S += 11; break;
-            case 'h':
-                S += 13; break;
-            case 'z':
-                S += 14; break;
-            case 'c':
-                S += 15; break;
-            case 's':
-                S += 16; break;
-            default:
-                l--;
-                break;
-        }
-        l++;
-
-        Sub = Str.substring(l, r);
-        l = 0; r = Sub.length();
-
-        String answer = (S < 10) ? ("0" + S) : ("" + S);
-
-        if (Sub.isEmpty())
-        {
-            code = answer + "000";
-            return;
-        }
-
-        if (l < Str.length())
-        {
-            switch (Sub.charAt(l))
-            {
-                case 'i':
-                    J += 1;
-                    break;
-                case 'u':
-                    J += 2;
-                    break;
-                case 'v':
-                    J += 3;
-                    break;
-                default:
-                    l--;
-                    break;
-            }
-            l++;
-        }
-        Sub = Sub.substring(l, r);
-        l = 0; r = Sub.length();
-
-        if (!Sub.isEmpty())
-        {
-            switch (Sub.charAt(Sub.length() - 1))
-            {
-                case 'i':
-                    W += 1;
-                    break;
-                case 'u':
-                    W += 2;
-                    break;
-                case 'n':
-                    W += 3;
-                    break;
-                case 'm':
-                    W += 4;
-                    break;
-                case 'g':
-                    W += 5; r--;
-                    break;
-                case 'p':
-                    W += 6;
-                    break;
-                case 't':
-                    W += 7;
-                    break;
-                case 'k':
-                    W += 8;
-                    break;
-                default:
-                    r++;
-                    break;
-            }
-            r--;
-            Sub = Sub.substring(l, r);
-        }
-
-
-        if (!Sub.isEmpty())
-        {
-            switch (Sub)
-            {
-                case "aa":
-                    Y += 1; break;
-                case "a":
-                    Y += 2; break;
-                case "e":
-                    Y += 3; break;
-                case "oe":
-                    Y += 4; break;
-                case "eo":
-                    Y += 5; break;
-                case "o":
-                    Y += 6; break;
-                case "i":
-                    Y += 7; break;
-                case "u":
-                    Y += 8; break;
-            }
-        }
-        code = answer + W + J + Y;
-    }
-
-
-    /**
-     * @param num 是否使用數字，收到方案影響，
-     */
-    protected void addMark(int num, int plan)
-    {
-        if (tone == 0) return;
-
-        int t = tone;
-        if (plan != 2)
-        {
-            t = switch (tone)
-            {
-                case 7 -> 1;
-                case 8 -> 3;
-                case 9 -> 6;
-                default -> tone;
-            };
-        }
-
-        show = switch (plan)
-        {
-            case 0, 2, 7 -> show + tone;
-            case 1, 5, 6 -> show + JyutPinyinMul.switchTone(tone,true);//1 2的区别在于有没有换 5同1
-            case 3 -> JyutPinyinMul.toYaleAffix(show, t);
-            case 4 -> JyutPinyinMul.toYaleSuffix(show, t);
-            default -> show;
-        };
-
-    }
-}
+//        return ans;
+//    }
+//
+//    /**
+//     * 将输入的拼音字符串根据指定的参数选项进行风格转换，用于处理方言拼音的展示或输出格式。
+//     *
+//     * @param plan 1 香港語言學會方案
+//     */
+//    public void setFormat(int plan, int capital)
+//    {
+//        String s = show;
+//
+//        s = switch (plan)
+//        {
+//            case 1, 2 -> JyutPinyinMul.toGwong(show);
+//            case 3, 4 -> JyutPinyinMul.toYale(show);
+//            case 5 -> JyutPinyinMul.toGuong(show);
+//            case 6, 7 -> JyutPinyinMul.toMinistry(show);
+//            default -> s;
+//        };
+//        if (capital > 0)
+//        {
+//            if (capital == 1) s = s.toUpperCase();
+//            if (capital == 2) s = s.substring(0, 1).toUpperCase() + s.substring(1);
+//        }
+//        show = s;
+//    }
+//
+//    // aa a a o oe eo o i
+//    // 0 i u n m ng p t k
+//
+//    @Override
+//    protected void toCode()
+//    {
+//        String s = pinyin;
+//        StringBuilder Str = new StringBuilder(s);
+//
+//        int S = 0, J = 0, Y = 0, W = 0;
+//        int l = 0, r = s.length();
+//        String Sub;
+//
+//        // 聲母
+//        switch (Str.charAt(0))
+//        {
+//            case 'b':
+//                S += 1; break;
+//            case 'p':
+//                S += 2; break;
+//            case 'm':
+//                S += 3; break;
+//            case 'f':
+//                S += 4; break;
+//            case 'd':
+//                S += 5; break;
+//            case 't':
+//                S += 6; break;
+//            case 'n':
+//                if (Str.length() > 1 && Str.charAt(1) == 'g')
+//                {
+//                    S += 12; l++;
+//                }
+//                else
+//                {
+//                    S += 7;
+//                }
+//                break;
+//            case 'l':
+//                S += 8; break;
+//            case 'g':
+//                S += 9; break;
+//            case 'k':
+//                S += 11; break;
+//            case 'h':
+//                S += 13; break;
+//            case 'z':
+//                S += 14; break;
+//            case 'c':
+//                S += 15; break;
+//            case 's':
+//                S += 16; break;
+//            default:
+//                l--;
+//                break;
+//        }
+//        l++;
+//
+//        Sub = Str.substring(l, r);
+//        l = 0; r = Sub.length();
+//
+//        String answer = (S < 10) ? ("0" + S) : ("" + S);
+//
+//        if (Sub.isEmpty())
+//        {
+//            code = answer + "000";
+//            return;
+//        }
+//
+//        if (l < Str.length())
+//        {
+//            switch (Sub.charAt(l))
+//            {
+//                case 'i':
+//                    J += 1;
+//                    break;
+//                case 'u':
+//                    J += 2;
+//                    break;
+//                case 'v':
+//                    J += 3;
+//                    break;
+//                default:
+//                    l--;
+//                    break;
+//            }
+//            l++;
+//        }
+//        Sub = Sub.substring(l, r);
+//        l = 0; r = Sub.length();
+//
+//        if (!Sub.isEmpty())
+//        {
+//            switch (Sub.charAt(Sub.length() - 1))
+//            {
+//                case 'i':
+//                    W += 1;
+//                    break;
+//                case 'u':
+//                    W += 2;
+//                    break;
+//                case 'n':
+//                    W += 3;
+//                    break;
+//                case 'm':
+//                    W += 4;
+//                    break;
+//                case 'g':
+//                    W += 5; r--;
+//                    break;
+//                case 'p':
+//                    W += 6;
+//                    break;
+//                case 't':
+//                    W += 7;
+//                    break;
+//                case 'k':
+//                    W += 8;
+//                    break;
+//                default:
+//                    r++;
+//                    break;
+//            }
+//            r--;
+//            Sub = Sub.substring(l, r);
+//        }
+//
+//
+//        if (!Sub.isEmpty())
+//        {
+//            switch (Sub)
+//            {
+//                case "aa":
+//                    Y += 1; break;
+//                case "a":
+//                    Y += 2; break;
+//                case "e":
+//                    Y += 3; break;
+//                case "oe":
+//                    Y += 4; break;
+//                case "eo":
+//                    Y += 5; break;
+//                case "o":
+//                    Y += 6; break;
+//                case "i":
+//                    Y += 7; break;
+//                case "u":
+//                    Y += 8; break;
+//            }
+//        }
+//        code = answer + W + J + Y;
+//    }
+//
+//    @Override
+//    protected String constuctPinyin(String c)
+//    {
+//        return "";
+//    }
+//
+//
+//    /**
+//     * @param num 是否使用數字，收到方案影響，
+//     */
+//    protected void addMark(int num, int plan)
+//    {
+//        if (tone == 0) return;
+//
+//        int t = tone;
+//        if (plan != 2)
+//        {
+//            t = switch (tone)
+//            {
+//                case 7 -> 1;
+//                case 8 -> 3;
+//                case 9 -> 6;
+//                default -> tone;
+//            };
+//        }
+//
+//        show = switch (plan)
+//        {
+//            case 0, 2, 7 -> show + tone;
+//            case 1, 5, 6 -> show + JyutPinyinMul.switchTone(tone,true);//1 2的区别在于有没有换 5同1
+//            case 3 -> JyutPinyinMul.toYaleAffix(show, t);
+//            case 4 -> JyutPinyinMul.toYaleSuffix(show, t);
+//            default -> show;
+//        };
+//
+//    }
+//}
