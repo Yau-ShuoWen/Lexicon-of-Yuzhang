@@ -11,7 +11,7 @@ abstract public class UniPinyin
     protected String pinyin = null;
     // 数字音调，0表示轻声，null表示这个是没有声调的
     protected Integer tone = null;
-    // 号码
+    // 拼音编码
     protected String code = null;
     // 最终格式：承载体
     protected String show = "";
@@ -26,6 +26,21 @@ abstract public class UniPinyin
      */
 
     protected static final String INVALID_PINYIN = "[无效]";
+
+    public String getPinyin()
+    {
+        return isValid() ? pinyin : INVALID_PINYIN;
+    }
+
+    public Integer getTone()
+    {
+        return isValid() ? tone : -1;
+    }
+
+    public String getCode()
+    {
+        return isValid() ? code : INVALID_PINYIN;
+    }
 
     @Override
     public boolean equals(Object obj)
@@ -137,7 +152,7 @@ abstract public class UniPinyin
 
     /**
      * 如果子类没有重写，就简单的组合一下，这个<code>/拼音/</code>是为了在前端正确渲染做的
-     * */
+     */
     @Override
     public String toString()
     {
@@ -146,7 +161,7 @@ abstract public class UniPinyin
 
     /**
      * 带上复杂的个性化参数，根据子类而定
-     * */
+     */
     abstract public String toString(StyleParams params);
 
 

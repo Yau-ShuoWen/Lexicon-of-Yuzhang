@@ -17,7 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class NamPinyin extends UniPinyin
 {
-    static char[] mark = {' ', '̀', '́', '̌', '̄', '̃', '̋', '̏'};
+    static char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
 
     public NamPinyin(String s)
     {
@@ -39,7 +39,7 @@ public class NamPinyin extends UniPinyin
     @Override
     protected boolean toneValid()
     {
-        int n=tone;
+        int n = tone;
 
         // 数字是否是[0,7]，如果要简单判断直接返回这句话即可
         boolean range = (n >= 0 && n < mark.length);
@@ -65,10 +65,24 @@ public class NamPinyin extends UniPinyin
     {
         pinyin = pinyin.toLowerCase();
 
-        final List<Pair<String, String>> rule1 = List.of(
+        /* 过滤原则
+         * 1.ü可以写作yu，数据库层是v
+         * 2.
+         * */
+        final List<Pair<String, String>> ruleReplace = List.of(
+                Pair.of("yu", "v"),
+                Pair.of("ü", "v"),
+                Pair.of("ẹ", "ee")
+        );
+
+
+        /* 过滤原则：
+         * 1.零声母的yw：规范化为iu
+         * 2.jqx开头的u：规范化为v
+         * */
+        final List<Pair<String, String>> ruleBegin = List.of(
                 Pair.of("yi", "i"),
                 Pair.of("wu", "u"),
-                Pair.of("yu", "v"),
                 Pair.of("w", "u"),
                 Pair.of("y", "i"),
                 Pair.of("ju", "jv"),
@@ -76,20 +90,34 @@ public class NamPinyin extends UniPinyin
                 Pair.of("xu", "xv")
         );
 
-        final List<Pair<String, String>> rule2 = List.of(
+        /* 过滤原则：
+         * 1.韵母为ao：规范化为au
+         * 2.iv后的an：规范化为en
+         * 3.普通话常用读音修改：wei->uei（上一部）->ui you->iou->iu wen->uen->un
+         * 4.zcs后面没有加足两个i：补全
+         * */
+        final List<Pair<String, String>> ruleEnd = List.of(
                 Pair.of("ao", "au"),
                 Pair.of("ian", "ien"),
-                Pair.of("uen", "un"),
                 Pair.of("van", "ven"),
+                Pair.of("uen", "un"),
+                Pair.of("uei", "ui"),
+                Pair.of("iou", "ieu"),
                 Pair.of("zi", "zii"),
                 Pair.of("ci", "cii"),
                 Pair.of("si", "sii"),
                 Pair.of("z", "zii"),
                 Pair.of("c", "cii"),
-                Pair.of("s", "sii")
+                Pair.of("s", "sii"),
+                Pair.of("fi", "feei")
         );
 
-        for (Pair<String, String> p : rule1)
+        for (var p : ruleReplace)
+        {
+            pinyin = pinyin.replace(p.getLeft(), p.getRight());
+        }
+
+        for (var p : ruleBegin)
         {
             if (pinyin.startsWith(p.getLeft()))
             {
@@ -97,7 +125,7 @@ public class NamPinyin extends UniPinyin
                 break;
             }
         }
-        for (Pair<String, String> p : rule2)
+        for (Pair<String, String> p : ruleEnd)
         {
             if (pinyin.endsWith(p.getLeft()))
             {
@@ -120,7 +148,7 @@ public class NamPinyin extends UniPinyin
     /**
      * 具体配置
      *
-     * @param params 具體配置，這裡檢查參數，下放到具体操作函数
+     * @param params 具體配置，這裡檢查參數，下放到具体操作函数，instanceof 是空安全的，所以不用担心null
      */
     @Override
     public String toString(StyleParams params)
@@ -611,21 +639,6 @@ public class NamPinyin extends UniPinyin
         return list;
     }
 
-    //
-//    /**
-//     * 一个数组的拼音转一个数组的字符串
-//     */
-//    public static List<String> toList(List<NamPinyin> list)
-//    {
-//        List<String> ans = new ArrayList<>();
-//        for (NamPinyin np : list)
-//        {
-//            ans.add(np.toString());
-//        }
-//        return ans;
-//    }
-//
-//
     public static List<String> toList(List<NamPinyin> list,
                                       StyleParams params)
     {
@@ -637,12 +650,27 @@ public class NamPinyin extends UniPinyin
         return ans;
     }
 
-    public static String parseAndReplace(String str)
+    /**
+     * 静态方法渲染使用空格包围的字符串
+     */
+    public static String splitAndReplace(String s, NamStyle style)
     {
-        return parseAndReplace(str, null);
+        String[] arr = s.split(" ");
+        StringBuilder sb = new StringBuilder();
+
+        for (String str : arr)
+        {
+            NamPinyin np = new NamPinyin(str);
+            sb.append(np.toString(style) + " ");
+        }
+        return sb.toString().replace("//   //","  ");
     }
 
-    // 静态方法，处理输入字符串
+    /**
+     * 静态方法渲染使用[]包围的字符串，并且按照原来的顺序转化
+     *
+     * @param style 如果为null，直接使用默认方法初始化
+     */
     public static String parseAndReplace(String str, NamStyle style)
     {
         StringBuilder result = new StringBuilder();
