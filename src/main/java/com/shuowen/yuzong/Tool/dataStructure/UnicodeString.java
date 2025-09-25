@@ -1,8 +1,6 @@
-package com.shuowen.yuzong.Tool;
+package com.shuowen.yuzong.Tool.dataStructure;
 
 import java.util.*;
-import java.util.*;
-import java.util.function.Consumer;
 
 /**
  * 增强版基于代理对的字符串类，专为字典应用设计

@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool;
+package com.shuowen.yuzong.Tool.format;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
