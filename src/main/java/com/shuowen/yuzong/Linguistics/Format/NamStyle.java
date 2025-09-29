@@ -3,7 +3,7 @@ package com.shuowen.yuzong.Linguistics.Format;
 import lombok.Data;
 
 @Data
-public class NamStyle extends StyleParams
+public class NamStyle extends PinyinStyle
 {
 
     /**
@@ -71,13 +71,13 @@ public class NamStyle extends StyleParams
         this.num = num;
     }
 
-    public int yu = 1;
-    public int gn = 0;
-    public int ee = 2;
-    public int oe = 3;
-    public int ii = 1;
-    public int ptk = 1;
-    public int alt = 0;
+    protected int yu = 1;
+    protected int gn = 0;
+    protected int ee = 2;
+    protected int oe = 3;
+    protected int ii = 1;
+    protected int ptk = 1;
+    protected int alt = 0;
 
     public NamStyle()
     {
@@ -96,4 +96,19 @@ public class NamStyle extends StyleParams
         if (a.length > 8) num = a[8];
     }
 
+    /**
+     * 数据库里存的原版格式
+     * */
+    public static NamStyle getDataBaseStyle()
+    {
+        return new NamStyle(0,0,0,0,0,0,0,0,3);
+    }
+
+    /**
+     * 只用上二十六字母和阿拉伯数字的版本
+     * */
+    public static NamStyle getKeyboardStyle()
+    {
+        return new NamStyle(2,0,0,0,1,2,0,0,3);
+    }
 }
