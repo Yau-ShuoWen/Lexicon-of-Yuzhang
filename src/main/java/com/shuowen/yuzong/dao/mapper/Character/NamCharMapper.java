@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.dao.mapper.Character;
 
-import com.shuowen.yuzong.dao.model.Character.NamChar;
+import com.shuowen.yuzong.dao.model.Character.CharEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -9,22 +9,22 @@ import java.util.List;
 @Mapper
 public interface NamCharMapper
 {
+    /**
+     * 通过主键寻找汉字
+     * */
     @Select ("select * from NC.nam_char where id = #{id}")
-    NamChar selectByPrimaryKey(Integer id);
+    CharEntity selectByPrimaryKey(Integer id);
 
-    @Select ("select * from NC.nam_char where hanzi = #{hanzi} ")
-    List<NamChar> findByHanziExactly(String hanzi);
+    /**
+     * 使用简繁体寻找汉字
+     * */
+    @Select ("select * from NC.nam_char where hanzi = #{hanzi} or hantz = #{hanzi}")
+    List<CharEntity> findByHanziScTc(String hanzi);
 
-    @Select ("select hanzi,std_py,fitting_hanzi,special from NC.nam_char " +
-            "where hanzi = #{hanzi} " +
-            "or fit0 = #{hanzi} " +
-            "or fit1 = #{hanzi} " +
-            "or fit2 = #{hanzi} " +
-            "or fit3 = #{hanzi} " +
-            "or fit4 = #{hanzi} " +
-            "order by special")
-    List<NamChar> findByHanziVague(String hanzi);
-
-//    @Select ("select * from NC.nam_char where std_py like concat(#{pinyin}, '%')")
-//    List<NamChar> selectByPinyin(String pinyin);
+    /**
+     * 使用简繁体、模糊识别寻找汉字
+     * */
+    @Select ("select * from NC.nam_char where hanzi = #{hanzi} or hantz = #{hanzi} " +
+            "union select * from NC.nam_char where similar like CONCAT('%', #{hanzi}, '%')")
+    List<CharEntity> findByHanziVague(String hanzi);
 }

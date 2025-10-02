@@ -12,7 +12,7 @@ public class NamHanzi extends Hanzi<NamPinyin,NamStyle>
         super(ch,style);
     }
 
-    public static Hanzi of(CharEntity ch, NamStyle style)
+    public static NamHanzi of(CharEntity ch, NamStyle style)
     {
         return new NamHanzi(ch,style);
     }
