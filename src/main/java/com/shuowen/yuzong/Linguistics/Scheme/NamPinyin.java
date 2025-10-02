@@ -1,11 +1,9 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
-import com.shuowen.yuzong.Linguistics.Format.StyleParams;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -15,7 +13,7 @@ import org.apache.commons.lang3.tuple.Pair;
  * @author 说文 豫章鸿也
  */
 
-public class NamPinyin extends UniPinyin
+public class NamPinyin extends UniPinyin<NamStyle>
 {
     static char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
 
@@ -67,7 +65,7 @@ public class NamPinyin extends UniPinyin
 
         /* 过滤原则
          * 1.ü可以写作yu，数据库层是v
-         * 2.
+         * 2.ẹ可以写作ee，数据库层也是ee
          * */
         final List<Pair<String, String>> ruleReplace = List.of(
                 Pair.of("yu", "v"),
@@ -77,7 +75,7 @@ public class NamPinyin extends UniPinyin
 
 
         /* 过滤原则：
-         * 1.零声母的yw：规范化为iu
+         * 1.零声母的y或w：规范化为i或u
          * 2.jqx开头的u：规范化为v
          * */
         final List<Pair<String, String>> ruleBegin = List.of(
@@ -87,7 +85,8 @@ public class NamPinyin extends UniPinyin
                 Pair.of("y", "i"),
                 Pair.of("ju", "jv"),
                 Pair.of("qu", "qv"),
-                Pair.of("xu", "xv")
+                Pair.of("xu", "xv"),
+                Pair.of("fi", "feei")
         );
 
         /* 过滤原则：
@@ -108,8 +107,7 @@ public class NamPinyin extends UniPinyin
                 Pair.of("si", "sii"),
                 Pair.of("z", "zii"),
                 Pair.of("c", "cii"),
-                Pair.of("s", "sii"),
-                Pair.of("fi", "feei")
+                Pair.of("s", "sii")
         );
 
         for (var p : ruleReplace)
@@ -142,25 +140,31 @@ public class NamPinyin extends UniPinyin
     public String toString()
     {
         //默认配置
-        return toString(new NamStyle());
+        return toString(defaultStyle());
     }
 
     /**
      * 具体配置
      *
-     * @param params 具體配置，這裡檢查參數，下放到具体操作函数，instanceof 是空安全的，所以不用担心null
+     * @param p 具體配置，這裡檢查參數，下放到具体操作函数，instanceof 是空安全的，所以不用担心null
      */
     @Override
-    public String toString(StyleParams params)
+    public String toString(NamStyle p)
     {
         if (!valid) return INVALID_PINYIN;
         show = pinyin;
 
-        NamStyle p = (params instanceof NamStyle) ? (NamStyle) params : new NamStyle();
+        p = (p == null) ? defaultStyle() : p;
 
-        addMark(p.num);//加音调
-        setFormat(p.yu, p.gn, p.ee, p.oe, p.ii, p.ptk, p.alt, p.capital);
+        addMark(p.getNum());//加音调
+        setFormat(p.getYu(),p.getGn(),p.getEe(),p.getOe(),p.getIi(),p.getPtk(),p.getAlt(),p.getCapital());
         return " //" + show + "// ";
+    }
+
+    @Override
+    protected NamStyle defaultStyle()
+    {
+        return new NamStyle();
     }
 
     /**
@@ -303,66 +307,31 @@ public class NamPinyin extends UniPinyin
 
 
     /**
-     * <p>返回值为五位数字，表示该拼音音节的结构组成，包括声母、介音、韵尾和主元音。
-     *
-     * <p>编码格式如下：
+     * @return 五位数字，表示该拼音音节的结构组成，包括声母、介音、韵尾和主元音。编码格式如下：
      * <ol>
      * <li>前两位，声母：<p>
-     * <code> 00: 零声母/无声母</code>|
-     * <code> 01: b</code>|
-     * <code> 02: p</code>|
-     * <code> 03: m</code>|
-     * <code> 04: f</code>|
-     * <code> 05: d</code>|
-     * <code> 06: t</code>|
-     * <code> 07: l</code>|
-     * <code> 08: g</code>|
-     * <code> 09: k</code>|
-     * <code> 10: ng</code>|
-     * <code> 11: h</code>|
-     * <code> 12: j</code>|
-     * <code> 13: q</code>|
-     * <code> 14: n</code>|
-     * <code> 15: x</code>|
-     * <code> 16: z</code>|
-     * <code> 17: c</code>|
-     * <code> 18: s</code>|
+     * {@code 00: 零声母/无声母} | {@code 01: b} | {@code 02: p} | {@code 03: m} | {@code 04: f} | 
+     * {@code 05: d} | {@code 06: t} | {@code 07: l} | {@code 08: g} | {@code 09: k} | {@code 10: ng} | {@code 11: h} | 
+     * {@code 12: j} | {@code 13: q} | {@code 14: n} | {@code 15: x} | {@code 16: z} | {@code 17: c} | {@code 18: s}|
      * </li>
+     *
      * <p>
      * <li>第三位，韵尾：<p>
-     * <code>0: 开元音韵尾/无韵尾</code>|
-     * <code>1: z c s的整体认读</code>|
-     * <code>3: i 尾</code>|
-     * <code>4: u 尾</code>|
-     * <code>5: n 尾</code>|
-     * <code>6: ng 尾</code>|
-     * <code>7: t 尾</code>|
-     * <code>8: k 或 ʔ 尾</code>|
-     * <code>9: l 尾</code>|
+     * {@code 0: 开元音韵尾/无韵尾} | {@code 1: z c s的整体认读} | {@code 3: i 尾} | {@code 4: u 尾} |
+     * {@code 5: n 尾} | {@code 6: ng 尾} | {@code 7: t 尾} | {@code 8: k 或 ʔ 尾} | {@code 9: l 尾}|
      * </li>
      * <p>
      * <li>第四位，介音：<p>
-     * <code>0: 开口呼</code>|
-     * <code>1: 合口呼：i</code>|
-     * <code>2: 闭口呼：u</code>|
-     * <code>3: 撮口呼：ü/v</code>|
+     * {@code 0: 开口呼} | {@code 1: 合口呼：i} | {@code 2: 闭口呼：u} | {@code 3: 撮口呼：ü/v}|
      * </li>
      * <p>
      * <li>第五位：中心元音：<p>
-     * <code>0: 无主元音</code>|
-     * <code>1: a</code>|
-     * <code>2: o</code>|
-     * <code>3: e</code>|
-     * <code>4: ee</code>|
-     * <code>5: oe</code>|
-     * <code>6: u</code>|
-     * <code>7: 自成音节的m</code>|
-     * <code>8: 自成音节的n</code>|
-     * <code>9: 自成音节的ng</code>|
+     * {@code 0: 无主元音} | {@code 1: a} | {@code 2: o} | {@code 3: e} | {@code 4: ee} |
+     * {@code 5: oe} | {@code 6: u} | {@code 7: 自成音节的m} | {@code 8: 自成音节的n} | {@code 9: 自成音节的ng}|
      * </li>
      * </ol>
      * <p>
-     * 编码后的五位字符串表示音节结构，例如 "qiung"-><code>13616</code>
+     * 编码后的五位字符串表示音节结构，例如 {@code "qiung"->13616}
      */
     @Override
     protected void toCode()//权限非公开是因为推荐的做法是使用getCode函数
@@ -499,7 +468,9 @@ public class NamPinyin extends UniPinyin
         code = answer + W + J + Y;
     }
 
-
+    /**
+     * 反向建立即可，非常简单
+     * */
     protected String constuctPinyin()
     {
         String c = code;
@@ -567,12 +538,12 @@ public class NamPinyin extends UniPinyin
      *     <li>其他（唯一情況：m），標在最後</li>
      * </ol>
      *
-     * @param num 标注声调的方式  <ol>
+     * @param num 标注声调的方式  <ul>
      *            <li>0 - 不加音调</li>
      *            <li>1 - 智能添加，符合规范</li>
      *            <li>2 - 符号音调加到后面</li>
      *            <li>3 - 数字音调加到后面</li>
-     *            </ol>
+     *            </ul>
      */
     protected void addMark(int num)
     {
@@ -624,82 +595,45 @@ public class NamPinyin extends UniPinyin
     }
 
 
+    protected static Function<String, NamPinyin> creator = NamPinyin::new;
+
     /**
-     * 一列字符串读取为一个数组的拼音
-     */
+     * @see UniPinyin
+     * */
+    public static String formatting(String s, NamStyle style)
+    {
+        return UniPinyin.formatting(s, creator, style);
+    }
+
+    /**
+     * @see UniPinyin
+     * */
     public static List<NamPinyin> toPinyinList(String s)
     {
-        String[] arr = s.split(" ");
-        List<NamPinyin> list = new ArrayList<>();
-        for (String str : arr)
-        {
-            NamPinyin np = new NamPinyin(str);
-            if (np.pinyin != null) list.add(np);
-        }
-        return list;
-    }
-
-    public static List<String> toList(List<NamPinyin> list,
-                                      StyleParams params)
-    {
-        List<String> ans = new ArrayList<>();
-        for (NamPinyin np : list)
-        {
-            ans.add(np.toString(params));
-        }
-        return ans;
+        return UniPinyin.toPinyinList(s, creator, "");
     }
 
     /**
-     * 静态方法渲染使用空格包围的字符串
-     */
+     * @see UniPinyin
+     * */
+    public static List<String> toList(List<NamPinyin> list, NamStyle params)
+    {
+        return UniPinyin.toList(list, params);
+    }
+
+    /**
+     * @see UniPinyin
+     * */
     public static String splitAndReplace(String s, NamStyle style)
     {
-        String[] arr = s.split(" ");
-        StringBuilder sb = new StringBuilder();
-
-        for (String str : arr)
-        {
-            NamPinyin np = new NamPinyin(str);
-            sb.append(np.toString(style) + " ");
-        }
-        return sb.toString().replace("//   //","  ");
+        return UniPinyin.splitAndReplace(s, creator, style, " ");
     }
 
     /**
-     * 静态方法渲染使用[]包围的字符串，并且按照原来的顺序转化
-     *
-     * @param style 如果为null，直接使用默认方法初始化
-     */
+     * @see UniPinyin
+     * */
     public static String parseAndReplace(String str, NamStyle style)
     {
-        StringBuilder result = new StringBuilder();
-        int start = 0;
-
-        while (true)
-        {
-            int open = str.indexOf('[', start);
-            if (open == -1)
-            {
-                result.append(str.substring(start));
-                break;
-            }
-            int close = str.indexOf(']', open);
-            if (close == -1)
-            {
-                result.append(str.substring(start));
-                break;
-            }
-
-            result.append(str, start, open);
-
-            String content = str.substring(open + 1, close);
-            NamPinyin np = new NamPinyin(content);
-            result.append((style == null) ? np.toString() : np.toString(style));
-
-            start = close + 1;
-        }
-
-        return result.toString();
+        return UniPinyin.parseAndReplace(str, creator, style, "[", "]");
     }
 }

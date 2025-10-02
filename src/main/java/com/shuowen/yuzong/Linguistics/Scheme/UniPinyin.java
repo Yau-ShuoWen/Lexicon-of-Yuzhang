@@ -1,11 +1,13 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
-import com.shuowen.yuzong.Linguistics.Format.StyleParams;
+import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import lombok.Getter;
 
+import java.util.*;
 import java.util.Objects;
+import java.util.function.Function;
 
-abstract public class UniPinyin
+abstract public class UniPinyin<T extends PinyinStyle>
 {
     // 不包括声调的标准拼音
     protected String pinyin = null;
@@ -19,10 +21,11 @@ abstract public class UniPinyin
     @Getter
     protected boolean valid = false;
 
+
     /**
-     * @implNote 初始化的时候<code>pinyin</code> <code>tone</code> <code>valid</code>这三个参数为<code>false</code>，所以<p>
-     * - 在初始化的时候，只需要在有效的时候手动调整<code>true</code>就可以了<p>
-     * - 在无效的时候不可以调用，否则发生<code>null</code>错误
+     * @implNote 初始化的时候{@code pinyin} {@code code} {@code valid} 这三个参数都为 {@code false/null}，所以<p>
+     * - 在初始化的时候，只需要在有效的时候手动调整{@code true}就可以了<p>
+     * - 在无效的时候不可以调用，否则发生{@code null}错误
      */
 
     protected static final String INVALID_PINYIN = "[无效]";
@@ -68,9 +71,9 @@ abstract public class UniPinyin
     /**
      * 构造函数：信任来源的拼音，如数据库
      *
-     * @param num 字符串<code>s</code>中是否包含数字音调？<p>
-     *            - <code>true</code>包含，如 <code>jiu3</code> <p>
-     *            - <code>false</code>不包含，如 <code>la</code>：音调设置为0
+     * @param num 字符串 {@code s}中是否包含数字音调？<p>
+     *            - {@code true}包含，如 jiu3 <p>
+     *            - {@code false}不包含，如 la：音调设置为0
      */
     public UniPinyin(String s, boolean num)
     {
@@ -138,11 +141,16 @@ abstract public class UniPinyin
         valid = true;
     }
 
+    /**
+     * 生成这个类对应的默认格式
+     * */
+    abstract protected T defaultStyle();
+
 
     /**
-     * 判断这个拼音编码和反编码是否是可逆的，不一定有效，但是可以防止<code>oiiai</code> <code>iuiui</code> <code>buia</code>等绝对乱码
+     * 判断这个拼音编码和反编码是否是可逆的，不一定有效，但是可以防止{@code oiiai} {@code iuiui} {@code buia}等绝对乱码
      *
-     * @implNote 在前面如果成功生成了<code>code</code>，尝试是否可以反推回拼音，使得：结构不对的部分虽然可能转换为code，但倒推结果一定不一样
+     * @implNote 在前面如果成功生成了{@code code}，尝试是否可以反推回拼音，使得：结构不对的部分虽然可能转换为code，但倒推结果一定不一样
      */
     protected boolean encodable()
     {
@@ -151,18 +159,18 @@ abstract public class UniPinyin
 
 
     /**
-     * 如果子类没有重写，就简单的组合一下，这个<code>/拼音/</code>是为了在前端正确渲染做的
+     * 如果子类没有重写，就简单的组合一下，这个{@code //拼音//}是为了在前端正确渲染做的
      */
     @Override
     public String toString()
     {
-        return " / " + pinyin + tone + " / ";
+        return " // " + pinyin + tone + " // ";
     }
 
     /**
      * 带上复杂的个性化参数，根据子类而定
      */
-    abstract public String toString(StyleParams params);
+    abstract public String toString(T params);
 
 
     /**
@@ -172,13 +180,13 @@ abstract public class UniPinyin
 
 
     /**
-     * 将一个音节字符串转码为一个五位数字字符串，便于音素结构的分析与处理。
+     * 将一个音节字符串转码为一个字符串，便于音素结构的分析与处理。
      */
     protected abstract void toCode();
 
 
     /**
-     * <code>toCode()</code>函数的逆运算，尝试倒推
+     * {@code toCode()}函数的逆运算，尝试倒推
      *
      * @apiNote 不可以在保证code可计算的情况之外使用，可能导致null异常
      */
@@ -190,4 +198,93 @@ abstract public class UniPinyin
      */
     protected abstract boolean toneValid();
 
+
+    /**
+     * 静态方法：字符串快速格式化为拼音
+     * */
+    protected static <P extends UniPinyin<S>, S extends PinyinStyle>
+    String formatting(String s, Function<String, P> creator, S style)
+    {
+        // 因为内部有完善的机制处理null等情况，所以这里不需要检查
+        // 所以直接创建并且按照style格式化即可
+        return creator.apply(s).toString(style);
+    }
+
+    /**
+     * 静态方法：一列字符串读取为一个拼音的数组，之间使用分隔符
+     */
+    protected static <P extends UniPinyin<S>, S extends PinyinStyle>
+    List<P> toPinyinList(String s, Function<String, P> creator, String separator)
+    {
+        if (s == null || s.trim().isEmpty()) return new ArrayList<>();
+
+        String[] arr = s.split(separator);
+        List<P> list = new ArrayList<>();
+        for (String str : arr)
+        {
+            if (!str.trim().isEmpty())
+            {
+                P pinyin = creator.apply(str.trim());
+                list.add(pinyin);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 静态方法：拼音数组格式化为字符串数组
+     * */
+    protected static <P extends UniPinyin<S>, S extends PinyinStyle>
+    List<String> toList(List<P> list, S style)
+    {
+        List<String> ans = new ArrayList<>();
+        for (P i : list) ans.add(i.toString(style));
+        return ans;
+    }
+
+    /**
+     * 静态方法渲染：渲染使用一种分隔符（如空格）包围的字符串，并且按照原来的顺序转化
+     * @implNote {@code fung1 qieu2 ia5 pok6}转换为{@code  //fung1  qieu2  ia5  pok6// }
+     * */
+    protected static <P extends UniPinyin<S>, S extends PinyinStyle>
+    String splitAndReplace(String s, Function<String, P> creator, S style, String separator)
+    {
+        var list = toPinyinList(s, creator, separator);
+
+        StringBuilder sb = new StringBuilder();
+        for (P i : list) sb.append(i.toString(style) + separator);
+        return sb.toString().replace("//   //", "  ");
+    }
+
+    /**
+     * 静态方法：渲染使用一对分隔符（如[]）包围的字符串，并且按照原来的顺序转化
+     * @implNote {@code [fung1][qieu2][ia5][pok6]}转换为{@code  //fung1  qieu2  ia5  pok6// }
+     */
+    protected static <P extends UniPinyin<S>, S extends PinyinStyle>
+    String parseAndReplace(String str, Function<String, P> creator, S style, String start, String end)
+    {
+        StringBuilder res = new StringBuilder();
+        int i = 0;
+
+        while (true)
+        {
+            int open = str.indexOf(start, i);
+            if (open == -1)
+            {
+                res.append(str.substring(i));
+                break;
+            }
+            int close = str.indexOf(end, open + start.length());
+            if (close == -1)
+            {
+                res.append(str.substring(i));
+                break;
+            }
+            res.append(str, i, open);
+            res.append(formatting(str.substring(open + start.length(), close), creator, style));
+            i = close + end.length();
+        }
+
+        return res.toString().replace("//  //", "  ");
+    }
 }
