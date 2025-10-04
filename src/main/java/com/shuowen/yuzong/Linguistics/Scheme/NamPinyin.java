@@ -157,7 +157,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         p = (p == null) ? defaultStyle() : p;
 
         addMark(p.getNum());//加音调
-        setFormat(p.getYu(),p.getGn(),p.getEe(),p.getOe(),p.getIi(),p.getPtk(),p.getAlt(),p.getCapital());
+        setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
         return " //" + show + "// ";
     }
 
@@ -594,6 +594,15 @@ public class NamPinyin extends UniPinyin<NamStyle>
         }
     }
 
+    public static NamPinyin of(String s)
+    {
+        return new NamPinyin(s);
+    }
+
+    public static NamPinyin of(String s, boolean v)
+    {
+        return new NamPinyin(s, v);
+    }
 
     protected static Function<String, NamPinyin> creator = NamPinyin::new;
 

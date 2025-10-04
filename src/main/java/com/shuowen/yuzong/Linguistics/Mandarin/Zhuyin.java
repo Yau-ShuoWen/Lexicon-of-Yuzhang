@@ -7,7 +7,7 @@ public class Zhuyin
 {
     String Sheng = "", Jie = "", Yun = "";
     int tone;
-    boolean valid=true;
+    boolean valid = true;
 
     /**
      * T：臺灣注音符號側標（T為Taiwan的首字母）
@@ -34,7 +34,7 @@ public class Zhuyin
     {
         if (pinyin.equals("none5"))
         {
-            valid=false;
+            valid = false;
             return;
         }
 
@@ -247,5 +247,69 @@ public class Zhuyin
             }
             default -> "";
         };
+    }
+
+    /**
+     * 把注音转换为更容易解析度Code代码，便于复杂方案的解析、
+     *
+     * @return 长度为五位的数字
+     */
+    private String toCode()
+    {
+        return switch (Sheng)
+        {
+            case "ㄅ" -> "01";
+            case "ㄆ" -> "02";
+            case "ㄇ" -> "03";
+            case "ㄈ" -> "04";
+            case "ㄉ" -> "05";
+            case "ㄊ" -> "06";
+            case "ㄋ" -> "07";
+            case "ㄌ" -> "08";
+            case "ㄍ" -> "09";
+            case "ㄎ" -> "10";
+            case "ㄏ" -> "11";
+            case "ㄐ" -> "12";
+            case "ㄑ" -> "13";
+            case "ㄒ" -> "14";
+            case "ㄓ" -> "15";
+            case "ㄔ" -> "16";
+            case "ㄕ" -> "17";
+            case "ㄖ" -> "18";
+            case "ㄗ" -> "19";
+            case "ㄘ" -> "20";
+            case "ㄙ" -> "21";
+            default -> "00";
+        } + switch (Jie)
+        {
+            case "ㄧ" -> "1";
+            case "ㄨ" -> "2";
+            case "ㄩ" -> "3";
+            default -> "0";
+        } + switch (Yun)
+        {
+            case "ㄚ" -> "01";
+            case "ㄛ" -> "02";
+            case "ㄜ" -> "03";
+            case "ㄝ" -> "04";
+            case "ㄞ" -> "05";
+            case "ㄟ" -> "06";
+            case "ㄠ" -> "07";
+            case "ㄡ" -> "08";
+            case "ㄢ" -> "09";
+            case "ㄣ" -> "10";
+            case "ㄤ" -> "11";
+            case "ㄥ" -> "12";
+            case "ㄦ" -> "13";
+            default -> "0";
+        };
+    }
+
+    /**
+     * 在上面函数的基础上再加上音调符号
+     */
+    private String toCodeWithTone()
+    {
+        return toCode() + tone;
     }
 }

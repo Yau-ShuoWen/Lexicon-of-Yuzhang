@@ -45,6 +45,11 @@ abstract public class UniPinyin<T extends PinyinStyle>
         return isValid() ? code : INVALID_PINYIN;
     }
 
+    public static String getError()
+    {
+        return INVALID_PINYIN;
+    }
+
     @Override
     public boolean equals(Object obj)
     {
