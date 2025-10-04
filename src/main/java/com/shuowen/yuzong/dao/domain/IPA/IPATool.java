@@ -1,8 +1,17 @@
-package com.shuowen.yuzong.Linguistics.IPA;
+package com.shuowen.yuzong.dao.domain.IPA;
 
-public class IPAtransfer
+
+public class IPATool
 {
-    public static String toLine(String ipa, String tone)
+    public static String merge(Yinjie y, Shengdiao d, String dict)
+    {
+        if (!y.valid||!d.valid) return "[数据库暂无该记录]";
+        String Y=y.getInfo(dict);
+        String D=d.getInfo(dict);
+        return "--"+toLine(Y,D)+"--";
+    }
+
+    public static String toLine(String syllable, String tone)
     {
         /*
         * 说实话这里作者也是百思不得其解，为什么要加这一个逻辑呢
@@ -24,8 +33,8 @@ public class IPAtransfer
         }
 
 
-        if (tone.equals("0")) return "·" + ipa;
-        else return ipa + (tone
+        if (tone.equals("0")) return "·" + syllable;
+        else return syllable + (tone
                 .replace('1', '˩')
                 .replace('2', '˨')
                 .replace('3', '˧')
