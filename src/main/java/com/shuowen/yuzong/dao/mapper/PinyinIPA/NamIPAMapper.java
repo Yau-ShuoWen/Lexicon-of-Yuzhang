@@ -1,32 +1,48 @@
 package com.shuowen.yuzong.dao.mapper.PinyinIPA;
 
-import com.shuowen.yuzong.dao.model.PinyinIPA.NamIPA;
+import com.shuowen.yuzong.dao.model.PinyinIPA.IPASyllableEntry;
+
+import com.shuowen.yuzong.dao.model.PinyinIPA.IPAToneEntry;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import java.util.List;
+import java.util.*;
 
 @Mapper
 public interface NamIPAMapper
 {
-    /**
-     * 按照拼音为关键字查询单行信息
-     * */
-    @Select ("select * from NC.nam_ipa where standard = #{pinyin}")
-    NamIPA findByPinyin(@Param ("pinyin") String pinyin);
+    // 音节表-------------------------------
 
     /**
-     * 按照代码为关键字查询单行信息
+     * 按照拼音为关键字，查询单行信息
      * */
-    @Select ("select * from NC.nam_ipa where code = #{code}")
-    NamIPA findByCode(@Param ("code") String code);
+    @Select ("select * from NC.nam_ipa_syllable where standard = #{pinyin}")
+    IPASyllableEntry findByPinyin(String pinyin);
 
     /**
-     * 获取一张表的所有信息，按照代码排序
+     * 按照编号为关键字，查询单行信息
      * */
-    @Select ("select * from NC.nam_ipa order by code")
-    List<NamIPA> findAll();
+    @Select ("select * from NC.nam_ipa_syllable where code = #{code}")
+    IPASyllableEntry findByCode(String code);
+
+    /**
+     * 获取音节表的所有信息，按照编号排序
+     * */
+    @Select ("select * from NC.nam_ipa_syllable order by code")
+    List<IPASyllableEntry> findAllPinyin();
+
+
+    @Select ("<script>" +
+            "SELECT * FROM NC.nam_ipa_syllable WHERE standard IN " +
+            "<foreach collection='list' item='item' open='(' separator=',' close=')'>" +
+            "#{item}" +
+            "</foreach>" +
+            "</script>")
+    Set<IPASyllableEntry> findAllPinyinList(Set<String> list);
+
+
+
+    // 音节成分表-------------------------------
 
     /**
      * 通过带空位的code查询
@@ -36,6 +52,31 @@ public interface NamIPAMapper
      *             <li>韵母的格式为~~xxx</li>
      *             </ul>
      */
-    @Select ("select * from NC.nam_ipa_res where code = #{code}")
-    NamIPA consultByCode(@Param ("code") String code);
+    @Select ("select * from NC.nam_ipa_element where code = #{code}")
+    IPASyllableEntry consultByCode(String code);
+
+
+
+
+    // 声调表 -------------------------------
+
+    /**
+     * 按照声调为关键字，查询单行信息
+     * */
+    @Select ("select * from NC.nam_ipa_tone where standard = #{tone}")
+    IPAToneEntry findByTone(int tone);
+
+    /**
+     * 获取声调表的所有信息
+     * */
+    @Select ("select * from NC.nam_ipa_tone order by standard")
+    List<IPAToneEntry> findAllTone();
+
+    @Select ("<script>" +
+            "SELECT * FROM NC.nam_ipa_tone WHERE standard IN " +
+            "<foreach collection='list' item='item' open='(' separator=',' close=')'>" +
+            "#{item}" +
+            "</foreach>" +
+            "</script>")
+    Set<IPAToneEntry> findAllToneList(Set<String> list);
 }
