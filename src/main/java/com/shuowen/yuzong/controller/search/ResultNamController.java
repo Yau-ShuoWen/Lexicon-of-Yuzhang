@@ -2,7 +2,7 @@ package com.shuowen.yuzong.controller.search;
 
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
 import com.shuowen.yuzong.dao.domain.Character.dialect.NamHanzi;
-import com.shuowen.yuzong.service.impl.NamHanziServiceImpl;
+import com.shuowen.yuzong.service.impl.Character.NamHanziServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

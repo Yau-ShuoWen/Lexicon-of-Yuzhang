@@ -1,14 +1,19 @@
-package com.shuowen.yuzong.service.impl;
+package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
+import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.Language;
 import com.shuowen.yuzong.dao.mapper.Character.NamCharMapper;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
 import com.shuowen.yuzong.dao.domain.Character.dialect.NamHanzi;
-import com.shuowen.yuzong.service.Interface.HanziService;
+import com.shuowen.yuzong.dao.model.Character.CharEntity;
+import com.shuowen.yuzong.service.HanziService;
+import com.shuowen.yuzong.service.impl.pinyin.NamPinyinServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.function.Function;
 
 
 @Service
@@ -24,15 +29,39 @@ public class NamHanziServiceImpl implements HanziService<NamStyle, NamHanzi>
      * 查询音标
      */
     @Autowired
-    private NamPYServiceImpl ipa;
+    private NamPinyinServiceImpl ipa;
 
+
+    /**
+     * 批量获取 IPA 数据
+     */
+    private Map<NamPinyin, Map<String, String>> getIPABatch(Set<NamPinyin> pinyinList)
+    {
+        return ipa.getMultiLine(pinyinList);
+    }
+
+    /**
+     * 根据数据库内容完成整个的初始化，补充内容：IPA有关（批量版本）
+     */
+    private NamHanzi NamHanziOf(CharEntity e, NamStyle s)
+    {
+        return NamHanzi.of(e, s, this::getIPABatch);
+    }
+
+    /**
+     * 创建工厂函数，供HanziEntry使用
+     * */
+    private Function<CharEntity, NamHanzi> createFactory(NamStyle style)
+    {
+        return (CharEntity e) -> NamHanziOf(e, style);
+    }
 
     /**
      * 用于程序内部调用，在其他表格里已经明确记录编号的时候，不需要模糊查询
      * */
     public NamHanzi getHanziById(Integer id, NamStyle style)
     {
-        return NamHanzi.of(hz.selectByPrimaryKey(id), style);
+        return NamHanziOf(hz.selectByPrimaryKey(id), style);
     }
 
     /**
@@ -40,7 +69,7 @@ public class NamHanziServiceImpl implements HanziService<NamStyle, NamHanzi>
      * */
     public HanziEntry<NamHanzi> getHanziScTc(String hanzi, NamStyle style)
     {
-        return HanziEntry.of(hz.findByHanziScTc(hanzi), e -> new NamHanzi(e, style));
+        return HanziEntry.of(hz.findByHanziScTc(hanzi), createFactory(style));
     }
 
     /**
@@ -49,7 +78,7 @@ public class NamHanziServiceImpl implements HanziService<NamStyle, NamHanzi>
      * */
     public List<HanziEntry<NamHanzi>> getHanziScTcGroup(String hanzi, String lang, NamStyle style)
     {
-        return getHanziScTc(hanzi, style).split(lang);
+        return getHanziScTc(hanzi, style).split(Language.of(lang));
     }
 
     /**
@@ -57,7 +86,7 @@ public class NamHanziServiceImpl implements HanziService<NamStyle, NamHanzi>
      * */
     public HanziEntry<NamHanzi> getHanziVague(String hanzi, NamStyle style)
     {
-        return HanziEntry.of(hz.findByHanziVague(hanzi), e -> new NamHanzi(e, style));
+        return HanziEntry.of(hz.findByHanziVague(hanzi), createFactory(style));
     }
 
     /**
@@ -66,6 +95,8 @@ public class NamHanziServiceImpl implements HanziService<NamStyle, NamHanzi>
      * */
     public List<HanziEntry<NamHanzi>> getHanziVagueGroup(String hanzi, String lang, NamStyle style)
     {
-        return getHanziVague(hanzi, style).split(lang);
+        return getHanziVague(hanzi, style).split(Language.of(lang));
     }
+
+
 }

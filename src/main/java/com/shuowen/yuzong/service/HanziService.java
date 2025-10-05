@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.service.Interface;
+package com.shuowen.yuzong.service;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
