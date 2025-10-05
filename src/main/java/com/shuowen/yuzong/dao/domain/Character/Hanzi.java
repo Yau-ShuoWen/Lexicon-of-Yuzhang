@@ -4,12 +4,13 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-import com.shuowen.yuzong.Tool.format.Json;
 import com.shuowen.yuzong.dao.model.Character.CharEntity;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 
 @Data
 public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
@@ -23,14 +24,14 @@ public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
     protected List<String> similar;
     protected Map<String, Map<String, String>> mulPy;
     protected Map<String, List<String>> pyExplain;
-    protected Map<String, String> ipaExp;
+    protected List<Map<String, String>> ipaExp;
     protected Map<String, List<String>> mean;
     protected Map<String, List<String>> note;
-    protected Map<String, List<String>> refer;
+    protected Map<String,List<Map<String,String>>> refer;
     protected LocalDateTime createdAt;
     protected LocalDateTime updatedAt;
 
-    public Hanzi(CharEntity ch, P style)
+    public Hanzi(CharEntity ch)
     {
         id = ch.getId();
         hanzi = ch.getHanzi();
@@ -39,20 +40,39 @@ public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
         special = ch.getSpecial();
 
         ObjectMapper om = new ObjectMapper();
-        similar = Json.safeRead(ch.getSimilar(), new TypeReference<>() {}, om);
-        mulPy = Json.safeRead(ch.getMulPy(), new TypeReference<>() {}, om);
-        pyExplain = Json.safeRead(ch.getPyExplain(), new TypeReference<>() {}, om);
-        ipaExp = Json.safeRead(ch.getIpaExp(), new TypeReference<>() {}, om);
-        mean = Json.safeRead(ch.getMean(), new TypeReference<>() {}, om);
-        note = Json.safeRead(ch.getNote(), new TypeReference<>() {}, om);
-        refer = Json.safeRead(ch.getRefer(), new TypeReference<>() {}, om);
+        similar = readJson(ch.getSimilar(), new TypeReference<>() {}, om);
+        mulPy = readJson(ch.getMulPy(), new TypeReference<>() {}, om);
+        pyExplain = readJson(ch.getPyExplain(), new TypeReference<>() {}, om);
+        ipaExp = readJson(ch.getIpaExp(), new TypeReference<>() {}, om);
+        mean = readJson(ch.getMean(), new TypeReference<>() {}, om);
+        note = readJson(ch.getNote(), new TypeReference<>() {}, om);
+        refer = readJson(ch.getRefer(), new TypeReference<>() {}, om);
 
         createdAt = ch.getCreatedAt();
         updatedAt = ch.getUpdatedAt();
-
-        scan(style);
     }
 
-    abstract protected void scan(P style);
+    public CharEntity transfer()
+    {
+        CharEntity ans = new CharEntity();
+        
+        ans.setHanzi(hanzi);
+        ans.setHantz(hantz);
+        ans.setStdPy(stdPy);
+        ans.setSpecial(special);
+
+        String emptyScTc="{\"sc\": [], \"tc\": []}";
+
+        ObjectMapper om = new ObjectMapper();
+        ans.setSimilar(toJson(similar,om,"[]"));
+        ans.setMulPy(toJson(mulPy,om,"{}"));
+        ans.setPyExplain(toJson(pyExplain,om,emptyScTc));
+        ans.setIpaExp(toJson(ipaExp,om));
+        ans.setMean(toJson(mean,om,emptyScTc));
+        ans.setNote(toJson(note,om,emptyScTc));
+        ans.setRefer(toJson(refer,om,emptyScTc));
+        
+        return ans;
+    }
 
 }
