@@ -14,31 +14,38 @@ import java.util.*;
 public class HanPinyin
 {
     /** H:漢語拼音側標 */
-    public char[] sidemarkH = {' ', 'ˉ', 'ˊ', 'ˇ', 'ˋ', ' '};
+    public static char[] sidemarkH = {' ', 'ˉ', 'ˊ', 'ˇ', 'ˋ', ' '};
 
     /**T：臺灣注音符號側標（T為Taiwan的首字母）*/
-    public char[] sidemarkT = {' ', ' ', 'ˊ', 'ˇ', 'ˋ', '·'};
+    public static char[] sidemarkT = {' ', ' ', 'ˊ', 'ˇ', 'ˋ', '·'};
 
     /**
      *字转拼音数组：一段这样的文字，自動判斷多音字 -> [yi1, duan4, zhe4, yang4, de5, wen2, zi4]
      *  */
-    public List<String> txt_Pinyin(String txt)
+    public static List<String> txt_Pinyin(String txt)
     {
         List<Pinyin> a= HanLP.convertToPinyinList(txt);
         List<String> ans=new ArrayList<>();
-        for (Pinyin p : a)
+        if(a.size()!=txt.length()) throw new RuntimeException("数量不对应");
+        for(int i=0;i<a.size();i++)
         {
-            ans.add(p.toString());
+            String c=txt.substring(i,i+1);
+            if("兀".equals(c)) { ans.add("wu4"); continue; }
+            if("嗀".equals(c)) { ans.add("hu4"); continue; }
+            ans.add(a.get(i).toString());
         }
-        if(ans.size()!=txt.length()) throw new RuntimeException("char num cant match");
         return ans;
     }
 
     /**
      * 字转拼音数组：行 ->[xing2, hang2]
      * */
-    public List<String> toPinyin(String c)//看上去是字符串，但只调用一个字
+    public static List<String> toPinyin(String c)//看上去是字符串，但只调用一个字
     {
+        // hanlp的小bug，读音标不出来
+        if("兀".equals(c)) return List.of("wu4"); //组词没有问题
+        if("嗀".equals(c)) return List.of("hu4","gu3");
+
         Pinyin[] ans = PinyinDictionary.get(c);
         List<String> py=new ArrayList<>();
         if(ans==null)
@@ -53,15 +60,17 @@ public class HanPinyin
         return py;
     }
 
+
+
     /**
      * 拼音去除标号  zhe4->zhe
      * 沒有合法性檢查
      * */
-    public String toPinyin_(String string1)
+    public static String toSyllable(String string)
     {
-        if(string1.equals("none5")) return null;
+        if(string.equals("none5")) return null;
 
-        StringBuilder str = new StringBuilder(string1);
+        StringBuilder str = new StringBuilder(string);
         str.deleteCharAt(str.length() - 1);
         return str.toString();
     }
@@ -70,7 +79,7 @@ public class HanPinyin
      * 拼音轉注音標號  zhe4->4
      * 沒有合法性檢查
      * */
-    public int toZYtongue(String str)
+    public static int toTone(String str)
     {
         if (str.equals("none5")) return 0;
 
@@ -85,9 +94,9 @@ public class HanPinyin
      * 一个电脑处理的拼音变常见拼音，把pin1yin1转换成pīnyīn
      *
      **/
-    public String topmark(String string1)
+    public static String topMark(String string1)
     {
-        int tongue=toZYtongue(string1);
+        int tongue= toTone(string1);
         if(tongue==0) return null;
         StringBuilder str = new StringBuilder(string1);
         str.deleteCharAt(str.length() - 1);
@@ -142,7 +151,7 @@ public class HanPinyin
      * 拼音轉注音（不帶標號）  zhe4->ㄓㄜ
      * 沒有合法性檢查
      * */
-    public String toZhuYin(String string1)
+    public static String toZhuYin(String string1)
     {
         if(string1.equals("none5")) return null;
 
