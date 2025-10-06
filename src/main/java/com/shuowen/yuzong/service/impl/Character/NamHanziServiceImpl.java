@@ -3,10 +3,12 @@ package com.shuowen.yuzong.service.impl.Character;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Language;
+import com.shuowen.yuzong.dao.domain.Character.Hanzi;
 import com.shuowen.yuzong.dao.mapper.Character.NamCharMapper;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
 import com.shuowen.yuzong.dao.domain.Character.dialect.NamHanzi;
 import com.shuowen.yuzong.dao.model.Character.CharEntity;
+import com.shuowen.yuzong.dao.model.Character.CharSimilar;
 import com.shuowen.yuzong.service.HanziService;
 import com.shuowen.yuzong.service.impl.pinyin.NamPinyinServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,11 +88,30 @@ public class NamHanziServiceImpl implements HanziService<NamStyle, NamHanzi>
      * */
     public HanziEntry<NamHanzi> getHanziVague(String hanzi, NamStyle style)
     {
-        return HanziEntry.of(hz.findByHanziVague(hanzi), createFactory(style));
+        /* 流程
+         * 1. 先模糊识别获得汉字结果集
+         * 2. 汉字结果集的id作为关键词查询模糊识别汉字的结果
+         * 3. 合并
+         * */
+        List<CharEntity> res = hz.findByHanziVague(hanzi);
+
+        List<Integer> id = new ArrayList<>();
+        for (CharEntity e : res) id.add(e.getId());
+
+        if (!id.isEmpty())
+        {
+            Map<Integer, String> map = new HashMap<>();
+            for (var i : hz.findSimilar(id)) map.put(i.getCharId(), i.getInfo());
+
+            for (var i : res)
+                i.setSimilar(map.containsKey(i.getId()) ? map.get(i.getId()) : Hanzi.emptyScTc);
+        }
+
+        return HanziEntry.of(res, createFactory(style));
     }
 
     /**
-     * 查询匹配简体、繁体，获得结果集，根据需要的结果分类<p>
+     * 查询匹配简体、繁体，模糊识别，获得结果集，根据需要的结果分类<p>
      * 请参阅： HanziEntry 里面的 split 方法
      * */
     public List<HanziEntry<NamHanzi>> getHanziVagueGroup(String hanzi, String lang, NamStyle style)

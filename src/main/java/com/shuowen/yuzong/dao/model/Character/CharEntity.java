@@ -13,7 +13,7 @@ public class CharEntity
     private String stdPy;
     private Integer special;
 
-    private String similar;//List<String>
+    private String similar;//Map<String,List<String>>
     private String mulPy;//Map<String,Map<String,String>>
     private String pyExplain;//List<String>
     private String ipaExp;//Map<String,String>
@@ -23,11 +23,6 @@ public class CharEntity
 
     private String pinyin;
     private String tone;
-    private String fit0;
-    private String fit1;
-    private String fit2;
-    private String fit3;
-    private String fit4;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

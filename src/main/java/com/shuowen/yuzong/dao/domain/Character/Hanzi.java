@@ -21,7 +21,7 @@ public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
     protected String stdPy;
     protected Integer special;
 
-    protected List<String> similar;
+    protected Map<String,List<String>> similar;
     protected Map<String, Map<String, String>> mulPy;
     protected Map<String, List<String>> pyExplain;
     protected List<Map<String, String>> ipaExp;
@@ -30,6 +30,8 @@ public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
     protected Map<String,List<Map<String,String>>> refer;
     protected LocalDateTime createdAt;
     protected LocalDateTime updatedAt;
+
+    public static String emptyScTc="{\"sc\": [], \"tc\": []}";
 
     public Hanzi(CharEntity ch)
     {
@@ -61,10 +63,8 @@ public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
         ans.setStdPy(stdPy);
         ans.setSpecial(special);
 
-        String emptyScTc="{\"sc\": [], \"tc\": []}";
-
         ObjectMapper om = new ObjectMapper();
-        ans.setSimilar(toJson(similar,om,"[]"));
+        ans.setSimilar(toJson(similar,om,emptyScTc));
         ans.setMulPy(toJson(mulPy,om,"{}"));
         ans.setPyExplain(toJson(pyExplain,om,emptyScTc));
         ans.setIpaExp(toJson(ipaExp,om));
