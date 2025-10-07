@@ -4,16 +4,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.Status;
 import com.shuowen.yuzong.dao.model.Character.CharEntity;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Function;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 
 @Data
-public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
+public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
 {
     protected Integer id;
     protected String hanzi;
@@ -21,19 +23,19 @@ public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
     protected String stdPy;
     protected Integer special;
 
-    protected Map<String,List<String>> similar;
+    protected Map<String, List<String>> similar;
     protected Map<String, Map<String, String>> mulPy;
     protected Map<String, List<String>> pyExplain;
     protected List<Map<String, String>> ipaExp;
     protected Map<String, List<String>> mean;
     protected Map<String, List<String>> note;
-    protected Map<String,List<Map<String,String>>> refer;
+    protected Map<String, List<Map<String, String>>> refer;
     protected LocalDateTime createdAt;
     protected LocalDateTime updatedAt;
 
-    public static String emptyScTc="{\"sc\": [], \"tc\": []}";
+    public static String emptyScTc = "{\"sc\": [], \"tc\": []}";
 
-    public Hanzi(CharEntity ch)
+    protected Hanzi(CharEntity ch)
     {
         id = ch.getId();
         hanzi = ch.getHanzi();
@@ -54,24 +56,88 @@ public abstract class Hanzi<T extends UniPinyin,P extends PinyinStyle>
         updatedAt = ch.getUpdatedAt();
     }
 
+    /**
+     * @param ipaSE 國際音標的「搜索平臺(Search Engine)」
+     * */
+    protected Hanzi(CharEntity ch, P style, Status statue,
+                    Function<Set<T>, Map<T, Map<String, String>>> ipaSE)
+    {
+        this(ch);
+        switch (statue)
+        {
+            case AllPinyin -> initPinyin(style, true);
+            case PinyinIPA ->
+            {
+                initPinyin(style, false);
+                initIPA(ipaSE, false);
+            }
+            case AllIPA -> initIPA(ipaSE, true);
+        }
+    }
+
+    protected void initPinyin(P style, Boolean all)
+    {
+        stdPy = formatting(stdPy, style);
+        for (var i : mulPy.values())
+            i.put("content", formatting(i.get("content"), style));
+
+        if (all)
+        {
+            for (var i : ipaExp)
+                i.put("content", formatting(i.get("content"), style));
+        }
+    }
+
+    protected void initIPA(Function<Set<T>, Map<T, Map<String, String>>> ipaSE, Boolean all)
+    {
+        Set<T> allPinyin = new HashSet<>();
+        if (all)
+        {
+            allPinyin.add(pinyinOf(stdPy));
+            for (var i : mulPy.values())
+                allPinyin.add(pinyinOf(i.get("content")));
+        }
+        for (var i : ipaExp)
+            allPinyin.add(pinyinOf(i.get("content")));
+
+
+        Map<T, Map<String, String>> ipaMap = ipaSE.apply(allPinyin);
+
+        if (all)
+        {
+            stdPy = ipaMap.get(pinyinOf(stdPy)).get(dict());
+            for (var i : mulPy.values())
+                i.put("content", ipaMap.get(pinyinOf(i.get("content"))).get(dict()));
+        }
+        for (var i : ipaExp)
+            i.put("content", ipaMap.get(pinyinOf(i.get("content"))).get(i.get("tag")));
+
+    }
+
+    protected abstract T pinyinOf(String str);
+
+    protected abstract String formatting(String s, P style);
+
+    protected abstract String dict();
+
     public CharEntity transfer()
     {
         CharEntity ans = new CharEntity();
-        
+
         ans.setHanzi(hanzi);
         ans.setHantz(hantz);
         ans.setStdPy(stdPy);
         ans.setSpecial(special);
 
         ObjectMapper om = new ObjectMapper();
-        ans.setSimilar(toJson(similar,om,emptyScTc));
-        ans.setMulPy(toJson(mulPy,om,"{}"));
-        ans.setPyExplain(toJson(pyExplain,om,emptyScTc));
-        ans.setIpaExp(toJson(ipaExp,om));
-        ans.setMean(toJson(mean,om,emptyScTc));
-        ans.setNote(toJson(note,om,emptyScTc));
-        ans.setRefer(toJson(refer,om,emptyScTc));
-        
+        ans.setSimilar(toJson(similar, om, emptyScTc));
+        ans.setMulPy(toJson(mulPy, om, "{}"));
+        ans.setPyExplain(toJson(pyExplain, om, emptyScTc));
+        ans.setIpaExp(toJson(ipaExp, om));
+        ans.setMean(toJson(mean, om, emptyScTc));
+        ans.setNote(toJson(note, om, emptyScTc));
+        ans.setRefer(toJson(refer, om, emptyScTc));
+
         return ans;
     }
 
