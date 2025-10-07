@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.dao.model.PinyinIPA;
+package com.shuowen.yuzong.dao.model.IPA;
 
 import lombok.Data;
 
@@ -6,7 +6,7 @@ import lombok.Data;
  * 国际音标音节和音节结构的Model类
  * */
 @Data
-public class IPASyllableEntry
+public class IPASyllableEntity
 {
     private String standard;
     private String info;

@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.dao.mapper.PinyinIPA;
 
-import com.shuowen.yuzong.dao.model.PinyinIPA.IPASyllableEntry;
+import com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity;
 
-import com.shuowen.yuzong.dao.model.PinyinIPA.IPAToneEntry;
+import com.shuowen.yuzong.dao.model.IPA.IPAToneEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -17,19 +17,19 @@ public interface NamIPAMapper
      * 按照拼音为关键字，查询单行信息
      * */
     @Select ("select * from NC.nam_ipa_syllable where standard = #{pinyin}")
-    IPASyllableEntry findByPinyin(String pinyin);
+    IPASyllableEntity findByPinyin(String pinyin);
 
     /**
      * 按照编号为关键字，查询单行信息
      * */
     @Select ("select * from NC.nam_ipa_syllable where code = #{code}")
-    IPASyllableEntry findByCode(String code);
+    IPASyllableEntity findByCode(String code);
 
     /**
      * 获取音节表的所有信息，按照编号排序
      * */
     @Select ("select * from NC.nam_ipa_syllable order by code")
-    List<IPASyllableEntry> findAllPinyin();
+    List<IPASyllableEntity> findAllPinyin();
 
 
     @Select ("<script>" +
@@ -38,7 +38,7 @@ public interface NamIPAMapper
             "#{item}" +
             "</foreach>" +
             "</script>")
-    Set<IPASyllableEntry> findAllPinyinList(Set<String> list);
+    Set<IPASyllableEntity> findAllPinyinList(Set<String> list);
 
 
 
@@ -53,7 +53,7 @@ public interface NamIPAMapper
      *             </ul>
      */
     @Select ("select * from NC.nam_ipa_element where code = #{code}")
-    IPASyllableEntry consultByCode(String code);
+    IPASyllableEntity consultByCode(String code);
 
 
 
@@ -64,13 +64,13 @@ public interface NamIPAMapper
      * 按照声调为关键字，查询单行信息
      * */
     @Select ("select * from NC.nam_ipa_tone where standard = #{tone}")
-    IPAToneEntry findByTone(int tone);
+    IPAToneEntity findByTone(int tone);
 
     /**
      * 获取声调表的所有信息
      * */
     @Select ("select * from NC.nam_ipa_tone order by standard")
-    List<IPAToneEntry> findAllTone();
+    List<IPAToneEntity> findAllTone();
 
     @Select ("<script>" +
             "SELECT * FROM NC.nam_ipa_tone WHERE standard IN " +
@@ -78,5 +78,5 @@ public interface NamIPAMapper
             "#{item}" +
             "</foreach>" +
             "</script>")
-    Set<IPAToneEntry> findAllToneList(Set<String> list);
+    Set<IPAToneEntity> findAllToneList(Set<String> list);
 }

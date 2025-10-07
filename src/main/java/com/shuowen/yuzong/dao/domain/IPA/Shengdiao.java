@@ -2,7 +2,7 @@ package com.shuowen.yuzong.dao.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.dao.model.PinyinIPA.IPAToneEntry;
+import com.shuowen.yuzong.dao.model.IPA.IPAToneEntity;
 import lombok.Getter;
 
 import java.util.*;
@@ -21,7 +21,7 @@ public class Shengdiao
     protected boolean valid = false;
     protected static String INVAILD = "不正确的字典，声调：";
 
-    public Shengdiao(IPAToneEntry ipa)
+    public Shengdiao(IPAToneEntity ipa)
     {
         if (ipa == null) return;
 
@@ -35,7 +35,7 @@ public class Shengdiao
         valid = true;
     }
 
-    public static Shengdiao of(IPAToneEntry ipa)
+    public static Shengdiao of(IPAToneEntity ipa)
     {
         return new Shengdiao(ipa);
     }
@@ -45,14 +45,14 @@ public class Shengdiao
         return info.getOrDefault(dict.toLowerCase(), INVAILD + tone);
     }
 
-    public static List<Shengdiao> listOf(List<IPAToneEntry> ipa)
+    public static List<Shengdiao> listOf(List<IPAToneEntity> ipa)
     {
         List<Shengdiao> l = new ArrayList<>();
         for (var i : ipa) l.add(of(i));
         return l;
     }
 
-    public static Map<Integer, Shengdiao> MapOf(List<IPAToneEntry> ipa)
+    public static Map<Integer, Shengdiao> MapOf(List<IPAToneEntity> ipa)
     {
         Map<Integer, Shengdiao> m = new HashMap<>();
         for (var i : ipa) m.put(i.getStandard(), of(i));

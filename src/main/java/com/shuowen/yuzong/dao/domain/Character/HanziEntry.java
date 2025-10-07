@@ -68,13 +68,14 @@ public class HanziEntry<T extends Hanzi>
             String l = lang.toString();
             String r = lang.reverse().toString();
 
-            // 直接留下最外层的目标路径即可
+            // 只有sc、tc两条路，直接留下最外层的目标路径即可
+            hz.setSimilar(Map.of(l, hz.getSimilar().get(l)));
             hz.setPyExplain(Map.of(l, hz.getPyExplain().get(l)));
             hz.setMean(Map.of(l, hz.getMean().get(l)));
             hz.setNote(Map.of(l, hz.getNote().get(l)));
             hz.setRefer(Map.of(l, hz.getRefer().get(l)));
 
-            // 删掉相反的路径即可
+            // 处理sc、tc还有其他，所以删掉相反的路径
             for (var i : (Collection<Map<String, String>>) hz.getMulPy().values())
                 i.remove(r);
 

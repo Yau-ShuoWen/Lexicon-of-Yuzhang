@@ -7,8 +7,8 @@ import com.shuowen.yuzong.dao.domain.IPA.IPATool;
 import com.shuowen.yuzong.dao.domain.IPA.Shengdiao;
 import com.shuowen.yuzong.dao.domain.IPA.Yinjie;
 import com.shuowen.yuzong.dao.mapper.PinyinIPA.NamIPAMapper;
-import com.shuowen.yuzong.dao.model.PinyinIPA.IPASyllableEntry;
-import com.shuowen.yuzong.dao.model.PinyinIPA.IPAToneEntry;
+import com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity;
+import com.shuowen.yuzong.dao.model.IPA.IPAToneEntity;
 import com.shuowen.yuzong.service.PinyinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -116,8 +116,8 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
         }
 
         // mapper查询，成为可以查的字典
-        Map<String, IPASyllableEntry> syllableMap = new HashMap<>();
-        Map<Integer, IPAToneEntry> toneMap = new HashMap<>();
+        Map<String, IPASyllableEntity> syllableMap = new HashMap<>();
+        Map<Integer, IPAToneEntity> toneMap = new HashMap<>();
 
         //如果查询的为空，那么会异常，接受异常后直接返回空集合
         try

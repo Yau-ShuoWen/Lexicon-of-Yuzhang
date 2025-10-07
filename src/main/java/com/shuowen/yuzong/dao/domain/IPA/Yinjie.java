@@ -2,7 +2,7 @@ package com.shuowen.yuzong.dao.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.dao.model.PinyinIPA.IPASyllableEntry;
+import com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity;
 import lombok.Getter;
 
 import java.util.*;
@@ -23,7 +23,7 @@ public class Yinjie
     protected boolean valid = false;
     protected static String INVAILD_DICT = "不正确的字典，拼音：";
 
-    public Yinjie(IPASyllableEntry ipa)
+    public Yinjie(IPASyllableEntity ipa)
     {
         if (ipa == null) return;
 
@@ -39,7 +39,7 @@ public class Yinjie
         valid = true;
     }
 
-    public static Yinjie of(IPASyllableEntry ipa)
+    public static Yinjie of(IPASyllableEntity ipa)
     {
         return new Yinjie(ipa);
     }
@@ -49,14 +49,14 @@ public class Yinjie
         return info.getOrDefault(dict.toLowerCase(), INVAILD_DICT + pinyin);
     }
 
-    public static List<Yinjie> listOf(List<IPASyllableEntry> ipa)
+    public static List<Yinjie> listOf(List<IPASyllableEntity> ipa)
     {
         List<Yinjie> l = new ArrayList<>();
         for (var i : ipa) l.add(of(i));
         return l;
     }
 
-    public static Map<String, Yinjie> MapOf(List<IPASyllableEntry> ipa)
+    public static Map<String, Yinjie> MapOf(List<IPASyllableEntity> ipa)
     {
         Map<String, Yinjie> m = new HashMap<>();
         for (var i : ipa) m.put(i.getStandard(), of(i));

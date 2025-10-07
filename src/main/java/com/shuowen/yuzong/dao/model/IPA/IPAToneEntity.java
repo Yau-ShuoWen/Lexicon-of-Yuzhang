@@ -1,9 +1,9 @@
-package com.shuowen.yuzong.dao.model.PinyinIPA;
+package com.shuowen.yuzong.dao.model.IPA;
 
 import lombok.Data;
 
 @Data
-public class IPAToneEntry
+public class IPAToneEntity
 {
     private Integer standard;
     private String info;
