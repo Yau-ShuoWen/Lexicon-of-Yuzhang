@@ -24,7 +24,7 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
     protected Integer special;
 
     protected Map<String, List<String>> similar;
-    protected Map<String, Map<String, String>> mulPy;
+    protected List<Map<String, String>> mulPy;
     protected Map<String, List<String>> pyExplain;
     protected List<Map<String, String>> ipaExp;
     protected Map<String, List<String>> mean;
@@ -78,7 +78,7 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
     protected void initPinyin(P style, Boolean all)
     {
         stdPy = formatting(stdPy, style);
-        for (var i : mulPy.values())
+        for (var i : mulPy)
             i.put("content", formatting(i.get("content"), style));
 
         if (all)
@@ -94,7 +94,7 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
         if (all)
         {
             allPinyin.add(pinyinOf(stdPy));
-            for (var i : mulPy.values())
+            for (var i : mulPy)
                 allPinyin.add(pinyinOf(i.get("content")));
         }
         for (var i : ipaExp)
@@ -106,7 +106,7 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
         if (all)
         {
             stdPy = ipaMap.get(pinyinOf(stdPy)).get(dict());
-            for (var i : mulPy.values())
+            for (var i : mulPy)
                 i.put("content", ipaMap.get(pinyinOf(i.get("content"))).get(dict()));
         }
         for (var i : ipaExp)

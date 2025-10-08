@@ -88,26 +88,7 @@ public class NamHanziServiceImpl implements HanziService<NamStyle, NamHanzi>
      * */
     public HanziEntry<NamHanzi> getHanziVague(String hanzi, NamStyle style, Status statue)
     {
-        /* 流程
-         * 1. 先模糊识别获得汉字结果集
-         * 2. 汉字结果集的id作为关键词查询模糊识别汉字的结果
-         * 3. 合并
-         * */
-        List<CharEntity> res = hz.findByHanziVague(hanzi);
-
-        List<Integer> id = new ArrayList<>();
-        for (CharEntity e : res) id.add(e.getId());
-
-        if (!id.isEmpty())
-        {
-            Map<Integer, String> map = new HashMap<>();
-            for (var i : hz.findSimilar(id)) map.put(i.getCharId(), i.getInfo());
-
-            for (var i : res)
-                i.setSimilar(map.containsKey(i.getId()) ? map.get(i.getId()) : Hanzi.emptyScTc);
-        }
-
-        return HanziEntry.of(res, factory(style, statue));
+        return HanziEntry.of(hz.findByHanziVague(hanzi), factory(style, statue));
     }
 
     /**

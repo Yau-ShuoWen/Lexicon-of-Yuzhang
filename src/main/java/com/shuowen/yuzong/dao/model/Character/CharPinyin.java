@@ -3,10 +3,12 @@ package com.shuowen.yuzong.dao.model.Character;
 import lombok.Data;
 
 @Data
-public class CharSimilar
+public class CharPinyin
 {
     Integer id;
     Integer charId;
-    String hanzi;
-    String hantz;
+    String sc;
+    String tc;
+    String pinyin;
+    Integer sort;
 }

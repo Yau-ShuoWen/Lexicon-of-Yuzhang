@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.dao.mapper.Character.NamCharMapper">
+
+    <!-- 复用字段定义 -->
+    <sql id="similarField">
+        CONCAT(
+        '{"sc" : [',
+        COALESCE(GROUP_CONCAT(DISTINCT '"', p.hanzi, '"'), ''),
+        '], "tc": [',
+        COALESCE(GROUP_CONCAT(DISTINCT '"', p.hantz, '"'), ''),
+        ']}'
+        ) AS similar
+    </sql>
+
+    <sql id="mulPyField">
+        CONCAT(
+        '[',
+        GROUP_CONCAT(
+        DISTINCT
+        '{"sc": "', q.sc, '", "tc": "', q.tc, '", "content": "', q.pinyin, '"}'
+        ORDER BY q.sort ASC
+        SEPARATOR ','
+        ),
+        ']'
+        ) AS mul_py
+    </sql>
+
+    <sql id="baseJoin">
+        FROM NC.nam_char m
+        LEFT JOIN NC.nam_char_similar n ON m.id = n.char_id
+        LEFT JOIN NC.nam_char_similar p ON m.id = p.char_id
+        LEFT JOIN NC.nam_char_pinyin q ON m.id = q.char_id
+    </sql>
+
+    <!-- 通过主键寻找汉字（增强版） -->
+    <select id="selectByPrimaryKey" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+        SELECT m.*,
+        <include refid="similarField"/>,
+        <include refid="mulPyField"/>
+        <include refid="baseJoin"/>
+        WHERE m.id = #{id}
+        GROUP BY m.id
+    </select>
+
+    <!-- 使用简繁体寻找汉字（增强版） -->
+    <select id="findByHanziScTc" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+        SELECT m.*,
+        <include refid="similarField"/>,
+        <include refid="mulPyField"/>
+        <include refid="baseJoin"/>
+        WHERE m.hanzi = #{hanzi}
+        OR m.hantz = #{hanzi}
+        GROUP BY m.id
+        ORDER BY special
+    </select>
+
+    <!-- 使用简繁体、模糊识别寻找汉字 -->
+    <select id="findByHanziVague" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+        SELECT m.*,
+        <include refid="similarField"/>,
+        <include refid="mulPyField"/>
+        <include refid="baseJoin"/>
+        WHERE m.hanzi = #{hanzi}
+        OR m.hantz = #{hanzi}
+        OR n.hanzi = #{hanzi}
+        OR n.hantz = #{hanzi}
+        GROUP BY m.id
+        ORDER BY special
+    </select>
+
+    <!-- 插入数据 -->
+    <insert id="insert" parameterType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+        insert into NC.nam_char
+        (hanzi, hantz, std_py, special, mul_py, py_explain, ipa_exp, mean, note, refer)
+        values (#{hanzi}, #{hantz}, #{std_py}, #{special}, #{mul_py}, #{py_explain}, #{ipa_exp}, #{mean}, #{note},
+        #{refer})
+    </insert>
+
+</mapper>
