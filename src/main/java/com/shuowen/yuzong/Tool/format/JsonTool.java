@@ -23,7 +23,8 @@ public class JsonTool
             return mapper.readValue(json, clazz);
         } catch (Exception e)
         {
-            System.err.println("JSON 解析失败：" + e.getMessage());
+            System.out.println("JSON 解析失败，得到null");
+            //System.err.println("JSON 解析失败：" + e.getMessage());
             return null;
         }
     }
@@ -45,7 +46,8 @@ public class JsonTool
             return mapper.readValue(json, typeRef);
         } catch (Exception e)
         {
-            System.err.println("JSON 解析失败：" + e.getMessage());
+            System.out.println("JSON 解析失败，获得空对象");
+            //System.err.println("JSON 解析失败：" + e.getMessage());
             // 出错时返回对应的空集合或空Map
             return getEmptyInstance(typeRef);
         }
@@ -104,7 +106,8 @@ public class JsonTool
             return mapper.writeValueAsString(obj);
         } catch (Exception e)
         {
-            System.err.println("对象转 JSON 失败：" + e.getMessage());
+            System.out.println("对象转 JSON 失败，获得字符串\"null\"");
+            //System.err.println("对象转 JSON 失败：" + e.getMessage());
             return "null";
         }
     }
@@ -117,7 +120,8 @@ public class JsonTool
             return mapper.writeValueAsString(obj);
         } catch (Exception e)
         {
-            System.err.println("对象转 JSON 失败：" + e.getMessage());
+            System.out.println("对象转 JSON 失败，转换成默认结构");
+            //System.err.println("对象转 JSON 失败：" + e.getMessage());
             return backup;
         }
     }
