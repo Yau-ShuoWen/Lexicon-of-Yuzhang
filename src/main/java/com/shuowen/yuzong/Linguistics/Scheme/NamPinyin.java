@@ -306,6 +306,12 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
 
+    @Override
+    public Integer shengmuLength()
+    {
+        return 2;
+    }
+
     /**
      * @return 五位数字，表示该拼音音节的结构组成，包括声母、介音、韵尾和主元音。编码格式如下：
      * <ol>

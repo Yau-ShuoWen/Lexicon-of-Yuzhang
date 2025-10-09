@@ -1,7 +1,8 @@
-package com.shuowen.yuzong.controller.setting;
+package com.shuowen.yuzong.controller.search;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
+import com.shuowen.yuzong.dao.domain.IPA.Yinjie;
 import com.shuowen.yuzong.service.impl.pinyin.NamPinyinServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -33,10 +34,18 @@ public class ResultNamPinyinController
         return s.getAllIPA(new NamPinyin(pinyin));
     }
 
+    /**
+     * @return 如果返回null，都是无效拼音
+     * */
+    @GetMapping (value = "/construct")
+    public Yinjie hhh3(@RequestParam String pinyin)
+    {
+        return s.constructSyllable(NamPinyin.of(pinyin));
+    }
 
     /**
      * 传入Nam格式，预览效果
-     * */
+     */
     @PostMapping ("/preview")
     public Map<String, String> preview(@RequestBody NamStyle style)
     {

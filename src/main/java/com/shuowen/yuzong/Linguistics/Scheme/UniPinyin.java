@@ -50,6 +50,13 @@ abstract public class UniPinyin<T extends PinyinStyle>
         return INVALID_PINYIN;
     }
 
+    /**
+     * 返回code里从头开始多少位是声母编码
+     *
+     * @apiNote 剩下的就是介韵母的编码长度了
+     * */
+    public abstract Integer shengmuLength();
+
     @Override
     public boolean equals(Object obj)
     {
