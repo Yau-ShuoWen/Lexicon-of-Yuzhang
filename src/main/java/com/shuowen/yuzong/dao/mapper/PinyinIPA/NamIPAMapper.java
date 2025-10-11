@@ -32,6 +32,8 @@ public interface NamIPAMapper
 
     void insertPinyin(IPASyllableEntity pinyin);
 
+    void changeInfo(IPASyllableEntity pinyin);
+
     // 音节成分表-------------------------------
 
     /**

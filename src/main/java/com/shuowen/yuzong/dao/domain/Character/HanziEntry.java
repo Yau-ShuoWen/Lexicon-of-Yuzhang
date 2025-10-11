@@ -47,7 +47,6 @@ public class HanziEntry<T extends Hanzi>
         return list.isEmpty();
     }
 
-    @SuppressWarnings("unchecked")
     protected void add(T hz, Language lang)
     {
         /* 在加入的时候不能简体繁体结果集混合
@@ -62,27 +61,7 @@ public class HanziEntry<T extends Hanzi>
                 throw new IllegalArgumentException("简体繁体互相混合");
         }
 
-
-        // 对内容区分简繁体的字段确定个版本（避免传输消耗）
-        if (!lang.isCH())
-        {
-            String l = lang.toString();
-            String r = lang.reverse().toString();
-
-            // 只有sc、tc两条路，直接留下最外层的目标路径即可
-            hz.setSimilar(Map.of(l,hz.getSimilar().get(l)));
-            hz.setPyExplain(Map.of(l, hz.getPyExplain().get(l)));
-            hz.setMean(Map.of(l, hz.getMean().get(l)));
-            hz.setNote(Map.of(l, hz.getNote().get(l)));
-            hz.setRefer(Map.of(l, hz.getRefer().get(l)));
-
-            // 处理sc、tc还有其他，所以删掉相反的路径
-            for (var i : (List<Map<String, String>>) hz.getMulPy())
-                i.remove(r);
-
-            for (var i : (List<Map<String, String>>) hz.getIpaExp())
-                i.remove(r);
-        }
+        hz.changeLang(language);
         list.add(hz);
     }
 

@@ -1,5 +1,7 @@
 package com.shuowen.yuzong.Tool.dataStructure;
 
+import com.fasterxml.jackson.annotation.JsonValue;
+
 import java.util.*;
 
 /**
@@ -68,6 +70,7 @@ public class UString implements Iterable<String>, Comparable<UString>
         size = 0;
     }
 
+    @JsonValue
     @Override
     public String toString()
     {

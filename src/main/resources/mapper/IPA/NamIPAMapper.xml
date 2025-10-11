@@ -34,6 +34,12 @@
         values (#{standard}, #{code}, #{info})
     </select>
 
+    <select id="changeInfo" parameterType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+        update NC.nam_ipa_syllable
+        set info = #{info}
+        where standard = #{standard} ;
+    </select>
+
     <!-- 音节成分表相关查询 -->
 
     <!-- 通过带空位的code查询 -->

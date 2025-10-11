@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.Language;
 import com.shuowen.yuzong.Tool.dataStructure.Status;
 import com.shuowen.yuzong.dao.model.Character.CharEntity;
 import lombok.Data;
@@ -35,6 +36,16 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
 
     public static String emptyScTc = "{\"sc\": [], \"tc\": []}";
 
+    /**
+     * 不需要额外参数，只需要一个拼音数组的情况，很多时候并不关心他的其他信息
+     */
+    public List<String> getMulPyList()
+    {
+        List<String> ans = new ArrayList<>();
+        for (var i : mulPy) ans.add(i.get("content"));
+        return ans;
+    }
+
     protected Hanzi(CharEntity ch)
     {
         id = ch.getId();
@@ -58,7 +69,7 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
 
     /**
      * @param ipaSE 國際音標的「搜索平臺(Search Engine)」
-     * */
+     */
     protected Hanzi(CharEntity ch, P style, Status statue,
                     Function<Set<T>, Map<T, Map<String, String>>> ipaSE)
     {
@@ -119,6 +130,26 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
     protected abstract String formatting(String s, P style);
 
     protected abstract String dict();
+
+    /**
+     * 对内容区分简繁体的字段确定个版本（避免传输消耗）
+     */
+    public void changeLang(Language lang)
+    {
+        if (lang.isCH()) return;
+
+        if(lang.isSC()) hantz = "";
+        else hanzi = "";
+        
+        String r = lang.reverse().toString();
+        for (var i : mulPy) i.remove(r);
+        for (var i : ipaExp) i.remove(r);
+        similar.remove(r);
+        pyExplain.remove(r);
+        mean.remove(r);
+        note.remove(r);
+        refer.remove(r);
+    }
 
     public CharEntity transfer()
     {

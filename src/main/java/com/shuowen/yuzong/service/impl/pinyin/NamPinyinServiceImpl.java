@@ -12,7 +12,6 @@ import com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity;
 import com.shuowen.yuzong.dao.model.IPA.IPAToneEntity;
 import com.shuowen.yuzong.service.PinyinService;
 import org.apache.commons.lang3.tuple.Pair;
-import org.assertj.core.api.Fail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -226,6 +225,33 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
                 Map.of("success", success, "fail", fail),
                 failCase
         );
+    }
+
+    public void updateIPA()
+    {
+        if (check().getRight().isEmpty()) return;
+
+        Set<Yinjie> a = new HashSet<>();
+        Map<String, YinjiePart> b = new HashMap<>();
+        for (var i : m.findAllPinyin()) a.add(Yinjie.of(i));
+        for (var i : m.findAllElement())
+            b.put(YinjiePart.of(i).getCode(), YinjiePart.of(i));
+
+
+        for (var i : a)
+        {
+            var merge = IPATool.constructIPA(
+                    NamPinyin.of(i.getPinyin()),
+                    (List<String> str) ->
+                    {
+                        List<YinjiePart> res = new ArrayList<>();
+                        res.add(b.get(str.get(0)));
+                        res.add(b.get(str.get(1)));
+                        return res;
+                    });
+
+            m.changeInfo(merge.transfer());
+        }
     }
 
     /**
