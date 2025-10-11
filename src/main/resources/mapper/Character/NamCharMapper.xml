@@ -35,7 +35,9 @@
         LEFT JOIN NC.nam_char_pinyin q ON m.id = q.char_id
     </sql>
 
-    <!-- 通过主键寻找汉字（增强版） -->
+
+
+    <!-- 通过主键寻找汉字 -->
     <select id="selectByPrimaryKey" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
         SELECT m.*,
         <include refid="similarField"/>,
@@ -45,7 +47,8 @@
         GROUP BY m.id
     </select>
 
-    <!-- 使用简繁体寻找汉字（增强版） -->
+
+    <!-- 使用简繁体寻找汉字 -->
     <select id="findByHanziScTc" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
         SELECT m.*,
         <include refid="similarField"/>,
