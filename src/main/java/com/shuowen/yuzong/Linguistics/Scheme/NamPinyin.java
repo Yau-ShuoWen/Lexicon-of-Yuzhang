@@ -316,8 +316,8 @@ public class NamPinyin extends UniPinyin<NamStyle>
      * @return 五位数字，表示该拼音音节的结构组成，包括声母、介音、韵尾和主元音。编码格式如下：
      * <ol>
      * <li>前两位，声母：<p>
-     * {@code 00: 零声母/无声母} | {@code 01: b} | {@code 02: p} | {@code 03: m} | {@code 04: f} | 
-     * {@code 05: d} | {@code 06: t} | {@code 07: l} | {@code 08: g} | {@code 09: k} | {@code 10: ng} | {@code 11: h} | 
+     * {@code 00: 零声母/无声母} | {@code 01: b} | {@code 02: p} | {@code 03: m} | {@code 04: f} |
+     * {@code 05: d} | {@code 06: t} | {@code 07: l} | {@code 08: g} | {@code 09: k} | {@code 10: ng} | {@code 11: h} |
      * {@code 12: j} | {@code 13: q} | {@code 14: n} | {@code 15: x} | {@code 16: z} | {@code 17: c} | {@code 18: s}|
      * </li>
      *
@@ -476,7 +476,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     /**
      * 反向建立即可，非常简单
-     * */
+     */
     protected String constuctPinyin()
     {
         String c = code;
@@ -566,6 +566,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 if (show.equals("ng"))
                 {
                     Str.insert(1, mark[tone]);
+                    show = Str.toString();
                     return;
                 }
 
@@ -614,7 +615,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     /**
      * @see UniPinyin
-     * */
+     */
     public static String formatting(String s, NamStyle style)
     {
         return UniPinyin.formatting(s, creator, style);
@@ -622,7 +623,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     /**
      * @see UniPinyin
-     * */
+     */
     public static List<NamPinyin> toPinyinList(String s)
     {
         return UniPinyin.toPinyinList(s, creator, "");
@@ -630,7 +631,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     /**
      * @see UniPinyin
-     * */
+     */
     public static List<String> toList(List<NamPinyin> list, NamStyle params)
     {
         return UniPinyin.toList(list, params);
@@ -638,7 +639,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     /**
      * @see UniPinyin
-     * */
+     */
     public static String splitAndReplace(String s, NamStyle style)
     {
         return UniPinyin.splitAndReplace(s, creator, style, " ");
@@ -646,7 +647,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     /**
      * @see UniPinyin
-     * */
+     */
     public static String parseAndReplace(String str, NamStyle style)
     {
         return UniPinyin.parseAndReplace(str, creator, style, "[", "]");
