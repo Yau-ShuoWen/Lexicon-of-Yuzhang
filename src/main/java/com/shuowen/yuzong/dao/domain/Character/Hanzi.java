@@ -7,12 +7,14 @@ import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Language;
 import com.shuowen.yuzong.Tool.dataStructure.Status;
 import com.shuowen.yuzong.dao.model.Character.CharEntity;
+import org.apache.commons.lang3.tuple.Pair;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 
+import static com.shuowen.yuzong.Tool.MapTool.renameKey;
 import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 
 @Data
@@ -37,15 +39,8 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
     public static String emptyScTc = "{\"sc\": [], \"tc\": []}";
 
     /**
-     * 不需要额外参数，只需要一个拼音数组的情况，很多时候并不关心他的其他信息
+     * 默认构造函数
      */
-    public List<String> getMulPyList()
-    {
-        List<String> ans = new ArrayList<>();
-        for (var i : mulPy) ans.add(i.get("content"));
-        return ans;
-    }
-
     protected Hanzi(CharEntity ch)
     {
         id = ch.getId();
@@ -59,6 +54,7 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
         mulPy = readJson(ch.getMulPy(), new TypeReference<>() {}, om);
         pyExplain = readJson(ch.getPyExplain(), new TypeReference<>() {}, om);
         ipaExp = readJson(ch.getIpaExp(), new TypeReference<>() {}, om);
+
         mean = readJson(ch.getMean(), new TypeReference<>() {}, om);
         note = readJson(ch.getNote(), new TypeReference<>() {}, om);
         refer = readJson(ch.getRefer(), new TypeReference<>() {}, om);
@@ -131,6 +127,9 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
 
     protected abstract String dict();
 
+
+    //  和转换为高级传输格式有关的内容 --------------------------------------------------
+
     /**
      * 对内容区分简繁体的字段确定个版本（避免传输消耗）
      */
@@ -138,18 +137,69 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
     {
         if (lang.isCH()) return;
 
-        if(lang.isSC()) hantz = "";
+        if (lang.isSC()) hantz = "";
         else hanzi = "";
-        
+
+        String l = lang.toString();
         String r = lang.reverse().toString();
-        for (var i : mulPy) i.remove(r);
-        for (var i : ipaExp) i.remove(r);
-        similar.remove(r);
-        pyExplain.remove(r);
-        mean.remove(r);
-        note.remove(r);
-        refer.remove(r);
+
+        for (var i : mulPy) erasure(i, l, r);
+        for (var i : ipaExp)
+        {
+            i.remove("tag");
+            erasure(i, l, r);
+        }
+
+        erasure(similar, l, r);
+        erasure(pyExplain, l, r);
+        erasure(mean, l, r);
+        erasure(note, l, r);
+        erasure(refer, l, r);
     }
+
+    /**
+     * 标签「擦除」，当确定简体繁体之后，和简繁体有关的标签区分没有用处了，所以把标签简化，并且删除不需要的语言
+     */
+    private <T extends Map> T erasure(T map, String l, String r)
+    {
+        map.remove(r);
+        renameKey(map, l, "text");
+        return map;
+    }
+
+    /**
+     * 在合并之后只剩下两个参数，直接返回即可
+     */
+    public List<Pair<String, String>> getMulPy(boolean a)
+    {
+        List<Pair<String, String>> ans = new ArrayList<>();
+        for (var i : mulPy) ans.add(Pair.of(i.get("text"), i.get("content")));
+        return ans;
+    }
+
+    public List<Pair<String, String>> getIpaExp(boolean a)
+    {
+        List<Pair<String, String>> ans = new ArrayList<>();
+        for (var i : ipaExp) ans.add(Pair.of(i.get("text"), i.get("content")));
+        return ans;
+    }
+
+    public List<String> getPyExplain(boolean a)
+    {
+        return pyExplain.get("text");
+    }
+
+    public List<String> getMean(boolean a)
+    {
+        return mean.get("text");
+    }
+
+    public List<String> getNote(boolean a)
+    {
+        return note.get("text");
+    }
+
+    //  和转化为数据库表有关的内容 --------------------------------------------------
 
     public CharEntity transfer()
     {

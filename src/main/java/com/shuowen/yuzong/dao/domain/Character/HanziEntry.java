@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 /**
  * 汉字结果集
- * */
+ */
 
 @Data
 public class HanziEntry<T extends Hanzi>
@@ -30,7 +30,7 @@ public class HanziEntry<T extends Hanzi>
 
     /**
      * 结果集是List<CharEntity>，所以构造函数直接使用
-     * */
+     */
     public HanziEntry(List<CharEntity> entity, Function<CharEntity, T> factory)
     {
         this.factory = factory;
@@ -40,7 +40,6 @@ public class HanziEntry<T extends Hanzi>
             list.add(hanzi);
         }
     }
-
 
     public boolean isEmpty()
     {
@@ -67,7 +66,7 @@ public class HanziEntry<T extends Hanzi>
 
     /**
      * 分裂函数，按照简体字或者繁体字把他分成若干个结果集，每一个结果集里，对应语言同一个字
-     * */
+     */
     public List<HanziEntry<T>> split(Language l)
     {
         Map<String, HanziEntry<T>> ans = new HashMap<>();
@@ -100,6 +99,11 @@ public class HanziEntry<T extends Hanzi>
             ans.get(key).add(i, l);
         }
         return new ArrayList<>(ans.values());
+    }
+
+    public Hanzi getItem(int i)
+    {
+        return list.get(i);
     }
 
     /**
