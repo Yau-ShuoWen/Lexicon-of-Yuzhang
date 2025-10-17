@@ -17,6 +17,16 @@ public class NamPinyin extends UniPinyin<NamStyle>
 {
     static char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
 
+    public static char[] modifier = {'꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
+
+    /**
+     *
+     * */
+    public char getTone(boolean b)
+    {
+        return modifier[tone];
+    }
+
     public NamPinyin(String s)
     {
         super(s);//按照通用格式格式化

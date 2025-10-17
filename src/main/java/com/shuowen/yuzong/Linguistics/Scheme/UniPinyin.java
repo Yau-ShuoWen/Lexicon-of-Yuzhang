@@ -54,7 +54,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
      * 返回code里从头开始多少位是声母编码
      *
      * @apiNote 剩下的就是介韵母的编码长度了
-     * */
+     */
     public abstract Integer shengmuLength();
 
     @Override
@@ -154,8 +154,14 @@ abstract public class UniPinyin<T extends PinyinStyle>
     }
 
     /**
-     * 生成这个类对应的默认格式
+     * 返回四角调类
      * */
+    public abstract char getTone(boolean b);
+
+
+    /**
+     * 生成这个类对应的默认格式
+     */
     abstract protected T defaultStyle();
 
 
@@ -213,7 +219,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
 
     /**
      * 静态方法：字符串快速格式化为拼音
-     * */
+     */
     protected static <P extends UniPinyin<S>, S extends PinyinStyle>
     String formatting(String s, Function<String, P> creator, S style)
     {
@@ -245,7 +251,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
 
     /**
      * 静态方法：拼音数组格式化为字符串数组
-     * */
+     */
     protected static <P extends UniPinyin<S>, S extends PinyinStyle>
     List<String> toList(List<P> list, S style)
     {
@@ -256,8 +262,9 @@ abstract public class UniPinyin<T extends PinyinStyle>
 
     /**
      * 静态方法渲染：渲染使用一种分隔符（如空格）包围的字符串，并且按照原来的顺序转化
+     *
      * @implNote {@code fung1 qieu2 ia5 pok6}转换为{@code  //fung1  qieu2  ia5  pok6// }
-     * */
+     */
     protected static <P extends UniPinyin<S>, S extends PinyinStyle>
     String splitAndReplace(String s, Function<String, P> creator, S style, String separator)
     {
@@ -270,6 +277,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
 
     /**
      * 静态方法：渲染使用一对分隔符（如[]）包围的字符串，并且按照原来的顺序转化
+     *
      * @implNote {@code [fung1][qieu2][ia5][pok6]}转换为{@code  //fung1  qieu2  ia5  pok6// }
      */
     protected static <P extends UniPinyin<S>, S extends PinyinStyle>
