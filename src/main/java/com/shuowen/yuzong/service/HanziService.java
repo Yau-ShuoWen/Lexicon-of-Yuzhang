@@ -4,25 +4,22 @@ import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Tool.dataStructure.Status;
 import com.shuowen.yuzong.dao.domain.Character.Hanzi;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
+import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dao.dto.HanziShow;
 
 import java.util.*;
 
-public interface HanziService<T extends PinyinStyle, P extends Hanzi>
+public interface HanziService<T extends PinyinStyle>
 {
-    P getHanziById(Integer id, T style, Status statue);
+    Hanzi getHanziById(Integer id);
 
+    HanziEntry getHanziScTc(String hanzi);
 
-    HanziEntry<P> getHanziScTc(String hanzi, T style, Status status);
+    HanziEntry getHanziVague(String hanzi);
 
-    List<HanziEntry<P>> getHanziScTcGroup(String hanzi, T style, Status statue, String lang);
+    List<HanziEntry> getHanziGroup(String hanzi, String lang, boolean certain);
 
-    List<HanziShow> getHanziScTcOrganize(String hanzi, T style, Status statue, String lang);
+    List<HanziShow> getHanziOrganize(String hanzi, String lang, boolean certain);
 
-
-    HanziEntry<P> getHanziVague(String hanzi, T style, Status statue);
-
-    List<HanziEntry<P>> getHanziVagueGroup(String hanzi, T style, Status statue, String lang);
-
-    List<HanziShow> getHanziVagueOrganize(String hanzi, T style, Status statue, String lang);
+    List<HanziShow> getHanziFormatted(String hanzi, String lang, boolean certain, T style, Status status, IPAToneStyle ms);
 }

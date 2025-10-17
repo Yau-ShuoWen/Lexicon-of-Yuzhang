@@ -1,8 +1,7 @@
 package com.shuowen.yuzong.controller.search;
 
 import com.shuowen.yuzong.Tool.dataStructure.Status;
-import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
-import com.shuowen.yuzong.dao.domain.Character.dialect.NamHanzi;
+import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dao.domain.Word.NamCiyu;
 import com.shuowen.yuzong.dao.dto.HanziShow;
 import com.shuowen.yuzong.service.impl.Character.NamHanziServiceImpl;
@@ -22,49 +21,17 @@ public class ResultNamController
     @Autowired
     NamCiyuServiceImpl t;
 
-    @GetMapping (value = "/byhanzi/certain")
-    public HanziEntry<NamHanzi> hanziPrecise(@RequestParam String hanzi, @RequestParam int code)
+    @GetMapping (value = "/byhanzi")
+    public List<HanziShow> hanziPreciseAskFinal(
+            @RequestParam String hanzi,
+            @RequestParam String lang,
+            @RequestParam (required = false, defaultValue = "1") int status,
+            @RequestParam (required = false, defaultValue = "1") int style,
+            @RequestParam (required = false, defaultValue = "false") boolean certain
+            )
     {
-        return s.getHanziScTc(hanzi, null, Status.of(code));
+        return s.getHanziFormatted(hanzi, lang,certain, null, Status.of(status), IPAToneStyle.of(style));
     }
-
-    @GetMapping (value = "/byhanzi/certain", params = "lang")
-    public List<HanziEntry<NamHanzi>> hanziPreciseGroup(
-            @RequestParam String hanzi, @RequestParam String lang, @RequestParam int code)
-    {
-        return s.getHanziScTcGroup(hanzi, null, Status.of(code), lang);
-    }
-
-    @GetMapping (value = "/byhanzi/certain/ask", params = "lang")
-    public List<HanziShow> hanziPreciseAsk(
-            @RequestParam String hanzi, @RequestParam String lang, @RequestParam int code)
-    {
-        return s.getHanziScTcOrganize(hanzi, null, Status.of(code), lang);
-    }
-
-
-    @GetMapping (value = "/byhanzi/vague")
-    public HanziEntry<NamHanzi> hanziVague(@RequestParam String hanzi
-            , @RequestParam int code)
-    {
-        return s.getHanziVague(hanzi, null, Status.of(code));
-    }
-
-    @GetMapping (value = "/byhanzi/vague", params = "lang")
-    public List<HanziEntry<NamHanzi>> hanziVagueGroup(
-            @RequestParam String hanzi, @RequestParam String lang, @RequestParam int code)
-    {
-        return s.getHanziVagueGroup(hanzi, null, Status.of(code), lang);
-    }
-
-
-    @GetMapping (value = "/byhanzi/vague/ask", params = "lang")
-    public List<HanziShow> hanziVagueAsk(
-            @RequestParam String hanzi, @RequestParam String lang, @RequestParam int code)
-    {
-        return s.getHanziVagueOrganize(hanzi, null, Status.of(code), lang);
-    }
-
 
     @GetMapping (value = "/byciyu/certain")
     public List<NamCiyu> ciyuPrecise(@RequestParam String ciyu)
