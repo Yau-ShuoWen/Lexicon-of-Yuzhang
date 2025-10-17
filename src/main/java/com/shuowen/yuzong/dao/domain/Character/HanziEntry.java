@@ -5,40 +5,36 @@ import com.shuowen.yuzong.dao.model.Character.CharEntity;
 import lombok.Data;
 
 import java.util.*;
-import java.util.function.Function;
+
 
 /**
  * 汉字结果集
  */
 
 @Data
-public class HanziEntry<T extends Hanzi>
+public class HanziEntry
 {
-    List<T> list = new ArrayList<>();
+    List<Hanzi> list = new ArrayList<>();
     Language language = Language.CH;
 
-    // 工厂函数：用于创建T类型的Hanzi对象
-    private final Function<CharEntity, T> factory;
-
-    /**
-     * 空构造
-     */
-    public HanziEntry(Function<CharEntity, T> factory)
-    {
-        this.factory = factory;
-    }
+    public HanziEntry() {}
 
     /**
      * 结果集是List<CharEntity>，所以构造函数直接使用
      */
-    public HanziEntry(List<CharEntity> entity, Function<CharEntity, T> factory)
+    public HanziEntry(List<CharEntity> entity)
     {
-        this.factory = factory;
-        for (CharEntity nc : entity)
-        {
-            T hanzi = factory.apply(nc);
-            list.add(hanzi);
-        }
+        for (CharEntity i : entity) list.add(Hanzi.of(i));
+    }
+
+    public static HanziEntry of()
+    {
+        return new HanziEntry();
+    }
+
+    public static HanziEntry of(List<CharEntity> charEntities)
+    {
+        return new HanziEntry(charEntities);
     }
 
     public boolean isEmpty()
@@ -46,7 +42,7 @@ public class HanziEntry<T extends Hanzi>
         return list.isEmpty();
     }
 
-    protected void add(T hz, Language lang)
+    protected void add(Hanzi hz, Language lang)
     {
         /* 在加入的时候不能简体繁体结果集混合
          * 1. 如果结果集是空的，那可以随便加上
@@ -67,9 +63,9 @@ public class HanziEntry<T extends Hanzi>
     /**
      * 分裂函数，按照简体字或者繁体字把他分成若干个结果集，每一个结果集里，对应语言同一个字
      */
-    public List<HanziEntry<T>> split(Language l)
+    public List<HanziEntry> split(Language l)
     {
-        Map<String, HanziEntry<T>> ans = new HashMap<>();
+        Map<String, HanziEntry> ans = new HashMap<>();
 
         /*
          * 遍历结果集里的汉字，按照什么聚合根据语言决定
@@ -85,7 +81,7 @@ public class HanziEntry<T extends Hanzi>
          *
          * 如果是第一次出现记录：创建新的结果集。如果是之后加入的，合并
          * */
-        for (T i : list)
+        for (Hanzi i : list)
         {
             String key = switch (l)
             {
@@ -94,8 +90,7 @@ public class HanziEntry<T extends Hanzi>
                 case CH -> i.getHanzi() + i.getHantz();
             };
 
-            if (!ans.containsKey(key))
-                ans.put(key, new HanziEntry<>(this.factory));
+            if (!ans.containsKey(key)) ans.put(key, new HanziEntry());
             ans.get(key).add(i, l);
         }
         return new ArrayList<>(ans.values());
@@ -105,24 +100,4 @@ public class HanziEntry<T extends Hanzi>
     {
         return list.get(i);
     }
-
-    /**
-     * 静态工厂方法 - 创建指定类型的HanziEntry
-     */
-    public static <T extends Hanzi> HanziEntry<T> of(
-            List<CharEntity> charEntities,
-            Function<CharEntity, T> factory)
-    {
-        return new HanziEntry<>(charEntities, factory);
-    }
-
-    /**
-     * 创建空的HanziEntry
-     */
-    public static <T extends Hanzi> HanziEntry<T> of(
-            Function<CharEntity, T> factory)
-    {
-        return new HanziEntry<>(factory);
-    }
-
 }

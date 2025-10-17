@@ -1,14 +1,20 @@
 package com.shuowen.yuzong.dao.dto;
 
+import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Language;
-import com.shuowen.yuzong.dao.domain.Character.Hanzi;
+import com.shuowen.yuzong.Tool.dataStructure.Status;
+import com.shuowen.yuzong.Tool.dataStructure.Triple;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
+import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.dao.domain.Pinyin.PinyinTool;
 import lombok.Data;
-import org.apache.commons.lang3.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.Pair;
 
-import java.util.HashSet;
 import java.util.*;
 import java.util.NoSuchElementException;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * 用作词条的汉字，隐藏细节，不显示简繁体等信息
@@ -21,12 +27,12 @@ public class HanziShow
     protected Map<String, Info> infoMap = new HashMap<>();
 
     @Data
-    class Info
+    static class Info
     {
         String stdPy;
         boolean special;
         List<Pair<String, String>> mulPy = new ArrayList<>();
-        List<Pair<String, String>> ipaExp = new ArrayList<>();
+        List<Triple<String, String, String>> ipaExp = new ArrayList<>();
         List<String> pyExplain = new ArrayList<>();
         List<String> mean = new ArrayList<>();
         List<String> note = new ArrayList<>();
@@ -35,7 +41,7 @@ public class HanziShow
 
 
     @SuppressWarnings ("unchecked")
-    public HanziShow(HanziEntry<?> hz)
+    public HanziShow(HanziEntry hz)
     {
         /* 目前暂时这么认为：
          * Language修改的地方只有add()函数里，说明只有经过合并的，并且明确是简体或者
@@ -65,20 +71,20 @@ public class HanziShow
             info.special = (info.special || data.getSpecial() != 0);
 
             // true 表示获取的不是普通的值而是专门为了展示简化的值
-            info.mulPy.addAll(data.getMulPy(true));
-            info.ipaExp.addAll(data.getIpaExp(true));
-            info.pyExplain.addAll(data.getPyExplain(true));
-            info.mean.addAll(data.getMean(true));
-            info.note.addAll(data.getNote(true));
+            info.mulPy.addAll(data.getMulPyPair());
+            info.ipaExp.addAll(data.getIpaExpTriple());
+            info.pyExplain.addAll(data.getPyExplainText());
+            info.mean.addAll(data.getMeanText());
+            info.note.addAll(data.getNoteText());
         }
     }
 
-    public static HanziShow of(HanziEntry<?> hz)
+    public static HanziShow of(HanziEntry hz)
     {
         return new HanziShow(hz);
     }
 
-    public static List<HanziShow> ListOf(List<? extends HanziEntry<?>> hz)
+    public static List<HanziShow> ListOf(List<HanziEntry> hz)
     {
         List<HanziShow> ans = new ArrayList<>();
         for (var i : hz) ans.add(of(i));
@@ -86,4 +92,74 @@ public class HanziShow
     }
 
 
+    public static <T extends UniPinyin<U>, U extends PinyinStyle>
+    void initPinyinIPA(List<HanziShow> list, U style, Status s, String defaultDict,
+                       Function<String, T> creator,
+                       BiFunction<Set<T>, IPAToneStyle, Map<T, Map<String, String>>> ipaSE,
+                       IPAToneStyle ms)
+    {
+        Set<String> usePy = new HashSet<>();
+        Set<String> useIPA = new HashSet<>();
+        // 获取内容
+        for (var hz : list)
+        {
+            for (var i : hz.infoMap.values())
+            {
+                switch (s)
+                {
+                    case AllPinyin ->
+                    {
+                        usePy.add(i.stdPy);
+                        for (var j : i.mulPy) useIPA.add(j.getRight());
+                        for (var j : i.ipaExp) usePy.add(j.getRight());
+                    }
+                    case PinyinIPA ->
+                    {
+                        usePy.add(i.stdPy);
+                        for (var j : i.mulPy) useIPA.add(j.getRight());
+                        for (var j : i.ipaExp) useIPA.add(j.getRight());
+                    }
+                    case AllIPA ->
+                    {
+                        useIPA.add(i.stdPy);
+                        for (var j : i.mulPy) useIPA.add(j.getRight());
+                        for (var j : i.ipaExp) useIPA.add(j.getRight());
+                    }
+                }
+            }
+        }
+
+        Map<String, String> pyData = PinyinTool.formatPinyin(usePy, style, creator);
+        Map<String, Map<String, String>> ipaData = PinyinTool.formatIPA(useIPA, creator, ipaSE, ms);
+
+        for (var hz : list)
+        {
+            for (var i : hz.infoMap.values())
+            {
+                switch (s)
+                {
+                    case AllPinyin ->
+                    {
+                        i.stdPy = pyData.get(i.stdPy);
+                        for (var j : i.mulPy) j.setRight(pyData.get(j.getRight()));
+                        for (var j : i.ipaExp) j.setRight(pyData.get(j.getRight()));
+                    }
+                    case PinyinIPA ->
+                    {
+                        i.stdPy = pyData.get(i.stdPy);
+                        for (var j : i.mulPy)
+                            j.setRight(ipaData.get(j.getRight()).getOrDefault(defaultDict, "国际音标无效"));
+                        for (var j : i.ipaExp) j.setRight(ipaData.get(j.getRight()).get(j.getMiddle()));
+                    }
+                    case AllIPA ->
+                    {
+                        i.stdPy = ipaData.get(i.stdPy).getOrDefault(defaultDict, "国际音标无效");
+                        for (var j : i.mulPy)
+                            j.setRight(ipaData.get(j.getRight()).getOrDefault(defaultDict, "国际音标无效"));
+                        for (var j : i.ipaExp) j.setRight(ipaData.get(j.getRight()).get(j.getMiddle()));
+                    }
+                }
+            }
+        }
+    }
 }

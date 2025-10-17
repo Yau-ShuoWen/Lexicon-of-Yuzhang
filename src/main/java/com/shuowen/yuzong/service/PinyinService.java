@@ -9,6 +9,8 @@ import java.util.*;
 
 public interface PinyinService<T extends UniPinyin, S extends PinyinStyle>
 {
+    String getDefaultDict();
+
     Map<String, String> getAllIPASyllable(T p);
 
     Map<String, String> getAllIPATone(T p);

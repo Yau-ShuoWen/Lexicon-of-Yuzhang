@@ -23,6 +23,10 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
     @Autowired
     private NamIPAMapper m;
 
+    public String getDefaultDict()
+    {
+        return "ncdict";
+    }
 
     /**
      * 获得目标拼音「音节」的所有字典的IPA版本
@@ -80,7 +84,7 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
         if (!p.isValid()) return;
         if (!getAllIPA(p, IPAToneStyle.FIVE_DEGREE_LINE).isEmpty()) return;
 
-        IPATool.insertSyllable(p,m::findElement,m::insertPinyin);
+        IPATool.insertSyllable(p, m::findElement, m::insertPinyin);
     }
 
     /**

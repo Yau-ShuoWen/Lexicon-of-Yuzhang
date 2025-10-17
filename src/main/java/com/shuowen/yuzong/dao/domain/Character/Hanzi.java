@@ -2,23 +2,20 @@ package com.shuowen.yuzong.dao.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Language;
-import com.shuowen.yuzong.Tool.dataStructure.Status;
+import com.shuowen.yuzong.Tool.dataStructure.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.Triple;
 import com.shuowen.yuzong.dao.model.Character.CharEntity;
-import org.apache.commons.lang3.tuple.Pair;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.function.Function;
 
 import static com.shuowen.yuzong.Tool.MapTool.renameKey;
 import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 
 @Data
-public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
+public class Hanzi
 {
     protected Integer id;
     protected String hanzi;
@@ -63,70 +60,10 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
         updatedAt = ch.getUpdatedAt();
     }
 
-    /**
-     * @param ipaSE 國際音標的「搜索平臺(Search Engine)」
-     */
-    protected Hanzi(CharEntity ch, P style, Status statue,
-                    Function<Set<T>, Map<T, Map<String, String>>> ipaSE)
+    public static Hanzi of(CharEntity ch)
     {
-        this(ch);
-        switch (statue)
-        {
-            case AllPinyin -> initPinyin(style, true);
-            case PinyinIPA ->
-            {
-                initPinyin(style, false);
-                initIPA(ipaSE, false);
-            }
-            case AllIPA -> initIPA(ipaSE, true);
-        }
+        return new Hanzi(ch);
     }
-
-    protected void initPinyin(P style, Boolean all)
-    {
-        stdPy = formatting(stdPy, style);
-        for (var i : mulPy)
-            i.put("content", formatting(i.get("content"), style));
-
-        if (all)
-        {
-            for (var i : ipaExp)
-                i.put("content", formatting(i.get("content"), style));
-        }
-    }
-
-    protected void initIPA(Function<Set<T>, Map<T, Map<String, String>>> ipaSE, Boolean all)
-    {
-        Set<T> allPinyin = new HashSet<>();
-        if (all)
-        {
-            allPinyin.add(pinyinOf(stdPy));
-            for (var i : mulPy)
-                allPinyin.add(pinyinOf(i.get("content")));
-        }
-        for (var i : ipaExp)
-            allPinyin.add(pinyinOf(i.get("content")));
-
-
-        Map<T, Map<String, String>> ipaMap = ipaSE.apply(allPinyin);
-
-        if (all)
-        {
-            stdPy = ipaMap.get(pinyinOf(stdPy)).get(dict());
-            for (var i : mulPy)
-                i.put("content", ipaMap.get(pinyinOf(i.get("content"))).get(dict()));
-        }
-        for (var i : ipaExp)
-            i.put("content", ipaMap.get(pinyinOf(i.get("content"))).get(i.get("tag")));
-
-    }
-
-    protected abstract T pinyinOf(String str);
-
-    protected abstract String formatting(String s, P style);
-
-    protected abstract String dict();
-
 
     //  和转换为高级传输格式有关的内容 --------------------------------------------------
 
@@ -144,11 +81,8 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
         String r = lang.reverse().toString();
 
         for (var i : mulPy) erasure(i, l, r);
-        for (var i : ipaExp)
-        {
-            i.remove("tag");
-            erasure(i, l, r);
-        }
+        for (var i : ipaExp) erasure(i, l, r);
+
 
         erasure(similar, l, r);
         erasure(pyExplain, l, r);
@@ -170,31 +104,31 @@ public abstract class Hanzi<T extends UniPinyin, P extends PinyinStyle>
     /**
      * 在合并之后只剩下两个参数，直接返回即可
      */
-    public List<Pair<String, String>> getMulPy(boolean a)
+    public List<Pair<String, String>> getMulPyPair()
     {
         List<Pair<String, String>> ans = new ArrayList<>();
         for (var i : mulPy) ans.add(Pair.of(i.get("text"), i.get("content")));
         return ans;
     }
 
-    public List<Pair<String, String>> getIpaExp(boolean a)
+    public List<Triple<String, String, String>> getIpaExpTriple()
     {
-        List<Pair<String, String>> ans = new ArrayList<>();
-        for (var i : ipaExp) ans.add(Pair.of(i.get("text"), i.get("content")));
+        List<Triple<String, String, String>> ans = new ArrayList<>();
+        for (var i : ipaExp) ans.add(Triple.of(i.get("text"), i.get("tag"), i.get("content")));
         return ans;
     }
 
-    public List<String> getPyExplain(boolean a)
+    public List<String> getPyExplainText()
     {
         return pyExplain.get("text");
     }
 
-    public List<String> getMean(boolean a)
+    public List<String> getMeanText()
     {
         return mean.get("text");
     }
 
-    public List<String> getNote(boolean a)
+    public List<String> getNoteText()
     {
         return note.get("text");
     }
