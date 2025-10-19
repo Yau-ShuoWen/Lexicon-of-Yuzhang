@@ -110,13 +110,13 @@ public class HanziShow
                     case AllPinyin ->
                     {
                         usePy.add(i.stdPy);
-                        for (var j : i.mulPy) useIPA.add(j.getRight());
+                        for (var j : i.mulPy) usePy.add(j.getRight());
                         for (var j : i.ipaExp) usePy.add(j.getRight());
                     }
                     case PinyinIPA ->
                     {
                         usePy.add(i.stdPy);
-                        for (var j : i.mulPy) useIPA.add(j.getRight());
+                        for (var j : i.mulPy) usePy.add(j.getRight());
                         for (var j : i.ipaExp) useIPA.add(j.getRight());
                     }
                     case AllIPA ->
@@ -147,8 +147,7 @@ public class HanziShow
                     case PinyinIPA ->
                     {
                         i.stdPy = pyData.get(i.stdPy);
-                        for (var j : i.mulPy)
-                            j.setRight(ipaData.get(j.getRight()).getOrDefault(defaultDict, "国际音标无效"));
+                        for (var j : i.mulPy) j.setRight(pyData.get(j.getRight()));
                         for (var j : i.ipaExp) j.setRight(ipaData.get(j.getRight()).get(j.getMiddle()));
                     }
                     case AllIPA ->

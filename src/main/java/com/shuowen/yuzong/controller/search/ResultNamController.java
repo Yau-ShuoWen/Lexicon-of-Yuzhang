@@ -27,10 +27,10 @@ public class ResultNamController
             @RequestParam String lang,
             @RequestParam (required = false, defaultValue = "1") int status,
             @RequestParam (required = false, defaultValue = "1") int style,
-            @RequestParam (required = false, defaultValue = "false") boolean certain
+            @RequestParam (required = false, defaultValue = "false") boolean vague
             )
     {
-        return s.getHanziFormatted(hanzi, lang,certain, null, Status.of(status), IPAToneStyle.of(style));
+        return s.getHanziFormatted(hanzi, lang,vague, null, Status.of(status), IPAToneStyle.of(1));
     }
 
     @GetMapping (value = "/byciyu/certain")

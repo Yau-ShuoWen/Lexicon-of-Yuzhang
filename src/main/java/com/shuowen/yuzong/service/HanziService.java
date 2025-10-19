@@ -17,9 +17,9 @@ public interface HanziService<T extends PinyinStyle>
 
     HanziEntry getHanziVague(String hanzi);
 
-    List<HanziEntry> getHanziGroup(String hanzi, String lang, boolean certain);
+    List<HanziEntry> getHanziGroup(String hanzi, String lang, boolean vague);
 
-    List<HanziShow> getHanziOrganize(String hanzi, String lang, boolean certain);
+    List<HanziShow> getHanziOrganize(String hanzi, String lang, boolean vague);
 
-    List<HanziShow> getHanziFormatted(String hanzi, String lang, boolean certain, T style, Status status, IPAToneStyle ms);
+    List<HanziShow> getHanziFormatted(String hanzi, String lang, boolean vague, T style, Status status, IPAToneStyle ms);
 }

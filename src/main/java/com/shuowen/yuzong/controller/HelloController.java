@@ -24,7 +24,7 @@ public class HelloController
     @RequestMapping ("/test/param")
     public String testParam(@RequestParam String name)
     {
-        return "你好，" + name;
+        return "你好" + (name.isEmpty() ? "" : "，" + name);
     }
 
     // http://localhost:8080/api/hello
@@ -38,6 +38,6 @@ public class HelloController
     @RequestMapping ("/hello/param")
     public Map<String, String> helloParam(@RequestParam String name)
     {
-        return Map.of("message", "你好，" + name);
+        return Map.of("message", "你好" + (name.isEmpty() ? "" : "，" + name));
     }
 }
