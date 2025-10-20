@@ -1,20 +1,26 @@
 package com.shuowen.yuzong.config;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
-public class CorsConfig implements WebMvcConfigurer
-{
-//    @Override
-//    public void addCorsMappings(CorsRegistry registry)
-//    {
-//        registry.addMapping("/**")
-//                .allowedOrigins("*") // 允许所有来源
-//                .allowedMethods("GET", "POST", "PUT", "DELETE") // 允许的方法
-//                .allowedHeaders("*") // 允许所有头部
-//                .allowCredentials(false)
-//                .maxAge(3600);
-//    }
+public class CorsConfig {
+
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedOrigin("http://47.108.117.70"); // 生产环境前端
+        config.addAllowedOrigin("http://localhost:5173"); // 开发环境前端
+        config.addAllowedOrigin("http://localhost:8080"); // 开发环境
+        config.addAllowedMethod("*");
+        config.addAllowedHeader("*");
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
 }

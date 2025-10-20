@@ -118,7 +118,7 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
         String s = "枫桥夜泊\n月落乌啼霜满天，江枫渔火对愁眠。\n姑苏城外寒山寺，夜半钟声到客船。\n";
         String p = """
                 [fung1][qieu2][ia5][bok6]
-                [nvot6][lok6][u1][ti2][song1][man3][tien1]
+                [nvot6][lok6][u1][ti2][song1][mon3][tien1]
                 [gong1][fung1][v4][fo3][dui4][ceu2][mien4]
                 [gu1][su1][ceen2][uai5][hon2][san1][sii5]
                 [ia5][pon5][zung1][seen1][tau5][kak6][cuon2]""";
