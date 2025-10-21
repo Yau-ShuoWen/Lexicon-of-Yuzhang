@@ -8,8 +8,8 @@
         <version>3.4.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
-    <artifactId>budou</artifactId>
+    <groupId>com.shuowen</groupId>
+    <artifactId>yuzong</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>budou</name>
     <description>budou</description>
