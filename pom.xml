@@ -11,8 +11,8 @@
     <groupId>com.shuowen</groupId>
     <artifactId>yuzong</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>budou</name>
-    <description>budou</description>
+    <name>lexicon-of-yuzhang</name>
+    <description>Dialect are the history that we can hear.</description>
     <url/>
     <licenses>
         <license/>
@@ -59,6 +59,7 @@
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>3.0.2</version>
         </dependency>
+
         <dependency>
             <groupId>org.mybatis</groupId>
             <artifactId>mybatis-spring</artifactId>
@@ -147,6 +148,17 @@
             <artifactId>java-diff-utils</artifactId>
             <version>4.12</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
