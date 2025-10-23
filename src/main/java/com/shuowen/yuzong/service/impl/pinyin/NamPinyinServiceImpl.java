@@ -2,10 +2,7 @@ package com.shuowen.yuzong.service.impl.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
-import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dao.domain.IPA.IPATool;
-import com.shuowen.yuzong.dao.domain.IPA.Shengdiao;
-import com.shuowen.yuzong.dao.domain.IPA.Yinjie;
+import com.shuowen.yuzong.dao.domain.IPA.*;
 import com.shuowen.yuzong.dao.mapper.PinyinIPA.NamIPAMapper;
 import com.shuowen.yuzong.service.PinyinService;
 import org.apache.commons.lang3.tuple.Pair;
@@ -61,9 +58,9 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
      *
      * @apiNote 只有两次查询，是最高效的版本
      */
-    public Map<String, String> getAllIPA(NamPinyin p, IPAToneStyle ms)
+    public Map<String, String> getAllIPA(NamPinyin p, IPAToneStyle ts, IPASyllableStyle ss)
     {
-        return getMultiLine(Set.of(p), ms).getOrDefault(p, Map.of());
+        return getMultiLine(Set.of(p), ts, ss).getOrDefault(p, Map.of());
     }
 
 
@@ -73,16 +70,16 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
      * @apiNote 只有两次查询，是最高效的版本
      * @see IPATool
      */
-    public Map<NamPinyin, Map<String, String>> getMultiLine(Set<NamPinyin> p, IPAToneStyle ms)
+    public Map<NamPinyin, Map<String, String>> getMultiLine(Set<NamPinyin> p, IPAToneStyle ts, IPASyllableStyle ss)
     {
-        return IPATool.getMultiline(p, ms, getDictionarySet(), m::findAllPinyinList, m::findAllToneList);
+        return IPATool.getMultiline(p, ts, ss, getDictionarySet(), m::findAllPinyinList, m::findAllToneList);
     }
 
     public void insertSyllable(NamPinyin p)
     {
         // 如果拼音无效，或者已经产生了数据
         if (!p.isValid()) return;
-        if (!getAllIPA(p, IPAToneStyle.FIVE_DEGREE_LINE).isEmpty()) return;
+        if (!getAllIPA(p, IPAToneStyle.FIVE_DEGREE_LINE, IPASyllableStyle.CHINESE_SPECIAL).isEmpty()) return;
 
         IPATool.insertSyllable(p, m::findElement, m::insertPinyin);
     }
@@ -117,11 +114,11 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
     {
         String s = "枫桥夜泊\n月落乌啼霜满天，江枫渔火对愁眠。\n姑苏城外寒山寺，夜半钟声到客船。\n";
         String p = """
-                [fung1][qieu2][ia5][bok6]
+                [fung1][qieu2][ia5][pok6]
                 [nvot6][lok6][u1][ti2][song1][mon3][tien1]
                 [gong1][fung1][v4][fo3][dui4][ceu2][mien4]
                 [gu1][su1][ceen2][uai5][hon2][san1][sii5]
-                [ia5][pon5][zung1][seen1][tau5][kak6][cuon2]""";
+                [ia5][bon5][zung1][seen1][tau5][kak6][cuon2]""";
 
         return s + NamPinyin.parseAndReplace(p, style);
     }

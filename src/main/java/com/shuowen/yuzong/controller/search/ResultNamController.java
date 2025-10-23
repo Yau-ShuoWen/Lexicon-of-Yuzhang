@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.controller.search;
 
 import com.shuowen.yuzong.Tool.dataStructure.Status;
+import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dao.domain.Word.NamCiyu;
 import com.shuowen.yuzong.dao.dto.HanziShow;
@@ -22,15 +23,15 @@ public class ResultNamController
     NamCiyuServiceImpl t;
 
     @GetMapping (value = "/byhanzi")
-    public List<HanziShow> hanziPreciseAskFinal(
+    public List<HanziShow> hanziSearch(
             @RequestParam String hanzi,
             @RequestParam String lang,
             @RequestParam (required = false, defaultValue = "1") int status,
-            @RequestParam (required = false, defaultValue = "1") int style,
             @RequestParam (required = false, defaultValue = "false") boolean vague
-            )
+    )
     {
-        return s.getHanziFormatted(hanzi, lang,vague, null, Status.of(status), IPAToneStyle.of(1));
+        return s.getHanziFormatted(hanzi, lang, vague, null, Status.of(status),
+                IPAToneStyle.of(1), IPASyllableStyle.of(0));
     }
 
     @GetMapping (value = "/byciyu/certain")

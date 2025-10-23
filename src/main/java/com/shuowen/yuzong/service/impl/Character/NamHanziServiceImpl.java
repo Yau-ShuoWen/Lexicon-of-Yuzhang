@@ -5,6 +5,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Language;
 import com.shuowen.yuzong.Tool.dataStructure.Status;
 import com.shuowen.yuzong.dao.domain.Character.Hanzi;
+import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dao.dto.HanziShow;
 import com.shuowen.yuzong.dao.mapper.Character.NamCharMapper;
@@ -66,7 +67,7 @@ public class NamHanziServiceImpl implements HanziService<NamStyle>
      */
     public List<HanziEntry> getHanziGroup(String hanzi, String lang, boolean vague)
     {
-        return (vague ?getHanziVague(hanzi): getHanziScTc(hanzi))
+        return (vague ? getHanziVague(hanzi) : getHanziScTc(hanzi))
                 .split(Language.of(lang));
     }
 
@@ -82,11 +83,12 @@ public class NamHanziServiceImpl implements HanziService<NamStyle>
      * 查询匹配简体、繁体，获得结果集，根据分类结果合并内容，并且按照要求渲染拼音或者国际音标
      */
     public List<HanziShow> getHanziFormatted
-    (String hanzi, String lang, boolean vague, NamStyle style, Status status, IPAToneStyle ms)
+    (String hanzi, String lang, boolean vague,
+     NamStyle style, Status status, IPAToneStyle ts, IPASyllableStyle ss)
     {
         List<HanziShow> res = getHanziOrganize(hanzi, lang, vague);
         HanziShow.initPinyinIPA(res, style, status,
-                ipa.getDefaultDict(), NamPinyin::of, ipa::getMultiLine, ms);
+                ipa.getDefaultDict(), NamPinyin::of, ipa::getMultiLine, ts, ss);
         return res;
     }
 }

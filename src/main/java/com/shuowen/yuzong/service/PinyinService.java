@@ -2,6 +2,7 @@ package com.shuowen.yuzong.service;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -17,9 +18,9 @@ public interface PinyinService<T extends UniPinyin, S extends PinyinStyle>
 
     Set<String> getDictionarySet();
 
-    Map<String, String> getAllIPA(T p, IPAToneStyle ms);
+    Map<String, String> getAllIPA(T p, IPAToneStyle ts,IPASyllableStyle ss);
 
-    Map<T, Map<String, String>> getMultiLine(Set<T> p, IPAToneStyle ms);
+    Map<T, Map<String, String>> getMultiLine(Set<T> p, IPAToneStyle ts, IPASyllableStyle ss);
 
     void insertSyllable(T p);
 

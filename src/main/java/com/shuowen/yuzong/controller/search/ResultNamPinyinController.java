@@ -2,6 +2,7 @@ package com.shuowen.yuzong.controller.search;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
+import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.service.impl.pinyin.NamPinyinServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,9 @@ public class ResultNamPinyinController
     }
 
     @GetMapping (value = "/ipa")
-    public Map<String, String> hhh2(@RequestParam String pinyin, @RequestParam int ms)
+    public Map<String, String> hhh2(@RequestParam String pinyin, @RequestParam int ts,@RequestParam int ss)
     {
-        return s.getAllIPA(new NamPinyin(pinyin), IPAToneStyle.of(ms));
+        return s.getAllIPA(new NamPinyin(pinyin), IPAToneStyle.of(ts), IPASyllableStyle.of(ss));
     }
 
 

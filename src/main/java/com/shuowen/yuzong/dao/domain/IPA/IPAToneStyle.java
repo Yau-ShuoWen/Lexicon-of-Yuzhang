@@ -16,29 +16,11 @@ public enum IPAToneStyle
         this.code = code;
     }
 
-    /**
-     * 替代原来的构造方法，提供默认值"ch"
-     */
-    public static IPAToneStyle of(int s)
+    public static IPAToneStyle of(int code)
     {
         for (var l : values())
-            if (l.code == s) return l;
+            if (l.code == code) return l;
 
         return FIVE_DEGREE_LINE;
-    }
-    
-    public boolean isFiveDegreeNum()
-    {
-        return code == FIVE_DEGREE_NUM.code;
-    }
-    
-    public boolean isFiveDegreeLine()
-    {
-        return code == FIVE_DEGREE_LINE.code;
-    }
-    
-    public boolean isFourCorner()
-    {
-        return code == FOUR_CORNER.code;
     }
 }

@@ -20,7 +20,8 @@ public class IPATool
      * @apiNote 只有两次查询，是最高效的版本
      */
     public static <T extends UniPinyin> Map<T, Map<String, String>> getMultiline(
-            Set<T> p, IPAToneStyle ms, Set<String> dictionarySet,
+            Set<T> p, IPAToneStyle ts, IPASyllableStyle ss,
+            Set<String> dictionarySet,
             Function<Set<String>, Set<IPASyllableEntity>> syllablePvd,
             Function<Set<String>, Set<IPAToneEntity>> tonePvd)
     {
@@ -65,7 +66,7 @@ public class IPATool
                     String ans = mergeAPI(
                             Yinjie.of(syllableMap.get(pinyin.getPinyin())),
                             Shengdiao.of(toneMap.get(pinyin.getTone())),
-                            pinyin, ms, dict);
+                            pinyin, ts, ss, dict);
                     tmp.put(dict, ans == null ? UniPinyin.getError() : ans);
                     if (ans != null) allNull = false;
                 }
@@ -80,14 +81,15 @@ public class IPATool
      * 统一接口
      */
     private static <T extends UniPinyin> String mergeAPI
-    (Yinjie y, Shengdiao d, T p, IPAToneStyle ts, String dict)
+    (Yinjie y, Shengdiao d, T p, IPAToneStyle ts, IPASyllableStyle ss, String dict)
     {
-        return switch (ts)
-        {
-            case FIVE_DEGREE_NUM -> merge(y, d, dict, true);
-            case FIVE_DEGREE_LINE -> merge(y, d, dict, false);
-            case FOUR_CORNER -> merge(y, p.getTone(true), dict);
-        };
+        return formatSyllable(
+                switch (ts)
+                {
+                    case FIVE_DEGREE_NUM -> merge(y, d, dict, true);
+                    case FIVE_DEGREE_LINE -> merge(y, d, dict, false);
+                    case FOUR_CORNER -> merge(y, p.getTone(true), dict);
+                }, ss);
     }
 
 
@@ -165,7 +167,7 @@ public class IPATool
 
 
     // true：在左边，false在右边
-    private static Map<Character, Boolean> leftOrRight = Map.of(
+    private static final Map<Character, Boolean> leftOrRight = Map.of(
             '꜀', true,
             '꜁', true,
             '꜂', true,
@@ -191,6 +193,29 @@ public class IPATool
         return (leftOrRight.get(D) ?
                 "--" + D + "--" + "//" + Y + "//" :
                 "//" + Y + "//" + "--" + D + "--");
+    }
+
+
+    /**
+     * 有9个音标和1个送气符号在汉语言学界之中通用，但却未能被国际音标接受。
+     */
+    private static String formatSyllable(String s, IPASyllableStyle ss)
+    {
+        return switch (ss)
+        {
+            case CHINESE_SPECIAL -> s;
+            case STANDARD_IPA -> s.
+                    replace("'", "ʰ").
+                    replace("ɿ", "ɹ̩").
+                    replace("ʅ", "ɻ̍").
+                    replace("ʮ", "ɹ̩ʷ").
+                    replace("ʯ", "ɻ̍ʷ").
+                    replace("ȶ", "t̠ʲ").
+                    replace("ȡ", "d̠ʲ").
+                    replace("ȵ", "ṉʲ").
+                    replace("ᴀ", "ä").
+                    replace("ᴇ", "e̞");
+        };
     }
 
 

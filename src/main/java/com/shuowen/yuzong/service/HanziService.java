@@ -4,6 +4,7 @@ import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Tool.dataStructure.Status;
 import com.shuowen.yuzong.dao.domain.Character.Hanzi;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
+import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dao.dto.HanziShow;
 
@@ -21,5 +22,5 @@ public interface HanziService<T extends PinyinStyle>
 
     List<HanziShow> getHanziOrganize(String hanzi, String lang, boolean vague);
 
-    List<HanziShow> getHanziFormatted(String hanzi, String lang, boolean vague, T style, Status status, IPAToneStyle ms);
+    List<HanziShow> getHanziFormatted(String hanzi, String lang, boolean vague, T style, Status status, IPAToneStyle ts, IPASyllableStyle ss);
 }

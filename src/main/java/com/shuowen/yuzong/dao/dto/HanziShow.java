@@ -2,18 +2,16 @@ package com.shuowen.yuzong.dao.dto;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.Language;
-import com.shuowen.yuzong.Tool.dataStructure.Status;
-import com.shuowen.yuzong.Tool.dataStructure.Triple;
+import com.shuowen.yuzong.Tool.dataStructure.*;
+import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
+import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dao.domain.Pinyin.PinyinTool;
 import lombok.Data;
-import com.shuowen.yuzong.Tool.dataStructure.Pair;
 
 import java.util.*;
 import java.util.NoSuchElementException;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -95,8 +93,8 @@ public class HanziShow
     public static <T extends UniPinyin<U>, U extends PinyinStyle>
     void initPinyinIPA(List<HanziShow> list, U style, Status s, String defaultDict,
                        Function<String, T> creator,
-                       BiFunction<Set<T>, IPAToneStyle, Map<T, Map<String, String>>> ipaSE,
-                       IPAToneStyle ms)
+                       TriFunction<Set<T>, IPAToneStyle, IPASyllableStyle, Map<T, Map<String, String>>> ipaSE,
+                       IPAToneStyle ts, IPASyllableStyle ss)
     {
         Set<String> usePy = new HashSet<>();
         Set<String> useIPA = new HashSet<>();
@@ -130,7 +128,7 @@ public class HanziShow
         }
 
         Map<String, String> pyData = PinyinTool.formatPinyin(usePy, style, creator);
-        Map<String, Map<String, String>> ipaData = PinyinTool.formatIPA(useIPA, creator, ipaSE, ms);
+        Map<String, Map<String, String>> ipaData = PinyinTool.formatIPA(useIPA, creator, ipaSE, ts,ss);
 
         for (var hz : list)
         {
