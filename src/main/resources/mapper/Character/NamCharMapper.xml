@@ -4,74 +4,92 @@
 
 <mapper namespace="com.shuowen.yuzong.dao.mapper.Character.NamCharMapper">
 
+    <!-- 基础字段定义 -->
+    <sql id="baseFields">
+        main.*
+    </sql>
+
     <!-- 复用字段定义 -->
     <sql id="similarField">
         CONCAT(
         '{"sc" : [',
-        COALESCE(GROUP_CONCAT(DISTINCT '"', p.hanzi, '"'), ''),
+        COALESCE(GROUP_CONCAT(DISTINCT '"', similar_field.hanzi, '"'), ''),
         '], "tc": [',
-        COALESCE(GROUP_CONCAT(DISTINCT '"', p.hantz, '"'), ''),
+        COALESCE(GROUP_CONCAT(DISTINCT '"', similar_field.hantz, '"'), ''),
         ']}'
         ) AS similar
     </sql>
 
+    <!-- 多拼音字段 -->
     <sql id="mulPyField">
-        CONCAT(
-        '[',
-        GROUP_CONCAT(
-        DISTINCT
-        '{"sc": "', q.sc, '", "tc": "', q.tc, '", "content": "', q.pinyin, '"}'
-        ORDER BY q.sort ASC
-        SEPARATOR ','
-        ),
-        ']'
+        CONCAT( '[',
+        GROUP_CONCAT(DISTINCT
+        '{"sc": "', pinyin.sc, '", "tc": "', pinyin.tc, '", "content": "', pinyin.pinyin, '"}'
+        ORDER BY pinyin.sort ASC
+        SEPARATOR ',' ), ']'
         ) AS mul_py
     </sql>
 
-    <sql id="baseJoin">
-        FROM NC.nam_char m
-        LEFT JOIN NC.nam_char_similar n ON m.id = n.char_id
-        LEFT JOIN NC.nam_char_similar p ON m.id = p.char_id
-        LEFT JOIN NC.nam_char_pinyin q ON m.id = q.char_id
+    <sql id="allFields">
+        <include refid="baseFields"/>,
+        <include refid="similarField"/>,
+        <include refid="mulPyField"/>
     </sql>
 
+    <!-- 基础表连接 -->
+    <sql id="baseTable">
+        FROM NC.nam_char main
+    </sql>
 
+    <!-- 相似字符表连接 -->
+    <sql id="similarTableJoin">
+        LEFT JOIN NC.nam_char_similar similar ON main.id = similar.char_id
+        LEFT JOIN NC.nam_char_similar similar_field ON main.id = similar_field.char_id
+    </sql>
+
+    <!-- 拼音表连接 -->
+    <sql id="pinyinTableJoin">
+        LEFT JOIN NC.nam_char_pinyin pinyin ON main.id = pinyin.char_id
+    </sql>
+
+    <sql id="allJoin">
+        <include refid="baseTable"/>
+        <include refid="similarTableJoin"/>
+        <include refid="pinyinTableJoin"/>
+    </sql>
 
     <!-- 通过主键寻找汉字 -->
     <select id="selectByPrimaryKey" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
-        SELECT m.*,
-        <include refid="similarField"/>,
-        <include refid="mulPyField"/>
-        <include refid="baseJoin"/>
-        WHERE m.id = #{id}
-        GROUP BY m.id
+        SELECT
+        <include refid="allFields"/>
+        <include refid="allJoin"/>
+        WHERE main.id = #{id}
+        GROUP BY main.id
     </select>
 
 
     <!-- 使用简繁体寻找汉字 -->
     <select id="findByHanziScTc" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
-        SELECT m.*,
-        <include refid="similarField"/>,
-        <include refid="mulPyField"/>
-        <include refid="baseJoin"/>
-        WHERE m.hanzi = #{hanzi}
-        OR m.hantz = #{hanzi}
-        GROUP BY m.id
-        ORDER BY special
+        SELECT
+        <include refid="allFields"/>
+        <include refid="allJoin"/>
+        WHERE main.hanzi = #{hanzi}
+        OR main.hantz = #{hanzi}
+        GROUP BY main.id
+        ORDER BY main.special
     </select>
 
     <!-- 使用简繁体、模糊识别寻找汉字 -->
     <select id="findByHanziVague" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
-        SELECT m.*,
-        <include refid="similarField"/>,
-        <include refid="mulPyField"/>
-        <include refid="baseJoin"/>
-        WHERE m.hanzi = #{hanzi}
-        OR m.hantz = #{hanzi}
-        OR n.hanzi = #{hanzi}
-        OR n.hantz = #{hanzi}
-        GROUP BY m.id
-        ORDER BY special
+        SELECT
+        <include refid="allFields"/>
+        <include refid="allJoin"/>
+        WHERE main.hanzi = #{hanzi}
+        OR main.hantz = #{hanzi}
+        OR similar.hanzi = #{hanzi}
+        OR similar.hantz = #{hanzi}
+        GROUP BY main.id
+        ORDER BY main.special
     </select>
 
     <!-- 插入数据 -->

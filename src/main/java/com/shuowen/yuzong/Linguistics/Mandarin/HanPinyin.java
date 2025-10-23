@@ -22,7 +22,7 @@ public class HanPinyin
     /**
      *字转拼音数组：一段这样的文字，自動判斷多音字 -> [yi1, duan4, zhe4, yang4, de5, wen2, zi4]
      *  */
-    public static List<String> txt_Pinyin(String txt)
+    public static List<String> txtPinyin(String txt)
     {
         List<Pinyin> a= HanLP.convertToPinyinList(txt);
         List<String> ans=new ArrayList<>();
