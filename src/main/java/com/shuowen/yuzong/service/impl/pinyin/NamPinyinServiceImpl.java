@@ -112,14 +112,24 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
      */
     public String getPreview(NamStyle style)
     {
-        String s = "枫桥夜泊\n月落乌啼霜满天，江枫渔火对愁眠。\n姑苏城外寒山寺，夜半钟声到客船。\n";
-        String p = """
+        String s1 = "枫桥夜泊\n月落乌啼霜满天，江枫渔火对愁眠。\n姑苏城外寒山寺，夜半钟声到客船。\n";
+        String p1 = """
                 [fung1][qieu2][ia5][pok6]
-                [nvot6][lok6][u1][ti2][song1][mon3][tien1]
+                [nvot6][lok7][u1][ti2][song1][mon3][tien1]
                 [gong1][fung1][v4][fo3][dui4][ceu2][mien4]
                 [gu1][su1][ceen2][uai5][hon2][san1][sii5]
                 [ia5][bon5][zung1][seen1][tau5][kak6][cuon2]""";
 
-        return s + NamPinyin.parseAndReplace(p, style);
+        String s2 = "山行\n远上寒山石径斜，白云生处有人家。\n停车坐爱枫林晚，霜叶红于二月花。\n";
+        String p2 = """
+                [san1][xin4]
+                [von2][song5][hon2][san1][sak7][jin4][xia4]
+                [pak6][vn4][sang1][cu5][iu3][nin4][ga1]
+                [tiang2][ca1][co5][ngai4][fung1][lin4][uon3]
+                [suong1][iet6][fung4][v4][oe5][nvot6][fa1]
+                """;
+
+        return s1 + NamPinyin.parseAndReplace(p1, style) +"\n\n\n"+
+                s2 + NamPinyin.parseAndReplace(p2, style);
     }
 }

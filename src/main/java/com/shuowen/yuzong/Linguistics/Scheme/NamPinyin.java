@@ -21,7 +21,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     /**
      *
-     * */
+     */
     public char getTone(boolean b)
     {
         return modifier[tone];
@@ -166,8 +166,8 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
         p = (p == null) ? defaultStyle() : p;
 
-        addMark(p.getNum());//加音调
         setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
+        addMark(p.getNum());//加音调
         return " //" + show + "// ";
     }
 
@@ -548,8 +548,8 @@ public class NamPinyin extends UniPinyin<NamStyle>
     /**
      * 基本规则：
      * <ol>
-     *     <li>如果有aoe，标注在最前面的一个aoe上</li>
-     *     <li>没有，但有iuv，标在最前面的iuv上面</li>
+     *     <li>如果有aoe，标注在最后面的一个aoe上，双写也是标在后一个</li>
+     *     <li>没有，但有iuv，标在最前面的iuv上面，双写也是标在前一个</li>
      *     <li>没有，但是n或ng，标在最n上面</li>
      *     <li>其他（唯一情況：m），標在最後</li>
      * </ol>
@@ -572,7 +572,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
             case 1:
                 StringBuilder Str = new StringBuilder(show);
 
-                //ǹin 优先级别问题，已修改2025/4/30
                 if (show.equals("ng"))
                 {
                     Str.insert(1, mark[tone]);
@@ -585,16 +584,11 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 while (i-- > 0)
                 {
                     char c = Str.charAt(i);
-                    if (c == 'a' || c == 'o' || c == 'e')
+                    if ("aoöọeẹё".contains((c + "").toLowerCase()))
                     {
                         idx = i; break;
                     }
-                    if (c == 'i' || c == 'u' || c == 'v')
-                    {
-                        idx = i;
-                        //Bug:ceen2->cẹ́n sii3->sǐi 优先级别问题，已修改 2025/4/22
-                        if (c == 'i' && i > 0 && Str.charAt(i - 1) == 'i') break;
-                    }
+                    if ("iuvü".contains((c + "").toLowerCase())) idx = i;
                 }
 
                 if (idx == -1) Str.append(mark[tone]);
