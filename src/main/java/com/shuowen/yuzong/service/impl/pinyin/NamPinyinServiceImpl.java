@@ -118,7 +118,8 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
                 [nvot6][lok7][u1][ti2][song1][mon3][tien1]
                 [gong1][fung1][v4][fo3][dui4][ceu2][mien4]
                 [gu1][su1][ceen2][uai5][hon2][san1][sii5]
-                [ia5][bon5][zung1][seen1][tau5][kak6][cuon2]""";
+                [ia5][bon4][zung1][sen1][tau5][kak6][cuon2]
+                """;
 
         String s2 = "山行\n远上寒山石径斜，白云生处有人家。\n停车坐爱枫林晚，霜叶红于二月花。\n";
         String p2 = """
@@ -129,7 +130,21 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
                 [suong1][iet6][fung4][v4][oe5][nvot6][fa1]
                 """;
 
-        return s1 + NamPinyin.parseAndReplace(p1, style) +"\n\n\n"+
-                s2 + NamPinyin.parseAndReplace(p2, style);
+        String s3 = "江雪\n千山鸟飞绝，万径人踪灭。\n孤舟蓑笠翁，独钓寒江雪。\n";
+        String p3 = """
+                [gong1][xuot6]
+                [qien1][san1][nieu3][feei1][jvot6]
+                [uon5][jin4][nin4][zung1][miet6]
+                [gu1][zeu1][suo1][lit7][ung4]
+                [tuk7][dieu4][hon2][gong1][xvot6]
+                """;
+
+        System.out.println( s1 + NamPinyin.parseAndReplace(p1, style) + "\n" +
+                s2 + NamPinyin.parseAndReplace(p2, style) + "\n" +
+                s3 + NamPinyin.parseAndReplace(p3, style));
+
+        return s1 + NamPinyin.parseAndReplace(p1, style) + "\n" +
+                s2 + NamPinyin.parseAndReplace(p2, style) + "\n" +
+                s3 + NamPinyin.parseAndReplace(p3, style);
     }
 }

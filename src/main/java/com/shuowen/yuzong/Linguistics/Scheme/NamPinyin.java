@@ -273,6 +273,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 if (ptk == 1) s += "";
                 if (ptk == 2) s += 'h';
                 if (ptk == 3) s += 'q';
+                if (ptk == 4 && c == 'k') s += 'h';
             }
 
         }
