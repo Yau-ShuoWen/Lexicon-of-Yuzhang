@@ -29,8 +29,9 @@ com/shuowen/yuzong/
 │   └── Scheme/     方言拼音方案
 │
 ├── Tool/
-│   ├── dataStructure/   自己做的数据结构
-│   └── format/          和文件格式有关的脚本和工具
+│   ├── dataStructure/  自己做的数据结构
+│   ├── format/         和文件格式有关的脚本和工具
+│   └── redis/          和远程数据库相关
 │
 ├── config/       配置文件
 │
@@ -43,8 +44,6 @@ com/shuowen/yuzong/
 │   └── model/    数据实体类
 │
 ├── mq/           分布式消息相关
-│
-├── redis/        远程数据库相关
 │
 ├── service/      典型的服务层
 │   └── impl/
