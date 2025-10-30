@@ -1,11 +1,8 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
-
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import java.util.*;
-import java.util.function.Function;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * 南昌话拼音方案
@@ -17,11 +14,8 @@ public class NamPinyin extends UniPinyin<NamStyle>
 {
     static char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
 
-    public static char[] modifier = {'꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
+    public static char[] modifier = {' ', '꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
 
-    /**
-     *
-     */
     public char getTone(boolean b)
     {
         return modifier[tone];
@@ -227,17 +221,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
                           int ptk, int alt, int capital)
     {
         String s = show;
-
-        /*
-         * 新增流程：因为是先标注音调再
-         * */
-        Character numBack = null;
-        if (s.matches("\\p{L}+\\d"))
-        {
-            numBack = s.charAt(s.length() - 1);
-            s = s.substring(0, s.length() - 1);
-        }
-
         if (gn > 0)
         {
             s = s.replace("ni", "gni");
@@ -273,7 +256,11 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 if (ptk == 1) s += "";
                 if (ptk == 2) s += 'h';
                 if (ptk == 3) s += 'q';
-                if (ptk == 4 && c == 'k') s += 'h';
+                if (ptk == 4)
+                {
+                    if (c == 'k') s += 'h';
+                    else s += 't';
+                }
             }
 
         }
@@ -312,7 +299,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
             if (capital == 1) s = s.toUpperCase();
             if (capital == 2) s = s.substring(0, 1).toUpperCase() + s.substring(1);
         }
-        if (numBack != null) s += numBack;
         show = s;
     }
 
@@ -614,47 +600,5 @@ public class NamPinyin extends UniPinyin<NamStyle>
     public static NamPinyin of(String s, boolean v)
     {
         return new NamPinyin(s, v);
-    }
-
-    protected static Function<String, NamPinyin> creator = NamPinyin::new;
-
-    /**
-     * @see UniPinyin
-     */
-    public static String formatting(String s, NamStyle style)
-    {
-        return UniPinyin.formatting(s, creator, style);
-    }
-
-    /**
-     * @see UniPinyin
-     */
-    public static List<NamPinyin> toPinyinList(String s)
-    {
-        return UniPinyin.toPinyinList(s, creator, "");
-    }
-
-    /**
-     * @see UniPinyin
-     */
-    public static List<String> toList(List<NamPinyin> list, NamStyle params)
-    {
-        return UniPinyin.toList(list, params);
-    }
-
-    /**
-     * @see UniPinyin
-     */
-    public static String splitAndReplace(String s, NamStyle style)
-    {
-        return UniPinyin.splitAndReplace(s, creator, style, " ");
-    }
-
-    /**
-     * @see UniPinyin
-     */
-    public static String parseAndReplace(String str, NamStyle style)
-    {
-        return UniPinyin.parseAndReplace(str, creator, style, "[", "]");
     }
 }
