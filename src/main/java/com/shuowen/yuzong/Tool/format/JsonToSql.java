@@ -3,7 +3,7 @@ package com.shuowen.yuzong.Tool.format;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.Quadruple;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
 
 
 import java.io.File;
@@ -88,18 +88,18 @@ public class JsonToSql
                 {
                     for (var configItem : config)
                     {
-                        String key = configItem.getN1();
-                        String type = configItem.getN2();
-                        boolean required = configItem.getN3();
+                        String key = configItem.getAlpha();
+                        String type = configItem.getBeta();
+                        boolean required = configItem.getGamma();
 
                         Object rawValue = item.get(key);
 
                         if (required)
                         {
                             if (rawValue == null)
-                                throw new NoSuchElementException("第" + (i + 1) + "条记录: " + configItem.getN1() + "字段为空或null - " + item + "\n");
+                                throw new NoSuchElementException("第" + (i + 1) + "条记录: " + configItem.getAlpha() + "字段为空或null - " + item + "\n");
                             if (rawValue instanceof String && ((String) rawValue).trim().isEmpty())
-                                throw new NoSuchElementException("第" + (i + 1) + "条记录: " + configItem.getN1() + "字段为空或null - " + item + "\n");
+                                throw new NoSuchElementException("第" + (i + 1) + "条记录: " + configItem.getAlpha() + "字段为空或null - " + item + "\n");
                         }
 
                         String value;
@@ -121,7 +121,7 @@ public class JsonToSql
                         batchBuilder.append("INSERT INTO ").append(table).append(" (");
                         for (var col : config)
                         {
-                            batchBuilder.append(col.getN4()).append(", ");
+                            batchBuilder.append(col.getDelta()).append(", ");
                         }
                         batchBuilder.setLength(batchBuilder.length() - 2);
                         batchBuilder.append(") VALUES\n");

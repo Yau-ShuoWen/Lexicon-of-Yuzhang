@@ -1,8 +1,7 @@
 package com.shuowen.yuzong.Tool.format;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.Quadruple;
-import org.antlr.v4.runtime.misc.Triple;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,16 +46,16 @@ public class CharToTable
             }
 
             table.sort(Comparator
-                    .comparing((Quadruple<String, String, String, Integer> q) -> q.getN3())
-                    .thenComparing(q -> q.getN4())
-                    .thenComparing(q -> q.getN1()));
+                    .comparing((Quadruple<String, String, String, Integer> q) -> q.getGamma())
+                    .thenComparing(q -> q.getDelta())
+                    .thenComparing(q -> q.getAlpha()));
 
             for (var q : table)
             {
                 //第一次新增這麼寫
                 //sqlWriter.write("INSERT INTO NC.mdr_char (hanzi, pinyin, zhuyin, tone) VALUES ('" + q.getN1() + "','" + q.getN2() + "','" + q.getN3() + "'," + q.getN4() + ");\n");
 
-                sqlWriter.write("INSERT IGNORE INTO NC.mdr_char (hanzi, pinyin, zhuyin, tone) VALUES ('" + q.getN1() + "','" + q.getN2() + "','" + q.getN3() + "'," + q.getN4() + ");\n");
+                sqlWriter.write("INSERT IGNORE INTO NC.mdr_char (hanzi, pinyin, zhuyin, tone) VALUES ('" + q.getAlpha() + "','" + q.getBeta() + "','" + q.getGamma() + "'," + q.getDelta() + ");\n");
             }
 //            System.out.println(table.size());
 

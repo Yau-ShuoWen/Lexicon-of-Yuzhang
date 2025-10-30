@@ -1,6 +1,6 @@
-package com.shuowen.yuzong.Tool.dataStructure;
+package com.shuowen.yuzong.dao.domain.IPA;
 
-public enum Status
+public enum Phonogram
 {
     AllPinyin(1),
     PinyinIPA(2),
@@ -10,7 +10,7 @@ public enum Status
 
     private int code;
 
-    Status(int code)
+    Phonogram(int code)
     {
         this.code = code;
     }
@@ -18,7 +18,7 @@ public enum Status
     /**
      * @param code 1 全部拼音 2 实用部分用拼音，专业资料用国际音标 3.全部国际音标
      */
-    public static Status of(int code)
+    public static Phonogram of(int code)
     {
         switch (code)
         {
