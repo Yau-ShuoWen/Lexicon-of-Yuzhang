@@ -2,9 +2,10 @@ package com.shuowen.yuzong.service;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
-import org.apache.commons.lang3.tuple.Pair;
+
 
 import java.util.*;
 

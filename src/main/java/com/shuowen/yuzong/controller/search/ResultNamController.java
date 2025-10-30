@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.controller.search;
 
-import com.shuowen.yuzong.Tool.dataStructure.Status;
+import com.shuowen.yuzong.dao.domain.IPA.Phonogram;
 import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dao.domain.Word.NamCiyu;
-import com.shuowen.yuzong.dao.dto.HanziShow;
+import com.shuowen.yuzong.dao.dto.Character.HanziShow;
 import com.shuowen.yuzong.service.impl.Character.NamHanziServiceImpl;
 import com.shuowen.yuzong.service.impl.Word.NamCiyuServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +22,19 @@ public class ResultNamController
     @Autowired
     NamCiyuServiceImpl t;
 
-    @GetMapping (value = "/byhanzi")
+    @PostMapping (value = "/byhanzi")
     public List<HanziShow> hanziSearch(
             @RequestParam String hanzi,
             @RequestParam String lang,
-            @RequestParam (required = false, defaultValue = "1") int status,
-            @RequestParam (required = false, defaultValue = "false") boolean vague
+            @RequestParam (required = false, defaultValue = "1") int phonogram,
+            @RequestParam (required = false, defaultValue = "false") boolean vague,
+            @RequestParam (required = false, defaultValue = "1") int toneStyle,
+            @RequestParam (required = false, defaultValue = "0") int syllableStyle,
+            @RequestBody (required = false) com.shuowen.yuzong.Linguistics.Format.NamStyle style
     )
     {
-        return s.getHanziFormatted(hanzi, lang, vague, null, Status.of(status),
-                IPAToneStyle.of(1), IPASyllableStyle.of(0));
+        return s.getHanziFormatted(hanzi, lang, vague, style, Phonogram.of(phonogram),
+                IPAToneStyle.of(toneStyle), IPASyllableStyle.of(syllableStyle));
     }
 
     @GetMapping (value = "/byciyu/certain")

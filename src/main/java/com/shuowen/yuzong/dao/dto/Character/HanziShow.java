@@ -1,17 +1,21 @@
-package com.shuowen.yuzong.dao.dto;
+package com.shuowen.yuzong.dao.dto.Character;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.*;
 import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
 import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.dao.domain.IPA.Phonogram;
 import com.shuowen.yuzong.dao.domain.Pinyin.PinyinTool;
 import lombok.Data;
 
 import java.util.*;
 import java.util.NoSuchElementException;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -31,9 +35,8 @@ public class HanziShow
         boolean special;
         List<Pair<String, String>> mulPy = new ArrayList<>();
         List<Triple<String, String, String>> ipaExp = new ArrayList<>();
-        List<String> pyExplain = new ArrayList<>();
         List<String> mean = new ArrayList<>();
-        List<String> note = new ArrayList<>();
+        List<Pair<String, String>> note = new ArrayList<>();
         //TODO:refer!
     }
 
@@ -68,10 +71,8 @@ public class HanziShow
              * */
             info.special = (info.special || data.getSpecial() != 0);
 
-            // true 表示获取的不是普通的值而是专门为了展示简化的值
             info.mulPy.addAll(data.getMulPyPair());
             info.ipaExp.addAll(data.getIpaExpTriple());
-            info.pyExplain.addAll(data.getPyExplainText());
             info.mean.addAll(data.getMeanText());
             info.note.addAll(data.getNoteText());
         }
@@ -91,7 +92,7 @@ public class HanziShow
 
 
     public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    void initPinyinIPA(List<HanziShow> list, U style, Status s, String defaultDict,
+    void initPinyinIPA(List<HanziShow> list, U style, Phonogram s, String defaultDict,
                        Function<String, T> creator,
                        TriFunction<Set<T>, IPAToneStyle, IPASyllableStyle, Map<T, Map<String, String>>> ipaSE,
                        IPAToneStyle ts, IPASyllableStyle ss)
@@ -128,7 +129,20 @@ public class HanziShow
         }
 
         Map<String, String> pyData = PinyinTool.formatPinyin(usePy, style, creator);
-        Map<String, Map<String, String>> ipaData = PinyinTool.formatIPA(useIPA, creator, ipaSE, ts,ss);
+        Map<String, Map<String, String>> ipaData = PinyinTool.formatIPA(useIPA, creator, ipaSE, ts, ss);
+
+        // 无论是没有这个拼音还是没有这个字典，都直接静默处理
+        BiFunction<String, String, String> get = (pinyin, dict) ->
+        {
+            try
+            {
+                return ipaData.get(pinyin).get(dict);
+            } catch (Exception e)
+            {
+                return "暂无国际音标，请联系管理员";
+            }
+        };
+
 
         for (var hz : list)
         {
@@ -146,14 +160,14 @@ public class HanziShow
                     {
                         i.stdPy = pyData.get(i.stdPy);
                         for (var j : i.mulPy) j.setRight(pyData.get(j.getRight()));
-                        for (var j : i.ipaExp) j.setRight(ipaData.get(j.getRight()).get(j.getMiddle()));
+                        for (var j : i.ipaExp) j.setRight(get.apply(j.getRight(), j.getMiddle()));
                     }
                     case AllIPA ->
                     {
-                        i.stdPy = ipaData.get(i.stdPy).getOrDefault(defaultDict, "国际音标无效");
+                        i.stdPy = get.apply(i.stdPy, defaultDict);
                         for (var j : i.mulPy)
-                            j.setRight(ipaData.get(j.getRight()).getOrDefault(defaultDict, "国际音标无效"));
-                        for (var j : i.ipaExp) j.setRight(ipaData.get(j.getRight()).get(j.getMiddle()));
+                            j.setRight(get.apply(j.getRight(), defaultDict));
+                        for (var j : i.ipaExp) j.setRight(get.apply(j.getRight(), j.getMiddle()));
                     }
                 }
             }

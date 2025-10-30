@@ -1,9 +1,10 @@
 package com.shuowen.yuzong.dao.domain.IPA;
 
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity;
 import com.shuowen.yuzong.dao.model.IPA.IPAToneEntity;
-import org.apache.commons.lang3.tuple.Pair;
+
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -175,7 +176,8 @@ public class IPATool
             '꜄', false,
             '꜅', false,
             '꜆', false,
-            '꜇', false
+            '꜇', false,
+            ' ', false
     );
 
     /**
@@ -198,9 +200,12 @@ public class IPATool
 
     /**
      * 有9个音标和1个送气符号在汉语言学界之中通用，但却未能被国际音标接受。
+     * <p>
+     * 供复制测试字体用的{@code ɿ  ɹ̩  ʅ  ɻ̍  ʮ  ɹ̩ʷ  ʯ  ɻ̍ʷ  ȶ  t̠ʲ  ȡ  d̠ʲ  ȵ  ṉʲ  ᴀ  ä  ᴇ  e̞}
      */
     private static String formatSyllable(String s, IPASyllableStyle ss)
     {
+        if (s == null) return null; //这里的null表示的是无效的拼音，是空安全的
         return switch (ss)
         {
             case CHINESE_SPECIAL -> s;

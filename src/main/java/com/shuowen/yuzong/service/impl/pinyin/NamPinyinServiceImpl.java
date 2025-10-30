@@ -2,14 +2,17 @@ package com.shuowen.yuzong.service.impl.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.dao.domain.IPA.*;
 import com.shuowen.yuzong.dao.mapper.PinyinIPA.NamIPAMapper;
 import com.shuowen.yuzong.service.PinyinService;
-import org.apache.commons.lang3.tuple.Pair;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static com.shuowen.yuzong.dao.domain.Pinyin.PinyinTool.parseAndReplace;
 
 /**
  * 南昌话拼音服务类
@@ -139,12 +142,8 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
                 [tuk7][dieu4][hon2][gong1][xvot6]
                 """;
 
-        System.out.println( s1 + NamPinyin.parseAndReplace(p1, style) + "\n" +
-                s2 + NamPinyin.parseAndReplace(p2, style) + "\n" +
-                s3 + NamPinyin.parseAndReplace(p3, style));
-
-        return s1 + NamPinyin.parseAndReplace(p1, style) + "\n" +
-                s2 + NamPinyin.parseAndReplace(p2, style) + "\n" +
-                s3 + NamPinyin.parseAndReplace(p3, style);
+        return s1 + parseAndReplace(p1, NamPinyin::new, style, "[", "]") + "\n" +
+                s2 + parseAndReplace(p2, NamPinyin::new, style, "[", "]") + "\n" +
+                s3 + parseAndReplace(p3, NamPinyin::new, style, "[", "]");
     }
 }
