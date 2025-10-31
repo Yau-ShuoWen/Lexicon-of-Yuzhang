@@ -13,42 +13,36 @@
 
 ## 历程
 
-<img src="readme/create.png" width="50%" height="auto" alt="项目创建时间">
+创建于2024/10/03
 
+<img src="docs/创建时间.png" width="50%" height="auto" alt="项目创建时间">
 
+## 文档
+
+- [结构和命名](./docs/name)
+- [应用程序接口](./docs/api)
+- [类的设计](./docs/class)
+- [数据库设计](./docs/database)
 
 ## 代码相关
 
 ### 代码目录
+
+只提供大致内容，详细内容见 [文档](./docs/name/代码包结构.md)
 ```
 com/shuowen/yuzong/
 │
-├── Linguistics/    语言学内容
-│   ├── Format/     方言拼音格式
-│   ├── Mandarin/   普通话内容
-│   └── Scheme/     方言拼音方案
-│
-├── Tool/
-│   ├── dataStructure/  自己做的数据结构
-│   ├── format/         和文件格式有关的脚本和工具
-│   └── redis/          和远程数据库相关
-│
 ├── config/       配置文件
 │
-├── controller/   典型的控制层
+├── controller/   控制层
 │ 
-├── dao/
-│   ├── domain/   低级数据传输实体，用于在服务层处理
-│   ├── dto/      高级数据传输实体，用于在控制层传输   
-│   ├── mapper/   数据映射类
-│   └── model/    数据实体类
+├── dao/          数据模型层
 │
-├── mq/           分布式消息相关
+├── Linguistics/  语言学内容
 │
-├── service/      典型的服务层
-│   └── impl/
+├── service/      服务层
 │
-└── YuZongApplication.java
+└── Tool/         工具类
 ```
 
 

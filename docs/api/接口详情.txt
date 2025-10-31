@@ -1,77 +1,34 @@
 /api
 │
 ├── /test 测试是否接通：普通字符串
-│   │
-│   ├── 无参数       返回："你好，世界"
-│   │
+│   ├── 无参数        返回："你好，世界"
 │   └── /param?name  返回："你好，#{name}"
 │
 │
 ├── /hello 测试是否接通：JSON
-│   │
-│   ├── 无参数     返回：{"message":"你好，世界"}
-│   │
+│   ├── 无参数        返回：{"message":"你好，世界"}
 │   └── /param?name  返回：{"message":"你好，#{name}"}
 │
 │
+├── /search/{语言代码}
+│   │
+│   ├── /byhanzi
+│   │     参数：汉字-hanzi 语言-lang 标注方式-phonogram 模糊识别-vague
+│   │          如果标注有方言拼音 拼音格式-style
+│   │          如果有标注国际音标 音节格式-syllableStyle 音调-toneStyle
+│   │     返回：HanziShow
+│   │
+│   └── /byciyu
 │
-├── /search 搜索  (controller/search)
+├── /setting/{语言代码}
 │   │
-│   ├── nam  南昌话
-│   │   │
-│   │   ├── byhanzi
-│   │   │
-│   │   │
-│   │   │
-│   │   ├── byPreview
-│   │   │
-│   │   │
-│   │   │
-│   │   ├──
-│   │   │
-│   │   │
-│   │   │
-│   │   └──
+│   ├── /style/init  初始化默认的拼音参数，直接返回默认的
+│   │      无参数     返回：默认 Style 对象
 │   │
-│   ├── jyut
+│   ├── /preview  传入 Style 格式，预览效果
+│   │      参数：Style 对象
+│   │      返回：一些诗歌 Style 渲染的他的拼音
 │   │
-│   └──
-│       ├──
-│       └──
+│   └── 更多功能待设计
 │
-│
-├── setting 设置
-│   │
-│   ├── nam  南昌话
-│   │   │
-│   │   ├── pinyin  初始化默认的拼音参数，直接返回默认的
-│   │   │      无参数
-│   │   │      返回：默认 NamStyle 对象
-│   │   │
-│   │   ├── preview  传入Nam格式，预览效果
-│   │   │      参数：NamStyle 对象
-│   │   │      返回：《枫桥夜泊》和按照NamStyle渲染的拼音
-│   │   │
-│   │   ├── inspect
-│   │   │      参数：NamStyle 对象，拼音字符串 String，每一个音节之间使用空格分割
-│   │   │      返回：按照NamStyle渲染的拼音
-│   │   │
-│   │   └── 更多功能待设计
-│   │
-│   ├── jyut
-│   │   │
-│   │   ├── pinyin  初始化默认的拼音参数，直接返回默认的
-│   │   │      无参数
-│   │   │      返回：默认 JyutStyle 对象
-│   │   │
-│   │   ├── preview 待实现
-│   │   │
-│   │   └── inspect 待实现
-│   │
-│   └── 更多语言待设计
-│       ├──
-│       └──
-└──
-
-
-
+└── 更多功能待设计
