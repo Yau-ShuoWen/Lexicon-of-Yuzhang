@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.dao.mapper.PinyinIPA;
+package com.shuowen.yuzong.dao.mapper.IPA;
 
 import com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity;
 

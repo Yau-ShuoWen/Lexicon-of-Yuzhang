@@ -1,16 +1,13 @@
 package com.shuowen.yuzong.service.impl.Word;
 
-import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.dao.domain.Word.NamCiyu;
 import com.shuowen.yuzong.dao.mapper.Word.NamWordMapper;
-import com.shuowen.yuzong.service.CiyuService;
-import com.shuowen.yuzong.service.impl.pinyin.NamPinyinServiceImpl;
+import com.shuowen.yuzong.service.interfaces.Word.CiyuService;
+import com.shuowen.yuzong.service.impl.Pinyin.NamPinyinServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Service
 public class NamCiyuServiceImpl implements CiyuService
@@ -27,13 +24,13 @@ public class NamCiyuServiceImpl implements CiyuService
     @Autowired
     private NamPinyinServiceImpl ipa;
 
-    /**
-     * 批量获取 IPA 数据
-     */
-    private Map<NamPinyin, Map<String, String>> getIPABatch(Set<NamPinyin> pinyinList)
-    {
-        return ipa.getMultiLine(pinyinList);
-    }
+//    /**
+//     * 批量获取 IPA 数据
+//     */
+//    private Map<NamPinyin, Map<String, String>> getIPABatch(Set<NamPinyin> pinyinList)
+//    {
+//        return ipa.getMultiLine(pinyinList);
+//    }
 
     public List<NamCiyu> getCiyuByScTc(String s)
     {

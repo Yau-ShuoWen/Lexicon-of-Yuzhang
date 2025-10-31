@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.controller.search;
 
+import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.dao.domain.IPA.Phonogram;
 import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
@@ -30,7 +31,7 @@ public class ResultNamController
             @RequestParam (required = false, defaultValue = "false") boolean vague,
             @RequestParam (required = false, defaultValue = "1") int toneStyle,
             @RequestParam (required = false, defaultValue = "0") int syllableStyle,
-            @RequestBody (required = false) com.shuowen.yuzong.Linguistics.Format.NamStyle style
+            @RequestBody (required = false) NamStyle style
     )
     {
         return s.getHanziFormatted(hanzi, lang, vague, style, Phonogram.of(phonogram),

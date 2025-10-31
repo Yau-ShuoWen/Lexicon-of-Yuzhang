@@ -35,7 +35,7 @@ public class NamCiyu extends Ciyu<NamPinyin, NamStyle>
     @Override
     protected String formatting(String s, NamStyle style)
     {
-        return NamPinyin.formatting(s, style);
+        return "";//NamPinyin.formatting(s, style);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.controller;
 
-import com.shuowen.yuzong.service.TokenService;
+import com.shuowen.yuzong.service.impl.Account.TokenService;
 import com.shuowen.yuzong.service.impl.Account.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

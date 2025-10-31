@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.service;
+package com.shuowen.yuzong.service.impl.Account;
 
 import com.shuowen.yuzong.Tool.redis.RedisTool;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +14,7 @@ public class TokenService
     @Autowired
     private RedisTool redisTool;
 
-    // Token过期时间 - 7天
-    private static final long TOKEN_EXPIRE_TIME = 7 * 24 * 60 * 60; // 秒
+    private static final long TOKEN_EXPIRE_TIME = 7 * 24 * 60 * 60; // 单位：秒，即七天
     private static final String TOKEN_PREFIX = "token:";
     private static final String USER_TOKEN_PREFIX = "user_token:";
 
@@ -27,21 +26,14 @@ public class TokenService
         // 生成Token
         String token = UUID.randomUUID().toString().replace("-", "");
 
-        // 保存Token -> 用户的映射
-        String tokenKey = TOKEN_PREFIX + token;
-        redisTool.set(tokenKey, username, TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisTool.set(TOKEN_PREFIX + token, username, TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
 
         // 保存用户 -> Token的映射（用于单用户登录）
         String userTokenKey = USER_TOKEN_PREFIX + username;
         String oldToken = (String) redisTool.get(userTokenKey);
 
-        // 如果用户已有Token，删除旧的
-        if (oldToken != null)
-        {
-            redisTool.del(TOKEN_PREFIX + oldToken);
-        }
+        if (oldToken != null) redisTool.del(TOKEN_PREFIX + oldToken);
 
-        // 保存新的用户Token映射
         redisTool.set(userTokenKey, token, TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
 
         return token;
@@ -74,21 +66,15 @@ public class TokenService
      */
     public void removeToken(String token)
     {
-        if (token == null || token.trim().isEmpty())
-        {
-            return;
-        }
+        if (token == null || token.trim().isEmpty()) return;
 
         String tokenKey = TOKEN_PREFIX + token;
         String username = (String) redisTool.get(tokenKey);
 
         if (username != null)
         {
-            // 删除Token映射
             redisTool.del(tokenKey);
-            // 删除用户Token映射
-            String userTokenKey = USER_TOKEN_PREFIX + username;
-            redisTool.del(userTokenKey);
+            redisTool.del(USER_TOKEN_PREFIX + username);
         }
     }
 
@@ -104,12 +90,8 @@ public class TokenService
 
             if (username != null)
             {
-                // 刷新Token过期时间
                 redisTool.expire(tokenKey, TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
-
-                // 刷新用户Token映射的过期时间
-                String userTokenKey = USER_TOKEN_PREFIX + username;
-                redisTool.expire(userTokenKey, TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
+                redisTool.expire(USER_TOKEN_PREFIX + username, TOKEN_EXPIRE_TIME, TimeUnit.SECONDS);
             }
         }
     }

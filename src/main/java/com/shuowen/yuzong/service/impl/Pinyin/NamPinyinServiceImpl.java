@@ -1,11 +1,11 @@
-package com.shuowen.yuzong.service.impl.pinyin;
+package com.shuowen.yuzong.service.impl.Pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.dao.domain.IPA.*;
-import com.shuowen.yuzong.dao.mapper.PinyinIPA.NamIPAMapper;
-import com.shuowen.yuzong.service.PinyinService;
+import com.shuowen.yuzong.dao.mapper.IPA.NamIPAMapper;
+import com.shuowen.yuzong.service.interfaces.Pinyin.PinyinService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -111,7 +111,7 @@ public class NamPinyinServiceImpl implements PinyinService<NamPinyin, NamStyle>
 
 
     /**
-     * 传入风格，返回这个风格的诗歌的示例（暂时只有这一首）
+     * 传入风格，返回这个风格的诗歌的示例
      */
     public String getPreview(NamStyle style)
     {

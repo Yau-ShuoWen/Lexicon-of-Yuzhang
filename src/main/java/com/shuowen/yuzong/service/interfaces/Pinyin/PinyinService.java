@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.service;
+package com.shuowen.yuzong.service.interfaces.Pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;

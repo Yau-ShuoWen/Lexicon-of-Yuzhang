@@ -1,10 +1,9 @@
 package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.dao.mapper.Character.NamNotationMapper;
-import com.shuowen.yuzong.dao.model.Character.MdrDialectChar;
-import com.shuowen.yuzong.service.NotationService;
+import com.shuowen.yuzong.service.interfaces.Character.NotationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
