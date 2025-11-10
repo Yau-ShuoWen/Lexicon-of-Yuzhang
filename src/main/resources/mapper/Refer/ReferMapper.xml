@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.dao.mapper.Refer.ReferMapper">
+
+    <select id="fuzzySearch" resultType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+        SELECT * FROM NC.reference
+        WHERE content like CONCAT('%', #{keyword}, '%')
+        AND dictionary = #{dictionary}
+        ORDER BY sort ASC
+    </select>
+
+    <select id="pageSearch" resultType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+        SELECT * FROM NC.reference
+        WHERE page = #{page}
+        AND dictionary = #{dictionary}
+        ORDER BY sort ASC
+    </select>
+
+    <select id="getContext" resultType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+        (SELECT * FROM NC.reference
+        WHERE sort &lt;= (SELECT sort FROM NC.reference WHERE id = #{id})
+        AND dictionary = #{dictionary}
+        ORDER BY sort DESC
+        LIMIT 11)
+
+        UNION ALL
+
+        (SELECT * FROM NC.reference
+        WHERE sort > (SELECT sort FROM NC.reference WHERE id = #{id})
+        AND dictionary = #{dictionary}
+        ORDER BY sort ASC
+        LIMIT 10)
+        ORDER BY sort ASC
+    </select>
+
+    <insert id="insert" parameterType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+        INSERT INTO NC.reference(dictionary, page, content, sort)
+        VALUES (#{dictionary}, #{page}, #{content}, #{sort})
+    </insert>
+
+    <update id="update" parameterType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+        UPDATE NC.reference
+        <set>
+            <foreach collection="list" item="i" separator=",">
+                <if test="i == 'dictionary'">dictionary = #{refer.dictionary}</if>
+                <if test="i == 'page'">page = #{refer.page}</if>
+                <if test="i == 'content'">content = #{refer.content}</if>
+            </foreach>
+        </set>
+        WHERE id = #{refer.id}
+    </update>
+
+    <insert id="delete">
+        DELETE FROM NC.reference WHERE id = #{id}
+    </insert>
+</mapper>
