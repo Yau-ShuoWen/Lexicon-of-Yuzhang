@@ -2,6 +2,7 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+
 import java.util.*;
 
 /**
@@ -385,7 +386,8 @@ public class NamPinyin extends UniPinyin<NamStyle>
             {
                 if (Str.length() > 1 && Str.charAt(1) == 'g')
                 {
-                    l++; yield 10;
+                    l++;
+                    yield 10;
                 }
                 else
                 {
@@ -398,13 +400,15 @@ public class NamPinyin extends UniPinyin<NamStyle>
             case 's' -> 18;
             default ->
             {
-                l--; yield 0;
+                l--;
+                yield 0;
             }
         };
         l++;
 
         Sub = Str.substring(l, r);
-        l = 0; r = Sub.length();
+        l = 0;
+        r = Sub.length();
 
         String answer = (S < 10) ? ("0" + S) : ("" + S);
 
@@ -423,13 +427,15 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 case 'v' -> 3;
                 default ->
                 {
-                    l--; yield 0;
+                    l--;
+                    yield 0;
                 }
             };
             l++;
         }
         Sub = Sub.substring(l, r);
-        l = 0; r = Sub.length();
+        l = 0;
+        r = Sub.length();
 
         if (!Sub.isEmpty())
         {
@@ -440,7 +446,8 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 case 'n' -> 5;
                 case 'g' ->
                 {
-                    r--; yield 6;
+                    r--;
+                    yield 6;
                 }
                 case 't' -> 7;
                 case 'k' -> 8;
@@ -559,7 +566,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
             case 1:
                 StringBuilder Str = new StringBuilder(show);
 
-                if (show.equals("ng"))
+                if ("ng".equalsIgnoreCase(show))
                 {
                     Str.insert(1, mark[tone]);
                     show = Str.toString();
@@ -568,14 +575,24 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
                 int idx = -1;
                 int i = Str.length();
+
+                /* 检查字符实现的说明
+                 * 1. 问：为什么不用包含大小写的正则表达式？
+                 *    答：因为经过测试无法正确识别(ẹ Ẹ)(ё Ё)，所以用回直接匹配大小写 25/11/10
+                 *
+                 * 2. 问：为什么匹配里没有(ọ Ọ)这对字符？
+                 *    答：显示问题，因为(ẹ ё ö)是单个字符，但是ọ是 字符o+下加点，所以检查ọ的位置就是检查下加点的位置
+                 *       但是这个下加点会吸附，为了不影响其他的显示，放在最前面，放到最大看可以发现吸附在了左方括号下面
+                 * */
                 while (i-- > 0)
                 {
                     char c = Str.charAt(i);
-                    if ("aoöọeẹё".contains((c + "").toLowerCase()))
+                    if (String.valueOf(c).matches("[̣aAoOöÖeEẹẸёЁ]"))
                     {
-                        idx = i; break;
+                        idx = i;
+                        break;
                     }
-                    if ("iuvü".contains((c + "").toLowerCase())) idx = i;
+                    if (String.valueOf(c).matches("[iIuUvVüÜ]")) idx = i;
                 }
 
                 if (idx == -1) Str.append(mark[tone]);

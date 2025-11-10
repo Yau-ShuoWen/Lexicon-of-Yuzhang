@@ -3,6 +3,7 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import lombok.Getter;
 
+import java.util.Comparator;
 import java.util.Objects;
 
 abstract public class UniPinyin<T extends PinyinStyle>
@@ -213,4 +214,16 @@ abstract public class UniPinyin<T extends PinyinStyle>
      * 检查音调是否合理。
      */
     protected abstract boolean toneValid();
+
+    /**
+     * 音节使用的是code，音调使用的是tone
+     * */
+    public Integer getWeight()
+    {
+        return isValid() ? Integer.parseInt(code + tone) : -1;
+    }
+
+    public static final Comparator<UniPinyin> ASC = Comparator.comparingInt(UniPinyin::getWeight);
+
+    public static final Comparator<UniPinyin> DESC = ASC.reversed();
 }
