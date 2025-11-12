@@ -576,18 +576,14 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 int idx = -1;
                 int i = Str.length();
 
-                /* 检查字符实现的说明
-                 * 1. 问：为什么不用包含大小写的正则表达式？
-                 *    答：因为经过测试无法正确识别(ẹ Ẹ)(ё Ё)，所以用回直接匹配大小写 25/11/10
-                 *
-                 * 2. 问：为什么匹配里没有(ọ Ọ)这对字符？
-                 *    答：显示问题，因为(ẹ ё ö)是单个字符，但是ọ是 字符o+下加点，所以检查ọ的位置就是检查下加点的位置
-                 *       但是这个下加点会吸附，为了不影响其他的显示，放在最前面，放到最大看可以发现吸附在了左方括号下面
+                /*
+                 * 问：为什么不用包含大小写的正则表达式？
+                 * 答：因为经过测试无法正确识别(ẹ Ẹ)(ё Ё)(ọ Ọ)，所以用回直接匹配大小写 25/11/10
                  * */
                 while (i-- > 0)
                 {
                     char c = Str.charAt(i);
-                    if (String.valueOf(c).matches("[̣aAoOöÖeEẹẸёЁ]"))
+                    if (String.valueOf(c).matches("[aAoOöÖọỌeEẹẸёЁ]"))
                     {
                         idx = i;
                         break;
@@ -601,10 +597,10 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 show = Str.toString();
                 break;
             case 2:
-                show = pinyin + " " + mark[tone];
+                show = show + " " + mark[tone];
                 break;
             case 3:
-                show = pinyin + tone;
+                show = show + tone;
                 break;
         }
     }
