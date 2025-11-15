@@ -9,6 +9,7 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
 import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.dao.domain.IPA.IPATool;
 import com.shuowen.yuzong.dao.domain.IPA.Phonogram;
 import com.shuowen.yuzong.dao.domain.Pinyin.PinyinTool;
 import lombok.Data;
@@ -93,12 +94,12 @@ public class HanziShow
 
     public static <T extends UniPinyin<U>, U extends PinyinStyle>
     void initPinyinIPA(List<HanziShow> list, U style, Phonogram s, String defaultDict,
-                       Function<String, T> creator,
+                       Function<String, T> pinyinCreator,
                        TriFunction<Set<T>, IPAToneStyle, IPASyllableStyle, Map<T, Map<String, String>>> ipaSE,
                        IPAToneStyle ts, IPASyllableStyle ss)
     {
-        Set<String> usePy = new HashSet<>();
-        Set<String> useIPA = new HashSet<>();
+        Set<String> setToPy = new HashSet<>();
+        Set<String> setToIPA = new HashSet<>();
         // 获取内容
         for (var hz : list)
         {
@@ -108,28 +109,28 @@ public class HanziShow
                 {
                     case AllPinyin ->
                     {
-                        usePy.add(i.stdPy);
-                        for (var j : i.mulPy) usePy.add(j.getRight());
-                        for (var j : i.ipaExp) usePy.add(j.getRight());
+                        setToPy.add(i.stdPy);
+                        for (var j : i.mulPy) setToPy.add(j.getRight());
+                        for (var j : i.ipaExp) setToPy.add(j.getRight());
                     }
                     case PinyinIPA ->
                     {
-                        usePy.add(i.stdPy);
-                        for (var j : i.mulPy) usePy.add(j.getRight());
-                        for (var j : i.ipaExp) useIPA.add(j.getRight());
+                        setToPy.add(i.stdPy);
+                        for (var j : i.mulPy) setToPy.add(j.getRight());
+                        for (var j : i.ipaExp) setToIPA.add(j.getRight());
                     }
                     case AllIPA ->
                     {
-                        useIPA.add(i.stdPy);
-                        for (var j : i.mulPy) useIPA.add(j.getRight());
-                        for (var j : i.ipaExp) useIPA.add(j.getRight());
+                        setToIPA.add(i.stdPy);
+                        for (var j : i.mulPy) setToIPA.add(j.getRight());
+                        for (var j : i.ipaExp) setToIPA.add(j.getRight());
                     }
                 }
             }
         }
 
-        Map<String, String> pyData = PinyinTool.formatPinyin(usePy, style, creator);
-        Map<String, Map<String, String>> ipaData = PinyinTool.formatIPA(useIPA, creator, ipaSE, ts, ss);
+        Map<String, String> pyData = PinyinTool.formatPinyin(setToPy, pinyinCreator, style);
+        Map<String, Map<String, String>> ipaData = IPATool.formatIPA(setToIPA, pinyinCreator, ipaSE, ts, ss);
 
         // 无论是没有这个拼音还是没有这个字典，都直接静默处理
         BiFunction<String, String, String> get = (pinyin, dict) ->

@@ -5,12 +5,14 @@ import java.util.*;
 import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.*;
 
+/**
+ * 比较列表差异，特别为FractionalIndexing优化<p>
+ * 适用于实现了ChangeDetectable接口的对象
+ * @apiNote 要实现 {@code ChangeDetectable} 的三个函数以及{@code equals}的函数
+ */
+
 public class ListCompareUtil
 {
-    /**
-     * 比较列表差异，特别为FractionalIndexing优化
-     * 适用于实现了ChangeDetectable接口的对象
-     */
     public static <T extends ChangeDetectable<T>> List<ChangeResult<T>> compare(List<T> oldList, List<T> newList)
     {
         List<ChangeResult<T>> results = new ArrayList<>();
@@ -26,7 +28,6 @@ public class ListCompareUtil
                 case CHANGE -> handleChange(delta, results);
             }
         }
-
         return results;
     }
 

@@ -1,6 +1,8 @@
 package com.shuowen.yuzong.dao.domain.IPA;
 
+import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity;
 import com.shuowen.yuzong.dao.model.IPA.IPAToneEntity;
@@ -75,6 +77,23 @@ public class IPATool
             }
         }
         return map;
+    }
+
+    public static <T extends UniPinyin<U>, U extends PinyinStyle>
+    Map<String, Map<String, String>> formatIPA(
+            Set<String> py, Function<String, T> creator,
+            TriFunction<Set<T>, IPAToneStyle, IPASyllableStyle, Map<T, Map<String, String>>> ipaSE,
+            IPAToneStyle ts, IPASyllableStyle ss)
+    {
+        Set<T> pySet = new HashSet<>();
+        Map<String, Map<String, String>> res = new HashMap<>();
+
+        for (String i : py) pySet.add(creator.apply(i));
+        Map<T, Map<String, String>> data = ipaSE.apply(pySet, ts, ss);
+        for (String i : py)
+            res.put(i, data.get(creator.apply(i)));
+
+        return res;
     }
 
 
@@ -221,6 +240,10 @@ public class IPATool
                     replace("ᴀ", "ä").
                     replace("ᴇ", "e̞");
         };
+        // TODO：这里理论上要加这个东西，但是这是严式音标的内容而不是音标转换的内容
+        //  replace("ts","t͡s").
+        //  replace("tɕ","t͡ɕ").
+        //  replace("tʂ","t͡ʂ").
     }
 
 
