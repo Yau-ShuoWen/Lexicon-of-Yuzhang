@@ -1,11 +1,13 @@
-package com.shuowen.yuzong.Tool.dataStructure;
+package com.shuowen.yuzong.Tool.dataStructure.option;
 
 
 /**
- * 三种合适的参数（不考虑地区如陆港台）
- * SC 简体中文
- * TC 繁体中文
- * CH 不区分简繁
+ * 三种合适的参数（不考虑地区陆港台）
+ * <ul>
+ * <li> SC 简体中文 </li>
+ * <li> TC 繁体中文 </li>
+ * <li> CH 不区分简繁 </li>
+ * </ul>
  */
 public enum Language
 {
