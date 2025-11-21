@@ -4,24 +4,31 @@
 
 <mapper namespace="com.shuowen.yuzong.dao.mapper.Character.NamNotationMapper">
 
-    <select id="selectMdrDialectChars" resultType="com.shuowen.yuzong.dao.model.Character.MdrDialectChar">
-        select
-        mdr.id     h_id,
-        hp_comb,
-        m          left_id,
-        n          right_id,
-        main.id    d_id,
-        main.hanzi hanzi,
-        hantz,
-        std_py
+    <select id="selectMdrDialectChars" resultType="com.shuowen.yuzong.dao.model.Character.DialectChar">
+        select info, std_py
         from mdr_char mdr
         RIGHT JOIN NC.nam_char_mdr map ON mdr.id = map.m
         RIGHT JOIN NC.nam_char main ON map.n = main.id
-        WHERE hp_comb IN
-        <foreach collection="list" item="hpComb" open="(" separator="," close=")">
-            #{hpComb}
+        WHERE info IN
+        <foreach collection="list" item="info" open="(" separator="," close=")">
+            #{info}
         </foreach>
         GROUP BY m, n
     </select>
 
+    <select id="getMdrInfoByDialectId" resultType="com.shuowen.yuzong.dao.model.Character.CharMdr">
+        SELECT map.n left_id, map.m right_id, info
+        FROM nam_char_mdr map
+        RIGHT JOIN mdr_char ON map.m = id
+        WHERE map.n = #{id};
+    </select>
+
+    <delete id="clearMapByDialectId">
+        DELETE FROM nam_char_mdr WHERE n = #{id}
+    </delete>
+
+    <insert id="insertMap">
+        INSERT INTO
+        nam_char_mdr values (#{m}, #{n})
+    </insert>
 </mapper>

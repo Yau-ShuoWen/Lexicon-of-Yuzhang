@@ -1,6 +1,8 @@
 package com.shuowen.yuzong.dao.mapper.Character;
 
 import com.shuowen.yuzong.dao.model.Character.CharEntity;
+import com.shuowen.yuzong.dao.model.Character.CharPinyin;
+import com.shuowen.yuzong.dao.model.Character.CharSimilar;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -9,23 +11,68 @@ import java.util.List;
 public interface NamCharMapper
 {
     /**
-     * 通过主键寻找汉字
-     */
-    CharEntity selectByPrimaryKey(Integer id);
-
-    /**
      * 使用简繁体寻找汉字
      */
-    List<CharEntity> findByHanziScTc(String hanzi);
+    List<CharEntity> findHanziByScTc(String hanzi);
 
     /**
      * 使用简繁体、模糊识别寻找汉字
-     * 寻找：字表里的简体字和繁体字、模糊识别表里的简体字和繁体字
      */
-    List<CharEntity> findByHanziVague(String hanzi);
+    List<CharEntity> findHanziByVague(String hanzi);
 
     /**
-     * 插入数据
+     * 通过主键寻找汉字
      */
-    void insert(CharEntity charEntity);
+    CharEntity findHanziByCharId(Integer id);
+
+    /**
+     * 通过汉字外键寻找相似字
+     */
+    List<CharSimilar> findHanziSimilarByCharId(Integer id);
+
+    /**
+     * 通过汉字外键寻找读音
+     */
+    List<CharPinyin> findHanziPinyinByCharId(Integer id);
+
+    /**
+     * 插入主表数据
+     */
+    void insertChar(CharEntity ch);
+
+    /**
+     * 插入Similar表
+     */
+    void insertCharSimilar(CharSimilar c);
+
+    /**
+     * 插入Pinyin表
+     */
+    void insertCharPinyin(CharPinyin ch);
+
+    /**
+     * 更新主表数据
+     */
+    void updateCharById(CharEntity ch);
+
+    /**
+     * 更新Similar表数据
+     */
+    void updateCharSimilarById(CharSimilar ch);
+
+    /**
+     * 更新Pinyin表数据
+     */
+    void updateCharPinyinById(CharPinyin ch);
+
+    /**
+     * 删除Similar表数据
+     */
+    void deleteCharSimilarById(Integer id);
+
+    /**
+     * 删除Pinyin表数据
+     */
+    void deleteCharPinyinById(Integer id);
+
 }

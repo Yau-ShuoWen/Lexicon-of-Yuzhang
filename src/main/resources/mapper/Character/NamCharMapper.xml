@@ -58,18 +58,9 @@
         <include refid="pinyinTableJoin"/>
     </sql>
 
-    <!-- 通过主键寻找汉字 -->
-    <select id="selectByPrimaryKey" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
-        SELECT
-        <include refid="allFields"/>
-        <include refid="allJoin"/>
-        WHERE main.id = #{id}
-        GROUP BY main.id
-    </select>
-
 
     <!-- 使用简繁体寻找汉字 -->
-    <select id="findByHanziScTc" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+    <select id="findHanziByScTc" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
         SELECT
         <include refid="allFields"/>
         <include refid="allJoin"/>
@@ -80,7 +71,7 @@
     </select>
 
     <!-- 使用简繁体、模糊识别寻找汉字 -->
-    <select id="findByHanziVague" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+    <select id="findHanziByVague" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
         SELECT
         <include refid="allFields"/>
         <include refid="allJoin"/>
@@ -92,12 +83,101 @@
         ORDER BY main.special
     </select>
 
-    <!-- 插入数据 -->
-    <insert id="insert" parameterType="com.shuowen.yuzong.dao.model.Character.CharEntity">
-        insert into NC.nam_char
-        (hanzi, hantz, std_py, special, mul_py, py_explain, ipa_exp, mean, note, refer)
-        values (#{hanzi}, #{hantz}, #{std_py}, #{special}, #{mul_py}, #{py_explain}, #{ipa_exp}, #{mean}, #{note},
-        #{refer})
+
+    <!-- 下面这一段是和编辑有关的内容  -->
+    <!-- |                       -->
+    <!-- |                       -->
+    <!-- |                       -->
+    <!-- |                       -->
+    <!-- |                       -->
+    <!-- |（稍大一点的分隔符）       -->
+
+
+    <!-- 通过主键寻找汉字 -->
+    <select id="findHanziByCharId" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+        SELECT * FROM NC.nam_char
+        WHERE id = #{id}
+        GROUP BY id
+    </select>
+
+    <!-- 通过主键寻找：附表里的模糊识别汉字 -->
+    <select id="findHanziSimilarByCharId" resultType="com.shuowen.yuzong.dao.model.Character.CharSimilar">
+        SELECT * FROM NC.nam_char_similar
+        WHERE char_id = #{id}
+    </select>
+
+    <!-- 通过主键寻找：附表里的多种拼音 -->
+    <select id="findHanziPinyinByCharId" resultType="com.shuowen.yuzong.dao.model.Character.CharPinyin">
+        SELECT * FROM NC.nam_char_pinyin
+        WHERE char_id = #{id}
+    </select>
+
+    <!-- 如果之前没有这个id：插入新的数据 -->
+    <!-- |                        | -->
+    <!-- |                        | -->
+
+    <!--  插入新的内容（主表）  -->
+    <insert id="insertChar" parameterType="com.shuowen.yuzong.dao.model.Character.CharEntity" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO nam_char
+        (hanzi, hantz, std_py, special, ipa_exp, mean, note, refer)
+        VALUES
+        (#{hanzi}, #{hantz}, #{stdPy}, #{special}, #{ipaExp}, #{mean}, #{note}, #{refer})
     </insert>
+
+    <!--  插入新的内容（Similar表）  -->
+    <insert id="insertCharSimilar" parameterType="com.shuowen.yuzong.dao.model.Character.CharSimilar">
+        INSERT into NC.nam_char_similar
+        (char_id, hanzi, hantz)
+        VALUES (#{charId}, #{hanzi}, #{hantz})
+    </insert>
+
+    <!--  插入新的内容（Pinyin表）  -->
+    <insert id="insertCharPinyin" parameterType="com.shuowen.yuzong.dao.model.Character.CharPinyin">
+        INSERT INTO NC.nam_char_pinyin
+        (char_id, sc, tc, pinyin, sort)
+        VALUES (#{charId}, #{sc}, #{tc}, #{pinyin}, #{sort})
+    </insert>
+
+
+    <!-- 如果之前已经有了这个id：覆盖非重要字段 -->
+    <!-- |                             | -->
+    <!-- |                             | -->
+
+    <!--  更新内容（主表）  -->
+    <update id="updateCharById" parameterType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+        UPDATE NC.nam_char
+        SET
+        special = #{special}, ipa_exp = #{ipaExp}, mean = #{mean}, note = #{note}, refer = #{refer}
+        WHERE id = #{id}
+    </update>
+
+    <!--  更新内容（Similar表）  -->
+    <update id="updateCharSimilarById" parameterType="com.shuowen.yuzong.dao.model.Character.CharSimilar">
+        UPDATE NC.nam_char_similar
+        SET
+        char_id = #{charId}, hanzi = #{hanzi}, hantz = #{hantz}
+        WHERE id = #{id}
+    </update>
+
+    <!--  更新内容（Pinyin表）  -->
+    <update id="updateCharPinyinById" parameterType="com.shuowen.yuzong.dao.model.Character.CharPinyin">
+        UPDATE NC.nam_char_similar
+        SET
+        char_id = #{charId}, sc = #{sc}, tc = #{tc}, pinyin = #{pinyin}, sort = #{sort}
+        WHERE id = #{id}
+    </update>
+
+
+    <!-- 删除  - - - - - - - - - - - - - -->
+    <!-- |                             | -->
+    <!-- |                             | -->
+
+    <delete id="deleteCharSimilarById">
+        DELETE FROM NC.nam_char_similar WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteCharPinyinById">
+        DELETE FROM NC.nam_char_pinyin WHERE id = #{id}
+    </delete>
 
 </mapper>
