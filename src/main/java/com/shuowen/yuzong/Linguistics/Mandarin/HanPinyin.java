@@ -7,7 +7,7 @@ import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
 
 import java.util.*;
 
-import static com.shuowen.yuzong.Tool.StringTool.replace;
+import static com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool.replace;
 
 /**
  * 所有汉语拼音有关内容都放在这里， Pinyin类不要用在外面，外面直接用字符串接住
