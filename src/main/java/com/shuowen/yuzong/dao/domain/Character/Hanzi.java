@@ -2,7 +2,7 @@ package com.shuowen.yuzong.dao.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.Tool.dataStructure.Language;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.dao.dto.Character.HanziOutline;
@@ -12,7 +12,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.shuowen.yuzong.Tool.MapTool.renameKey;
+import static com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool.renameKey;
 import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 
 @Data

@@ -2,8 +2,8 @@ package com.shuowen.yuzong.dao.dto.Character;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.*;
 import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;

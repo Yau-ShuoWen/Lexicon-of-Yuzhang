@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.dao.domain.Character;
 
-import com.shuowen.yuzong.Tool.dataStructure.Language;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.dao.model.Character.CharEntity;
 import lombok.Data;
 
