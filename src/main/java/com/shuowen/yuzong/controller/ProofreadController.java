@@ -7,25 +7,51 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/**
- * 使用hanlp直接繁体转简体
- *
- * @apiNote 没有「简转繁」是因为简转繁不精确，编辑者必须把关繁体版本，才能放心交给程序简化
- */
-
 @RestController
 @RequestMapping ("/api/transfer")
 public class ProofreadController
 {
+
+    /**
+     * 使用hanlp直接繁体转简体
+     *
+     * @apiNote 没有「简转繁」是因为简转繁不精确，编辑者必须把关繁体版本，才能放心交给程序简化
+     */
     @RequestMapping ("/tc")
     public Map<String, String> t2s(@RequestParam String tc)
     {
         return Map.of("sc", TcSc.t2s(tc));
     }
 
-    @RequestMapping ("/tcsc")
-    public Map<String, String> t2ts(@RequestParam String tc)
+    /**
+     * 半角符号转全角
+     */
+    @RequestMapping ("/full-width")
+    public Map<String, String> fullWidth(@RequestParam String s)
     {
-        return Map.of("sc", TcSc.t2s(tc), "tc", tc);
+        return Map.of("text", s.
+                replace(",", "，").
+                replace(".", "。").
+                replace("?", "？").
+                replace("!", "！").
+                replace("...", "……").
+                replace(":", "：").
+                replace(";", "；").
+                replace("(", "（").
+                replace(")", "）").
+                replace("·", " · ")
+        );
+    }
+
+    /**
+     *
+     */
+    @RequestMapping ("/half-width")
+    public Map<String, String> halfWidth(@RequestParam String s)
+    {
+        return Map.of("text", s.
+                replace("【", "[").
+                replace("】", "]")
+        );
     }
 }
