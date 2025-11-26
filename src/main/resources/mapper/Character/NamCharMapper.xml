@@ -161,7 +161,7 @@
 
     <!--  更新内容（Pinyin表）  -->
     <update id="updateCharPinyinById" parameterType="com.shuowen.yuzong.dao.model.Character.CharPinyin">
-        UPDATE NC.nam_char_similar
+        UPDATE NC.nam_char_pinyin
         SET
         char_id = #{charId}, sc = #{sc}, tc = #{tc}, pinyin = #{pinyin}, sort = #{sort}
         WHERE id = #{id}
@@ -179,5 +179,20 @@
     <delete id="deleteCharPinyinById">
         DELETE FROM NC.nam_char_pinyin WHERE id = #{id}
     </delete>
+    
+    
+    <select id="findPreviousItem" parameterType="Integer" resultType="Integer">
+        SELECT * FROM nam_char
+        WHERE id &lt; #{id}
+        ORDER BY id DESC
+        LIMIT 1;
+    </select>
+    
+    <select id="findNextItem" parameterType="Integer" resultType="Integer">
+        SELECT * FROM nam_char
+        WHERE id > #{id}
+        ORDER BY id ASC
+        LIMIT 1;
+    </select>
 
 </mapper>

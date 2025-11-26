@@ -75,4 +75,7 @@ public interface NamCharMapper
      */
     void deleteCharPinyinById(Integer id);
 
+    Integer findPreviousItem(Integer id);
+
+    Integer findNextItem(Integer id);
 }
