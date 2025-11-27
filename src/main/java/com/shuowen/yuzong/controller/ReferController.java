@@ -19,10 +19,12 @@ public class ReferController
     /**
      * 获取词典列表
      */
-    @GetMapping ("/dictionaries")
-    public List<Pair<String, String>> getDictionaries()
+    @GetMapping ("/get-dictionaries/{lang}")
+    public List<Pair<String, String>> getDictionaries(
+            @PathVariable String lang
+    )
     {
-        return r.getDictionaries();
+        return r.getDictionaries(lang);
     }
 
     /**

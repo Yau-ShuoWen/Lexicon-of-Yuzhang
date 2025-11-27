@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.ChangeResult;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.ListCompareUtil;
 import com.shuowen.yuzong.Tool.FractionalIndexing;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.dao.domain.Refer.Citiao;
 import com.shuowen.yuzong.dao.dto.Refer.CitiaoEdit;
@@ -27,10 +28,11 @@ public class ReferServiceImpl
     @Autowired
     DictMapper n;
 
-    public List<Pair<String, String>> getDictionaries()
+    public List<Pair<String, String>> getDictionaries(String dialect)
     {
         List<Pair<String, String>> ans = new ArrayList<>();
-        for (var i : n.getAll())
+        // 如果方言代码是有效的，就返回对应筛选的方言，否则返回所有的方言
+        for (var i : (Dialect.of(dialect).isValid()) ? n.findDictByDialect(dialect) : n.getAllDict())
         {
             Map<String, String> tmp = readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
             ans.add(Pair.of(tmp.get("tc"), i.getCode()));
@@ -45,7 +47,7 @@ public class ReferServiceImpl
 
         if (keyword.matches("^[Pp]\\d{1,4}$"))
         {
-            return Citiao.listOf(m.pageSearch(Integer.parseInt(keyword.substring(1)),dict));
+            return Citiao.listOf(m.pageSearch(Integer.parseInt(keyword.substring(1)), dict));
         }
         else
         {

@@ -7,7 +7,7 @@ package com.shuowen.yuzong.Tool.dataStructure.option;
  * <li> SC 南昌话 </li>
  * <li> NIL 无效方言</li>
  * </ul>
- * */
+ */
 public enum Dialect
 {
     NAM("nam"),   // 南昌话
@@ -29,5 +29,10 @@ public enum Dialect
             if (l.code.equals(s)) return l;
 
         return NIL;
+    }
+
+    public boolean isValid()
+    {
+        return !"null".equals(code);
     }
 }
