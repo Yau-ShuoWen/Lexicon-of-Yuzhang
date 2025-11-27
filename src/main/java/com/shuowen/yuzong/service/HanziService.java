@@ -1,19 +1,18 @@
 package com.shuowen.yuzong.service;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Tool.dataStructure.Status;
-import com.shuowen.yuzong.dao.domain.Character.Hanzi;
+import com.shuowen.yuzong.dao.domain.Character.HanziEdit;
+import com.shuowen.yuzong.dao.domain.IPA.Phonogram;
 import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
 import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dao.dto.HanziShow;
+import com.shuowen.yuzong.dao.dto.Character.HanziOutline;
+import com.shuowen.yuzong.dao.dto.Character.HanziShow;
 
 import java.util.*;
 
 public interface HanziService<T extends PinyinStyle>
 {
-    Hanzi getHanziById(Integer id);
-
     HanziEntry getHanziScTc(String hanzi);
 
     HanziEntry getHanziVague(String hanzi);
@@ -22,5 +21,11 @@ public interface HanziService<T extends PinyinStyle>
 
     List<HanziShow> getHanziOrganize(String hanzi, String lang, boolean vague);
 
-    List<HanziShow> getHanziFormatted(String hanzi, String lang, boolean vague, T style, Status status, IPAToneStyle ts, IPASyllableStyle ss);
+    List<HanziShow> getHanziFormatted(String hanzi, String lang, boolean vague, T style, Phonogram phonogram, IPAToneStyle ts, IPASyllableStyle ss);
+
+    List<HanziOutline> filter(String hanzi);
+
+    HanziEdit getHanziById(Integer id);
+
+    void editHanzi(HanziEdit he);
 }
