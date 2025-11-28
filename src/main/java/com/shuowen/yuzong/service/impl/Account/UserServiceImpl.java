@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.service.impl.Account;
 
-import com.shuowen.yuzong.dao.domain.Account.User;
-import com.shuowen.yuzong.dao.mapper.Account.UserMapper;
+import com.shuowen.yuzong.data.domain.Account.User;
+import com.shuowen.yuzong.data.mapper.Account.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

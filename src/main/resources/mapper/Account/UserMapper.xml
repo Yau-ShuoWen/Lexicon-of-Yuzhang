@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.dao.mapper.Account.UserMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.Account.UserMapper">
 
-    <select id="getUser" resultType="com.shuowen.yuzong.dao.model.Account.UserEntity">
+    <select id="getUser" resultType="com.shuowen.yuzong.data.model.Account.UserEntity">
         SELECT * FROM NC.user
         WHERE username = #{username}
     </select>
 
-    <insert id="insertUser" parameterType="com.shuowen.yuzong.dao.model.Account.UserEntity">
+    <insert id="insertUser" parameterType="com.shuowen.yuzong.data.model.Account.UserEntity">
         INSERT INTO NC.user
         (username, password, authority)
         values (#{username}, #{password}, #{authority})

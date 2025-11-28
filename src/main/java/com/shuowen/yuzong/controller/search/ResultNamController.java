@@ -1,11 +1,11 @@
 package com.shuowen.yuzong.controller.search;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
-import com.shuowen.yuzong.dao.domain.IPA.Phonogram;
-import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
-import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dao.domain.Word.NamCiyu;
-import com.shuowen.yuzong.dao.dto.Character.HanziShow;
+import com.shuowen.yuzong.data.domain.IPA.Phonogram;
+import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
+import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.data.domain.Word.NamCiyu;
+import com.shuowen.yuzong.data.dto.Character.HanziShow;
 import com.shuowen.yuzong.service.impl.Character.NamHanziServiceImpl;
 import com.shuowen.yuzong.service.impl.Word.NamCiyuServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

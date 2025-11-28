@@ -1,13 +1,13 @@
 package com.shuowen.yuzong.service;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.dao.domain.Character.HanziEdit;
-import com.shuowen.yuzong.dao.domain.IPA.Phonogram;
-import com.shuowen.yuzong.dao.domain.Character.HanziEntry;
-import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
-import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dao.dto.Character.HanziOutline;
-import com.shuowen.yuzong.dao.dto.Character.HanziShow;
+import com.shuowen.yuzong.data.domain.Character.HanziEdit;
+import com.shuowen.yuzong.data.domain.IPA.Phonogram;
+import com.shuowen.yuzong.data.domain.Character.HanziEntry;
+import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
+import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.data.dto.Character.HanziOutline;
+import com.shuowen.yuzong.data.dto.Character.HanziShow;
 
 import java.util.*;
 

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.dao.mapper.Word.NamWordMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.Word.NamWordMapper">
 
     <!-- 复用字段定义 -->
     <sql id="similarField">
@@ -51,7 +51,7 @@
     </sql>
 
     <!-- 通过主键寻找词语 -->
-    <select id="selectByPrimaryKey" resultType="com.shuowen.yuzong.dao.model.Word.WordEntity">
+    <select id="selectByPrimaryKey" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
         select m.*,
         <include refid="allIn"/>
         where id = #{id}
@@ -59,7 +59,7 @@
     </select>
 
     <!-- 使用简繁体寻找词语 -->
-    <select id="findByCiyuScTc" resultType="com.shuowen.yuzong.dao.model.Word.WordEntity">
+    <select id="findByCiyuScTc" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
         select m.*,
         <include refid="allIn"/>
         where m.ciyu = #{ciyu}
@@ -68,7 +68,7 @@
     </select>
 
     <!-- 使用简繁体、模糊识别寻找词语 -->
-    <select id="findByCiyuVague" resultType="com.shuowen.yuzong.dao.model.Word.WordEntity">
+    <select id="findByCiyuVague" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
         select m.*,
         <include refid="allIn"/>
         where m.ciyu = #{ciyu}
@@ -80,7 +80,7 @@
 
 
     <!-- 使用简繁体句子寻找词语 -->
-    <select id="findBySentence" resultType="com.shuowen.yuzong.dao.model.Word.WordEntity">
+    <select id="findBySentence" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
         select m.*,
         <include refid="allIn"/>
         where #{ciyu} like concat('%', m.ciyu, '%')

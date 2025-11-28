@@ -2,18 +2,18 @@ package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.controller.APIResponse;
-import com.shuowen.yuzong.dao.domain.Character.HanziEdit;
-import com.shuowen.yuzong.dao.dto.Character.HanziOutline;
-import com.shuowen.yuzong.dao.mapper.Character.MdrCharMapper;
-import com.shuowen.yuzong.dao.mapper.Character.NamCharMapper;
-import com.shuowen.yuzong.dao.model.Character.CharMdr;
+import com.shuowen.yuzong.data.domain.Character.HanziEdit;
+import com.shuowen.yuzong.data.dto.Character.HanziOutline;
+import com.shuowen.yuzong.data.mapper.Character.MdrCharMapper;
+import com.shuowen.yuzong.data.mapper.Character.NamCharMapper;
+import com.shuowen.yuzong.data.model.Character.CharMdr;
 import com.shuowen.yuzong.service.impl.Character.NamHanziServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-import static com.shuowen.yuzong.dao.domain.Character.MdrTool.settle;
+import static com.shuowen.yuzong.data.domain.Character.MdrTool.settle;
 
 @RestController
 @RequestMapping ("/api/edit/nam")

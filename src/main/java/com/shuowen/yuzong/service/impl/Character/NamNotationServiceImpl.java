@@ -2,15 +2,15 @@ package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.dao.mapper.Character.NamNotationMapper;
-import com.shuowen.yuzong.dao.model.Character.CharMdr;
+import com.shuowen.yuzong.data.mapper.Character.NamNotationMapper;
+import com.shuowen.yuzong.data.model.Character.CharMdr;
 import com.shuowen.yuzong.service.interfaces.Character.NotationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.shuowen.yuzong.dao.domain.Character.MdrTool.settle;
+import static com.shuowen.yuzong.data.domain.Character.MdrTool.settle;
 
 @Service
 public class NamNotationServiceImpl implements NotationService

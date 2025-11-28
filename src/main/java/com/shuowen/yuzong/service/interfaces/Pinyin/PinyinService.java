@@ -3,8 +3,8 @@ package com.shuowen.yuzong.service.interfaces.Pinyin;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.dao.domain.IPA.IPASyllableStyle;
-import com.shuowen.yuzong.dao.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
+import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
 
 
 import java.util.*;

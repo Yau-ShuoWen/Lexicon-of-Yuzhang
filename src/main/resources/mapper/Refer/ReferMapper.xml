@@ -2,23 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.dao.mapper.Refer.ReferMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.Refer.ReferMapper">
 
-    <select id="fuzzySearch" resultType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+    <select id="fuzzySearch" resultType="com.shuowen.yuzong.data.model.Refer.ReferEntity">
         SELECT * FROM NC.reference
         WHERE content like CONCAT('%', #{keyword}, '%')
         AND dictionary = #{dictionary}
         ORDER BY sort ASC
     </select>
 
-    <select id="pageSearch" resultType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+    <select id="pageSearch" resultType="com.shuowen.yuzong.data.model.Refer.ReferEntity">
         SELECT * FROM NC.reference
         WHERE page = #{page}
         AND dictionary = #{dictionary}
         ORDER BY sort ASC
     </select>
 
-    <select id="getContext" resultType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+    <select id="getContext" resultType="com.shuowen.yuzong.data.model.Refer.ReferEntity">
         (SELECT * FROM NC.reference
         WHERE sort &lt;= (SELECT sort FROM NC.reference WHERE id = #{id})
         AND dictionary = #{dictionary}
@@ -35,12 +35,12 @@
         ORDER BY sort ASC
     </select>
 
-    <insert id="insert" parameterType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+    <insert id="insert" parameterType="com.shuowen.yuzong.data.model.Refer.ReferEntity">
         INSERT INTO NC.reference(dictionary, page, content, sort)
         VALUES (#{dictionary}, #{page}, #{content}, #{sort})
     </insert>
 
-    <update id="update" parameterType="com.shuowen.yuzong.dao.model.Refer.ReferEntity">
+    <update id="update" parameterType="com.shuowen.yuzong.data.model.Refer.ReferEntity">
         UPDATE NC.reference
         <set>
             <foreach collection="list" item="i" separator=",">

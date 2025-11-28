@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.dao.mapper.Character.NamCharMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.Character.NamCharMapper">
 
     <!-- 基础字段定义 -->
     <sql id="baseFields">
@@ -60,7 +60,7 @@
 
 
     <!-- 使用简繁体寻找汉字 -->
-    <select id="findHanziByScTc" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+    <select id="findHanziByScTc" resultType="com.shuowen.yuzong.data.model.Character.CharEntity">
         SELECT
         <include refid="allFields"/>
         <include refid="allJoin"/>
@@ -71,7 +71,7 @@
     </select>
 
     <!-- 使用简繁体、模糊识别寻找汉字 -->
-    <select id="findHanziByVague" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+    <select id="findHanziByVague" resultType="com.shuowen.yuzong.data.model.Character.CharEntity">
         SELECT
         <include refid="allFields"/>
         <include refid="allJoin"/>
@@ -94,20 +94,20 @@
 
 
     <!-- 通过主键寻找汉字 -->
-    <select id="findHanziByCharId" resultType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+    <select id="findHanziByCharId" resultType="com.shuowen.yuzong.data.model.Character.CharEntity">
         SELECT * FROM NC.nam_char
         WHERE id = #{id}
         GROUP BY id
     </select>
 
     <!-- 通过主键寻找：附表里的模糊识别汉字 -->
-    <select id="findHanziSimilarByCharId" resultType="com.shuowen.yuzong.dao.model.Character.CharSimilar">
+    <select id="findHanziSimilarByCharId" resultType="com.shuowen.yuzong.data.model.Character.CharSimilar">
         SELECT * FROM NC.nam_char_similar
         WHERE char_id = #{id}
     </select>
 
     <!-- 通过主键寻找：附表里的多种拼音 -->
-    <select id="findHanziPinyinByCharId" resultType="com.shuowen.yuzong.dao.model.Character.CharPinyin">
+    <select id="findHanziPinyinByCharId" resultType="com.shuowen.yuzong.data.model.Character.CharPinyin">
         SELECT * FROM NC.nam_char_pinyin
         WHERE char_id = #{id}
     </select>
@@ -117,7 +117,7 @@
     <!-- |                        | -->
 
     <!--  插入新的内容（主表）  -->
-    <insert id="insertChar" parameterType="com.shuowen.yuzong.dao.model.Character.CharEntity" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.CharEntity" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO nam_char
         (hanzi, hantz, std_py, special, ipa_exp, mean, note, refer)
         VALUES
@@ -125,14 +125,14 @@
     </insert>
 
     <!--  插入新的内容（Similar表）  -->
-    <insert id="insertCharSimilar" parameterType="com.shuowen.yuzong.dao.model.Character.CharSimilar">
+    <insert id="insertCharSimilar" parameterType="com.shuowen.yuzong.data.model.Character.CharSimilar">
         INSERT into NC.nam_char_similar
         (char_id, hanzi, hantz)
         VALUES (#{charId}, #{hanzi}, #{hantz})
     </insert>
 
     <!--  插入新的内容（Pinyin表）  -->
-    <insert id="insertCharPinyin" parameterType="com.shuowen.yuzong.dao.model.Character.CharPinyin">
+    <insert id="insertCharPinyin" parameterType="com.shuowen.yuzong.data.model.Character.CharPinyin">
         INSERT INTO NC.nam_char_pinyin
         (char_id, sc, tc, pinyin, sort)
         VALUES (#{charId}, #{sc}, #{tc}, #{pinyin}, #{sort})
@@ -144,7 +144,7 @@
     <!-- |                             | -->
 
     <!--  更新内容（主表）  -->
-    <update id="updateCharById" parameterType="com.shuowen.yuzong.dao.model.Character.CharEntity">
+    <update id="updateCharById" parameterType="com.shuowen.yuzong.data.model.Character.CharEntity">
         UPDATE NC.nam_char
         SET
         special = #{special}, ipa_exp = #{ipaExp}, mean = #{mean}, note = #{note}, refer = #{refer}
@@ -152,7 +152,7 @@
     </update>
 
     <!--  更新内容（Similar表）  -->
-    <update id="updateCharSimilarById" parameterType="com.shuowen.yuzong.dao.model.Character.CharSimilar">
+    <update id="updateCharSimilarById" parameterType="com.shuowen.yuzong.data.model.Character.CharSimilar">
         UPDATE NC.nam_char_similar
         SET
         char_id = #{charId}, hanzi = #{hanzi}, hantz = #{hantz}
@@ -160,7 +160,7 @@
     </update>
 
     <!--  更新内容（Pinyin表）  -->
-    <update id="updateCharPinyinById" parameterType="com.shuowen.yuzong.dao.model.Character.CharPinyin">
+    <update id="updateCharPinyinById" parameterType="com.shuowen.yuzong.data.model.Character.CharPinyin">
         UPDATE NC.nam_char_pinyin
         SET
         char_id = #{charId}, sc = #{sc}, tc = #{tc}, pinyin = #{pinyin}, sort = #{sort}

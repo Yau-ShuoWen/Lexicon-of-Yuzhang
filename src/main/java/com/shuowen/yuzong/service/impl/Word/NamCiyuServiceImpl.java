@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.service.impl.Word;
 
-import com.shuowen.yuzong.dao.domain.Word.NamCiyu;
-import com.shuowen.yuzong.dao.mapper.Word.NamWordMapper;
+import com.shuowen.yuzong.data.domain.Word.NamCiyu;
+import com.shuowen.yuzong.data.mapper.Word.NamWordMapper;
 import com.shuowen.yuzong.service.interfaces.Word.CiyuService;
 import com.shuowen.yuzong.service.impl.Pinyin.NamPinyinServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

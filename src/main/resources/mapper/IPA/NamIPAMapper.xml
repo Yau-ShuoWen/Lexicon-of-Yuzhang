@@ -2,39 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.dao.mapper.IPA.NamIPAMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.IPA.NamIPAMapper">
 
     <!-- 音节表相关查询 -->
 
     <!-- 按照拼音为关键字，查询单行信息 -->
-    <select id="findByPinyin" resultType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="findByPinyin" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.nam_ipa_syllable where standard = #{pinyin}
     </select>
 
     <!-- 按照编号为关键字，查询单行信息 -->
-    <select id="findByCode" resultType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="findByCode" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.nam_ipa_syllable where code = #{code}
     </select>
 
     <!-- 获取音节表的所有信息，按照编号排序 -->
-    <select id="findAllPinyin" resultType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="findAllPinyin" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.nam_ipa_syllable order by code
     </select>
 
     <!-- 批量查询音节信息 -->
-    <select id="findAllPinyinList" resultType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="findAllPinyinList" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         SELECT * FROM NC.nam_ipa_syllable WHERE standard IN
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>
 
-    <select id="insertPinyin" parameterType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="insertPinyin" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         insert into NC.nam_ipa_syllable (standard, Code, info)
         values (#{standard}, #{code}, #{info})
     </select>
 
-    <select id="changeInfo" parameterType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="changeInfo" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         update NC.nam_ipa_syllable
         set info = #{info}
         where standard = #{standard} ;
@@ -43,16 +43,16 @@
     <!-- 音节成分表相关查询 -->
 
     <!-- 通过带空位的code查询 -->
-    <select id="findElement" resultType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="findElement" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.nam_ipa_element where code = #{code}
     </select>
 
-    <select id="findAllElement" resultType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="findAllElement" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.nam_ipa_element order by code
     </select>
 
     <!-- order by code 保证了一定是先声母再韵母 -->
-    <select id="findAllElementList" resultType="com.shuowen.yuzong.dao.model.IPA.IPASyllableEntity">
+    <select id="findAllElementList" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.nam_ipa_element where code in
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
@@ -63,17 +63,17 @@
     <!-- 声调表相关查询 -->
 
     <!-- 按照声调为关键字，查询单行信息 -->
-    <select id="findByTone" resultType="com.shuowen.yuzong.dao.model.IPA.IPAToneEntity">
+    <select id="findByTone" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
         select * from NC.nam_ipa_tone where standard = #{tone}
     </select>
 
     <!-- 获取声调表的所有信息 -->
-    <select id="findAllTone" resultType="com.shuowen.yuzong.dao.model.IPA.IPAToneEntity">
+    <select id="findAllTone" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
         select * from NC.nam_ipa_tone order by standard
     </select>
 
     <!-- 批量查询声调信息 -->
-    <select id="findAllToneList" resultType="com.shuowen.yuzong.dao.model.IPA.IPAToneEntity">
+    <select id="findAllToneList" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
         SELECT * FROM NC.nam_ipa_tone WHERE standard IN
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}

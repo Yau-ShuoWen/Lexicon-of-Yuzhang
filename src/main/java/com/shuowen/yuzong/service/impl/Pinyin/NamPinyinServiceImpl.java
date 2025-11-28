@@ -3,8 +3,8 @@ package com.shuowen.yuzong.service.impl.Pinyin;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.dao.domain.IPA.*;
-import com.shuowen.yuzong.dao.mapper.IPA.NamIPAMapper;
+import com.shuowen.yuzong.data.domain.IPA.*;
+import com.shuowen.yuzong.data.mapper.IPA.NamIPAMapper;
 import com.shuowen.yuzong.service.interfaces.Pinyin.PinyinService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.shuowen.yuzong.dao.domain.Pinyin.PinyinTool.parseAndReplace;
+import static com.shuowen.yuzong.data.domain.Pinyin.PinyinTool.parseAndReplace;
 
 /**
  * 南昌话拼音服务类

@@ -2,8 +2,8 @@ package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.controller.APIResponse;
-import com.shuowen.yuzong.dao.domain.Refer.Citiao;
-import com.shuowen.yuzong.dao.dto.Refer.CitiaoEdit;
+import com.shuowen.yuzong.data.domain.Refer.Citiao;
+import com.shuowen.yuzong.data.dto.Refer.CitiaoEdit;
 import com.shuowen.yuzong.service.impl.Refer.ReferServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

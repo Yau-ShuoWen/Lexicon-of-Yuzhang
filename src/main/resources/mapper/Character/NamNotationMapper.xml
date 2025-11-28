@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.dao.mapper.Character.NamNotationMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.Character.NamNotationMapper">
 
-    <select id="selectMdrDialectChars" resultType="com.shuowen.yuzong.dao.model.Character.DialectChar">
+    <select id="selectMdrDialectChars" resultType="com.shuowen.yuzong.data.model.Character.DialectChar">
         select info, std_py
         from mdr_char mdr
         RIGHT JOIN NC.nam_char_mdr map ON mdr.id = map.m
@@ -16,7 +16,7 @@
         GROUP BY m, n
     </select>
 
-    <select id="getMdrInfoByDialectId" resultType="com.shuowen.yuzong.dao.model.Character.CharMdr">
+    <select id="getMdrInfoByDialectId" resultType="com.shuowen.yuzong.data.model.Character.CharMdr">
         SELECT map.n left_id, map.m right_id, info
         FROM nam_char_mdr map
         RIGHT JOIN mdr_char ON map.m = id
