@@ -31,4 +31,14 @@
 │   │
 │   └── 更多功能待设计
 │
+├── /search/{语言代码}
+│   │
+│   ├── /byhanzi
+│   │     参数：汉字-hanzi 语言-lang 标注方式-phonogram 模糊识别-vague
+│   │          如果标注有方言拼音 拼音格式-style
+│   │          如果有标注国际音标 音节格式-syllableStyle 音调-toneStyle
+│   │     返回：HanziShow
+│   │
+│   └── /byciyu
+│
 └── 更多功能待设计
