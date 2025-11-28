@@ -4,8 +4,6 @@ package com.shuowen.yuzong.Tool.redis;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.rocketmq.logging.org.slf4j.Logger;
-import org.apache.rocketmq.logging.org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +17,6 @@ public class RedisTool
     @Resource
     private RedisTemplate<String, Object> redis;  // 添加泛型类型
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisTool.class);
-
     // 统一异常处理的方法
     private <T> T executeRedisOperation(Supplier<T> operation, T defaultValue)
     {
@@ -29,7 +25,7 @@ public class RedisTool
             return operation.get();
         } catch (Exception e)
         {
-            logger.error("Redis operation error: ", e);
+            System.out.println("Redis操作错误" + e.getMessage());
             return defaultValue;
         }
     }
@@ -41,7 +37,7 @@ public class RedisTool
             operation.run();
         } catch (Exception e)
         {
-            logger.error("Redis operation error: ", e);
+            System.out.println("Redis操作错误" + e.getMessage());
         }
     }
 
@@ -603,77 +599,88 @@ public class RedisTool
     /**
      * 向集合添加一个或多个成员
      */
-    public Long sadd(final String key, final Object... values) {
+    public Long sadd(final String key, final Object... values)
+    {
         return executeRedisOperation(() -> redis.opsForSet().add(key, values), 0L);
     }
 
     /**
      * 获取集合中的所有成员
      */
-    public Set<Object> smembers(final String key) {
+    public Set<Object> smembers(final String key)
+    {
         return executeRedisOperation(() -> redis.opsForSet().members(key), Collections.emptySet());
     }
 
     /**
      * 判断成员是否在集合中
      */
-    public Boolean sismember(final String key, final Object value) {
+    public Boolean sismember(final String key, final Object value)
+    {
         return executeRedisOperation(() -> redis.opsForSet().isMember(key, value), false);
     }
 
     /**
      * 获取集合的成员数量
      */
-    public Long scard(final String key) {
+    public Long scard(final String key)
+    {
         return executeRedisOperation(() -> redis.opsForSet().size(key), 0L);
     }
 
     /**
      * 移除并返回集合中的一个随机元素
      */
-    public Object spop(final String key) {
+    public Object spop(final String key)
+    {
         return executeRedisOperation(() -> redis.opsForSet().pop(key), null);
     }
 
     /**
      * 移除集合中的一个或多个成员
      */
-    public Long srem(final String key, final Object... values) {
+    public Long srem(final String key, final Object... values)
+    {
         return executeRedisOperation(() -> redis.opsForSet().remove(key, values), 0L);
     }
 
     /**
      * 随机返回集合中一个或多个成员
      */
-    public Object srandmember(final String key) {
+    public Object srandmember(final String key)
+    {
         return executeRedisOperation(() -> redis.opsForSet().randomMember(key), null);
     }
 
     /**
      * 随机返回集合中多个成员
      */
-    public List<Object> srandmember(final String key, final long count) {
+    public List<Object> srandmember(final String key, final long count)
+    {
         return executeRedisOperation(() -> redis.opsForSet().randomMembers(key, count), Collections.emptyList());
     }
 
     /**
      * 返回多个集合的差集
      */
-    public Set<Object> sdiff(final String... keys) {
+    public Set<Object> sdiff(final String... keys)
+    {
         return executeRedisOperation(() -> redis.opsForSet().difference(List.of(keys)), Collections.emptySet());
     }
 
     /**
      * 返回多个集合的交集
      */
-    public Set<Object> sinter(final String... keys) {
+    public Set<Object> sinter(final String... keys)
+    {
         return executeRedisOperation(() -> redis.opsForSet().intersect(List.of(keys)), Collections.emptySet());
     }
 
     /**
      * 返回多个集合的并集
      */
-    public Set<Object> sunion(final String... keys) {
+    public Set<Object> sunion(final String... keys)
+    {
         return executeRedisOperation(() -> redis.opsForSet().union(List.of(keys)), Collections.emptySet());
     }
 
@@ -682,15 +689,18 @@ public class RedisTool
     /**
      * 向有序集合添加一个或多个成员，或更新已存在成员的分数
      */
-    public Boolean zadd(final String key, final Object value, final double score) {
+    public Boolean zadd(final String key, final Object value, final double score)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().add(key, value, score), false);
     }
 
     /**
      * 批量添加有序集合成员
      */
-    public Long zadd(final String key, final Map<Object, Double> valueScoreMap) {
-        return executeRedisOperation(() -> {
+    public Long zadd(final String key, final Map<Object, Double> valueScoreMap)
+    {
+        return executeRedisOperation(() ->
+        {
             Set<ZSetOperations.TypedTuple<Object>> tuples = new HashSet<>();
             valueScoreMap.forEach((value, score) ->
                     tuples.add(ZSetOperations.TypedTuple.of(value, score)));
@@ -701,91 +711,104 @@ public class RedisTool
     /**
      * 获取有序集合的成员数量
      */
-    public Long zcard(final String key) {
+    public Long zcard(final String key)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().size(key), 0L);
     }
 
     /**
      * 获取有序集合中指定分数范围的成员数量
      */
-    public Long zcount(final String key, final double min, final double max) {
+    public Long zcount(final String key, final double min, final double max)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().count(key, min, max), 0L);
     }
 
     /**
      * 增加有序集合中成员的分数
      */
-    public Double zincrby(final String key, final Object value, final double increment) {
+    public Double zincrby(final String key, final Object value, final double increment)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().incrementScore(key, value, increment), 0.0);
     }
 
     /**
      * 获取有序集合中指定范围的成员（按分数升序）
      */
-    public Set<Object> zrange(final String key, final long start, final long end) {
+    public Set<Object> zrange(final String key, final long start, final long end)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().range(key, start, end), Collections.emptySet());
     }
 
     /**
      * 获取有序集合中指定范围的成员（按分数降序）
      */
-    public Set<Object> zrevrange(final String key, final long start, final long end) {
+    public Set<Object> zrevrange(final String key, final long start, final long end)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().reverseRange(key, start, end), Collections.emptySet());
     }
 
     /**
      * 获取有序集合中指定分数范围的成员（按分数升序）
      */
-    public Set<Object> zrangeByScore(final String key, final double min, final double max) {
+    public Set<Object> zrangeByScore(final String key, final double min, final double max)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().rangeByScore(key, min, max), Collections.emptySet());
     }
 
     /**
      * 获取有序集合中指定分数范围的成员（按分数降序）
      */
-    public Set<Object> zrevrangeByScore(final String key, final double min, final double max) {
+    public Set<Object> zrevrangeByScore(final String key, final double min, final double max)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().reverseRangeByScore(key, min, max), Collections.emptySet());
     }
 
     /**
      * 获取有序集合中指定成员的排名（按分数升序，0开始）
      */
-    public Long zrank(final String key, final Object value) {
+    public Long zrank(final String key, final Object value)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().rank(key, value), null);
     }
 
     /**
      * 获取有序集合中指定成员的排名（按分数降序，0开始）
      */
-    public Long zrevrank(final String key, final Object value) {
+    public Long zrevrank(final String key, final Object value)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().reverseRank(key, value), null);
     }
 
     /**
      * 获取有序集合中指定成员的分数
      */
-    public Double zscore(final String key, final Object value) {
+    public Double zscore(final String key, final Object value)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().score(key, value), null);
     }
 
     /**
      * 移除有序集合中的一个或多个成员
      */
-    public Long zrem(final String key, final Object... values) {
+    public Long zrem(final String key, final Object... values)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().remove(key, values), 0L);
     }
 
     /**
      * 移除有序集合中指定排名范围的成员
      */
-    public Long zremrangeByRank(final String key, final long start, final long end) {
+    public Long zremrangeByRank(final String key, final long start, final long end)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().removeRange(key, start, end), 0L);
     }
 
     /**
      * 移除有序集合中指定分数范围的成员
      */
-    public Long zremrangeByScore(final String key, final double min, final double max) {
+    public Long zremrangeByScore(final String key, final double min, final double max)
+    {
         return executeRedisOperation(() -> redis.opsForZSet().removeRangeByScore(key, min, max), 0L);
     }
 
@@ -794,22 +817,26 @@ public class RedisTool
     /**
      * 添加元素到 HyperLogLog
      */
-    public Boolean pfadd(final String key, final Object... values) {
+    public Boolean pfadd(final String key, final Object... values)
+    {
         return executeRedisOperation(() -> redis.opsForHyperLogLog().add(key, values) > 0, false);
     }
 
     /**
      * 获取 HyperLogLog 的基数估算值
      */
-    public Long pfcount(final String key) {
+    public Long pfcount(final String key)
+    {
         return executeRedisOperation(() -> redis.opsForHyperLogLog().size(key), 0L);
     }
 
     /**
      * 合并多个 HyperLogLog 到一个新的 HyperLogLog
      */
-    public Boolean pfmerge(final String destKey, final String... sourceKeys) {
-        return executeRedisOperation(() -> {
+    public Boolean pfmerge(final String destKey, final String... sourceKeys)
+    {
+        return executeRedisOperation(() ->
+        {
             redis.opsForHyperLogLog().union(destKey, sourceKeys);
             return true;
         }, false);
@@ -820,28 +847,32 @@ public class RedisTool
     /**
      * 设置过期时间
      */
-    public Boolean expire(final String key, final long timeout, final TimeUnit unit) {
+    public Boolean expire(final String key, final long timeout, final TimeUnit unit)
+    {
         return executeRedisOperation(() -> redis.expire(key, timeout, unit), false);
     }
 
     /**
      * 获取过期时间
      */
-    public Long ttl(final String key, final TimeUnit unit) {
+    public Long ttl(final String key, final TimeUnit unit)
+    {
         return executeRedisOperation(() -> redis.getExpire(key, unit), -2L);
     }
 
     /**
      * 移除过期时间，使键永久有效
      */
-    public Boolean persist(final String key) {
+    public Boolean persist(final String key)
+    {
         return executeRedisOperation(() -> redis.persist(key), false);
     }
 
     /**
      * 重命名键
      */
-    public void rename(final String oldKey, final String newKey) {
+    public void rename(final String oldKey, final String newKey)
+    {
         executeRedisOperation(() -> redis.rename(oldKey, newKey));
     }
 }
