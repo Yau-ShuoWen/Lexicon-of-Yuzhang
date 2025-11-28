@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.controller;
+package com.shuowen.yuzong.controller.setting;
 
 import com.shuowen.yuzong.service.impl.Account.TokenService;
 import com.shuowen.yuzong.service.impl.Account.UserServiceImpl;

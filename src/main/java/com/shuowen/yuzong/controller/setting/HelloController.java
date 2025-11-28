@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.controller;
+package com.shuowen.yuzong.controller.setting;
 
 import org.springframework.web.bind.annotation.*;
 

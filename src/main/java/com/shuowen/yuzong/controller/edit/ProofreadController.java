@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.controller;
+package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.TcSc;
 import org.springframework.web.bind.annotation.RequestMapping;

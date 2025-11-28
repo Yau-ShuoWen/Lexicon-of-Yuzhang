@@ -4,11 +4,11 @@
 
 <mapper namespace="com.shuowen.yuzong.dao.mapper.Refer.DictMapper">
 
-    <select id="getAll" resultType="com.shuowen.yuzong.dao.model.Refer.DictEntity">
+    <select id="getAllDict" resultType="com.shuowen.yuzong.dao.model.Refer.DictEntity">
         SELECT * FROM NC.dictionary_info
     </select>
 
-    <select id="getByDictLang" resultType="com.shuowen.yuzong.dao.model.Refer.DictEntity">
+    <select id="findDictByDialect" resultType="com.shuowen.yuzong.dao.model.Refer.DictEntity">
         SELECT * FROM NC.dictionary_info
         WHERE language LIKE CONCAT('%', #{lang}, '%')
     </select>
