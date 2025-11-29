@@ -1,8 +1,12 @@
 package com.shuowen.yuzong.Linguistics.Mandarin;
 
-import lombok.Data;
 
-@Data
+import lombok.Getter;
+
+/**
+ * 这是一个不可变格式
+ */
+@Getter
 public class Zhuyin
 {
     String Sheng = "", Jie = "", Yun = "";
@@ -12,25 +16,54 @@ public class Zhuyin
     /**
      * T：臺灣注音符號側標（T為Taiwan的首字母）
      */
-    public char[] sidemarkT = {' ', ' ', 'ˊ', 'ˇ', 'ˋ', '·'};
+    public char[] sidemark = {' ', ' ', 'ˊ', 'ˇ', 'ˋ'};
 
+    /**
+     * @apiNote 为了宽泛适配，第0调和第5调都被认为是轻声
+     */
     @Override
     public String toString()
     {
-        return Sheng + Jie + Yun + tone;
+        if (!valid) return "[无效]";
+        else return (tone > 1 && tone < 4) ?
+                Sheng + Jie + Yun + sidemark[tone] :
+                "·" + Sheng + Jie + Yun;
     }
 
-    public String toString(boolean a)
+
+    public String toStringWithNumTone()
     {
-        return Sheng + Jie + Yun;
+        if (!valid) return "[无效]";
+        else return Sheng + Jie + Yun + tone;
+    }
+
+    public String toStringWithoutTone()
+    {
+        if (!valid) return "[无效]";
+        else return Sheng + Jie + Yun;
     }
 
     public Zhuyin(String pinyin)
     {
-        toZhuYin(pinyin);
+        toZhuYin(pinyin, true);
     }
 
-    private void toZhuYin(String pinyin)
+    public Zhuyin(String pinyin, boolean useTone)
+    {
+        toZhuYin(pinyin, useTone);
+    }
+
+    public static Zhuyin of(String pinyin)
+    {
+        return new Zhuyin(pinyin);
+    }
+
+    public static Zhuyin of(String pinyin, boolean useTone)
+    {
+        return new Zhuyin(pinyin, useTone);
+    }
+
+    private void toZhuYin(String pinyin, boolean useTone)
     {
         if (pinyin.equals("none5"))
         {
@@ -40,9 +73,16 @@ public class Zhuyin
 
         StringBuilder str = new StringBuilder(pinyin);
 
-        //聲調是最後一個字母，讀取并刪除
-        tone = str.charAt(str.length() - 1) - '0';
-        str.deleteCharAt(str.length() - 1);
+        if (useTone)
+        {
+            //聲調是最後一個字母，讀取并刪除
+            tone = str.charAt(str.length() - 1) - '0';
+            str.deleteCharAt(str.length() - 1);
+        }
+        else
+        {
+            tone = 5;
+        }
 
         //兒化音不和其他讀音拼合
         if (str.toString().equals("er"))
@@ -250,11 +290,11 @@ public class Zhuyin
     }
 
     /**
-     * 把注音转换为更容易解析度Code代码，便于复杂方案的解析、
+     * 把注音转换为更容易解析度Code代码，便于复杂方案的解析
      *
      * @return 长度为五位的数字
      */
-    private String toCode()
+    public String toCode()
     {
         return switch (Sheng)
         {
@@ -308,8 +348,99 @@ public class Zhuyin
     /**
      * 在上面函数的基础上再加上音调符号
      */
-    private String toCodeWithTone()
+    public String toCodeWithTone()
     {
         return toCode() + tone;
+    }
+
+    /**
+     * 这里转换的内容是中国大陆的，软件里会有的，可供输入的内容
+     * <ul>
+     *     <li>软件里会有的：只存在字典里的读音ê m等，输入法会用ei en等代替，不考虑这个的转换</li>
+     *     <li>可供输入的内容：使用的是键盘的版本，没有ü的，要么变成u，要么变成v</li>
+     * </ul>
+     *
+     * @see HanPinyin HanPinyin：完整的汉语拼音处理类
+     */
+    public String toPinyin()
+    {
+        boolean zero = false;  //零声母
+        String sheng = switch (Sheng)
+        {
+            case "ㄅ" -> "b";
+            case "ㄆ" -> "p";
+            case "ㄇ" -> "m";
+            case "ㄈ" -> "f";
+            case "ㄉ" -> "d";
+            case "ㄊ" -> "t";
+            case "ㄋ" -> "n";
+            case "ㄌ" -> "l";
+            case "ㄍ" -> "g";
+            case "ㄎ" -> "k";
+            case "ㄏ" -> "h";
+            case "ㄐ" -> "j";
+            case "ㄑ" -> "q";
+            case "ㄒ" -> "x";
+            case "ㄓ" -> "zh";
+            case "ㄔ" -> "ch";
+            case "ㄕ" -> "sh";
+            case "ㄖ" -> "r";
+            case "ㄗ" -> "z";
+            case "ㄘ" -> "c";
+            case "ㄙ" -> "s";
+            default ->
+            {
+                zero = true;
+                yield "";
+            }
+        };
+
+        String yun = switch (Jie + Yun)
+        {
+            case "ㄚ" -> "a";
+            case "ㄛ" -> "o";
+            case "ㄜ" -> "e";
+            case "ㄞ" -> "ai";
+            case "ㄟ" -> "ei";
+            case "ㄠ" -> "ao";
+            case "ㄡ" -> "ou";
+            case "ㄢ" -> "an";
+            case "ㄣ" -> "en";
+            case "ㄤ" -> "ang";
+            case "ㄥ" -> "eng";
+            case "ㄦ" -> "er";
+
+            case "ㄧ" -> (zero) ? "yi" : "i";
+            case "ㄧㄚ" -> (zero) ? "ya" : "ia";
+            case "ㄧㄛ" -> (zero) ? "yo" : "io";
+            case "ㄧㄝ" -> (zero) ? "ye" : "ie";
+            case "ㄧㄠ" -> (zero) ? "yao" : "iao";
+            case "ㄧㄡ" -> (zero) ? "you" : "iu";
+            case "ㄧㄢ" -> (zero) ? "yan" : "ian";
+            case "ㄧㄣ" -> (zero) ? "yin" : "in";
+            case "ㄧㄤ" -> (zero) ? "yang" : "iang";
+            case "ㄧㄥ" -> (zero) ? "ying" : "ing";
+
+            case "ㄨ" -> (zero) ? "wu" : "u";
+            case "ㄨㄚ" -> (zero) ? "wa" : "ua";
+            case "ㄨㄛ" -> (zero) ? "wo" : "uo";
+            case "ㄨㄞ" -> (zero) ? "wai" : "uai";
+            case "ㄨㄟ" -> (zero) ? "wei" : "ui";
+            case "ㄨㄢ" -> (zero) ? "wan" : "uan";
+            case "ㄨㄣ" -> (zero) ? "wen" : "un";
+            case "ㄨㄤ" -> (zero) ? "wang" : "uang";
+            case "ㄨㄥ" -> (zero) ? "weng" : "ong";
+
+            case "ㄩ" -> (zero) ? "yu" : "ü";
+            case "ㄩㄝ" -> (zero) ? "yue" : "üe";
+            case "ㄩㄢ" -> (zero) ? "yuan" : "üan";
+            case "ㄩㄣ" -> (zero) ? "yun" : "ün";
+            case "ㄩㄥ" -> (zero) ? "yong" : "iong";
+
+            case "" -> "i";//如果没有任何声母，那说明是zhi chi shi ri zi ci si
+            default -> "";
+        };
+        String ans = (sheng + yun);
+        return ans.replace("ü", (ans.matches("[jqx]ü[a-z]*")) ? "u" : "v") + tone;
     }
 }
