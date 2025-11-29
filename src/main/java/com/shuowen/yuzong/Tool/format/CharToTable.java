@@ -36,7 +36,7 @@ public class CharToTable
                     {
                         table.add(new Quadruple<>(i,
                                 HanPinyin.toSyllable(j) == null ? "-" : HanPinyin.toSyllable(j),
-                                HanPinyin.toZhuYin(j) == null ? "-" : HanPinyin.toZhuYin(j),
+                                "-",//过时删除的用法：HanPinyin.toZhuYin(j) == null ? "-" : HanPinyin.toZhuYin(j),
                                 HanPinyin.toTone(j)));
                     }
                 } catch (Exception e)
