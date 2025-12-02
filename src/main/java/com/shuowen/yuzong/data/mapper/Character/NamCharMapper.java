@@ -21,6 +21,11 @@ public interface NamCharMapper
     List<CharEntity> findHanziByVague(String hanzi);
 
     /**
+     * 使用确定的简体或者繁体寻找汉字
+     */
+    List<CharEntity> findHanziByScOrTc(String hanzi, String lang);
+
+    /**
      * 通过主键寻找汉字
      */
     CharEntity findHanziByCharId(Integer id);

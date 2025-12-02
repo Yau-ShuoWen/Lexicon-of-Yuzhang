@@ -3,6 +3,8 @@ package com.shuowen.yuzong.service.impl.Character;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.domain.Character.HanziEdit;
 import com.shuowen.yuzong.data.domain.IPA.Phonogram;
@@ -10,6 +12,7 @@ import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.data.dto.Character.HanziOutline;
 import com.shuowen.yuzong.data.dto.Character.HanziShow;
+import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.mapper.Character.NamCharMapper;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
@@ -59,6 +62,15 @@ public class NamHanziServiceImpl implements HanziService<NamStyle>
 
 
     /**
+     * 查询匹配确定的简体或繁体，获得结果集
+     */
+    public HanziEntry getHanziScOrTc(String hanzi, Language lang)
+    {
+        return HanziEntry.of(hz.findHanziByScOrTc(hanzi, lang.toString()));
+    }
+
+
+    /**
      * 获得的结果集根据需要的结果分类<p>
      * 请参阅： HanziEntry 里面的 split 方法
      */
@@ -89,15 +101,47 @@ public class NamHanziServiceImpl implements HanziService<NamStyle>
         return res;
     }
 
-    public List<HanziOutline> filter(String hanzi)
+    public List<SearchResult> getHanziSearch(String query, String lang, boolean vague)
+    {
+        UniqueList<SearchResult> ans = new UniqueList<>();
+        for (String hanzi : UString.of(query))
+        {
+            for (var i : getHanziOrganize(hanzi, lang, vague))
+            {
+                SearchResult tmp = new SearchResult();
+                tmp.setTitle(i.getHanzi());
+                tmp.setTag("hanzi");
+                tmp.setExlain("无");
+                tmp.setInfo(Map.of("hanzi", i.getHanzi(), "lang", i.getLanguage()));
+                ans.add(tmp);
+            }
+        }
+        return ans.toList();
+    }
+
+    public HanziShow getHanzShow(String hanzi, String lang, Phonogram phonogram,
+                                 IPAToneStyle ts, IPASyllableStyle ss)
+    {
+        Language l = Language.of(lang);
+        var ans = HanziShow.ListOf(getHanziScOrTc(hanzi, l).split(l));
+
+        if (ans.isEmpty()) return null;
+        if (ans.size() > 1) throw new RuntimeException("参数有错误");
+
+        HanziShow.initPinyinIPA(ans, NamStyle.getStandardStyle(),
+                phonogram, ipa.getDefaultDict(), NamPinyin::of, ipa::getMultiLine, ts, ss);
+        return ans.get(0);
+    }
+
+    public List<HanziOutline> filter(String query)
     {
         List<HanziOutline> ans = new ArrayList<>();
 
-        for (int i = 0; i < hanzi.length(); i++)
+        for (String hanzi : UString.of(query))
         {
-            HanziEntry entry = getHanziVague(hanzi.substring(i, i + 1));
-            for (int j = 0; j < entry.getList().size(); j++)
-                ans.add(entry.getItem(j).transfer());
+            HanziEntry entry = getHanziVague(hanzi);
+            for (int i = 0; i < entry.getList().size(); i++)
+                ans.add(entry.getItem(i).transfer());
         }
         return ans;
     }

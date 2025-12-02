@@ -3,9 +3,9 @@ package com.shuowen.yuzong.data.dto.Character;
 import lombok.Data;
 
 /**
- * 用语在编辑的时候多个词条选择是哪一个用的
+ * 用于在编辑的时候多个词条粗筛
  *
- * @see com.shuowen.yuzong.controller.search.ResultNamController
+ * @see com.shuowen.yuzong.controller.edit.EditNamController
  * @apiNote 获得了这个列表，选中一个把id发回来
  */
 

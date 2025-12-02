@@ -64,8 +64,8 @@
         SELECT
         <include refid="allFields"/>
         <include refid="allJoin"/>
-        WHERE main.hanzi = #{hanzi}
-        OR main.hantz = #{hanzi}
+        WHERE BINARY main.hanzi = #{hanzi}
+        OR BINARY main.hantz = #{hanzi}
         GROUP BY main.id
         ORDER BY main.special
     </select>
@@ -75,14 +75,30 @@
         SELECT
         <include refid="allFields"/>
         <include refid="allJoin"/>
-        WHERE main.hanzi = #{hanzi}
-        OR main.hantz = #{hanzi}
-        OR similar.hanzi = #{hanzi}
-        OR similar.hantz = #{hanzi}
+        WHERE BINARY main.hanzi = #{hanzi}
+        OR BINARY main.hantz = #{hanzi}
+        OR BINARY similar.hanzi = #{hanzi}
+        OR BINARY similar.hantz = #{hanzi}
         GROUP BY main.id
         ORDER BY main.special
     </select>
 
+    <select id="findHanziByScOrTc" resultType="com.shuowen.yuzong.data.model.Character.CharEntity">
+        SELECT
+        <include refid="allFields"/>
+        <include refid="allJoin"/>
+        WHERE
+        <choose>
+            <when test="lang == 'tc'">
+                BINARY main.hantz = #{hanzi}
+            </when>
+            <otherwise>
+                BINARY main.hanzi = #{hanzi}
+            </otherwise>
+        </choose>
+        GROUP BY main.id
+        ORDER BY main.special
+    </select>
 
     <!-- 下面这一段是和编辑有关的内容  -->
     <!-- |                       -->
