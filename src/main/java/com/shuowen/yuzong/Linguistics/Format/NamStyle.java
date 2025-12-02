@@ -109,6 +109,11 @@ public class NamStyle extends PinyinStyle
      * */
     public static NamStyle getKeyboardStyle()
     {
-        return new NamStyle(2,0,0,0,1,2,0,0,3);
+        return new NamStyle(2,0,0,0,1,2,0,0,1);
+    }
+
+    public static NamStyle getStandardStyle()
+    {
+        return new NamStyle(1,0,2,2,1,0,0,0,1);
     }
 }

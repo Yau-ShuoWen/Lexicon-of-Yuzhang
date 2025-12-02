@@ -231,6 +231,8 @@ public class NamPinyin extends UniPinyin<NamStyle>
         {
             if (yu == 1) s = s.replace("v", "ü");
             if (yu == 2) s = s.replace("v", "yu");
+            if (yu == 3) s = s.replace("v", "ụ");
+            if (yu == 4) s = s.replace("v", "y");
         }
         if (ee > 0)
         {
@@ -240,13 +242,14 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (oe > 0)
         {
             if (oe == 1) s = s.replace("oe", "ö");
-            if (oe == 2) s = s.replace("oe", "ọ");
+            if (oe == 2) s = s.replace("oe", "ọ");
             if (oe == 3) s = s.replace("oe", "o");
         }
         if (ii > 0)
         {
             if (ii == 1) s = s.replace("ii", "i");
             if (ii == 2) s = s.replace("ii", "");
+            if (ii == 3) s = s.replace("ii", "ị");
         }
         if (ptk > 0)
         {
@@ -588,7 +591,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
                         idx = i;
                         break;
                     }
-                    if (String.valueOf(c).matches("[iIuUvVüÜ]")) idx = i;
+                    if (String.valueOf(c).matches("[iIịỊuUvVüÜụỤyY]")) idx = i;
                 }
 
                 if (idx == -1) Str.append(mark[tone]);
