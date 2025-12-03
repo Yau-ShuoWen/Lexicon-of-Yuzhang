@@ -2,7 +2,8 @@ package com.shuowen.yuzong.data.dto.Character;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
+import com.shuowen.yuzong.Tool.dataStructure.functions.QuaFunction;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
@@ -95,8 +96,9 @@ public class HanziShow
     public static <T extends UniPinyin<U>, U extends PinyinStyle>
     void initPinyinIPA(List<HanziShow> list, U style, Phonogram s, String defaultDict,
                        Function<String, T> pinyinCreator,
-                       TriFunction<Set<T>, IPAToneStyle, IPASyllableStyle, Map<T, Map<String, String>>> ipaSE,
-                       IPAToneStyle ts, IPASyllableStyle ss)
+                       QuaFunction<Set<T>, IPAToneStyle, IPASyllableStyle, Dialect, Map<T, Map<String, String>>> ipaSE,
+                       IPAToneStyle ts, IPASyllableStyle ss,
+                       Dialect d)
     {
         Set<String> setToPy = new HashSet<>();
         Set<String> setToIPA = new HashSet<>();
@@ -130,7 +132,7 @@ public class HanziShow
         }
 
         Map<String, String> pyData = PinyinTool.formatPinyin(setToPy, pinyinCreator, style);
-        Map<String, Map<String, String>> ipaData = IPATool.formatIPA(setToIPA, pinyinCreator, ipaSE, ts, ss);
+        Map<String, Map<String, String>> ipaData = IPATool.formatIPA(setToIPA, pinyinCreator, ipaSE, ts, ss, d);
 
         // 无论是没有这个拼音还是没有这个字典，都直接静默处理
         BiFunction<String, String, String> get = (pinyin, dict) ->

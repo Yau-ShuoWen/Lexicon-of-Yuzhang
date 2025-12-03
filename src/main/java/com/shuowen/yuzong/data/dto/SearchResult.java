@@ -14,4 +14,12 @@ public class SearchResult
     String exlain; // 结果的简短说明
     String tag;    // 结果的标签
     Map<String,String> info; //反查的信息
+
+    public SearchResult(String title, String exlain, String tag, Map<String, String> info)
+    {
+        this.title = title;
+        this.exlain = exlain;
+        this.tag = tag;
+        this.info = info;
+    }
 }
