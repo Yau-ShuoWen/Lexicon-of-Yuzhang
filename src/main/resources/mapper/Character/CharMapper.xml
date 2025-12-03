@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.data.mapper.Character.NamCharMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.Character.CharMapper">
 
     <!-- 基础字段定义 -->
     <sql id="baseFields">
@@ -38,18 +38,18 @@
 
     <!-- 基础表连接 -->
     <sql id="baseTable">
-        FROM NC.nam_char main
+        FROM NC.${dialect}_char main
     </sql>
 
     <!-- 相似字符表连接 -->
     <sql id="similarTableJoin">
-        LEFT JOIN NC.nam_char_similar similar ON main.id = similar.char_id
-        LEFT JOIN NC.nam_char_similar similar_field ON main.id = similar_field.char_id
+        LEFT JOIN NC.${dialect}_char_similar similar ON main.id = similar.char_id
+        LEFT JOIN NC.${dialect}_char_similar similar_field ON main.id = similar_field.char_id
     </sql>
 
     <!-- 拼音表连接 -->
     <sql id="pinyinTableJoin">
-        LEFT JOIN NC.nam_char_pinyin pinyin ON main.id = pinyin.char_id
+        LEFT JOIN NC.${dialect}_char_pinyin pinyin ON main.id = pinyin.char_id
     </sql>
 
     <sql id="allJoin">
@@ -111,20 +111,20 @@
 
     <!-- 通过主键寻找汉字 -->
     <select id="findHanziByCharId" resultType="com.shuowen.yuzong.data.model.Character.CharEntity">
-        SELECT * FROM NC.nam_char
+        SELECT * FROM NC.${dialect}_char
         WHERE id = #{id}
         GROUP BY id
     </select>
 
     <!-- 通过主键寻找：附表里的模糊识别汉字 -->
     <select id="findHanziSimilarByCharId" resultType="com.shuowen.yuzong.data.model.Character.CharSimilar">
-        SELECT * FROM NC.nam_char_similar
+        SELECT * FROM NC.${dialect}_char_similar
         WHERE char_id = #{id}
     </select>
 
     <!-- 通过主键寻找：附表里的多种拼音 -->
     <select id="findHanziPinyinByCharId" resultType="com.shuowen.yuzong.data.model.Character.CharPinyin">
-        SELECT * FROM NC.nam_char_pinyin
+        SELECT * FROM NC.${dialect}_char_pinyin
         WHERE char_id = #{id}
     </select>
 
@@ -133,25 +133,25 @@
     <!-- |                        | -->
 
     <!--  插入新的内容（主表）  -->
-    <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.CharEntity" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO nam_char
+    <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.CharEntity" useGeneratedKeys="true" keyProperty="ch.id">
+        INSERT INTO ${dialect}_char
         (hanzi, hantz, std_py, special, ipa_exp, mean, note, refer)
         VALUES
-        (#{hanzi}, #{hantz}, #{stdPy}, #{special}, #{ipaExp}, #{mean}, #{note}, #{refer})
+        (#{ch.hanzi}, #{ch.hantz}, #{ch.stdPy}, #{ch.special}, #{ch.ipaExp}, #{ch.mean}, #{ch.note}, #{ch.refer})
     </insert>
 
     <!--  插入新的内容（Similar表）  -->
     <insert id="insertCharSimilar" parameterType="com.shuowen.yuzong.data.model.Character.CharSimilar">
-        INSERT into NC.nam_char_similar
+        INSERT into NC.${dialect}_char_similar
         (char_id, hanzi, hantz)
-        VALUES (#{charId}, #{hanzi}, #{hantz})
+        VALUES (#{ch.charId}, #{ch.hanzi}, #{ch.hantz})
     </insert>
 
     <!--  插入新的内容（Pinyin表）  -->
     <insert id="insertCharPinyin" parameterType="com.shuowen.yuzong.data.model.Character.CharPinyin">
-        INSERT INTO NC.nam_char_pinyin
+        INSERT INTO NC.${dialect}_char_pinyin
         (char_id, sc, tc, pinyin, sort)
-        VALUES (#{charId}, #{sc}, #{tc}, #{pinyin}, #{sort})
+        VALUES (#{ch.charId}, #{ch.sc}, #{ch.tc}, #{ch.pinyin}, #{ch.sort})
     </insert>
 
 
@@ -161,26 +161,26 @@
 
     <!--  更新内容（主表）  -->
     <update id="updateCharById" parameterType="com.shuowen.yuzong.data.model.Character.CharEntity">
-        UPDATE NC.nam_char
+        UPDATE NC.${dialect}_char
         SET
-        special = #{special}, ipa_exp = #{ipaExp}, mean = #{mean}, note = #{note}, refer = #{refer}
-        WHERE id = #{id}
+        special = #{ch.special}, ipa_exp = #{ch.ipaExp}, mean = #{ch.mean}, note = #{ch.note}, refer = #{ch.refer}
+        WHERE id = #{ch.id}
     </update>
 
     <!--  更新内容（Similar表）  -->
     <update id="updateCharSimilarById" parameterType="com.shuowen.yuzong.data.model.Character.CharSimilar">
-        UPDATE NC.nam_char_similar
+        UPDATE NC.${dialect}_char_similar
         SET
-        char_id = #{charId}, hanzi = #{hanzi}, hantz = #{hantz}
-        WHERE id = #{id}
+        char_id = #{ch.charId}, hanzi = #{ch.hanzi}, hantz = #{ch.hantz}
+        WHERE id = #{ch.id}
     </update>
 
     <!--  更新内容（Pinyin表）  -->
     <update id="updateCharPinyinById" parameterType="com.shuowen.yuzong.data.model.Character.CharPinyin">
-        UPDATE NC.nam_char_pinyin
+        UPDATE NC.${dialect}_char_pinyin
         SET
-        char_id = #{charId}, sc = #{sc}, tc = #{tc}, pinyin = #{pinyin}, sort = #{sort}
-        WHERE id = #{id}
+        char_id = #{ch.charId}, sc = #{ch.sc}, tc = #{ch.tc}, pinyin = #{ch.pinyin}, sort = #{ch.sort}
+        WHERE id = #{ch.id}
     </update>
 
 
@@ -189,23 +189,23 @@
     <!-- |                             | -->
 
     <delete id="deleteCharSimilarById">
-        DELETE FROM NC.nam_char_similar WHERE id = #{id}
+        DELETE FROM NC.${dialect}_char_similar WHERE id = #{id}
     </delete>
 
     <delete id="deleteCharPinyinById">
-        DELETE FROM NC.nam_char_pinyin WHERE id = #{id}
+        DELETE FROM NC.${dialect}_char_pinyin WHERE id = #{id}
     </delete>
-    
-    
+
+
     <select id="findPreviousItem" parameterType="Integer" resultType="Integer">
-        SELECT * FROM nam_char
+        SELECT * FROM ${dialect}_char
         WHERE id &lt; #{id}
         ORDER BY id DESC
         LIMIT 1;
     </select>
-    
+
     <select id="findNextItem" parameterType="Integer" resultType="Integer">
-        SELECT * FROM nam_char
+        SELECT * FROM ${dialect}_char
         WHERE id > #{id}
         ORDER BY id ASC
         LIMIT 1;

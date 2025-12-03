@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.data.mapper.Character.NamNotationMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.Character.PronunMapper">
 
     <select id="selectMdrDialectChars" resultType="com.shuowen.yuzong.data.model.Character.DialectChar">
         select info, std_py
         from mdr_char mdr
-        RIGHT JOIN NC.nam_char_mdr map ON mdr.id = map.m
-        RIGHT JOIN NC.nam_char main ON map.n = main.id
+        RIGHT JOIN NC.${dialect}_char_mdr map ON mdr.id = map.m
+        RIGHT JOIN NC.${dialect}_char main ON map.n = main.id
         WHERE info IN
         <foreach collection="list" item="info" open="(" separator="," close=")">
             #{info}
@@ -18,17 +18,17 @@
 
     <select id="getMdrInfoByDialectId" resultType="com.shuowen.yuzong.data.model.Character.CharMdr">
         SELECT map.n left_id, map.m right_id, info
-        FROM nam_char_mdr map
+        FROM ${dialect}_char_mdr map
         RIGHT JOIN mdr_char ON map.m = id
         WHERE map.n = #{id};
     </select>
 
     <delete id="clearMapByDialectId">
-        DELETE FROM nam_char_mdr WHERE n = #{id}
+        DELETE FROM ${dialect}_char_mdr WHERE n = #{id}
     </delete>
 
     <insert id="insertMap">
         INSERT INTO
-        nam_char_mdr values (#{m}, #{n})
+        ${dialect}_char_mdr values (#{m}, #{n})
     </insert>
 </mapper>
