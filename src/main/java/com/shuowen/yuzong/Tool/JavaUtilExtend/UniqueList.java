@@ -1,20 +1,19 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
-import java.util.*;
+import lombok.Getter;
 
+import java.util.*;
 
 /**
  * 一个自动去重的List，主要用于搜索结果。其他功能暂无需求
  */
 public class UniqueList<T>
 {
+    @Getter
     private final List<T> list = new ArrayList<>();
     private final Set<T> set = new HashSet<>();
 
-    public UniqueList()
-    {
-
-    }
+    public UniqueList() {}
 
     public boolean add(T item)
     {
@@ -33,10 +32,5 @@ public class UniqueList<T>
             if (add(item)) count++;
         }
         return count;
-    }
-
-    public List<T> toList()
-    {
-        return list;
     }
 }
