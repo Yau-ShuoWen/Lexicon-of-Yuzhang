@@ -91,7 +91,7 @@ public class HanziService
                 ));
             }
         }
-        return ans.toList();
+        return ans.getList();
     }
 
     /**
@@ -102,8 +102,7 @@ public class HanziService
     {
         var ans = HanziShow.ListOf(getHanziScOrTc(hanzi, lang, d).split(lang));
 
-        if (ans.isEmpty()) return null;
-        if (ans.size() > 1) throw new RuntimeException("参数有错误");
+        if (ans.size() != 1) throw new RuntimeException(ans.size() > 1 ? "汉字不唯一" : "未找到汉字");
 
         HanziShow.initPinyinIPA(ans, ipa.getStandardStyle(d),
                 phonogram, ipa.getDefaultDict(d), ipa.getFactory(d), ipa::getMultiLine, ts, ss, d);
@@ -122,7 +121,7 @@ public class HanziService
             for (int i = 0; i < entry.getList().size(); i++)
                 ans.add(entry.getItem(i).transfer());
         }
-        return ans.toList();
+        return ans.getList();
     }
 
     /**

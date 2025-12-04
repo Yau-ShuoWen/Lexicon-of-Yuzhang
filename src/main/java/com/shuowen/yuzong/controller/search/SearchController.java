@@ -9,6 +9,7 @@ import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.data.dto.Character.HanziShow;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.service.impl.Character.HanziService;
+import com.shuowen.yuzong.service.impl.Word.CiyuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,10 +21,10 @@ import java.util.*;
 public class SearchController
 {
     @Autowired
-    HanziService s;
+    HanziService h;
 
-//    @Autowired
-//    NamCiyuServiceImpl t;
+    @Autowired
+    CiyuService c;
 
     /**
      * 适用于搜索时候整合所有信息列成一个列表供选择，所以这里的结果集是可插拔的
@@ -38,14 +39,14 @@ public class SearchController
     {
         List<SearchResult> ans = new ArrayList<>();
 
-        ans.addAll(s.getHanziSearchInfo(query, Language.of(lang), Dialect.of(dialect), vague));
-        // 之后还可以加上其他的东西
+        ans.addAll(h.getHanziSearchInfo(query, Language.of(lang), Dialect.of(dialect), vague));
+        ans.addAll(c.getHanziSearchInfo(query, Language.of(lang), Dialect.of(dialect), vague));
 
         return ans;
     }
 
     /**
-     * 查询汉字信息
+     * 查询具体汉字信息
      */
     @GetMapping (value = "{dialect}/by-hanzi")
     public APIResponse<HanziShow> hanziSearch(
@@ -57,29 +58,16 @@ public class SearchController
             @RequestParam (required = false, defaultValue = "0") int syllableStyle
     )
     {
-        var res = s.getHanzDetailInfo(hanzi, Language.of(lang), Dialect.of(dialect), Phonogram.of(phonogram),
-                IPAToneStyle.of(toneStyle), IPASyllableStyle.of(syllableStyle));
-
-        return (res == null) ?
-                APIResponse.failure("not found 未找到该汉字") :  // 前端解析到这个是一个错误回复检查"not found"字符
-                APIResponse.success(res);
+        try
+        {
+            return APIResponse.success(h.getHanzDetailInfo(hanzi, Language.of(lang), Dialect.of(dialect),
+                    Phonogram.of(phonogram), IPAToneStyle.of(toneStyle), IPASyllableStyle.of(syllableStyle))
+            );
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure("not found 未找到该汉字，或者汉字不唯一");  // 前端解析到这个是一个错误回复检查"not found"字符
+        }
     }
 
-//    @GetMapping (value = "/byciyu/certain")
-//    public List<NamCiyu> ciyuPrecise(@RequestParam String ciyu)
-//    {
-//        return t.getCiyuByScTc(ciyu);
-//    }
-//
-//    @GetMapping (value = "/byciyu/vague")
-//    public List<NamCiyu> ciyuVague(@RequestParam String ciyu)
-//    {
-//        return t.getCiyuVague(ciyu);
-//    }
-//
-//    @GetMapping (value = "/byciyu")
-//    public List<NamCiyu> ciyuSentence(@RequestParam String sentence)
-//    {
-//        return t.getCiyuBySentence(sentence);
-//    }
 }
