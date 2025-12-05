@@ -1,11 +1,20 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
+//import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+//import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
+//import com.shuowen.yuzong.Tool.dataStructure.tuple.Quintuple;
+//import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import lombok.Data;
 import org.apache.commons.text.diff.CommandVisitor;
 import org.apache.commons.text.diff.StringsComparator;
 
 import java.util.*;
+import java.util.function.Function;
 
+/**
+ * 如果需要排序的信息，就使用他的返回值，如果不需要不必接收，也可以完成排序
+ */
 public class WeightSort
 {
     private static String lcs(String a, String b)
@@ -47,32 +56,145 @@ public class WeightSort
         return (1.0 * lcs(a, b).length()) / b.length();
     }
 
-    public static List<Quadruple<String, Double, Double, Double>>
-    sort(List<String> list, String query, double a, double b)
+    @Data
+    static class Info<T>
     {
-        List<Quadruple<String, Double, Double, Double>> l = new ArrayList<>();
+        String keyword;
+        double similarity; // 相似值
+        double matching;   // 匹配值
+        double priority;   // 优先值
+        double weight;     // 综合权重
+        T value;           // 内容
 
-        for (String s : list)
+        public Info(T value, String query, String key, double priority,
+                    double simCoef, double matchCoef, double priorCoef)
         {
-            double similarity = similarity(s, query);
-            double matching = matching(s, query);
-            double weight = similarity * a + matching * b;
-            l.add(new Quadruple<>(s, similarity, matching, weight));
+            this.value = value;
+            keyword = key;
+            similarity = similarity(key, query);
+            matching = matching(key, query);
+            this.priority = priority;
+            weight = similarity * simCoef + matching * matchCoef + priority * priorCoef;
         }
+    }
 
-        l.sort((t1, t2) -> Double.compare(t2.getDelta(), t1.getDelta()));
+    /**
+     * 内部函数
+     */
+    private static <T> List<Info<T>> sort(
+            List<T> list, List<Double> priority, Function<T, String> keyGetter, String query,
+            double simCoef, double matchCoef, double priorCoef
+    )
+    {
+        if (list.size() != priority.size()) throw new RuntimeException("数组长度不相等");
+        List<Info<T>> infos = new ArrayList<>();
+
+        for (int i = 0; i < list.size(); i++)
+        {
+            T t = list.get(i);
+            infos.add(new Info<>(t, query, keyGetter.apply(t), priority.get(i),
+                    simCoef, matchCoef, priorCoef));
+        }
+        infos.sort((a, b) -> Double.compare(b.getWeight(), a.getWeight()));
 
         list.clear();
-        for (var i : l) list.add(i.getAlpha());
+        for (var i : infos) list.add(i.value);
 
-        return l;
+        return infos;
     }
 
-    public static List<Quadruple<String, Double, Double, Double>>
-    sort(List<String> list, String query)
+    /**
+     * 对于类的排序
+     * @param list 要排序的列表
+     * @param priority 每一个元素的优先级，传入null就是优先级一样
+     * @param keyGetter 列表元素如何获得排序关键词
+     * @param query 要匹配的字符串
+     * @param options 三个参数，分别为相似度权重、匹配度权重、优先级权重，加起来不等于0，传入null就是权重相等
+     * */
+    public static <T> List<Info<T>> sort(
+            List<T> list, List<Double> priority, Function<T, String> keyGetter, String query,
+            Triple<Double, Double, Double> options
+    )
     {
-        return sort(list, query, 0.5, 0.5);
+        if (options == null) options = Triple.of(1.0, 1.0, 1.0);
+        if (priority == null) priority = Collections.nCopies(list.size(), 1.0);
+
+        return sort(list, priority, keyGetter, query, options.getLeft(), options.getMiddle(), options.getRight());
     }
+
+    /**
+     * 对于字符串列表的排序
+     * @param list 要排序的字符串列表
+     * @param priority 每一个元素的优先级，传入null就是优先级一样
+     * @param query 要匹配的字符串
+     * @param options 三个参数，分别为相似度权重、匹配度权重、优先级权重，加起来不等于0，传入null就是权重相等
+     * */
+    public static List<Info<String>> sort(
+            List<String> list, List<Double> priority, String query,
+            Triple<Double, Double, Double> options
+    )
+    {
+        if (options == null) options = Triple.of(1.0, 1.0, 1.0);
+        if (priority == null) priority = Collections.nCopies(list.size(), 1.0);
+
+        return sort(list, priority, s -> s, query, options);
+    }
+
+//
+//    public static List<Quadruple<String, Double, Double, Double>>
+//    sort(List<String> list, String query, double a, double b)
+//    {
+//        List<Quadruple<String, Double, Double, Double>> l = new ArrayList<>();
+//
+//        for (String i : list)
+//        {
+//            double similarity = similarity(i, query);
+//            double matching = matching(i, query);
+//            double weight = similarity * a + matching * b;
+//            l.add(new Quadruple<>(i, similarity, matching, weight));
+//        }
+//
+//        l.sort((t1, t2) -> Double.compare(t2.getDelta(), t1.getDelta()));
+//
+//        list.clear();
+//        for (var i : l) list.add(i.getAlpha());
+//
+//        return l;
+//    }
+//
+//    public static List<Quadruple<String, Double, Double, Double>>
+//    sort(List<String> list, String query)
+//    {
+//        return sort(list, query, 0.5, 0.5);
+//    }
+//
+//    public static <T> List<Quintuple<String, Double, Double, Double, T>>
+//    sort(List<T> list, String query, double a, double b, Function<T, String> keyGetter)
+//    {
+//        List<Quintuple<String, Double, Double, Double, T>> l = new ArrayList<>();
+//
+//        for (T i : list)
+//        {
+//            String s = keyGetter.apply(i);
+//            double similarity = similarity(s, query);
+//            double matching = matching(s, query);
+//            double weight = similarity * a + matching * b;
+//            l.add(Quintuple.of(s, similarity, matching, weight, i));
+//        }
+//
+//        l.sort((t1, t2) -> Double.compare(t2.getDelta(), t1.getDelta()));
+//
+//        list.clear();
+//        for (var i : l) list.add(i.getEpsilon());
+//
+//        return l;
+//    }
+//
+//    public static <T> List<Quintuple<String, Double, Double, Double, T>>
+//    sort(List<T> list, String query, Function<T, String> keyGetter)
+//    {
+//        return sort(list, query, 0.5, 0.5, keyGetter);
+//    }
 
     public static void main(String[] args)
     {
@@ -92,7 +214,7 @@ public class WeightSort
             System.out.println("\n--输入查询文本--\n");
             String query = sc.nextLine();
 
-            for (var i : WeightSort.sort(set, query))
+            for (var i : WeightSort.sort(set, null, query, null))
             {
                 System.out.println(i);
             }
