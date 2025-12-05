@@ -1,9 +1,5 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
-//import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-//import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
-//import com.shuowen.yuzong.Tool.dataStructure.tuple.Quintuple;
-//import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import lombok.Data;
 import org.apache.commons.text.diff.CommandVisitor;
@@ -139,62 +135,6 @@ public class WeightSort
 
         return sort(list, priority, s -> s, query, options);
     }
-
-//
-//    public static List<Quadruple<String, Double, Double, Double>>
-//    sort(List<String> list, String query, double a, double b)
-//    {
-//        List<Quadruple<String, Double, Double, Double>> l = new ArrayList<>();
-//
-//        for (String i : list)
-//        {
-//            double similarity = similarity(i, query);
-//            double matching = matching(i, query);
-//            double weight = similarity * a + matching * b;
-//            l.add(new Quadruple<>(i, similarity, matching, weight));
-//        }
-//
-//        l.sort((t1, t2) -> Double.compare(t2.getDelta(), t1.getDelta()));
-//
-//        list.clear();
-//        for (var i : l) list.add(i.getAlpha());
-//
-//        return l;
-//    }
-//
-//    public static List<Quadruple<String, Double, Double, Double>>
-//    sort(List<String> list, String query)
-//    {
-//        return sort(list, query, 0.5, 0.5);
-//    }
-//
-//    public static <T> List<Quintuple<String, Double, Double, Double, T>>
-//    sort(List<T> list, String query, double a, double b, Function<T, String> keyGetter)
-//    {
-//        List<Quintuple<String, Double, Double, Double, T>> l = new ArrayList<>();
-//
-//        for (T i : list)
-//        {
-//            String s = keyGetter.apply(i);
-//            double similarity = similarity(s, query);
-//            double matching = matching(s, query);
-//            double weight = similarity * a + matching * b;
-//            l.add(Quintuple.of(s, similarity, matching, weight, i));
-//        }
-//
-//        l.sort((t1, t2) -> Double.compare(t2.getDelta(), t1.getDelta()));
-//
-//        list.clear();
-//        for (var i : l) list.add(i.getEpsilon());
-//
-//        return l;
-//    }
-//
-//    public static <T> List<Quintuple<String, Double, Double, Double, T>>
-//    sort(List<T> list, String query, Function<T, String> keyGetter)
-//    {
-//        return sort(list, query, 0.5, 0.5, keyGetter);
-//    }
 
     public static void main(String[] args)
     {
