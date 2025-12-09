@@ -12,13 +12,24 @@
 │
 ├── /search/{语言代码}
 │   │
-│   ├── /byhanzi
-│   │     参数：汉字-hanzi 语言-lang 标注方式-phonogram 模糊识别-vague
-│   │          如果标注有方言拼音 拼音格式-style
-│   │          如果有标注国际音标 音节格式-syllableStyle 音调-toneStyle
-│   │     返回：HanziShow
+│   ├── /search-query
+│   │     参数：语言代码 - dialect 字符串
+│   │          询问参数 - query   字符串
+│   │          简、繁体 - lang    字符串
+│   │          模糊识别 - vague   正误值
+│   │     返回：List<SearchResult>
 │   │
-│   └── /byciyu
+│   ├── /by-hanzi
+│   │     参数：语言代码  - dialect 字符串
+│   │          查询汉字  - dialect 字符串
+│   │          简、繁体  - lang    字符串
+│   │          读音标注格式    - phonogram     整数
+│   │          国际音标音节格式 - syllableStyle 整数
+│   │          国际音标音调格式 - toneStyle     整数
+│   │
+│   │     返回：APIResponse<HanziShow>  得到的结果错误就是失败
+│   │
+│   └── /by-ciyu
 │
 ├── /setting/{语言代码}
 │   │
@@ -31,14 +42,14 @@
 │   │
 │   └── 更多功能待设计
 │
-├── /search/{语言代码}
+├──
 │   │
-│   ├── /byhanzi
-│   │     参数：汉字-hanzi 语言-lang 标注方式-phonogram 模糊识别-vague
-│   │          如果标注有方言拼音 拼音格式-style
-│   │          如果有标注国际音标 音节格式-syllableStyle 音调-toneStyle
-│   │     返回：HanziShow
+│   ├──
 │   │
-│   └── /byciyu
+│   │
+│   │
+│   │
+│   │
+│   └── 更多功能待设计
 │
 └── 更多功能待设计
