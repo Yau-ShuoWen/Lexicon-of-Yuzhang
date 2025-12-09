@@ -80,10 +80,10 @@ public class HanziService
      */
     public List<SearchResult> getHanziSearchInfo(String query, Language lang, Dialect d, boolean vague)
     {
-        UniqueList<SearchResult> ans = new UniqueList<>();
+        UniqueList<SearchResult, SearchResult> ans = UniqueList.of();
         for (String hanzi : UString.of(query))
         {
-            for (var i : getHanziOrganize(hanzi, lang, d, vague ? 3 : 2)) //3:2不是一个魔法数字
+            for (var i : getHanziOrganize(hanzi, lang, d, vague ? 3 : 2))
             {
                 ans.add(new SearchResult(
                         i.getHanzi(), "无", "hanzi",
@@ -97,12 +97,13 @@ public class HanziService
     /**
      * 精确的给出找的信息，获得汉字详细信息
      */
-    public HanziShow getHanzDetailInfo(String hanzi, Language lang, Dialect d, Phonogram phonogram,
-                                       IPAToneStyle ts, IPASyllableStyle ss)
+    public HanziShow getHanziDetailInfo(String hanzi, Language lang, Dialect d,
+                                        Phonogram phonogram, IPAToneStyle ts, IPASyllableStyle ss)
     {
-        var ans = HanziShow.ListOf(getHanziScOrTc(hanzi, lang, d).split(lang));
+        var ans = getHanziOrganize(hanzi, lang, d, 1);
 
-        if (ans.size() != 1) throw new RuntimeException(ans.size() > 1 ? "汉字不唯一" : "未找到汉字");
+        if (ans.size() != 1)
+            throw new RuntimeException(ans.size() > 1 ? "not unique 汉字不唯一" : "not found 未找到汉字");
 
         HanziShow.initPinyinIPA(ans, ipa.getStandardStyle(d),
                 phonogram, ipa.getDefaultDict(d), ipa.getFactory(d), ipa::getMultiLine, ts, ss, d);
@@ -114,9 +115,10 @@ public class HanziService
      */
     public List<HanziOutline> getHanziFilterInfo(String query, Dialect d)
     {
-        UniqueList<HanziOutline> ans = new UniqueList<>();
+        UniqueList<HanziOutline, HanziOutline> ans = UniqueList.of();
         for (String hanzi : UString.of(query))
         {
+            // 这里不用getHanziOrganize是因为要词条原貌才能编辑，而不是合并后的显示结果
             HanziEntry entry = getHanziVague(hanzi, d);
             for (int i = 0; i < entry.getList().size(); i++)
                 ans.add(entry.getItem(i).transfer());
@@ -143,6 +145,17 @@ public class HanziService
     {
         CharEntity ch = he.transfer();
 
+        // 通过唯一键寻找数据库里是否也有
+        CharEntity maybe = hz.findByUniqueKey(ch, d.toString());
+
+        // 如果没找到，说明是新增，可以插入
+        // 如果id是同一个，那么说明是原地更新
+        // 其他情况为新增但是唯一键冲突，那么说明是冲突，抛出异常
+        if (maybe != null && !maybe.getId().equals(ch.getId()))
+            throw new IllegalArgumentException("数据 简体：" + ch.getHanzi() + " 繁体：" + ch.getHantz() + " 拼音：" + ch.getStdPy() + " 重复");
+
+
+        // 处理主表插入
         if ((ch.getId() == null || ch.getId() <= 0))
             hz.insertChar(ch, d.toString());
         else hz.updateCharById(ch, d.toString());
@@ -185,6 +198,7 @@ public class HanziService
             i.setRightId(id);
         }
 
+        // 普通话对应字段，丢给专门的类处理
         mdr.edit(he.getMandarin(), d);
     }
 }

@@ -133,7 +133,8 @@
     <!-- |                        | -->
 
     <!--  插入新的内容（主表）  -->
-    <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.CharEntity" useGeneratedKeys="true" keyProperty="ch.id">
+    <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.CharEntity" useGeneratedKeys="true"
+            keyProperty="ch.id">
         INSERT INTO ${dialect}_char
         (hanzi, hantz, std_py, special, ipa_exp, mean, note, refer)
         VALUES
@@ -197,18 +198,33 @@
     </delete>
 
 
-    <select id="findPreviousItem" parameterType="Integer" resultType="Integer">
+    <!-- 编辑的时候找到前一个或后一个元素  - - -->
+    <!-- |                             | -->
+    <!-- |                             | -->
+
+    <select id="findPreviousId" parameterType="Integer" resultType="Integer">
         SELECT * FROM ${dialect}_char
         WHERE id &lt; #{id}
         ORDER BY id DESC
         LIMIT 1;
     </select>
 
-    <select id="findNextItem" parameterType="Integer" resultType="Integer">
+    <select id="findNextId" parameterType="Integer" resultType="Integer">
         SELECT * FROM ${dialect}_char
         WHERE id > #{id}
         ORDER BY id ASC
         LIMIT 1;
+    </select>
+
+    <select id="findByUniqueKey"
+            parameterType="com.shuowen.yuzong.data.model.Character.CharEntity"
+            resultType="com.shuowen.yuzong.data.model.Character.CharEntity"
+    >
+        SELECT * FROM ${dialect}_char
+        WHERE
+        hanzi = #{ch.hanzi} AND
+        hantz = #{ch.hantz} AND
+        std_py = #{ch.stdPy}
     </select>
 
 </mapper>

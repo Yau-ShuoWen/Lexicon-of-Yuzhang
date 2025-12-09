@@ -9,6 +9,8 @@ import java.util.*;
 @Mapper
 public interface PronunMapper
 {
+    List<CharMdr> getMandarinInfo(String hanzi, String hantz, Integer dialectId, String dialect);
+
     /**
      * 用于标注读音使用
      */

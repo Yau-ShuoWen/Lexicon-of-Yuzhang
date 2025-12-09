@@ -4,6 +4,18 @@
 
 <mapper namespace="com.shuowen.yuzong.data.mapper.Character.PronunMapper">
 
+    <select id="getMandarinInfo" resultType="com.shuowen.yuzong.data.model.Character.CharMdr">
+        SELECT mc.info, mc.id AS left_id
+        FROM NC.mdr_char mc
+        LEFT JOIN NC.${dialect}_char_mdr nm ON nm.m = mc.id
+        WHERE
+        (mc.hanzi = #{hanzi} OR mc.hanzi = #{hantz})
+<!--        AND (-->
+<!--        nm.m IS NULL                      &#45;&#45; 完全没有映射，允许-->
+<!--        OR nm.n = #{dialectId}           &#45;&#45; 映射给当前 dialect，可保留-->
+<!--        );-->
+    </select>
+
     <select id="selectMdrDialectChars" resultType="com.shuowen.yuzong.data.model.Character.DialectChar">
         select info, std_py
         from mdr_char mdr

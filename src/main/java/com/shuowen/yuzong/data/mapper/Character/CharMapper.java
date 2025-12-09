@@ -83,11 +83,16 @@ public interface CharMapper
 
     /**
      * 根据主键寻找上一条数据的主键号码
-     * */
-    Integer findPreviousItem(Integer id, String dialect);
+     */
+    Integer findPreviousId(Integer id, String dialect);
 
     /**
      * 根据主键寻找下一条数据的主键号码
-     * */
-    Integer findNextItem(Integer id, String dialect);
+     */
+    Integer findNextId(Integer id, String dialect);
+
+    /**
+     * 查询唯一键是否重复
+     */
+    CharEntity findByUniqueKey(@Param ("ch") CharEntity ch, @Param ("dialect") String dialect);
 }

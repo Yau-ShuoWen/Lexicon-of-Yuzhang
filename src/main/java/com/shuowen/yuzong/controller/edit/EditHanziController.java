@@ -6,7 +6,7 @@ import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Character.HanziEdit;
 import com.shuowen.yuzong.data.dto.Character.HanziOutline;
 import com.shuowen.yuzong.data.mapper.Character.CharMapper;
-import com.shuowen.yuzong.data.mapper.Character.MdrCharMapper;
+import com.shuowen.yuzong.data.mapper.Character.PronunMapper;
 import com.shuowen.yuzong.data.model.Character.CharMdr;
 import com.shuowen.yuzong.service.impl.Character.HanziService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,18 +18,18 @@ import static com.shuowen.yuzong.data.domain.Character.MdrTool.settle;
 
 @RestController
 @RequestMapping ("/api/edit/")
-public class EditController
+public class EditHanziController
 {
     @Autowired
     HanziService s;
 
     @Autowired
-    MdrCharMapper mdr;
+    PronunMapper pronun;
 
     @Autowired
     CharMapper m;
 
-    @GetMapping ("{dialect}/byhanzi")
+    @GetMapping ("{dialect}/by-hanzi")
     public List<HanziOutline> filter(
             @PathVariable String dialect,
             @RequestParam String hanzi
@@ -38,13 +38,22 @@ public class EditController
         return s.getHanziFilterInfo(hanzi, Dialect.of(dialect));
     }
 
-    @GetMapping ("{dialect}/byid")
-    public HanziEdit hanzifind(
+    @GetMapping ("{dialect}/hanzi/by-id")
+    public APIResponse<Result<HanziEdit>> hanzifind(
             @PathVariable String dialect,
             @RequestParam Integer id
     )
     {
-        return s.getHanziById(id, Dialect.of(dialect));
+        try
+        {
+            return APIResponse.success(Result.ofNullable(
+                    s.getHanziById(id, Dialect.of(dialect))
+            ));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
     }
 
     @PostMapping ("{dialect}/edit")
@@ -53,7 +62,6 @@ public class EditController
             @RequestBody HanziEdit he
     )
     {
-        System.out.println(he);
         try
         {
             s.editHanzi(he, Dialect.of(dialect));
@@ -65,22 +73,33 @@ public class EditController
         }
     }
 
-    @GetMapping ("/get-hanzi")
+
+    @GetMapping ("{dialect}/get-hanzi")
     public List<CharMdr> getHanzi(
+            @PathVariable String dialect,
             @RequestParam String hanzi,
-            @RequestParam String hantz)
+            @RequestParam String hantz,
+            @RequestParam (required = false, defaultValue = "0") Integer id
+    )
     {
-        return settle(mdr.getInfo(hanzi, hantz));
+        return settle(pronun.getMandarinInfo(hanzi, hantz, id, Dialect.of(dialect).toString()));
     }
 
+
     @GetMapping ("{dialect}/get-nearby")
-    public Pair<Integer, Integer> getNearBy(
-            @PathVariable String dialect,
-            @RequestParam Integer id)
+    public APIResponse<Pair<Result<Integer>, Result<Integer>>>
+    getNearBy(@PathVariable String dialect, @RequestParam Integer id)
     {
-        return Pair.of(
-                m.findPreviousItem(id,Dialect.of(dialect).toString()),
-                m.findNextItem(id,Dialect.of(dialect).toString())
-        );
+        try
+        {
+            return APIResponse.success(Pair.of(
+                    Result.ofNullable(m.findPreviousId(id, Dialect.of(dialect).toString())),
+                    Result.ofNullable(m.findNextId(id, Dialect.of(dialect).toString()))
+            ));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
     }
 }

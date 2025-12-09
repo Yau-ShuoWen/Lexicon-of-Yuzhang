@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.controller.search;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import  com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.IPA.Phonogram;
@@ -8,6 +8,7 @@ import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.data.dto.Character.HanziShow;
 import com.shuowen.yuzong.data.dto.SearchResult;
+import com.shuowen.yuzong.data.dto.Word.CiyuShow;
 import com.shuowen.yuzong.service.impl.Character.HanziService;
 import com.shuowen.yuzong.service.impl.Word.CiyuService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class SearchController
         List<SearchResult> ans = new ArrayList<>();
 
         ans.addAll(h.getHanziSearchInfo(query, Language.of(lang), Dialect.of(dialect), vague));
-        ans.addAll(c.getHanziSearchInfo(query, Language.of(lang), Dialect.of(dialect), vague));
+        ans.addAll(c.getCiyuSearchInfo(query, Language.of(lang), Dialect.of(dialect), vague));
 
         return ans;
     }
@@ -60,14 +61,31 @@ public class SearchController
     {
         try
         {
-            return APIResponse.success(h.getHanzDetailInfo(hanzi, Language.of(lang), Dialect.of(dialect),
+            return APIResponse.success(h.getHanziDetailInfo(hanzi, Language.of(lang), Dialect.of(dialect),
                     Phonogram.of(phonogram), IPAToneStyle.of(toneStyle), IPASyllableStyle.of(syllableStyle))
             );
         } catch (Exception e)
         {
             e.printStackTrace();
-            return APIResponse.failure("not found 未找到该汉字，或者汉字不唯一");  // 前端解析到这个是一个错误回复检查"not found"字符
+            return APIResponse.failure(e.toString());
+            // 前端解析："not unique" 就是不唯一错误，"not found" 就是未找到错误
         }
     }
 
+    @GetMapping (value = "{dialect}/by-ciyu")
+    public APIResponse<CiyuShow> ciyuSearch(
+            @PathVariable String dialect,
+            @RequestParam String hanzi,
+            @RequestParam String lang
+    )
+    {
+        try
+        {
+            return APIResponse.failure("");
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.toString());
+        }
+    }
 }
