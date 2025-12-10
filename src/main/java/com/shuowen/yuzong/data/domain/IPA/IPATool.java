@@ -2,7 +2,6 @@ package com.shuowen.yuzong.data.domain.IPA;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.functions.QuaFunction;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
@@ -79,22 +78,6 @@ public class IPATool
         return map;
     }
 
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    Map<String, Map<String, String>> formatIPA(
-            Set<String> py, Function<String, T> pinyinCreator,  // 拼音列表、拼音构造方法、查询方法↓
-            QuaFunction<Set<T>, IPAToneStyle, IPASyllableStyle, Dialect, Map<T, Map<String, String>>> ipaSE,
-            IPAToneStyle ts, IPASyllableStyle ss, Dialect d)    // 国际音标音调选项、国际音标音节选项、方言代码
-    {
-        Set<T> pySet = new HashSet<>();
-        Map<String, Map<String, String>> res = new HashMap<>();
-
-        for (String i : py) pySet.add(pinyinCreator.apply(i));
-        Map<T, Map<String, String>> data = ipaSE.apply(pySet, ts, ss, d);
-        for (String i : py) res.put(i, data.get(pinyinCreator.apply(i)));
-
-        return res;
-    }
-
 
     /**
      * 统一接口
@@ -133,7 +116,7 @@ public class IPATool
 
     private static String toFiveDegreeNum(String syllable, String tone)
     {
-        return "//" +
+        return "[" +
                 syllable + (tone
                 .replaceAll("[꜈꜉꜊꜋꜌0]", "⁰")// 这里是因为允许直接存特殊轻声符号，所以这里要替换回来
                 .replace('1', '¹')
@@ -141,7 +124,7 @@ public class IPATool
                 .replace('3', '³')
                 .replace('4', '⁴')
                 .replace('5', '⁵')
-        ) + "//";
+        ) + "]";
     }
 
 
@@ -174,14 +157,14 @@ public class IPATool
         }
 
 
-        if (tone.equals("0")) return "//·" + syllable + "//";
-        else return "//" + syllable + "//--" + (tone
+        if (tone.equals("0")) return "[·" + syllable + "]";
+        else return "[" + syllable + "-" + (tone
                 .replace('1', '˩')
                 .replace('2', '˨')
                 .replace('3', '˧')
                 .replace('4', '˦')
                 .replace('5', '˥'))
-                + "--";
+                + "]";
     }
 
 
@@ -210,9 +193,7 @@ public class IPATool
         String Y = y.getInfo(dict);
 
         if (Y.contains("-")) return null;
-        return (leftOrRight.get(D) ?
-                "--" + D + "--" + "//" + Y + "//" :
-                "//" + Y + "//" + "--" + D + "--");
+        return (leftOrRight.get(D) ? "[" + D + Y + "]" : "[" + Y + D + "]");
     }
 
 

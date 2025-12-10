@@ -78,6 +78,6 @@ public class PinyinTool
             i = close + end.length();
         }
 
-        return res.toString().replace("//  //", "  ");
+        return res.toString().replace("]  [", "  ");
     }
 }

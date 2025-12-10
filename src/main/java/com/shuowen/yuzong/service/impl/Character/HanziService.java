@@ -7,9 +7,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.domain.Character.HanziEdit;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
-import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
-import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.data.domain.IPA.Phonogram;
+import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.dto.Character.HanziOutline;
 import com.shuowen.yuzong.data.dto.Character.HanziShow;
 import com.shuowen.yuzong.data.dto.SearchResult;
@@ -97,16 +95,14 @@ public class HanziService
     /**
      * 精确的给出找的信息，获得汉字详细信息
      */
-    public HanziShow getHanziDetailInfo(String hanzi, Language lang, Dialect d,
-                                        Phonogram phonogram, IPAToneStyle ts, IPASyllableStyle ss)
+    public HanziShow getHanziDetailInfo(String hanzi, Language lang, Dialect d, PinyinOption op)
     {
         var ans = getHanziOrganize(hanzi, lang, d, 1);
 
         if (ans.size() != 1)
             throw new RuntimeException(ans.size() > 1 ? "not unique 汉字不唯一" : "not found 未找到汉字");
 
-        HanziShow.initPinyinIPA(ans, ipa.getStandardStyle(d),
-                phonogram, ipa.getDefaultDict(d), ipa.getFactory(d), ipa::getMultiLine, ts, ss, d);
+        ans.get(0).init(d.getStyle(), op, d, ipa::getMultiLine);
         return ans.get(0);
     }
 

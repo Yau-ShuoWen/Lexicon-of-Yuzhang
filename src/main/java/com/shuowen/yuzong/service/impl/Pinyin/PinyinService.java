@@ -13,7 +13,6 @@ import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 
 import java.util.*;
-import java.util.function.Function;
 
 import static com.shuowen.yuzong.data.domain.Pinyin.PinyinTool.parseAndReplace;
 
@@ -23,29 +22,6 @@ public class PinyinService
     @Autowired
     private IPAMapper m;
 
-    @SuppressWarnings ("unchecked")
-    public <U extends PinyinStyle> U getStandardStyle(Dialect d)
-    {
-        if(!d.isValid()) throw new RuntimeException("无效方言代码");
-        return (U) d.styleSupplier.get();
-    }
-
-
-    public <U extends PinyinStyle, T extends UniPinyin<U>>
-    Function<String, T> getFactory(Dialect d)
-    {
-        if(!d.isValid()) throw new RuntimeException("无效方言代码");
-        return d.getFactory();
-    }
-
-    public String getDefaultDict(Dialect d)
-    {
-        return switch (d)
-        {
-            case NAM -> "ncdict";
-            default -> throw new RuntimeException("无效方言代码");
-        };
-    }
 
     /**
      * 获得目标拼音「音节」的所有字典的IPA版本
@@ -83,10 +59,9 @@ public class PinyinService
      * @apiNote 只有两次查询，是最高效的版本
      */
     public <U extends PinyinStyle, T extends UniPinyin<U>>
-    Map<String, String> getAllIPA
-    (T p, IPAToneStyle ts, IPASyllableStyle ss, Dialect d)
+            Map<String, String> getAllIPA(T p,PinyinOption op, Dialect d)
     {
-        return getMultiLine(Set.of(p), ts, ss, d).getOrDefault(p, Map.of());
+        return getMultiLine(Set.of(p), op, d).getOrDefault(p, Map.of());
     }
 
 
@@ -97,10 +72,9 @@ public class PinyinService
      * @see IPATool
      */
     public <U extends PinyinStyle, T extends UniPinyin<U>>
-    Map<T, Map<String, String>> getMultiLine
-    (Set<T> p, IPAToneStyle ts, IPASyllableStyle ss, Dialect d)
+    Map<T, Map<String, String>> getMultiLine(Set<T> p, PinyinOption op, Dialect d)
     {
-        return IPATool.getMultiline(p, ts, ss, getDictionarySet(d), m::findAllPinyinList, m::findAllToneList, d);
+        return IPATool.getMultiline(p, op.getTone(), op.getSyllable(), getDictionarySet(d), m::findAllPinyinList, m::findAllToneList, d);
     }
 
     public <U extends PinyinStyle, T extends UniPinyin<U>>
@@ -108,9 +82,9 @@ public class PinyinService
     {
         // 如果拼音无效，或者已经产生了数据
         if (!p.isValid()) return;
-        if (!getAllIPA(p, IPAToneStyle.FIVE_DEGREE_LINE, IPASyllableStyle.CHINESE_SPECIAL, d).isEmpty()) return;
+        if (!getAllIPA(p, PinyinOption.of(0,0,1), d).isEmpty()) return;
 
-        IPATool.insertSyllable(m::findElement, m::insertPinyin,p,  d);
+        IPATool.insertSyllable(m::findElement, m::insertPinyin, p, d);
     }
 
     /**

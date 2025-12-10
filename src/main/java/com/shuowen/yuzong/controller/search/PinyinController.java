@@ -19,7 +19,7 @@ public class PinyinController
     @GetMapping (value = "{dialect}/style/init")
     public PinyinStyle pinyin(@PathVariable String dialect)
     {
-        return s.getStandardStyle(Dialect.of(dialect));
+        return Dialect.of(dialect).getStyle();
     }
 
     /**

@@ -4,6 +4,7 @@ import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import lombok.Getter;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -17,15 +18,18 @@ import java.util.function.Supplier;
  */
 public enum Dialect
 {
-    NAM("nam", NamStyle.class, NamPinyin.class, NamPinyin::of, NamStyle::getStandardStyle),
-    NIL("null", PinyinStyle.class, UniPinyin.class, s -> null, () -> null);
+    NAM("nam", NamStyle.class, NamPinyin.class, NamPinyin::of, NamStyle::getStandardStyle, "ncdict"),
+    NIL("null", PinyinStyle.class, UniPinyin.class, s -> null, () -> null, "");
 
     private final String code;
 
-    public final Class<? extends PinyinStyle> styleClass;
-    public final Class<? extends UniPinyin<?>> pinyinClass;
-    public final Function<String, ? extends UniPinyin<?>> factory;
-    public final Supplier<? extends PinyinStyle> styleSupplier;
+    @Getter
+    private final Class<? extends PinyinStyle> styleClass;
+    @Getter
+    private final Class<? extends UniPinyin<?>> pinyinClass;
+    private final Function<String, ? extends UniPinyin<?>> factory;
+    private final Supplier<? extends PinyinStyle> styleSupplier;
+    private final String defaultDict;
 
 
     <U extends PinyinStyle, T extends UniPinyin<U>>
@@ -33,7 +37,8 @@ public enum Dialect
             Class<U> styleClass,
             Class<T> pinyinClass,
             Function<String, T> factory,
-            Supplier<U> styleSupplier
+            Supplier<U> styleSupplier,
+            String defaultDict
     )
     {
         this.code = code;
@@ -41,6 +46,7 @@ public enum Dialect
         this.pinyinClass = pinyinClass;
         this.factory = factory;
         this.styleSupplier = styleSupplier;
+        this.defaultDict = defaultDict;
     }
 
     public static Dialect of(String s)
@@ -65,9 +71,28 @@ public enum Dialect
         return code;
     }
 
+    private void check()
+    {
+        if (!isValid()) throw new RuntimeException("无效方言代码");
+    }
+
     @SuppressWarnings ("unchecked")
     public <U extends PinyinStyle, T extends UniPinyin<U>> Function<String, T> getFactory()
     {
+        check();
         return (Function<String, T>) factory;
+    }
+
+    @SuppressWarnings ("unchecked")
+    public <U extends PinyinStyle> U getStyle()
+    {
+        check();
+        return (U) styleSupplier.get();
+    }
+
+    public String getDefaultDict()
+    {
+        check();
+        return defaultDict;
     }
 }

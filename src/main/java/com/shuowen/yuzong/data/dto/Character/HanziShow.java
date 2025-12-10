@@ -2,22 +2,18 @@ package com.shuowen.yuzong.data.dto.Character;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.functions.QuaFunction;
+import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
-import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
-import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.data.domain.IPA.IPATool;
-import com.shuowen.yuzong.data.domain.IPA.Phonogram;
+import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinTool;
 import lombok.Data;
 
 import java.util.*;
 import java.util.NoSuchElementException;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -43,7 +39,6 @@ public class HanziShow
     }
 
 
-    @SuppressWarnings ("unchecked")
     public HanziShow(HanziEntry hz)
     {
         /* 目前暂时这么认为：
@@ -93,85 +88,70 @@ public class HanziShow
     }
 
 
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    void initPinyinIPA(List<HanziShow> list, U style, Phonogram s, String defaultDict,
-                       Function<String, T> pinyinCreator,
-                       QuaFunction<Set<T>, IPAToneStyle, IPASyllableStyle, Dialect, Map<T, Map<String, String>>> ipaSE,
-                       IPAToneStyle ts, IPASyllableStyle ss,
-                       Dialect d)
+    public <T extends UniPinyin<U>, U extends PinyinStyle>
+    void init(U style, PinyinOption op, Dialect d,
+              TriFunction<Set<T>, PinyinOption, Dialect, Map<T, Map<String, String>>> ipaSE
+    )
     {
-        Set<String> setToPy = new HashSet<>();
-        Set<String> setToIPA = new HashSet<>();
-        // 获取内容
-        for (var hz : list)
+        Function<String, T> pinyinFactory = d.getFactory();
+        Function<String, String> format = p -> PinyinTool.formatPinyin(p, pinyinFactory, style);
+        String dict=d.getDefaultDict();
+
+        IPAData data = new IPAData();
+
+        // 格式化拼音
+        for (var i : infoMap.values())
         {
-            for (var i : hz.infoMap.values())
+            switch (op.getPhonogram())
             {
-                switch (s)
+                case AllPinyin ->
                 {
-                    case AllPinyin ->
-                    {
-                        setToPy.add(i.stdPy);
-                        for (var j : i.mulPy) setToPy.add(j.getRight());
-                        for (var j : i.ipaExp) setToPy.add(j.getRight());
-                    }
-                    case PinyinIPA ->
-                    {
-                        setToPy.add(i.stdPy);
-                        for (var j : i.mulPy) setToPy.add(j.getRight());
-                        for (var j : i.ipaExp) setToIPA.add(j.getRight());
-                    }
-                    case AllIPA ->
-                    {
-                        setToIPA.add(i.stdPy);
-                        for (var j : i.mulPy) setToIPA.add(j.getRight());
-                        for (var j : i.ipaExp) setToIPA.add(j.getRight());
-                    }
+                    i.stdPy = format.apply(i.stdPy);
+                    for (var j : i.mulPy) j.setRight(format.apply(j.getRight()));
+                    for (var j : i.ipaExp) j.setRight(format.apply(j.getRight()));
+                }
+                case PinyinIPA ->
+                {
+                    i.stdPy = format.apply(i.stdPy);
+                    for (var j : i.mulPy) j.setRight(format.apply(j.getRight()));
                 }
             }
         }
 
-        Map<String, String> pyData = PinyinTool.formatPinyin(setToPy, pinyinCreator, style);
-        Map<String, Map<String, String>> ipaData = IPATool.formatIPA(setToIPA, pinyinCreator, ipaSE, ts, ss, d);
-
-        // 无论是没有这个拼音还是没有这个字典，都直接静默处理
-        BiFunction<String, String, String> get = (pinyin, dict) ->
+        // 获得国际音标资料
+        for (var i : infoMap.values())
         {
-            try
+            switch (op.getPhonogram())
             {
-                return ipaData.get(pinyin).get(dict);
-            } catch (Exception e)
-            {
-                return "暂无国际音标，请联系管理员";
-            }
-        };
-
-
-        for (var hz : list)
-        {
-            for (var i : hz.infoMap.values())
-            {
-                switch (s)
+                case PinyinIPA ->
                 {
-                    case AllPinyin ->
-                    {
-                        i.stdPy = pyData.get(i.stdPy);
-                        for (var j : i.mulPy) j.setRight(pyData.get(j.getRight()));
-                        for (var j : i.ipaExp) j.setRight(pyData.get(j.getRight()));
-                    }
-                    case PinyinIPA ->
-                    {
-                        i.stdPy = pyData.get(i.stdPy);
-                        for (var j : i.mulPy) j.setRight(pyData.get(j.getRight()));
-                        for (var j : i.ipaExp) j.setRight(get.apply(j.getRight(), j.getMiddle()));
-                    }
-                    case AllIPA ->
-                    {
-                        i.stdPy = get.apply(i.stdPy, defaultDict);
-                        for (var j : i.mulPy)
-                            j.setRight(get.apply(j.getRight(), defaultDict));
-                        for (var j : i.ipaExp) j.setRight(get.apply(j.getRight(), j.getMiddle()));
-                    }
+                    for (var j : i.ipaExp) data.add(j.getRight());
+                }
+                case AllIPA ->
+                {
+                    data.add(i.stdPy);
+                    for (var j : i.mulPy) data.add(j.getRight());
+                    for (var j : i.ipaExp) data.add(j.getRight());
+                }
+            }
+        }
+
+        data.search(d, op, ipaSE); // 提交查询
+
+        // 回填
+        for (var i : infoMap.values())
+        {
+            switch (op.getPhonogram())
+            {
+                case PinyinIPA ->
+                {
+                    for (var j : i.ipaExp) j.setRight(data.get(j.getRight(), j.getMiddle()));
+                }
+                case AllIPA ->
+                {
+                    i.stdPy = data.get(i.stdPy, dict);
+                    for (var j : i.mulPy) j.setRight(data.get(j.getRight(), dict));
+                    for (var j : i.ipaExp) j.setRight(data.get(j.getRight(), j.getMiddle()));
                 }
             }
         }

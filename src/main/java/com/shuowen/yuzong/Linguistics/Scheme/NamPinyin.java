@@ -163,7 +163,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
         setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
         addMark(p.getNum());//加音调
-        return " //" + show + "// ";
+        return " [" + show + "] ";
     }
 
     @Override

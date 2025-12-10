@@ -1,11 +1,9 @@
 package com.shuowen.yuzong.controller.search;
 
-import  com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.controller.APIResponse;
-import com.shuowen.yuzong.data.domain.IPA.Phonogram;
-import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
-import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.dto.Character.HanziShow;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.dto.Word.CiyuShow;
@@ -13,7 +11,6 @@ import com.shuowen.yuzong.service.impl.Character.HanziService;
 import com.shuowen.yuzong.service.impl.Word.CiyuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 
 import java.util.*;
 
@@ -61,8 +58,11 @@ public class SearchController
     {
         try
         {
-            return APIResponse.success(h.getHanziDetailInfo(hanzi, Language.of(lang), Dialect.of(dialect),
-                    Phonogram.of(phonogram), IPAToneStyle.of(toneStyle), IPASyllableStyle.of(syllableStyle))
+            return APIResponse.success(h.getHanziDetailInfo(
+                            hanzi,
+                            Language.of(lang),
+                            Dialect.of(dialect),
+                            PinyinOption.of(phonogram, syllableStyle, toneStyle))
             );
         } catch (Exception e)
         {
@@ -75,13 +75,13 @@ public class SearchController
     @GetMapping (value = "{dialect}/by-ciyu")
     public APIResponse<CiyuShow> ciyuSearch(
             @PathVariable String dialect,
-            @RequestParam String hanzi,
+            @RequestParam String ciyu,
             @RequestParam String lang
     )
     {
         try
         {
-            return APIResponse.failure("");
+            return APIResponse.success(c.getCiyuDetailInfo(ciyu, Language.of(lang), Dialect.of(dialect)));
         } catch (Exception e)
         {
             e.printStackTrace();
