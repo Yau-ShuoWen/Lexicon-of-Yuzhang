@@ -30,10 +30,18 @@
         ) AS mul_py
     </sql>
 
+    <!-- mdr信息字段 -->
+    <sql id="mdrInfoField">
+        CONCAT( '[',
+        COALESCE(GROUP_CONCAT(DISTINCT '"', mdr.info, '"' SEPARATOR ','), ''),
+        ']' ) AS mdr_info
+    </sql>
+
     <sql id="allFields">
         <include refid="baseFields"/>,
         <include refid="similarField"/>,
-        <include refid="mulPyField"/>
+        <include refid="mulPyField"/>,
+        <include refid="mdrInfoField"/>
     </sql>
 
     <!-- 基础表连接 -->
@@ -52,10 +60,17 @@
         LEFT JOIN NC.${dialect}_char_pinyin pinyin ON main.id = pinyin.char_id
     </sql>
 
+    <!-- mdr表连接 -->
+    <sql id="mdrTableJoin">
+        LEFT JOIN NC.${dialect}_char_mdr char_mdr ON main.id = char_mdr.n
+        LEFT JOIN NC.mdr_char mdr ON char_mdr.m = mdr.id
+    </sql>
+
     <sql id="allJoin">
         <include refid="baseTable"/>
         <include refid="similarTableJoin"/>
         <include refid="pinyinTableJoin"/>
+        <include refid="mdrTableJoin"/>
     </sql>
 
 
@@ -100,6 +115,13 @@
         ORDER BY main.special
     </select>
 
+    <select id="getAllChar" resultType="com.shuowen.yuzong.data.model.Character.CharEntity">
+        SELECT
+        <include refid="allFields"/>
+        <include refid="allJoin"/>
+        GROUP BY main.id
+    </select>
+
     <!-- 下面这一段是和编辑有关的内容  -->
     <!-- |                       -->
     <!-- |                       -->
@@ -126,6 +148,7 @@
     <select id="findHanziPinyinByCharId" resultType="com.shuowen.yuzong.data.model.Character.CharPinyin">
         SELECT * FROM NC.${dialect}_char_pinyin
         WHERE char_id = #{id}
+        ORDER BY sort
     </select>
 
     <!-- 如果之前没有这个id：插入新的数据 -->

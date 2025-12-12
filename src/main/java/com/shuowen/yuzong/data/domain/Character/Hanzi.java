@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.data.dto.Character.HanziOutline;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
 import lombok.Data;
@@ -26,6 +25,7 @@ public class Hanzi
 
     protected Map<String, List<String>> similar;
     protected List<Map<String, String>> mulPy;
+    protected List<String> mdrInfo;
     protected List<Map<String, String>> ipaExp;
     protected Map<String, List<String>> mean;
     protected Map<String, List<Map<String, String>>> note;
@@ -46,6 +46,7 @@ public class Hanzi
         ObjectMapper om = new ObjectMapper();
         similar = readJson(ch.getSimilar(), new TypeReference<>() {}, om);
         mulPy = readJson(ch.getMulPy(), new TypeReference<>() {}, om);
+        mdrInfo = readJson(ch.getMdrInfo(), new TypeReference<>() {}, om);
         ipaExp = readJson(ch.getIpaExp(), new TypeReference<>() {}, om);
 
         mean = readJson(ch.getMean(), new TypeReference<>() {}, om);
@@ -103,10 +104,16 @@ public class Hanzi
         return map;
     }
 
+    public List<String> getSimilarData()
+    {
+        checkLang();
+        return new ArrayList<>(similar.get("text"));
+    }
+
     /**
-     * 在合并之后只剩下两个参数，直接返回即可
+     * 返回值 「读音标签 - 读音」列表
      */
-    public List<Pair<String, String>> getMulPyPair()
+    public List<Pair<String, String>> getMulPyData()
     {
         checkLang();
         List<Pair<String, String>> ans = new ArrayList<>();
@@ -115,23 +122,29 @@ public class Hanzi
     }
 
     /**
-     * 返回代码是因为还需要去数据库反查
+     * 返回值 「字典代号 - 字典」列表，只返回代码是因为还需要去数据库反查
      */
-    public List<Triple<String, String, String>> getIpaExpTriple()
+    public List<Pair<String, String>> getIpaExpData()
     {
         checkLang();
-        List<Triple<String, String, String>> ans = new ArrayList<>();
-        for (var i : ipaExp) ans.add(Triple.of(i.get("text"), i.get("tag"), i.get("content")));
+        List<Pair<String, String>> ans = new ArrayList<>();
+        for (var i : ipaExp) ans.add(Pair.of(i.get("tag"), i.get("content")));
         return ans;
     }
 
-    public List<String> getMeanText()
+    /**
+     * 返回值 含义列表
+     */
+    public List<String> getMeanData()
     {
         checkLang();
         return mean.get("text");
     }
 
-    public List<Pair<String, String>> getNoteText()
+    /***
+     * 返回值 「描述标签 - 描述」 列表
+     */
+    public List<Pair<String, String>> getNoteData()
     {
         checkLang();
         List<Pair<String, String>> ans = new ArrayList<>();

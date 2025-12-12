@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.controller.edit;
 
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Refer.Citiao;
@@ -20,12 +21,12 @@ public class ReferController
     /**
      * 获取词典列表
      */
-    @GetMapping ("/get-dictionaries/{lang}")
+    @GetMapping ("/get-dictionaries/{dialect}")
     public List<Pair<String, String>> getDictionaries(
-            @PathVariable String lang
+            @PathVariable String dialect
     )
     {
-        return r.getDictionaries(lang);
+        return r.getDictionaries(Dialect.of(dialect));
     }
 
     /**

@@ -3,6 +3,7 @@ package com.shuowen.yuzong.data.mapper.IPA;
 import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
 import com.shuowen.yuzong.data.model.IPA.IPAToneEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Set;
@@ -32,7 +33,7 @@ public interface IPAMapper
 
     void insertPinyin(IPASyllableEntity pinyin, String dialect);
 
-    void changeInfo(IPASyllableEntity pinyin, String dialect);
+    void changeInfo(@Param("py") IPASyllableEntity pinyin, String dialect);
 
     // 音节成分表-------------------------------
 

@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
 import java.util.*;
+import java.util.function.Function;
 
 public class MapTool
 {
@@ -36,5 +37,25 @@ public class MapTool
         {
             renameKey(map, entry.getKey(), entry.getValue());
         }
+    }
+
+    /**
+     * 在 getOrDefault 上面，对于符合的情况做一个进步操作，默认值不变
+     *
+     * @param map          Map对象
+     * @param key          旧键名
+     * @param operation    返回自身操作的函数
+     * @param defaultValue 没有的时候的直接返回值
+     */
+    public static <K, V> V getOrDefault(Map<K, V> map, K key, Function<V, V> operation, V defaultValue)
+    {
+        V value = map.get(key);
+        if (value != null)
+        {
+            V newValue = operation.apply(value);
+            map.put(key, newValue);
+            return newValue;
+        }
+        return defaultValue;
     }
 }

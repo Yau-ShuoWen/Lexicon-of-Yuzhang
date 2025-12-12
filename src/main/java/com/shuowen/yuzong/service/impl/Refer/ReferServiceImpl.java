@@ -6,6 +6,7 @@ import com.shuowen.yuzong.Tool.DataVersionCtrl.ChangeResult;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.ListCompareUtil;
 import com.shuowen.yuzong.Tool.FractionalIndexing;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.Refer.Citiao;
 import com.shuowen.yuzong.data.dto.Refer.CitiaoEdit;
@@ -28,14 +29,30 @@ public class ReferServiceImpl
     @Autowired
     DictMapper n;
 
-    public List<Pair<String, String>> getDictionaries(String dialect)
+    public Map<String, String> getDictMap(Dialect dialect, Language language)
     {
-        List<Pair<String, String>> ans = new ArrayList<>();
+        Map<String, String> ans = new HashMap<>();
         // 如果方言代码是有效的，就返回对应筛选的方言，否则返回所有的方言
-        for (var i : (Dialect.of(dialect).isValid()) ? n.findDictByDialect(dialect) : n.getAllDict())
+        for (var i : dialect.isValid() ?
+                n.findDictByDialect(dialect.toString()) : n.getAllDict())
         {
             Map<String, String> tmp = readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
-            ans.add(Pair.of(tmp.get("tc"), i.getCode()));
+            switch (language)
+            {
+                case SC -> ans.put(i.getCode(), tmp.get("sc"));
+                case TC -> ans.put(i.getCode(), tmp.get("tc"));
+                case CH -> ans.put(i.getCode(), tmp.get("sc") + "/" + tmp.get("tc"));
+            }
+        }
+        return ans;
+    }
+
+    public List<Pair<String, String>> getDictionaries(Dialect dialect)
+    {
+        List<Pair<String, String>> ans = new ArrayList<>();
+        for (var i : getDictMap(dialect, Language.TC).entrySet())
+        {
+            ans.add(new Pair<>(i.getValue(), i.getKey()));
         }
         return ans;
     }

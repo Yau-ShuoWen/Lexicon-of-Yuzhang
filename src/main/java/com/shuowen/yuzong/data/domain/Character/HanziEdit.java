@@ -3,7 +3,6 @@ package com.shuowen.yuzong.data.domain.Character;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
 import com.shuowen.yuzong.data.model.Character.CharPinyin;
 import com.shuowen.yuzong.data.model.Character.CharSimilar;
@@ -27,7 +26,7 @@ public class HanziEdit
     protected List<CharSimilar> similar = new ArrayList<>();
     protected List<CharPinyin> mulPy = new ArrayList<>();
     protected List<CharMdr> mandarin = new ArrayList<>();
-    protected List<Quadruple<String, String, String, String>> ipaExp = new ArrayList<>();
+    protected List<Pair<String, String>> ipaExp = new ArrayList<>();
     protected List<Pair<String, String>> mean = new ArrayList<>();
     protected List<Pair<Pair<String, String>, Pair<String, String>>> note = new ArrayList<>();
 
@@ -77,7 +76,7 @@ public class HanziEdit
         {
             List<Map<String, String>> tmp = readJson(ch.getIpaExp(), new TypeReference<>() {}, om);
             for (var i : tmp)
-                ipaExp.add(Quadruple.of(i.get("sc"), i.get("tc"), i.get("tag"), i.get("content")));
+                ipaExp.add(Pair.of(i.get("tag"), i.get("content")));
         }
 
         {
@@ -107,10 +106,8 @@ public class HanziEdit
             for (var i : ipaExp)
             {
                 Map<String, String> t = new HashMap<>();
-                t.put("sc", i.getAlpha());
-                t.put("tc", i.getBeta());
-                t.put("tag", i.getGamma());
-                t.put("content", i.getDelta());
+                t.put("tag", i.getLeft());
+                t.put("content", i.getRight());
                 tmp.add(t);
             }
             left.setIpaExp(toJson(tmp, om, "[]"));

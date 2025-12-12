@@ -14,6 +14,7 @@ import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.mapper.Character.CharMapper;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
 import com.shuowen.yuzong.service.impl.Pinyin.PinyinService;
+import com.shuowen.yuzong.service.impl.Refer.ReferServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,9 @@ public class HanziService
 
     @Autowired
     private PronunService mdr;
+
+    @Autowired
+    private ReferServiceImpl re;
 
     /**
      * 查询匹配确定的简体或繁体，获得结果集
@@ -102,7 +106,7 @@ public class HanziService
         if (ans.size() != 1)
             throw new RuntimeException(ans.size() > 1 ? "not unique 汉字不唯一" : "not found 未找到汉字");
 
-        ans.get(0).init(d.getStyle(), op, d, ipa::getMultiLine);
+        ans.get(0).init(d.getStyle(), op, d,re.getDictMap(d,lang), ipa::getMultiLine);
         return ans.get(0);
     }
 
@@ -140,6 +144,9 @@ public class HanziService
     public void editHanzi(HanziEdit he, Dialect d)
     {
         CharEntity ch = he.transfer();
+
+        if ("".equals(ch.getHanzi()) || "".equals(ch.getHantz()) || "".equals(ch.getStdPy()))
+            throw new IllegalArgumentException("簡體字、繁體字、主拼音不可以缺少");
 
         // 通过唯一键寻找数据库里是否也有
         CharEntity maybe = hz.findByUniqueKey(ch, d.toString());

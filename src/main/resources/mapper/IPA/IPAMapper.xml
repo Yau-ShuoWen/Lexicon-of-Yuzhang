@@ -36,8 +36,8 @@
 
     <select id="changeInfo" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         update NC.${dialect}_ipa_syllable
-        set info = #{info}
-        where standard = #{standard} ;
+        set info = #{py.info}
+        where standard = #{py.standard} ;
     </select>
 
     <!-- 音节成分表相关查询 -->

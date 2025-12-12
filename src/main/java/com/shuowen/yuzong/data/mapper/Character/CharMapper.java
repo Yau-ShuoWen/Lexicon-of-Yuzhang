@@ -27,6 +27,11 @@ public interface CharMapper
     List<CharEntity> findHanziByScOrTc(String hanzi, String lang, String dialect);
 
     /**
+     * 获得所有数据
+     */
+    List<CharEntity> getAllChar(String dialect);
+
+    /**
      * 通过主键寻找汉字
      */
     CharEntity findHanziByCharId(Integer id, String dialect);
