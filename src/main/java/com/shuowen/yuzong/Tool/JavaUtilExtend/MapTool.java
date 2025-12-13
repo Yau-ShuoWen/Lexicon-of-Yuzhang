@@ -40,7 +40,7 @@ public class MapTool
     }
 
     /**
-     * 在 getOrDefault 上面，对于符合的情况做一个进步操作，默认值不变
+     * 在 getOrDefault 上面，对于符合的情况做一个进步操作，默认值不变，无论如何不会影响原map
      *
      * @param map          Map对象
      * @param key          旧键名
@@ -50,12 +50,6 @@ public class MapTool
     public static <K, V> V getOrDefault(Map<K, V> map, K key, Function<V, V> operation, V defaultValue)
     {
         V value = map.get(key);
-        if (value != null)
-        {
-            V newValue = operation.apply(value);
-            map.put(key, newValue);
-            return newValue;
-        }
-        return defaultValue;
+        return (value == null) ? defaultValue : operation.apply(value);
     }
 }
