@@ -2,20 +2,20 @@ package com.shuowen.yuzong.data.domain.IPA;
 
 public enum IPASyllableStyle
 {
-    CHINESE_SPECIAL(0),
-    STANDARD_IPA(1);
+    CHINESE_SPECIAL,  // 汉语语言学的习惯用符号
+    STANDARD_IPA;     // 标准的国际音标用符号
 
-    private int code;
-
-    IPASyllableStyle(int code)
+    IPASyllableStyle()
     {
-        this.code = code;
     }
 
     public static IPASyllableStyle of(int code)
     {
-        for (var l : values())
-            if (l.code == code) return l;
-        return CHINESE_SPECIAL;
+        return switch (code)
+        {
+            case 1 -> CHINESE_SPECIAL;
+            case 2 -> STANDARD_IPA;
+            default -> throw new IllegalArgumentException("初始化范围是1~2");
+        };
     }
 }

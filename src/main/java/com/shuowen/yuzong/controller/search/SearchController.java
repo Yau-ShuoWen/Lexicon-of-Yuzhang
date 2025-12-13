@@ -3,6 +3,9 @@ package com.shuowen.yuzong.controller.search;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.controller.APIResponse;
+import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
+import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.data.domain.IPA.Phonogram;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.dto.Character.HanziShow;
 import com.shuowen.yuzong.data.dto.SearchResult;
@@ -52,18 +55,20 @@ public class SearchController
             @RequestParam String hanzi,
             @RequestParam String lang,
             @RequestParam (required = false, defaultValue = "1") int phonogram,
-            @RequestParam (required = false, defaultValue = "1") int toneStyle,
+            @RequestParam (required = false, defaultValue = "0") int toneStyle,
             @RequestParam (required = false, defaultValue = "0") int syllableStyle
     )
     {
         try
         {
             return APIResponse.success(h.getHanziDetailInfo(
-                            hanzi,
-                            Language.of(lang),
-                            Dialect.of(dialect),
-                            PinyinOption.of(phonogram, syllableStyle, toneStyle))
-            );
+                    hanzi,
+                    Language.of(lang),
+                    Dialect.of(dialect),
+                    PinyinOption.of(Phonogram.of(phonogram),
+                            IPASyllableStyle.of(syllableStyle),
+                            IPAToneStyle.of(toneStyle))
+            ));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -74,14 +79,24 @@ public class SearchController
 
     @GetMapping (value = "{dialect}/by-ciyu")
     public APIResponse<CiyuShow> ciyuSearch(
-            @PathVariable String dialect,
+            @PathVariable final String dialect,
             @RequestParam String ciyu,
-            @RequestParam String lang
+            @RequestParam String lang,
+            @RequestParam (required = false, defaultValue = "1") int phonogram,
+            @RequestParam (required = false, defaultValue = "1") int toneStyle,
+            @RequestParam (required = false, defaultValue = "0") int syllableStyle
     )
     {
         try
         {
-            return APIResponse.success(c.getCiyuDetailInfo(ciyu, Language.of(lang), Dialect.of(dialect)));
+            return APIResponse.success(c.getCiyuDetailInfo(
+                    ciyu,
+                    Language.of(lang),
+                    Dialect.of(dialect),
+                    PinyinOption.of(Phonogram.of(phonogram),
+                            IPASyllableStyle.of(syllableStyle),
+                            IPAToneStyle.of(toneStyle))
+            ));
         } catch (Exception e)
         {
             e.printStackTrace();

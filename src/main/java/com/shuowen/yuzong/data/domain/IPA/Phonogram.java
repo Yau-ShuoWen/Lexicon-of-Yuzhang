@@ -2,33 +2,22 @@ package com.shuowen.yuzong.data.domain.IPA;
 
 public enum Phonogram
 {
-    AllPinyin(1),
-    PinyinIPA(2),
-    AllIPA(3);
+    AllPinyin,  // 全部拼音
+    PinyinIPA,  // 内容部分使用拼音，参考资料用国际音标
+    AllIPA;     // 全部使用使用国际音标
 
-    //TODO：既要还要
-
-    private int code;
-
-    Phonogram(int code)
+    Phonogram()
     {
-        this.code = code;
     }
 
-    /**
-     * @param code 1 全部拼音 2 实用部分用拼音，专业资料用国际音标 3.全部国际音标
-     */
     public static Phonogram of(int code)
     {
-        switch (code)
+        return switch (code)
         {
-            case 1:
-                return AllPinyin;
-            case 2:
-                return PinyinIPA;
-            case 3:
-                return AllIPA;
-        }
-        return AllPinyin;
+            case 1 -> AllPinyin;
+            case 2 -> PinyinIPA;
+            case 3 -> AllIPA;
+            default -> throw new IllegalArgumentException("初始化范围是1~3");
+        };
     }
 }

@@ -82,7 +82,7 @@ public class PinyinService
     {
         // 如果拼音无效，或者已经产生了数据
         if (!p.isValid()) return;
-        if (!getAllIPA(p, PinyinOption.of(0,0,1), d).isEmpty()) return;
+        if (!getAllIPA(p, PinyinOption.defaultOf(), d).isEmpty()) return;
 
         IPATool.insertSyllable(m::findElement, m::insertPinyin, p, d);
     }
