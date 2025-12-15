@@ -41,7 +41,12 @@ abstract public class UniPinyin<T extends PinyinStyle>
 
     public String getCode()
     {
-        return isValid() ? code : INVALID_PINYIN;
+        if (isValid())
+        {
+            if (code == null) toCode();// 对于数据库里获得的数据，创建的时候没有检查code，现在现生成
+            return code;
+        }
+        else return INVALID_PINYIN;
     }
 
     public static String getError()
@@ -54,7 +59,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
      *
      * @apiNote 剩下的就是介韵母的编码长度了
      */
-    public abstract Integer shengmuLength();
+    public abstract Integer syllableLen();
 
     @Override
     public boolean equals(Object obj)
@@ -69,8 +74,8 @@ abstract public class UniPinyin<T extends PinyinStyle>
             return false;
         }
         // 比較拼音和音调，其他不用比较
-        return (pinyin.equals(((UniPinyin) obj).pinyin))
-                && (tone.equals(((UniPinyin) obj).tone));
+        return (pinyin.equals(((UniPinyin<?>) obj).pinyin))
+                && (tone.equals(((UniPinyin<?>) obj).tone));
     }
 
     @Override
@@ -138,14 +143,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
          * 音调：
          * 1. 音调是否符合范围？和韵尾的搭配是否合理？ isToneValid()函数
          * */
-        try
-        {
-            toCode();
-        } catch (Exception e)
-        {
-            return;
-        }
-
+        if (!toCode()) return;
         if (!encodable()) return;
         if (!toneValid()) return;
 
@@ -199,7 +197,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
     /**
      * 将一个音节字符串转码为一个字符串，便于音素结构的分析与处理。
      */
-    protected abstract void toCode();
+    protected abstract boolean toCode();
 
 
     /**
@@ -217,7 +215,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
 
     /**
      * 音节使用的是code，音调使用的是tone
-     * */
+     */
     public Integer getWeight()
     {
         return isValid() ? Integer.parseInt(code + tone) : -1;

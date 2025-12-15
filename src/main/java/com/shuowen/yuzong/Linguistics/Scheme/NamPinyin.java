@@ -1,6 +1,8 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 
 import java.util.*;
@@ -148,18 +150,13 @@ public class NamPinyin extends UniPinyin<NamStyle>
         return toString(defaultStyle());
     }
 
-    /**
-     * 具体配置
-     *
-     * @param p 具體配置，這裡檢查參數，下放到具体操作函数，instanceof 是空安全的，所以不用担心null
-     */
     @Override
     public String toString(NamStyle p)
     {
         if (!valid) return INVALID_PINYIN;
         show = pinyin;
 
-        p = (p == null) ? defaultStyle() : p;
+        NullTool.getDefault(p, defaultStyle());
 
         setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
         addMark(p.getNum());//加音调
@@ -172,52 +169,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
         return new NamStyle();
     }
 
-    /**
-     * 将输入的拼音字符串根据指定的参数选项进行风格转换，用于处理方言拼音的展示或输出格式。
-     *
-     * @param yu      ü 的处理方式：  <ul>
-     *                <li>0 - 不处理</li>
-     *                <li>1 - 将 v 替换为 ü</li>
-     *                <li>2 - 将 v 替换为 yu</li>
-     *                </ul>
-     * @param gn      "gn" 音的处理方式： <ul>
-     *                <li>0 - 不处理</li>
-     *                <li>1 - 将 v 替换为 ü</li>
-     *                <li>2 - 将 v 替换为 yu</li>
-     *                </ul>
-     * @param ee      ee 的处理方式：<ul>
-     *                <li>0 - 不处理</li>
-     *                <li>1 - 替换为 ё</li>
-     *                <li>2 - 替换为 ẹ</li>
-     *                </ul>
-     * @param oe      oe 的处理方式：<ul>
-     *                <li>0 - 不处理</li>
-     *                <li>1 - 替换为 ё</li>
-     *                <li>2 - 替换为 ẹ</li>
-     *                </ul>
-     * @param ii      ii 的处理方式：  <ul>
-     *                <li>0 - 不处理</li>
-     *                <li>1 - 替换为 i</li>
-     *                <li>1 - 直接用zcs</li>
-     *                </ul>
-     * @param ptk     入声尾音的处理（用于 t, k 结尾）：  <ul>
-     *                <li>0 - 不处理</li>
-     *                <li>1 - 删除结尾的 t 或 k</li>
-     *                <li>2 - 将结尾的 t 或 k 替换为 h</li>
-     *                <li>3 - 将结尾的 t 或 k 替换为 q</li>
-     *                </ul>
-     * @param alt     替代声母规则：<ul>
-     *                <li>0 - 不处理</li>
-     *                <li>1 - 删除结尾的 t 或 k</li>
-     *                <li>2 - 将结尾的 t 或 k 替换为 h</li>
-     *                <li>3 - 将结尾的 t 或 k 替换为 q</li>
-     *                </ul>
-     * @param capital 大写格式控制：<ul>
-     *                <li>0 - 全部小写</li>
-     *                <li>1 - 全部大写</li>
-     *                <li>2 - 首字母大写</li>
-     *                </ul>
-     */
     public void setFormat(int yu, int gn, int ee, int oe, int ii,
                           int ptk, int alt, int capital)
     {
@@ -308,178 +259,147 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
 
     @Override
-    public Integer shengmuLength()
+    public Integer syllableLen()
     {
         return 2;
     }
 
-    /**
-     * @return 五位数字，表示该拼音音节的结构组成，包括声母、介音、韵尾和主元音。编码格式如下：
-     * <ol>
-     * <li>前两位，声母：<p>
-     * {@code 00: 零声母/无声母} | {@code 01: b} | {@code 02: p} | {@code 03: m} | {@code 04: f} |
-     * {@code 05: d} | {@code 06: t} | {@code 07: l} | {@code 08: g} | {@code 09: k} | {@code 10: ng} | {@code 11: h} |
-     * {@code 12: j} | {@code 13: q} | {@code 14: n} | {@code 15: x} | {@code 16: z} | {@code 17: c} | {@code 18: s}|
-     * </li>
-     *
-     * <p>
-     * <li>第三位，韵尾：<p>
-     * {@code 0: 开元音韵尾/无韵尾} | {@code 1: z c s的整体认读} | {@code 3: i 尾} | {@code 4: u 尾} |
-     * {@code 5: n 尾} | {@code 6: ng 尾} | {@code 7: t 尾} | {@code 8: k 或 ʔ 尾} | {@code 9: l 尾}|
-     * </li>
-     * <p>
-     * <li>第四位，介音：<p>
-     * {@code 0: 开口呼} | {@code 1: 合口呼：i} | {@code 2: 闭口呼：u} | {@code 3: 撮口呼：ü/v}|
-     * </li>
-     * <p>
-     * <li>第五位：中心元音：<p>
-     * {@code 0: 无主元音} | {@code 1: a} | {@code 2: o} | {@code 3: e} | {@code 4: ee} |
-     * {@code 5: oe} | {@code 6: u} | {@code 7: 自成音节的m} | {@code 8: 自成音节的n} | {@code 9: 自成音节的ng}|
-     * </li>
-     * </ol>
-     * <p>
-     * 编码后的五位字符串表示音节结构，例如 {@code "qiung"->13616}
-     */
     @Override
-    protected void toCode()//权限非公开是因为推荐的做法是使用getCode函数
+    public boolean toCode()
     {
-
-        String s = pinyin;
-
-        // 对特殊的韵母处理
-        if (s.length() <= 2)
+        try
         {
-            String ans = switch (s)
+            // code 置空
+            code = "";
+            String py = pinyin;
+            int idx;
+
+            // 对特殊的韵母处理，m n ng 直接赋值返回
+            // 必须放在识别声母之前，否则就会被识别掉了
+            switch (py)
             {
-                case "m" -> "00007";
-                case "n" -> "00008";
-                case "ng" -> "00009";
-                default -> "";
-            };
-            if (!ans.isEmpty())
-            {
-                code = ans;
-                return;
+                case "m" -> code = "00007";
+                case "n" -> code = "00008";
+                case "ng" -> code = "00009";
             }
-        }
+            if (!code.isEmpty()) return true;
 
-        StringBuilder Str = new StringBuilder(s);
 
-        int S = 0, J = 0, Y = 0, W = 0;
-        int l = 0, r = s.length();
-        String Sub;
-
-        //声母
-
-        S = switch (Str.charAt(0))
-        {
-            case 'b' -> 1;
-            case 'p' -> 2;
-            case 'm' -> 3;
-            case 'f' -> 4;
-            case 'd' -> 5;
-            case 't' -> 6;
-            case 'l' -> 7;
-            case 'g' -> 8;
-            case 'k' -> 9;
-            case 'h' -> 11;
-            case 'j' -> 12;
-            case 'q' -> 13;
-            case 'n' ->
+            // 声母：特殊的地方只有
+            // 1. n和ng都是n开头，需要具体区分
+            // 2. 除了零声母识别，ng识别长度为2，其他都是1位（所以统一idx=1，其他的调整）
+            idx = 1;
+            code += switch (StringTool.substring(py, 0, 1))
             {
-                if (Str.length() > 1 && Str.charAt(1) == 'g')
+                case "b" -> "01";
+                case "p" -> "02";
+                case "m" -> "03";
+                case "f" -> "04";
+                case "d" -> "05";
+                case "t" -> "06";
+                case "l" -> "07";
+                case "g" -> "08";
+                case "k" -> "09";
+                case "h" -> "11";
+                case "j" -> "12";
+                case "q" -> "13";
+                case "n" ->
                 {
-                    l++;
-                    yield 10;
+                    // 区分是n还是ng，就是安全检测下一位是不是g
+                    if (StringTool.charEquals(pinyin, 1, 'g'))
+                    {
+                        idx = 2;
+                        yield "10";
+                    }
+                    else yield "14";
                 }
-                else
-                {
-                    yield 14;
-                }
-            }
-            case 'x' -> 15;
-            case 'z' -> 16;
-            case 'c' -> 17;
-            case 's' -> 18;
-            default ->
-            {
-                l--;
-                yield 0;
-            }
-        };
-        l++;
-
-        Sub = Str.substring(l, r);
-        l = 0;
-        r = Sub.length();
-
-        String answer = (S < 10) ? ("0" + S) : ("" + S);
-
-        if (Sub.equals("ii"))
-        {
-            code = answer + "100";
-            return;
-        }
-
-        if (l < Str.length())
-        {
-            J = switch (Sub.charAt(l))
-            {
-                case 'i' -> 1;
-                case 'u' -> 2;
-                case 'v' -> 3;
+                case "x" -> "15";
+                case "z" -> "16";
+                case "c" -> "17";
+                case "s" -> "18";
                 default ->
                 {
-                    l--;
-                    yield 0;
+                    idx = 0;
+                    yield "00";
                 }
             };
-            l++;
-        }
-        Sub = Sub.substring(l, r);
-        l = 0;
-        r = Sub.length();
+            py = py.substring(idx);
 
-        if (!Sub.isEmpty())
-        {
-            W = switch (Sub.charAt(Sub.length() - 1))
+            // 检查特殊韵母
+            if (py.equals("ii"))
             {
-                case 'i' -> 3;
-                case 'u' -> 4;
-                case 'n' -> 5;
-                case 'g' ->
+                code += "100";
+                return true;
+            }
+
+            // 介母：左指针统一移动一位
+            // TODO 没有完全确定ü的具体显示方式，所以这里还是待定
+            idx = 1;
+            code += switch (StringTool.substring(py, 0, 1)) // 删掉了开头的就是现在的
+            {
+                case "i" -> "1";
+                case "u" -> "2";
+                case "v" -> "3";
+                default ->
                 {
-                    r--;
+                    idx = 0;
+                    yield "0";
+                }
+            };
+            py = py.substring(idx);
+
+
+            // 韵尾：特殊的地方只有
+            // 除了没有韵尾不移动，ng要移动两位，其他都是移动一位（所以统一移动一位，其他的调整）
+            idx = 1;
+            code += switch (StringTool.substring(py, py.length() - 1, py.length()))
+            {
+                case "i" -> "3";
+                case "u" -> "4";
+                case "n" -> "5";
+                case "g" ->    // 这里有g没有n怎么办？encodable会检查能不能反过来的
+                {
+                    idx = 2;
                     yield 6;
                 }
-                case 't' -> 7;
-                case 'k' -> 8;
-                case 'l' -> 9;
+                case "t" -> "7";
+                case "k" -> "8";
+                case "l" -> "9";
                 default ->
                 {
-                    r++;
-                    yield 0;
+                    idx = 0;
+                    yield "0";
                 }
             };
-            r--;
-            Sub = Sub.substring(l, r);
-        }
+            py = py.substring(0, py.length() - idx);
 
-        if (!Sub.isEmpty())
-        {
-            Y = switch (Sub)
+
+            code += switch (py)
             {
-                case "a" -> 1;
-                case "o" -> 2;
-                case "e" -> 3;
-                case "ee" -> 4;
-                case "oe" -> 5;
-                case "u" -> 6;
-                default -> 0;// 2025/6/3 代号修改为6 要空出7 8 9来给m n ng
+                case "a" -> "1";
+                case "o" -> "2";
+                case "e" -> "3";
+                case "ee" -> "4";
+                case "oe" -> "5";
+                case "u" -> "6";
+                default ->
+                {
+                    // 没有在已有的情况下识别到主元音
+                    // py为空，如iu i为介母 u为韵尾，正常置空
+                    // 不然说明剩下的格式不正确
+                    if (!py.isEmpty()) throw new IndexOutOfBoundsException();
+                    else yield "0";
+                }
             };
+
+            code = StringTool.swap(code, 2, 3);  // 识别和显示优先级不同
+            return code.length() == 5;     // 是否有效位数
+        } catch (IndexOutOfBoundsException e) // 这里面拼音出现了任何错误，就认为是无效的，所以里面可以大胆sub和charAt
+        {
+            return false;
         }
-        code = answer + W + J + Y;
     }
+
 
     /**
      * 反向建立即可，非常简单
@@ -542,22 +462,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
 
-    /**
-     * 基本规则：
-     * <ol>
-     *     <li>如果有aoe，标注在最后面的一个aoe上，双写也是标在后一个</li>
-     *     <li>没有，但有iuv，标在最前面的iuv上面，双写也是标在前一个</li>
-     *     <li>没有，但是n或ng，标在最n上面</li>
-     *     <li>其他（唯一情況：m），標在最後</li>
-     * </ol>
-     *
-     * @param num 标注声调的方式  <ul>
-     *            <li>0 - 不加音调</li>
-     *            <li>1 - 智能添加，符合规范</li>
-     *            <li>2 - 符号音调加到后面</li>
-     *            <li>3 - 数字音调加到后面</li>
-     *            </ul>
-     */
     protected void addMark(int num)
     {
         if (tone == 0) return;//不用加任何音调
