@@ -200,4 +200,9 @@ public class UString implements Iterable<String>, Comparable<UString>
             }
         };
     }
+
+    public static boolean isChar(String s)
+    {
+        return s.codePointCount(0, s.length()) == 1;
+    }
 }
