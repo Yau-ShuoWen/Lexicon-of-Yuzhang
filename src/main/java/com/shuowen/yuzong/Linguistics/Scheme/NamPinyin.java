@@ -352,7 +352,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
             // 韵尾：特殊的地方只有
             // 除了没有韵尾不移动，ng要移动两位，其他都是移动一位（所以统一移动一位，其他的调整）
             idx = 1;
-            code += switch (StringTool.substring(py, py.length() - 1, py.length()))
+            code += switch (StringTool.substring(py, py.length() - 1))
             {
                 case "i" -> "3";
                 case "u" -> "4";
