@@ -1,10 +1,12 @@
 package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.data.domain.Character.Hanzi;
 import com.shuowen.yuzong.data.domain.Character.HanziEdit;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
@@ -39,25 +41,25 @@ public class HanziService
     /**
      * 查询匹配确定的简体或繁体，获得结果集
      */
-    private HanziEntry getHanziScOrTc(String hanzi, Language lang, Dialect d)
+    private List<CharEntity> getHanziScOrTc(String hanzi, Language lang, Dialect d)
     {
-        return HanziEntry.of(hz.findHanziByScOrTc(hanzi, lang.toString(), d.toString()));
+        return hz.findHanziByScOrTc(hanzi, lang.toString(), d.toString());
     }
 
     /**
      * 查询匹配简体或繁体，获得结果集
      */
-    private HanziEntry getHanziScTc(String hanzi, Dialect d)
+    private List<CharEntity> getHanziScTc(String hanzi, Dialect d)
     {
-        return HanziEntry.of(hz.findHanziByScTc(hanzi, d.toString()));
+        return hz.findHanziByScTc(hanzi, d.toString());
     }
 
     /**
      * 查询匹配简体、繁体、模糊汉字，获得结果集
      */
-    private HanziEntry getHanziVague(String hanzi, Dialect d)
+    private List<CharEntity> getHanziVague(String hanzi, Dialect d)
     {
-        return HanziEntry.of(hz.findHanziByVague(hanzi, d.toString()));
+        return hz.findHanziByVague(hanzi, d.toString());
     }
 
     /**
@@ -67,14 +69,14 @@ public class HanziService
      */
     private List<HanziShow> getHanziOrganize(String hanzi, Language lang, Dialect d, int grading)
     {
-        HanziEntry ans = switch (grading)
+        HanziEntry ans = HanziEntry.of(switch (grading)
         {
             case 1 -> getHanziScOrTc(hanzi, lang, d);
             case 2 -> getHanziScTc(hanzi, d);
             case 3 -> getHanziVague(hanzi, d);
             default -> throw new RuntimeException("超范围");
-        };
-        return HanziShow.ListOf(ans.split(lang));
+        }, lang);
+        return HanziShow.ListOf(ans);
     }
 
     /**
@@ -106,7 +108,7 @@ public class HanziService
         if (ans.size() != 1)
             throw new RuntimeException(ans.size() > 1 ? "not unique 汉字不唯一" : "not found 未找到汉字");
 
-        ans.get(0).init(d.getStyle(), op, d,re.getDictMap(d,lang), ipa::getMultiLine);
+        ans.get(0).init(d.getStyle(), op, d, re.getDictMap(d, lang), ipa::getMultiLine);
         return ans.get(0);
     }
 
@@ -119,9 +121,8 @@ public class HanziService
         for (String hanzi : UString.of(query))
         {
             // 这里不用getHanziOrganize是因为要词条原貌才能编辑，而不是合并后的显示结果
-            HanziEntry entry = getHanziVague(hanzi, d);
-            for (int i = 0; i < entry.getList().size(); i++)
-                ans.add(entry.getItem(i).transfer());
+            for (var i : getHanziVague(hanzi, d))
+                ans.add(Hanzi.of(i).transfer());
         }
         return ans.getList();
     }
@@ -145,14 +146,18 @@ public class HanziService
     {
         CharEntity ch = he.transfer();
 
-        if ("".equals(ch.getHanzi()) || "".equals(ch.getHantz()) || "".equals(ch.getStdPy()))
+        // 检查关键三个信息
+        if (!StringTool.isTrimValid(ch.getHanzi(), ch.getHantz(), ch.getStdPy()))
             throw new IllegalArgumentException("簡體字、繁體字、主拼音不可以缺少");
+
+        if (!UString.isChar(ch.getHanzi()) || !UString.isChar(ch.getHantz()))
+            throw new IllegalArgumentException("输入的字不止一个");
 
         // 通过唯一键寻找数据库里是否也有
         CharEntity maybe = hz.findByUniqueKey(ch, d.toString());
 
-        // 如果没找到，说明是新增，可以插入
-        // 如果id是同一个，那么说明是原地更新
+        // 如果没找到（maybe == null），说明是新增，可以插入
+        // 如果id是同一个（id == id），那么说明是原地更新
         // 其他情况为新增但是唯一键冲突，那么说明是冲突，抛出异常
         if (maybe != null && !maybe.getId().equals(ch.getId()))
             throw new IllegalArgumentException("数据 简体：" + ch.getHanzi() + " 繁体：" + ch.getHantz() + " 拼音：" + ch.getStdPy() + " 重复");

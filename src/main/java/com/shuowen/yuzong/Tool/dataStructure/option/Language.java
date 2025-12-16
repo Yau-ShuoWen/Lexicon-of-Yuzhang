@@ -1,39 +1,28 @@
 package com.shuowen.yuzong.Tool.dataStructure.option;
 
 
+import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+
 /**
- * 三种合适的参数（不考虑地区陆港台）
+ * 两种合适的参数（不考虑地区陆港台）
  * <ul>
  * <li> SC 简体中文 </li>
  * <li> TC 繁体中文 </li>
- * <li> CH 不区分简繁 </li>
  * </ul>
  */
 public enum Language
 {
-    SC("sc"),
-    TC("tc"),
-    CH("ch");
+    SC, TC;
 
-    private final String code;
-
-    Language(String code)
-    {
-        this.code = code;
-    }
-
-    /**
-     * 替代原来的构造方法，提供默认值"ch"
-     */
     public static Language of(String s)
     {
-        if (s == null) return CH;
-
-        s = s.trim().toLowerCase();
-        for (var l : values())
-            if (l.code.equals(s))
-                return l;
-        return CH;
+        if (!StringTool.isTrimValid(s)) throw new IllegalArgumentException("错误的初始化字符串");
+        return switch (s.trim().toLowerCase())
+        {
+            case "sc" -> SC;
+            case "tc" -> TC;
+            default -> throw new IllegalArgumentException("要么是简体，要么是繁体");
+        };
     }
 
     /**
@@ -45,29 +34,13 @@ public enum Language
         {
             case SC -> TC;
             case TC -> SC;
-            default -> CH;
         };
     }
 
     @Override
     public String toString()
     {
-        return code;
-    }
-
-    public boolean isSC()
-    {
-        return this == SC;
-    }
-
-    public boolean isTC()
-    {
-        return this == TC;
-    }
-
-    public boolean isCH()
-    {
-        return this == CH;
+        return this == SC ? "sc" : "tc";
     }
 }
 

@@ -37,12 +37,7 @@ public class ReferServiceImpl
                 n.findDictByDialect(dialect.toString()) : n.getAllDict())
         {
             Map<String, String> tmp = readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
-            switch (language)
-            {
-                case SC -> ans.put(i.getCode(), tmp.get("sc"));
-                case TC -> ans.put(i.getCode(), tmp.get("tc"));
-                case CH -> ans.put(i.getCode(), tmp.get("sc") + "/" + tmp.get("tc"));
-            }
+            ans.put(i.getCode(),tmp.get(language.toString()));
         }
         return ans;
     }

@@ -7,6 +7,7 @@ import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.data.domain.Character.Hanzi;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
 import com.shuowen.yuzong.data.domain.Character.MdrTool;
 import com.shuowen.yuzong.data.domain.IPA.*;
@@ -14,7 +15,6 @@ import com.shuowen.yuzong.data.domain.Pinyin.PinyinTool;
 import lombok.Data;
 
 import java.util.*;
-import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 import static com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool.getOrDefault;
@@ -44,32 +44,20 @@ public class HanziShow
     }
 
 
-    public HanziShow(HanziEntry hz)
+    private HanziShow(List<Hanzi> hz, Language language)
     {
-        /* 目前暂时这么认为：
-         * Language修改的地方只有add()函数里，说明只有经过合并的，并且明确是简体或者
-         * 繁体的内容才允许进入HanziShow阶段，否则可能是刚从数据库里拿出来的数据等，
-         * 通过了这个检查就认为是split了的，可以默认数组里汉字相同、已经转简繁等
-         */
-        if (hz == null || hz.getLanguage() == Language.CH || hz.isEmpty())
-            throw new NoSuchElementException("还未初始化好");
+        hanzi = (language == Language.SC) ? hz.get(0).getHanzi() : hz.get(0).getHantz();
+        this.language = language.toString();
 
-        hanzi = (hz.getLanguage() == Language.SC) ?
-                hz.getItem(0).getHanzi() : hz.getItem(0).getHantz();
-        language = hz.getLanguage().toString();
-
-
-        for (int i = 0; i < hz.getList().size(); i++)
+        for (Hanzi data : hz)
         {
-            var data = hz.getItem(i);
-            var pinyin = data.getStdPy();
-
+            String pinyin = data.getStdPy();
             // 根据拼音分类
             // 如果没有这个键，就加入，如果加入了这个键，就处理这个键
             Info info = infoMap.computeIfAbsent(pinyin, k -> new Info());
-            info.stdPy = pinyin;
 
-            info.special.add(data.getSpecial());     // 特殊性直接加入
+            info.stdPy = pinyin;
+            info.special.add(data.getSpecial());
             info.similar.addAll(data.getSimilarData());
             info.mulPy.addAll(data.getMulPyData());
             info.mdrInfo.addAll(data.getMdrInfo());
@@ -86,15 +74,13 @@ public class HanziShow
         }
     }
 
-    public static HanziShow of(HanziEntry hz)
-    {
-        return new HanziShow(hz);
-    }
-
-    public static List<HanziShow> ListOf(List<HanziEntry> hz)
+    public static List<HanziShow> ListOf(HanziEntry hz)
     {
         List<HanziShow> ans = new ArrayList<>();
-        for (var i : hz) ans.add(of(i));
+        for (var i : hz.getList())
+        {
+            ans.add(new HanziShow(i, hz.getLanguage()));
+        }
         return ans;
     }
 

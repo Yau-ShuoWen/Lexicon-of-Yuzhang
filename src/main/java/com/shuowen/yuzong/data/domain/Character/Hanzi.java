@@ -69,11 +69,6 @@ public class Hanzi
      */
     public void changeLang(Language lang)
     {
-        if (lang.isCH()) return;
-
-        if (lang.isSC()) hantz = "";
-        else hanzi = "";
-
         String l = lang.toString();
         String r = lang.reverse().toString();
 
