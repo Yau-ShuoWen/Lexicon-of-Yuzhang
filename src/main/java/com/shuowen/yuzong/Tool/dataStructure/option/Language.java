@@ -16,7 +16,7 @@ public enum Language
 
     public static Language of(String s)
     {
-        if (!StringTool.isTrimValid(s)) throw new IllegalArgumentException("错误的初始化字符串");
+        StringTool.checkTrimValid(s);
         return switch (s.trim().toLowerCase())
         {
             case "sc" -> SC;

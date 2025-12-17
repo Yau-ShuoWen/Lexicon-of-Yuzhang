@@ -3,33 +3,41 @@ package com.shuowen.yuzong.Tool.JavaUtilExtend;
 public class StringTool
 {
     /**
-     * 检查一个字符串是否非null，非空
+     * 检查一系列字符串，是否存在至少一个无效（null）或者为空，将结果返回
      */
-    public static boolean isValid(String str)
-    {
-        return str != null && !str.isEmpty();
-    }
-
     public static boolean isValid(String... str)
     {
-        boolean flag = true;
-        for (String s : str) flag = flag && isValid(s);
-        return flag;
-    }
-
-    public static boolean isTrimValid(String str)
-    {
-        return str != null && !str.trim().isEmpty();
+        NullTool.checkSingleNotNull(str);
+        for (String s : str) if (s == null || s.isEmpty()) return false;
+        return true;
     }
 
     /**
-     * 检查一个字符串是否非null，去除头尾空格之后非空
+     * 检查一系列字符串，是否存在至少一个无效（null）或者为空，存在的话就抛出异常
+     */
+    public static void checkValid(String... str)
+    {
+        if (!isValid(str)) throw new IllegalArgumentException(
+                "字符串无效或者为空。String is null or empty.");
+    }
+
+    /**
+     * 检查一系列字符串，是否存在至少一个无效（null）或者只包含空格，将结果返回
      */
     public static boolean isTrimValid(String... str)
     {
-        boolean flag = true;
-        for (var i : str) flag = flag && isTrimValid(str);
-        return flag;
+        NullTool.checkSingleNotNull(str);
+        for (String s : str) if (s == null || s.trim().isEmpty()) return false;
+        return true;
+    }
+
+    /**
+     * 检查一系列字符串，是否存在至少一个无效（null）或者只包含空格，存在的话就抛出异常
+     */
+    public static void checkTrimValid(String... str)
+    {
+        if (!isTrimValid(str)) throw new IllegalArgumentException(
+                "字符串无效或者只包含空格。String is null or trimmed empty.");
     }
 
     /**

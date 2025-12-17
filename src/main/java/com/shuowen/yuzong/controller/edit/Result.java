@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.controller.edit;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import lombok.Getter;
 
 @Getter
@@ -18,10 +19,7 @@ public class Result<T>
 
     public static <T> Result<T> some(T value)
     {
-        if (value == null)
-        {
-            throw new IllegalArgumentException("Result.some() cannot contain null");
-        }
+        NullTool.checkSingleNotNull(value,"Result.some()不能为null");
         return new Result<>(false, value);
     }
 
