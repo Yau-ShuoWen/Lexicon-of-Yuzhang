@@ -187,7 +187,12 @@
     <update id="updateCharById" parameterType="com.shuowen.yuzong.data.model.Character.CharEntity">
         UPDATE NC.${dialect}_char
         SET
-        special = #{ch.special}, ipa_exp = #{ch.ipaExp}, mean = #{ch.mean}, note = #{ch.note}, refer = #{ch.refer}
+        std_py = #{ch.stdPy},
+        special = #{ch.special},
+        ipa_exp = #{ch.ipaExp},
+        mean = #{ch.mean},
+        note = #{ch.note},
+        refer = #{ch.refer}
         WHERE id = #{ch.id}
     </update>
 

@@ -201,8 +201,27 @@ public class UString implements Iterable<String>, Comparable<UString>
         };
     }
 
-    public static boolean isChar(String s)
+    public static boolean isChar(String... str)
     {
-        return s.codePointCount(0, s.length()) == 1;
+        for (String s : str) if (s.codePointCount(0, s.length()) != 1) return false;
+        return true;
     }
+
+    public static void checkChar(String... str)
+    {
+        if (!isChar(str)) throw new IllegalArgumentException(
+                Arrays.toString(str) + " 这一批文本有的不止一个字。not a char.");
+    }
+
+    public static boolean isLenEqual(String str1, String str2)
+    {
+        return str1.codePointCount(0, str1.length()) == str2.codePointCount(0, str2.length());
+    }
+
+    public static void checkLenEqual(String str1, String str2)
+    {
+        if (!isLenEqual(str1, str2)) throw new IllegalArgumentException(
+                str1 + " " + str2 + " 这两段文本长度不相等，请重新校对。length not equal.");
+    }
+
 }

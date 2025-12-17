@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.data.dto.Character.HanziOutline;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
 import lombok.Data;
 
@@ -33,10 +32,9 @@ public class Hanzi
     protected LocalDateTime createdAt;
     protected LocalDateTime updatedAt;
 
-    private boolean selectLang = false;
-
-    protected Hanzi(CharEntity ch)
+    protected Hanzi(CharEntity ch, Language lang)
     {
+        // 数据导入
         id = ch.getId();
         hanzi = ch.getHanzi();
         hantz = ch.getHantz();
@@ -55,20 +53,8 @@ public class Hanzi
 
         createdAt = ch.getCreatedAt();
         updatedAt = ch.getUpdatedAt();
-    }
 
-    public static Hanzi of(CharEntity ch)
-    {
-        return new Hanzi(ch);
-    }
-
-    // 转化为展示类 --------------------------------------------------
-
-    /**
-     * 对内容区分简繁体的字段确定个版本（避免传输消耗）
-     */
-    public void changeLang(Language lang)
-    {
+        // 语言初始化
         String l = lang.toString();
         String r = lang.reverse().toString();
 
@@ -79,29 +65,24 @@ public class Hanzi
         erasure(mean, l, r);
         erasure(note, l, r);
         erasure(refer, l, r);
-
-        selectLang = true;
     }
 
-    protected void checkLang()
+    public static Hanzi of(CharEntity ch, Language lang)
     {
-        if (!selectLang) throw new RuntimeException("流程缺失，应该先调用 changeLang");
+        return new Hanzi(ch, lang);
     }
-
 
     /**
-     * 标签「擦除」，当确定简体繁体之后，和简繁体有关的标签区分没有用处了，所以把标签简化，并且删除不需要的语言
+     * 标签「擦除」
      */
-    private <T extends Map> T erasure(T map, String l, String r)
+    private <V> void erasure(Map<String, V> map, String l, String r)
     {
         map.remove(r);
         renameKey(map, l, "text");
-        return map;
     }
 
     public List<String> getSimilarData()
     {
-        checkLang();
         return new ArrayList<>(similar.get("text"));
     }
 
@@ -110,7 +91,6 @@ public class Hanzi
      */
     public List<Pair<String, String>> getMulPyData()
     {
-        checkLang();
         List<Pair<String, String>> ans = new ArrayList<>();
         for (var i : mulPy) ans.add(Pair.of(i.get("text"), i.get("content")));
         return ans;
@@ -121,7 +101,6 @@ public class Hanzi
      */
     public List<Pair<String, String>> getIpaExpData()
     {
-        checkLang();
         List<Pair<String, String>> ans = new ArrayList<>();
         for (var i : ipaExp) ans.add(Pair.of(i.get("tag"), i.get("content")));
         return ans;
@@ -132,32 +111,16 @@ public class Hanzi
      */
     public List<String> getMeanData()
     {
-        checkLang();
         return mean.get("text");
     }
 
-    /***
+    /**
      * 返回值 「描述标签 - 描述」 列表
      */
     public List<Pair<String, String>> getNoteData()
     {
-        checkLang();
         List<Pair<String, String>> ans = new ArrayList<>();
         for (var i : note.get("text")) ans.add(Pair.of(i.get("tag"), i.get("content")));
         return ans;
-    }
-
-    // 转化为筛选类 --------------------------------------------------
-
-    public HanziOutline transfer()
-    {
-        HanziOutline out = new HanziOutline();
-
-        out.setId(id);
-        out.setHanzi(hanzi);
-        out.setHantz(hantz);
-        out.setStdPy(stdPy);
-
-        return out;
     }
 }

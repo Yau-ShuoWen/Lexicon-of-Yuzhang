@@ -1,12 +1,10 @@
 package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.data.domain.Character.Hanzi;
 import com.shuowen.yuzong.data.domain.Character.HanziEdit;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
@@ -119,11 +117,7 @@ public class HanziService
     {
         UniqueList<HanziOutline, HanziOutline> ans = UniqueList.of();
         for (String hanzi : UString.of(query))
-        {
-            // 这里不用getHanziOrganize是因为要词条原貌才能编辑，而不是合并后的显示结果
-            for (var i : getHanziVague(hanzi, d))
-                ans.add(Hanzi.of(i).transfer());
-        }
+            ans.addAll(HanziOutline.listOf(getHanziVague(hanzi, d)));
         return ans.getList();
     }
 
@@ -144,14 +138,9 @@ public class HanziService
     @Transactional (rollbackFor = {Exception.class})
     public void editHanzi(HanziEdit he, Dialect d)
     {
+        he.check();
+
         CharEntity ch = he.transfer();
-
-        // 检查关键三个信息
-        if (!StringTool.isTrimValid(ch.getHanzi(), ch.getHantz(), ch.getStdPy()))
-            throw new IllegalArgumentException("簡體字、繁體字、主拼音不可以缺少");
-
-        if (!UString.isChar(ch.getHanzi()) || !UString.isChar(ch.getHantz()))
-            throw new IllegalArgumentException("输入的字不止一个");
 
         // 通过唯一键寻找数据库里是否也有
         CharEntity maybe = hz.findByUniqueKey(ch, d.toString());
