@@ -2,6 +2,7 @@ package com.shuowen.yuzong.data.domain.Pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 
 import java.util.*;
 import java.util.function.Function;
@@ -11,6 +12,15 @@ import java.util.function.Function;
  */
 public class PinyinTool
 {
+
+    public static <T extends UniPinyin<U>, U extends PinyinStyle>
+    String formatPinyin(String py, Function<String, T> pinyinCreator, Dialect d)
+    {
+        T pinyin = pinyinCreator.apply(py);
+        return pinyin.toString(d.getStandardStyle()) + " | " + pinyin.toString(d.getKeyboardStyle());
+    }
+
+
     /**
      * 静态方法：拼音字符串变风格
      *

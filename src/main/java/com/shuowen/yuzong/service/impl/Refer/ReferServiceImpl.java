@@ -33,11 +33,10 @@ public class ReferServiceImpl
     {
         Map<String, String> ans = new HashMap<>();
         // 如果方言代码是有效的，就返回对应筛选的方言，否则返回所有的方言
-        for (var i : dialect.isValid() ?
-                n.findDictByDialect(dialect.toString()) : n.getAllDict())
+        for (var i : n.findDictByDialect(dialect.toString()))
         {
             Map<String, String> tmp = readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
-            ans.put(i.getCode(),tmp.get(language.toString()));
+            ans.put(i.getCode(), tmp.get(language.toString()));
         }
         return ans;
     }

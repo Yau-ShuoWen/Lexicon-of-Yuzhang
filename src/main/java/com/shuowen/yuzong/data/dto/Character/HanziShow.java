@@ -86,12 +86,12 @@ public class HanziShow
 
 
     public <T extends UniPinyin<U>, U extends PinyinStyle>
-    void init(U style, PinyinOption op, Dialect d, Map<String, String> dictInfo,
+    void init(PinyinOption op, Dialect d, Map<String, String> dictInfo,
               TriFunction<Set<T>, PinyinOption, Dialect, Map<T, Map<String, String>>> ipaSE
     )
     {
         Function<String, T> pinyinFactory = d.getFactory();
-        Function<String, String> format = p -> PinyinTool.formatPinyin(p, pinyinFactory, style);
+        Function<String, String> format = p -> PinyinTool.formatPinyin(p, pinyinFactory, d);
         String dict = d.getDefaultDict();
 
         IPAData data = new IPAData();

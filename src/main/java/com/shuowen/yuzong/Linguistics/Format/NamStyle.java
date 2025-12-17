@@ -57,7 +57,7 @@ public class NamStyle extends PinyinStyle
      */
     public static NamStyle getKeyboardStyle()
     {
-        return new NamStyle(2, 0, 0, 0, 1, 2, 0, 0, 1);
+        return new NamStyle(2, 0, 0, 0, 1, 0, 0, 0, 3);
     }
 
     public static NamStyle getStandardStyle()
