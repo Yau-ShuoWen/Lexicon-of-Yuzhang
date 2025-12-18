@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.data.domain.Character;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
@@ -10,7 +11,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool.renameKey;
+import static com.shuowen.yuzong.Linguistics.Mandarin.TcSc.tagTrim;
 import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 
 @Data
@@ -31,6 +32,9 @@ public class Hanzi
     protected Map<String, List<Map<String, String>>> refer;
     protected LocalDateTime createdAt;
     protected LocalDateTime updatedAt;
+
+    @JsonIgnore
+    protected static String TAG = "text";
 
     protected Hanzi(CharEntity ch, Language lang)
     {
@@ -54,17 +58,13 @@ public class Hanzi
         createdAt = ch.getCreatedAt();
         updatedAt = ch.getUpdatedAt();
 
-        // 语言初始化
-        String l = lang.toString();
-        String r = lang.reverse().toString();
-
-        for (var i : mulPy) erasure(i, l, r);
-        for (var i : ipaExp) erasure(i, l, r);
-
-        erasure(similar, l, r);
-        erasure(mean, l, r);
-        erasure(note, l, r);
-        erasure(refer, l, r);
+        // 语言初始化：把SC TC标签简化
+        for (var i : mulPy) tagTrim(i, lang, TAG);
+        for (var i : ipaExp) tagTrim(i, lang, TAG);
+        tagTrim(similar, lang, TAG);
+        tagTrim(mean, lang, TAG);
+        tagTrim(note, lang, TAG);
+        tagTrim(refer, lang, TAG);
     }
 
     public static Hanzi of(CharEntity ch, Language lang)
@@ -72,18 +72,9 @@ public class Hanzi
         return new Hanzi(ch, lang);
     }
 
-    /**
-     * 标签「擦除」
-     */
-    private <V> void erasure(Map<String, V> map, String l, String r)
-    {
-        map.remove(r);
-        renameKey(map, l, "text");
-    }
-
     public List<String> getSimilarData()
     {
-        return new ArrayList<>(similar.get("text"));
+        return new ArrayList<>(similar.get(TAG));
     }
 
     /**
@@ -92,7 +83,7 @@ public class Hanzi
     public List<Pair<String, String>> getMulPyData()
     {
         List<Pair<String, String>> ans = new ArrayList<>();
-        for (var i : mulPy) ans.add(Pair.of(i.get("text"), i.get("content")));
+        for (var i : mulPy) ans.add(Pair.of(i.get(TAG), i.get("content")));
         return ans;
     }
 
@@ -111,7 +102,7 @@ public class Hanzi
      */
     public List<String> getMeanData()
     {
-        return mean.get("text");
+        return mean.get(TAG);
     }
 
     /**
@@ -120,7 +111,7 @@ public class Hanzi
     public List<Pair<String, String>> getNoteData()
     {
         List<Pair<String, String>> ans = new ArrayList<>();
-        for (var i : note.get("text")) ans.add(Pair.of(i.get("tag"), i.get("content")));
+        for (var i : note.get(TAG)) ans.add(Pair.of(i.get("tag"), i.get("content")));
         return ans;
     }
 }

@@ -74,13 +74,10 @@ public class HanziShow
         }
     }
 
-    public static List<HanziShow> ListOf(HanziEntry hz)
+    public static List<HanziShow> listOf(HanziEntry hz)
     {
         List<HanziShow> ans = new ArrayList<>();
-        for (var i : hz.getList())
-        {
-            ans.add(new HanziShow(i, hz.getLanguage()));
-        }
+        for (var i : hz.getList()) ans.add(new HanziShow(i, hz.getLanguage()));
         return ans;
     }
 

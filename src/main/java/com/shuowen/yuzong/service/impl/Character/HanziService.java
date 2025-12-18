@@ -74,7 +74,7 @@ public class HanziService
             case 3 -> getHanziVague(hanzi, d);
             default -> throw new RuntimeException("超范围");
         }, lang);
-        return HanziShow.ListOf(ans);
+        return HanziShow.listOf(ans);
     }
 
     /**
