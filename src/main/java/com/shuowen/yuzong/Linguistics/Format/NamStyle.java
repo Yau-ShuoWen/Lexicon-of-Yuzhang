@@ -1,7 +1,9 @@
 package com.shuowen.yuzong.Linguistics.Format;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode (callSuper = true)
 @Data
 public class NamStyle extends PinyinStyle
 {
@@ -19,49 +21,30 @@ public class NamStyle extends PinyinStyle
         this.num = num;
     }
 
-    protected int yu = 1;
-    protected int gn = 0;
-    protected int ee = 2;
-    protected int oe = 3;
-    protected int ii = 1;
-    protected int ptk = 1;
-    protected int alt = 0;
+    protected int yu;
+    protected int gn;
+    protected int ee;
+    protected int oe;
+    protected int ii;
+    protected int ptk;
+    protected int alt;
+    protected int capital;
+    protected int num;
 
-    public NamStyle()
-    {
-    }
-
-    public NamStyle(int[] a)
-    {
-        if (a.length > 0) yu = a[0];
-        if (a.length > 1) gn = a[1];
-        if (a.length > 2) ee = a[2];
-        if (a.length > 3) oe = a[3];
-        if (a.length > 4) ii = a[4];
-        if (a.length > 5) ptk = a[5];
-        if (a.length > 6) alt = a[6];
-        if (a.length > 7) capital = a[7];
-        if (a.length > 8) num = a[8];
-    }
 
     /**
-     * 数据库里存的原版格式
+     * 使用附标内容的版本
      */
-    public static NamStyle getDataBaseStyle()
+    public static NamStyle getStandardStyle()
     {
-        return new NamStyle(0, 0, 0, 0, 0, 0, 0, 0, 3);
+        return new NamStyle(1, 0, 1, 1, 1, 0, 0, 0, 1);
     }
 
     /**
-     * 只用上二十六字母和阿拉伯数字的版本
+     * 只用上二十六字母和阿拉伯数字的版本，用于输入
      */
     public static NamStyle getKeyboardStyle()
     {
-        return new NamStyle(2, 0, 0, 0, 1, 0, 0, 0, 3);
-    }
-
-    public static NamStyle getStandardStyle()
-    {
-        return new NamStyle(1, 0, 2, 2, 1, 0, 0, 0, 1);
+        return new NamStyle(0, 0, 0, 0, 0, 0, 0, 0, 2);
     }
 }

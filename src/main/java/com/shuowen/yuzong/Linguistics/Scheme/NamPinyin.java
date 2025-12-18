@@ -3,9 +3,6 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-
-import java.util.*;
 
 /**
  * 南昌话拼音方案
@@ -15,13 +12,13 @@ import java.util.*;
 
 public class NamPinyin extends UniPinyin<NamStyle>
 {
-    static char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
+    private static char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
 
-    public static char[] modifier = {' ', '꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
+    private static char[] fourCorne = {' ', '꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
 
-    public char getTone(boolean b)
+    public char getFourCornerTone()
     {
-        return modifier[tone];
+        return fourCorne[tone];
     }
 
     public NamPinyin(String s)
@@ -32,6 +29,16 @@ public class NamPinyin extends UniPinyin<NamStyle>
     public NamPinyin(String s, boolean v)
     {
         super(s, v);
+    }
+
+    public static NamPinyin of(String s)
+    {
+        return new NamPinyin(s);
+    }
+
+    public static NamPinyin of(String s, boolean v)
+    {
+        return new NamPinyin(s, v);
     }
 
     /**
@@ -65,108 +72,26 @@ public class NamPinyin extends UniPinyin<NamStyle>
         return range && rhythm;
     }
 
-    @Override
-    protected void scan()
-    {
-        pinyin = pinyin.toLowerCase();
-
-        /* 过滤原则
-         * 1.ü可以写作yu，数据库层是v
-         * 2.ẹ可以写作ee，数据库层也是ee
-         * */
-        final List<Pair<String, String>> ruleReplace = List.of(
-                Pair.of("yu", "v"),
-                Pair.of("ü", "v"),
-                Pair.of("ẹ", "ee")
-        );
-
-
-        /* 过滤原则：
-         * 1.零声母的y或w：规范化为i或u
-         * 2.jqx开头的u：规范化为v
-         * */
-        final List<Pair<String, String>> ruleBegin = List.of(
-                Pair.of("yi", "i"),
-                Pair.of("wu", "u"),
-                Pair.of("w", "u"),
-                Pair.of("y", "i"),
-                Pair.of("ju", "jv"),
-                Pair.of("qu", "qv"),
-                Pair.of("xu", "xv"),
-                Pair.of("fi", "feei")
-        );
-
-        /* 过滤原则：
-         * 1.韵母为ao：规范化为au
-         * 2.iv后的an：规范化为en
-         * 3.普通话常用读音修改：wei->uei（上一部）->ui you->iou->iu wen->uen->un
-         * 4.zcs后面没有加足两个i：补全
-         * */
-        final List<Pair<String, String>> ruleEnd = List.of(
-                Pair.of("ao", "au"),
-                Pair.of("ian", "ien"),
-                Pair.of("van", "ven"),
-                Pair.of("uen", "un"),
-                Pair.of("uei", "ui"),
-                Pair.of("iou", "ieu"),
-                Pair.of("zi", "zii"),
-                Pair.of("ci", "cii"),
-                Pair.of("si", "sii"),
-                Pair.of("z", "zii"),
-                Pair.of("c", "cii"),
-                Pair.of("s", "sii")
-        );
-
-        for (var p : ruleReplace)
-        {
-            pinyin = pinyin.replace(p.getLeft(), p.getRight());
-        }
-
-        for (var p : ruleBegin)
-        {
-            if (pinyin.startsWith(p.getLeft()))
-            {
-                pinyin = p.getRight() + pinyin.substring(p.getLeft().length());
-                break;
-            }
-        }
-        for (Pair<String, String> p : ruleEnd)
-        {
-            if (pinyin.endsWith(p.getLeft()))
-            {
-                pinyin = pinyin.substring(0, pinyin.length() - p.getLeft().length()) + p.getRight();
-                break;
-            }
-        }
-    }
-
     /**
      * 默认配置的转字符串
      */
     @Override
     public String toString()
     {
-        //默认配置
-        return toString(defaultStyle());
+        return toString(NamStyle.getStandardStyle()) + " | " + toString(NamStyle.getKeyboardStyle());
     }
 
     @Override
     public String toString(NamStyle p)
     {
-        if (!valid) return INVALID_PINYIN;
+        if (!valid) return INVALID;
         show = pinyin;
 
-        p = NullTool.getDefault(p, defaultStyle());
+        p = NullTool.getDefault(p, NamStyle.getKeyboardStyle());
 
         setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
         addMark(p.getNum());//加音调
         return " [" + show + "] ";
-    }
-
-    @Override
-    protected NamStyle defaultStyle()
-    {
-        return new NamStyle();
     }
 
     public void setFormat(int yu, int gn, int ee, int oe, int ii,
@@ -176,24 +101,23 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (gn > 0)
         {
             s = s.replace("ni", "gni");
-            s = s.replace("nv", "gnv");
+            s = s.replace("nyu", "gnyu");
         }
         if (yu > 0)
         {
-            if (yu == 1) s = s.replace("v", "ü");
-            if (yu == 2) s = s.replace("v", "yu");
-            if (yu == 3) s = s.replace("v", "ụ");
-            if (yu == 4) s = s.replace("v", "y");
+            if (yu == 1) s = s.replace("yu", "ü");
+            if (yu == 2) s = s.replace("yu", "v");
+            if (yu == 3) s = s.replace("yu", "ụ");
         }
         if (ee > 0)
         {
-            if (ee == 1) s = s.replace("ee", "ё");
-            if (ee == 2) s = s.replace("ee", "ẹ");
+            if (ee == 1) s = s.replace("ee", "ẹ");
+            if (ee == 2) s = s.replace("ee", "ё");
         }
         if (oe > 0)
         {
-            if (oe == 1) s = s.replace("oe", "ö");
-            if (oe == 2) s = s.replace("oe", "ọ");
+            if (oe == 1) s = s.replace("oe", "ọ");
+            if (oe == 2) s = s.replace("oe", "ö");
             if (oe == 3) s = s.replace("oe", "o");
         }
         if (ii > 0)
@@ -237,15 +161,10 @@ public class NamPinyin extends UniPinyin<NamStyle>
                         s = "w" + s.substring(1);
                     else s = "w" + s;
                 }
-                if (c == 'v' || c == 'ü')
-                {
-                    s = s.replace("v", "yu");
-                    s = s.replace("ü", "yu");//转到yu处理逻辑
-                }
             }
             if (alt == 2)//硬加
             {
-                if (c == 'i' || c == 'v') s = "y" + s;
+                if (c == 'i') s = "y" + s;
                 if (c == 'u') s = "w" + s;
             }
         }
@@ -339,7 +258,15 @@ public class NamPinyin extends UniPinyin<NamStyle>
             {
                 case "i" -> "1";
                 case "u" -> "2";
-                case "v" -> "3";
+                case "y" ->
+                {
+                    if (StringTool.charEquals(py, 1, 'u'))
+                    {
+                        idx = 2;
+                        yield "3";
+                    }
+                    else throw new IllegalArgumentException("出现y不出现u");
+                }
                 default ->
                 {
                     idx = 0;
@@ -393,9 +320,15 @@ public class NamPinyin extends UniPinyin<NamStyle>
             };
 
             code = StringTool.swap(code, 2, 3);  // 识别和显示优先级不同
-            return code.length() == 5;     // 是否有效位数
-        } catch (IndexOutOfBoundsException e) // 这里面拼音出现了任何错误，就认为是无效的，所以里面可以大胆sub和charAt
+            if (code.length() == 5) return true;      // 是否有效位数
+            else
+            {
+                code = INVALID;
+                return false;
+            }
+        } catch (IndexOutOfBoundsException | IllegalArgumentException e) // 这里面拼音出现了任何错误，就认为是无效的，所以里面可以大胆sub和charAt
         {
+            code = INVALID;
             return false;
         }
     }
@@ -433,7 +366,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         {
             case '1' -> "i";
             case '2' -> "u";
-            case '3' -> "v";
+            case '3' -> "yu";
             default -> "";
         } + switch (c.charAt(4))
         {
@@ -495,7 +428,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
                         idx = i;
                         break;
                     }
-                    if (String.valueOf(c).matches("[iIịỊuUvVüÜụỤyY]")) idx = i;
+                    if (String.valueOf(c).matches("[iIịỊuUvVüÜụỤ]")) idx = i;
                 }
 
                 if (idx == -1) Str.append(mark[tone]);
@@ -504,21 +437,11 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 show = Str.toString();
                 break;
             case 2:
-                show = show + " " + mark[tone];
-                break;
-            case 3:
                 show = show + tone;
                 break;
+            case 3:
+                show = show + " " + mark[tone];
+                break;
         }
-    }
-
-    public static NamPinyin of(String s)
-    {
-        return new NamPinyin(s);
-    }
-
-    public static NamPinyin of(String s, boolean v)
-    {
-        return new NamPinyin(s, v);
     }
 }

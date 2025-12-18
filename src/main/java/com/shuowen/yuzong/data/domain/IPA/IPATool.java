@@ -90,7 +90,7 @@ public class IPATool
                 {
                     case FIVE_DEGREE_NUM -> merge(y, d, dict, true);
                     case FIVE_DEGREE_LINE -> merge(y, d, dict, false);
-                    case FOUR_CORNER -> merge(y, p.getTone(true), dict);
+                    case FOUR_CORNER -> merge(y, p.getFourCornerTone(), dict);
                 }, ss);
     }
 

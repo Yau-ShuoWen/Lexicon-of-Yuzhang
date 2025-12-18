@@ -7,6 +7,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import lombok.Getter;
 
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -83,14 +84,13 @@ public enum Dialect
     }
 
     @SuppressWarnings ("unchecked")
-    public <U extends PinyinStyle> U getStandardStyle()
-    {
-        return (U) standardStyleGetter.get();
-    }
-
-    @SuppressWarnings ("unchecked")
     public <U extends PinyinStyle> U getKeyboardStyle()
     {
         return (U) keyboardStyleGetter.get();
+    }
+
+    public static List<Dialect> getList()
+    {
+        return List.of(NAM);
     }
 }

@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import lombok.Getter;
 
 import java.util.Comparator;
@@ -8,30 +9,27 @@ import java.util.Objects;
 
 abstract public class UniPinyin<T extends PinyinStyle>
 {
-    // 不包括声调的标准拼音
-    protected String pinyin = null;
-    // 数字音调，0表示轻声，null表示这个是没有声调的
-    protected Integer tone = null;
-    // 拼音编码
-    protected String code = null;
-    // 最终格式：承载体
-    protected String show = "";
-
-    @Getter
-    protected boolean valid = false;
-
+    protected String pinyin;       // 不包括声调的标准拼音
+    protected Integer tone;        // 数字音调，0表示轻声和没有声调
+    protected String code = null;  // 拼音编码
+    protected String show = "";    // toString时候的承载体
 
     /**
-     * @implNote 初始化的时候{@code pinyin} {@code code} {@code valid} 这三个参数都为 {@code false/null}，所以<p>
-     * - 在初始化的时候，只需要在有效的时候手动调整{@code true}就可以了<p>
-     * - 在无效的时候不可以调用，否则发生{@code null}错误
+     * 不可以直接读取上面的字段：1. 前两个就算有，拼音也不一定是有效的
+     * <ul>
+     *     <li>pinyin 和 tone 就算有内容，整个拼音也不一定是有效的</li>
+     *     <li>code 为 null 的时候是没有初始化，为"无效"时拼音无效</li>
+     *     <li>show 只能通过 toString 来获得</li>
+     * </ul>
      */
+    @Getter
+    protected boolean valid;
 
-    protected static final String INVALID_PINYIN = "[无效]";
+    protected static final String INVALID = "[无效]";
 
     public String getPinyin()
     {
-        return isValid() ? pinyin : INVALID_PINYIN;
+        return isValid() ? pinyin : INVALID;
     }
 
     public Integer getTone()
@@ -46,12 +44,12 @@ abstract public class UniPinyin<T extends PinyinStyle>
             if (code == null) toCode();// 对于数据库里获得的数据，创建的时候没有检查code，现在现生成
             return code;
         }
-        else return INVALID_PINYIN;
+        else return INVALID;
     }
 
     public static String getError()
     {
-        return INVALID_PINYIN;
+        return INVALID;
     }
 
     /**
@@ -61,21 +59,15 @@ abstract public class UniPinyin<T extends PinyinStyle>
      */
     public abstract Integer syllableLen();
 
+    /**
+     * 在其他内容一样的时候，只比较 pinyin 和 tone
+     */
     @Override
     public boolean equals(Object obj)
     {
-        if (this == obj) // 如果是同一個對象，返回 true
-        {
-            return true;
-        }
-        // 如果對象為 null 或類型不同，返回 false
-        if (obj == null || getClass() != obj.getClass())
-        {
-            return false;
-        }
-        // 比較拼音和音调，其他不用比较
-        return (pinyin.equals(((UniPinyin<?>) obj).pinyin))
-                && (tone.equals(((UniPinyin<?>) obj).tone));
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        return (pinyin.equals(((UniPinyin<?>) obj).pinyin)) && (tone.equals(((UniPinyin<?>) obj).tone));
     }
 
     @Override
@@ -85,81 +77,41 @@ abstract public class UniPinyin<T extends PinyinStyle>
     }
 
     /**
-     * 构造函数：信任来源的拼音，如数据库
-     *
-     * @param num 字符串 {@code s}中是否包含数字音调？<p>
-     *            - {@code true}包含，如 jiu3 <p>
-     *            - {@code false}不包含，如 la：音调设置为0
-     */
-    public UniPinyin(String s, boolean num)
-    {
-        // 这是因为可能查到空的拼音，所以信任的拼音也要检查
-        if (s == null) return;
-        if (num)
-        {
-            pinyin = s.substring(0, s.length() - 1);
-            tone = s.charAt(s.length() - 1) - '0';
-        }
-        else
-        {
-            pinyin = s;
-            tone = 0;
-        }
-
-        //信任来源地拼音，只需要不是null，就认为是有效的
-        valid = true;
-    }
-
-    /**
-     * 不信任来源的拼音，如用户输入
+     * 默认是不信任的拼音的
      */
     public UniPinyin(String s)
     {
-        // 空字符串
-        if (s == null) return;
-        s = s.trim().toLowerCase(); // 可选处理，统一大小写
+        this(s, false);
+    }
 
-        int lastChar = s.charAt(s.length() - 1);
-        if (lastChar >= '0' && lastChar <= '9')
+    /**
+     * @param trusty true 说明是可信任的来源，比如数据库，检查就少了。false就要经过严格的检查，有任何错误都是无效
+     */
+    public UniPinyin(String s, boolean trusty)
+    {
+        var tmp = PinyinChecker.trySplit(s);  // 空字符串的检查杂这个函数里
+        pinyin = tmp.getLeft();
+        tone = tmp.getRight();
+
+        // 如果拼音来源不可信任，检查有效性
+        // 1. 编码的过程是否顺利？ toCode()函数，如果中途发生字符串等错误，无效，直接返回
+        // 2. 获得的编码是否可逆？ encodeable()函数，如果不可逆，无效，直接返回
+        // 3. 音调是否符合范围？和韵尾的搭配是否合理？ isToneValid()函数
+        if (!trusty)
         {
-            pinyin = s.substring(0, s.length() - 1);
-            tone = lastChar - '0';
+            if (!toCode() || !encodable() || !toneValid())
+            {
+                valid = false;
+                return;
+            }
         }
-        // 没有音调 默认音调 de -> de0
-        else
-        {
-            pinyin = s;
-            tone = 0;
-        }
-
-        // 拼音串格式化
-        scan();
-
-        /* 检查有效性
-         * 拼音：
-         * 1. 编码的过程是否顺利？ toCode()函数，如果中途发生字符串等错误，无效，直接返回
-         * 2. 获得的编码是否可逆？ encodeable()函数，如果不可逆，无效，直接返回
-         *
-         * 音调：
-         * 1. 音调是否符合范围？和韵尾的搭配是否合理？ isToneValid()函数
-         * */
-        if (!toCode()) return;
-        if (!encodable()) return;
-        if (!toneValid()) return;
-
         valid = true;
     }
 
     /**
      * 返回四角调类
      */
-    public abstract char getTone(boolean b);
-
-
-    /**
-     * 生成这个类对应的默认格式
-     */
-    abstract protected T defaultStyle();
+    public abstract char getFourCornerTone();
 
 
     /**
@@ -174,24 +126,18 @@ abstract public class UniPinyin<T extends PinyinStyle>
 
 
     /**
-     * 如果子类没有重写，就简单的组合一下，这个{@code //拼音//}是为了在前端正确渲染做的
+     * 子类必须重写
      */
     @Override
     public String toString()
     {
-        return " // " + pinyin + tone + " // ";
+        return "Default Unknown Pinyin:" + pinyin + tone;
     }
 
     /**
      * 带上复杂的个性化参数，根据子类而定
      */
     abstract public String toString(T params);
-
-
-    /**
-     * 尽可能过滤用户输入，不同拼音不同风格，交给子类完成
-     */
-    protected abstract void scan();
 
 
     /**
@@ -221,7 +167,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
         return isValid() ? Integer.parseInt(code + tone) : -1;
     }
 
-    public static final Comparator<UniPinyin> ASC = Comparator.comparingInt(UniPinyin::getWeight);
+    public static final Comparator<UniPinyin<?>> ASC = Comparator.comparingInt(UniPinyin::getWeight);
 
-    public static final Comparator<UniPinyin> DESC = ASC.reversed();
+    public static final Comparator<UniPinyin<?>> DESC = ASC.reversed();
 }
