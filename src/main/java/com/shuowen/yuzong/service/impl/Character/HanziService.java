@@ -138,7 +138,7 @@ public class HanziService
     @Transactional (rollbackFor = {Exception.class})
     public void editHanzi(HanziEdit he, Dialect d)
     {
-        he.check();
+        he.check(d);
 
         CharEntity ch = he.transfer();
 

@@ -14,10 +14,9 @@ public class PinyinTool
 {
 
     public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    String formatPinyin(String py, Function<String, T> pinyinCreator, Dialect d)
+    String formatPinyin(String py, Function<String, T> pinyinCreator)
     {
-        T pinyin = pinyinCreator.apply(py);
-        return pinyin.toString(d.getStandardStyle()) + " | " + pinyin.toString(d.getKeyboardStyle());
+        return pinyinCreator.apply(py).toString();
     }
 
 

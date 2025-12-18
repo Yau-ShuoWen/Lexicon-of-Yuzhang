@@ -88,7 +88,7 @@ public class HanziShow
     )
     {
         Function<String, T> pinyinFactory = d.getFactory();
-        Function<String, String> format = p -> PinyinTool.formatPinyin(p, pinyinFactory, d);
+        Function<String, String> format = p -> PinyinTool.formatPinyin(p, pinyinFactory);
         String dict = d.getDefaultDict();
 
         IPAData data = new IPAData();

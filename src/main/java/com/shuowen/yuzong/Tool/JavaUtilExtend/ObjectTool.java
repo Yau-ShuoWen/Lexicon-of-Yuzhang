@@ -1,5 +1,9 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Objects;
+
 public class ObjectTool
 {
     /**
@@ -31,5 +35,24 @@ public class ObjectTool
     {
         for (Object o : obj) System.out.println(o);
         System.out.println();
+    }
+
+    @SafeVarargs
+    public static <T> boolean allEqual(T... values)
+    {
+        if (values == null || values.length <= 1) return true;
+        for (T value : values)
+            if (!Objects.equals(values[0], value)) return false;
+        return true;
+    }
+
+    public static <T> boolean allEqual(Collection<T> values)
+    {
+        if (values == null || values.size() <= 1) return true;
+
+        Iterator<T> it = values.iterator();
+        T first = it.next();
+        while (it.hasNext()) if (!Objects.equals(first, it.next())) return false;
+        return true;
     }
 }

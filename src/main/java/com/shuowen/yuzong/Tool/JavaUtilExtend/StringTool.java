@@ -56,6 +56,14 @@ public class StringTool
     }
 
     /**
+     * 和 isIndexValid 的区别就是后一个坐标可以 ==length 的
+     */
+    public static boolean isTwoIndexValid(String str, int index1, int index2)
+    {
+        return isIndexValid(str, index1, index2 - 1) && (index1 < index2);
+    }
+
+    /**
      * 对于 StringBuilder 的一次性根据值替换
      */
     public static void replace(StringBuilder sb, String target, String replacement)
@@ -105,8 +113,7 @@ public class StringTool
      */
     public static String substring(String source, int beginIndex, int endIndex)
     {
-        if (!isValid(source) || !isIndexValid(source, beginIndex, endIndex) ||
-                beginIndex >= endIndex) return "";
+        if (!isValid(source) || !isTwoIndexValid(source, beginIndex, endIndex)) return "";
 
         return source.substring(beginIndex, endIndex);
     }

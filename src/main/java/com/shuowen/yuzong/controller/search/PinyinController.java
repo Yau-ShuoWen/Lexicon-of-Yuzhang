@@ -3,6 +3,8 @@ package com.shuowen.yuzong.controller.search;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import com.shuowen.yuzong.service.impl.Pinyin.PinyinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,5 +36,13 @@ public class PinyinController
 
         response.put("message", s.getPreview(style, Dialect.of(dialect)));
         return response;
+    }
+
+    @GetMapping ("{dialect}/normalize")
+    public Triple<Integer, String,String> normalizeCheck(
+            @PathVariable String dialect,
+            @RequestParam String pinyin)
+    {
+        return PinyinChecker.check(pinyin, Dialect.of(dialect));
     }
 }

@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
 import com.shuowen.yuzong.data.model.Character.CharPinyin;
 import com.shuowen.yuzong.data.model.Character.CharSimilar;
@@ -59,7 +61,7 @@ public class HanziEdit
     /**
      * 在数据发回来的时候对数据检查
      */
-    public void check()
+    public void check(Dialect d)
     {
         // 《批评和自我批评》
 
@@ -68,6 +70,8 @@ public class HanziEdit
 
         if (!UString.isChar(hanzi, hantz))
             throw new IllegalArgumentException("输入的字不止一个");
+
+        PinyinChecker.checkStrictly(stdPy, d);
 
         NullTool.checkSingleNotNull(special);
 
@@ -79,7 +83,7 @@ public class HanziEdit
         for (var i : mulPy)
         {
             StringTool.checkTrimValid(i.getSc(), i.getTc(), i.getPinyin());
-            UString.checkChar(i.getSc(), i.getTc());
+            PinyinChecker.checkStrictly(i.getPinyin(), d);
         }
         for (var i : mean)
         {
