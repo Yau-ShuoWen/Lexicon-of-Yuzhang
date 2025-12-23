@@ -7,7 +7,7 @@ public class StringTool
      */
     public static boolean isValid(String... str)
     {
-        NullTool.checkSingleNotNull(str);
+        NullTool.checkNotNull(str);
         for (String s : str) if (s == null || s.isEmpty()) return false;
         return true;
     }
@@ -26,7 +26,7 @@ public class StringTool
      */
     public static boolean isTrimValid(String... str)
     {
-        NullTool.checkSingleNotNull(str);
+        NullTool.checkNotNull(str);
         for (String s : str) if (s == null || s.trim().isEmpty()) return false;
         return true;
     }

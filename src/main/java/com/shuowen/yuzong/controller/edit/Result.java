@@ -19,7 +19,7 @@ public class Result<T>
 
     public static <T> Result<T> some(T value)
     {
-        NullTool.checkSingleNotNull(value,"Result.some()不能为null");
+        NullTool.checkNotNull(value,"Result.some()不能为null");
         return new Result<>(false, value);
     }
 

@@ -12,14 +12,14 @@ public class NullTool
      */
     public static <T> T getDefault(T obj, T defaultValue)
     {
-        checkSingleNotNull(defaultValue, "默认值不能为空");
+        checkNotNull(defaultValue, "默认值不能为空");
         return (obj == null) ? defaultValue : obj;
     }
 
     /**
      * 如果这一个元素为null，抛出默认异常
      */
-    public static void checkSingleNotNull(Object obj)
+    public static void checkNotNull(Object obj)
     {
         if (obj == null) throw new NullPointerException();
     }
@@ -27,21 +27,38 @@ public class NullTool
     /**
      * 如果这个元素为null，抛出msg异常
      */
-    public static void checkSingleNotNull(Object obj, String msg)
+    public static void checkNotNull(Object obj, String msg)
     {
         if (obj == null) throw new NullPointerException(msg);
     }
 
     /**
-     * 批量检查内容
-     */
-    public static void checkBatchNotNull(String message, Object... objects)
+     * 批量检查内容，抛出默认异常
+     * @param recursion 是否递归检查
+     * */
+    public static void checkNotNull(boolean recursion, Object... objects)
     {
-        checkSingleNotNull(objects, message); // 直接传入null
+        checkNotNull(objects); // 直接传入null
 
         for (int i = 0; i < objects.length; i++)
         {
-            checkObject(objects[i], i, message, new HashSet<>());
+            if (recursion) checkObject(objects[i], i, "递归检查出错：", new HashSet<>());
+            else checkNotNull(objects[i]);
+        }
+    }
+
+    /**
+     * 批量检查内容
+     * @param recursion 是否递归检查
+     */
+    public static void checkNotNull(String message, boolean recursion, Object... objects)
+    {
+        checkNotNull(objects, message); // 直接传入null
+
+        for (int i = 0; i < objects.length; i++)
+        {
+            if (recursion) checkObject(objects[i], i, message, new HashSet<>());
+            else checkNotNull(objects[i], message);
         }
     }
 
@@ -50,7 +67,7 @@ public class NullTool
      */
     private static void checkObject(Object obj, int index, String message, Set<Object> visited)
     {
-        checkSingleNotNull(obj, setMessage(message, index, "对象为空"));
+        checkNotNull(obj, setMessage(message, index, "对象为空"));
 
         if (visited.contains(obj)) return;
         visited.add(obj);
@@ -60,9 +77,7 @@ public class NullTool
             for (int i = 0; i < Array.getLength(obj); i++)
             {
                 Object element = Array.get(obj, i);
-                checkSingleNotNull(element, setMessage(message, index, String.format("数组第 %d 个元素为空", i + 1)));
-
-
+                checkNotNull(element, setMessage(message, index, String.format("数组第 %d 个元素为空", i + 1)));
                 checkObject(element, index, message, visited);
             }
         }
@@ -71,7 +86,7 @@ public class NullTool
             int i = 0;
             for (Object element : collection)
             {
-                checkSingleNotNull(element, setMessage(message, index, String.format("集合第 %d 个元素为空", i + 1)));
+                checkNotNull(element, setMessage(message, index, String.format("集合第 %d 个元素为空", i + 1)));
                 checkObject(element, index, message, visited);
                 i++;
             }
@@ -84,8 +99,8 @@ public class NullTool
                 Object key = entry.getKey();
                 Object value = entry.getValue();
 
-                checkSingleNotNull(key, setMessage(message, index, String.format("Map第 %d 个条目的键为空", i + 1)));
-                checkSingleNotNull(value, setMessage(message, index, String.format("Map第 %d 个条目的值为空", i + 1)));
+                checkNotNull(key, setMessage(message, index, String.format("Map第 %d 个条目的键为空", i + 1)));
+                checkNotNull(value, setMessage(message, index, String.format("Map第 %d 个条目的值为空", i + 1)));
 
                 checkObject(key, index, message, visited);
                 checkObject(value, index, message, visited);
