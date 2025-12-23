@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.data.domain.Character;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
-import com.shuowen.yuzong.data.model.Character.CharMdr;
+import com.shuowen.yuzong.data.model.Character.MdrChar;
 
 import java.util.*;
 
@@ -23,7 +23,7 @@ public class MdrTool
         return ch;
     }
 
-    public static List<CharMdr> settle(List<CharMdr> ch)
+    public static List<MdrChar> settle(List<MdrChar> ch)
     {
         for (var i : ch)
         {

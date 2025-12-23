@@ -3,6 +3,7 @@ package com.shuowen.yuzong.data.domain.Character;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
@@ -65,6 +66,9 @@ public class Hanzi
         tagTrim(mean, lang, TAG);
         tagTrim(note, lang, TAG);
         tagTrim(refer, lang, TAG);
+        // 语言初始化：过滤普通话读音内容
+        mdrInfo = ListTool.filter(mdrInfo, i -> Objects.equals(
+                i.split(" ")[0], (lang == Language.SC) ? hanzi : hantz));
     }
 
     public static Hanzi of(CharEntity ch, Language lang)
@@ -82,9 +86,7 @@ public class Hanzi
      */
     public List<Pair<String, String>> getMulPyData()
     {
-        List<Pair<String, String>> ans = new ArrayList<>();
-        for (var i : mulPy) ans.add(Pair.of(i.get(TAG), i.get("content")));
-        return ans;
+        return ListTool.mapping(mulPy, i -> Pair.of(i.get(TAG), i.get("content")));
     }
 
     /**
@@ -92,9 +94,7 @@ public class Hanzi
      */
     public List<Pair<String, String>> getIpaExpData()
     {
-        List<Pair<String, String>> ans = new ArrayList<>();
-        for (var i : ipaExp) ans.add(Pair.of(i.get("tag"), i.get("content")));
-        return ans;
+        return ListTool.mapping(ipaExp, i -> Pair.of(i.get("tag"), i.get("content")));
     }
 
     /**
@@ -110,8 +110,6 @@ public class Hanzi
      */
     public List<Pair<String, String>> getNoteData()
     {
-        List<Pair<String, String>> ans = new ArrayList<>();
-        for (var i : note.get(TAG)) ans.add(Pair.of(i.get("tag"), i.get("content")));
-        return ans;
+        return ListTool.mapping(note.get(TAG), i -> Pair.of(i.get("tag"), i.get("content")));
     }
 }

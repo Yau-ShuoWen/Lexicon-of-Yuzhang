@@ -21,9 +21,6 @@ public class CharEntity
     private String note;    // Map<String,List<Map<String,String>>>
     private String refer;   // Map<String,List<String>>
 
-    private String pinyin;
-    private String tone;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

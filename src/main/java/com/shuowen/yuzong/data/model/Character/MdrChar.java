@@ -9,7 +9,7 @@ import lombok.Data;
  */
 
 @Data
-public class CharMdr
+public class MdrChar
 {
     String info;     // 普通话的读音信息
     Integer leftId;  // 映射表里的普通话外键

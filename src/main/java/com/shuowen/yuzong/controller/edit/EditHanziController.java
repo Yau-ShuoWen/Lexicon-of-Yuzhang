@@ -7,7 +7,7 @@ import com.shuowen.yuzong.data.domain.Character.HanziEdit;
 import com.shuowen.yuzong.data.dto.Character.HanziOutline;
 import com.shuowen.yuzong.data.mapper.Character.CharMapper;
 import com.shuowen.yuzong.data.mapper.Character.PronunMapper;
-import com.shuowen.yuzong.data.model.Character.CharMdr;
+import com.shuowen.yuzong.data.model.Character.MdrChar;
 import com.shuowen.yuzong.service.impl.Character.HanziService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -75,14 +75,13 @@ public class EditHanziController
 
 
     @GetMapping ("{dialect}/get-hanzi")
-    public List<CharMdr> getHanzi(
+    public List<MdrChar> getHanzi(
             @PathVariable String dialect,
             @RequestParam String hanzi,
-            @RequestParam String hantz,
-            @RequestParam (required = false, defaultValue = "0") Integer id
+            @RequestParam String hantz
     )
     {
-        return settle(pronun.getMandarinInfo(hanzi, hantz, id, Dialect.of(dialect).toString()));
+        return settle(pronun.getMandarinInfoByScTc(hanzi, hantz, Dialect.of(dialect).toString()));
     }
 
 

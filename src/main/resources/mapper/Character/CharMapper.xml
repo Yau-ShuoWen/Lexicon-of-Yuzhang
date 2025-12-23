@@ -4,12 +4,14 @@
 
 <mapper namespace="com.shuowen.yuzong.data.mapper.Character.CharMapper">
 
-    <!-- 基础字段定义 -->
+    <!-- 下面这一段是查询的时候复杂字段的合成 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- 主表 -->
     <sql id="baseFields">
         main.*
     </sql>
 
-    <!-- 复用字段定义 -->
+    <!-- 模糊匹配汉字的字段 -->
     <sql id="similarField">
         CONCAT(
         '{"sc" : [',
@@ -30,13 +32,14 @@
         ) AS mul_py
     </sql>
 
-    <!-- mdr信息字段 -->
+    <!-- 普通话对应信息字段 -->
     <sql id="mdrInfoField">
         CONCAT( '[',
         COALESCE(GROUP_CONCAT(DISTINCT '"', mdr.info, '"' SEPARATOR ','), ''),
         ']' ) AS mdr_info
     </sql>
 
+    <!-- 普通话对应信息字段 -->
     <sql id="allFields">
         <include refid="baseFields"/>,
         <include refid="similarField"/>,
@@ -102,15 +105,7 @@
         SELECT
         <include refid="allFields"/>
         <include refid="allJoin"/>
-        WHERE
-        <choose>
-            <when test="lang == 'tc'">
-                BINARY main.hantz = #{hanzi}
-            </when>
-            <otherwise>
-                BINARY main.hanzi = #{hanzi}
-            </otherwise>
-        </choose>
+        WHERE BINARY main.${lang == 'sc' ? 'hanzi' : 'hantz'} = #{hanzi}
         GROUP BY main.id
         ORDER BY main.special
     </select>
@@ -122,14 +117,12 @@
         GROUP BY main.id
     </select>
 
-    <!-- 下面这一段是和编辑有关的内容  -->
-    <!-- |                       -->
-    <!-- |                       -->
-    <!-- |                       -->
-    <!-- |                       -->
-    <!-- |                       -->
-    <!-- |（稍大一点的分隔符）       -->
+    <!-- 下面这一段是和编辑有关的内容 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
+    <select id="getRandomCharId" resultType="int">
+        SELECT id FROM NC.${dialect}_char
+        LIMIT FLOOR(RAND() * (SELECT COUNT(*) FROM dict_word)), 1;
+    </select>
 
     <!-- 通过主键寻找汉字 -->
     <select id="findHanziByCharId" resultType="com.shuowen.yuzong.data.model.Character.CharEntity">

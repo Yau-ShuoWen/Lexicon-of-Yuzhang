@@ -11,7 +11,7 @@ import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
 import com.shuowen.yuzong.data.model.Character.CharPinyin;
 import com.shuowen.yuzong.data.model.Character.CharSimilar;
-import com.shuowen.yuzong.data.model.Character.CharMdr;
+import com.shuowen.yuzong.data.model.Character.MdrChar;
 import lombok.Data;
 
 import java.util.*;
@@ -30,7 +30,7 @@ public class HanziEdit
 
     protected List<CharSimilar> similar = new ArrayList<>();
     protected List<CharPinyin> mulPy = new ArrayList<>();
-    protected List<CharMdr> mandarin = new ArrayList<>();
+    protected List<MdrChar> mandarin = new ArrayList<>();
     protected List<Pair<String, String>> ipaExp = new ArrayList<>();
     protected List<Pair<String, String>> mean = new ArrayList<>();
     protected List<Pair<Pair<String, String>, Pair<String, String>>> note = new ArrayList<>();
@@ -43,7 +43,7 @@ public class HanziEdit
     {
     }
 
-    public HanziEdit(CharEntity ch, List<CharSimilar> sim, List<CharPinyin> py, List<CharMdr> mdr)
+    public HanziEdit(CharEntity ch, List<CharSimilar> sim, List<CharPinyin> py, List<MdrChar> mdr)
     {
         id = ch.getId();
         hanzi = ch.getHanzi();
@@ -73,7 +73,7 @@ public class HanziEdit
 
         PinyinChecker.checkStrictly(stdPy, d);
 
-        NullTool.checkSingleNotNull(special);
+        NullTool.checkNotNull(special);
 
         for (var i : similar)
         {
@@ -114,7 +114,7 @@ public class HanziEdit
         return ans;
     }
 
-    public static HanziEdit of(CharEntity ch, List<CharSimilar> sim, List<CharPinyin> py, List<CharMdr> mdr)
+    public static HanziEdit of(CharEntity ch, List<CharSimilar> sim, List<CharPinyin> py, List<MdrChar> mdr)
     {
         return new HanziEdit(ch, sim, py, mdr);
     }

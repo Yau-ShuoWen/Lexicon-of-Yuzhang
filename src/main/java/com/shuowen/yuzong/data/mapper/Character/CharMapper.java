@@ -32,6 +32,11 @@ public interface CharMapper
     List<CharEntity> getAllChar(String dialect);
 
     /**
+     * 随机选择一个内容主键
+     */
+    Integer getRandomCharId(String dialect);
+
+    /**
      * 通过主键寻找汉字
      */
     CharEntity findHanziByCharId(Integer id, String dialect);

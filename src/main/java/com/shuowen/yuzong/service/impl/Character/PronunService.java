@@ -1,10 +1,11 @@
 package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.mapper.Character.PronunMapper;
-import com.shuowen.yuzong.data.model.Character.CharMdr;
+import com.shuowen.yuzong.data.model.Character.MdrChar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,7 @@ public class PronunService
         }
 
         Map<String, String> map = new HashMap<>();
-        for (var i : m.selectMdrDialectChars(tmp, d.toString()))
+        for (var i : m.selectMandarinByChars(tmp, d.toString()))
             map.put(i.getInfo(), i.getStdPy());
 
         List<Pair<String, String>> ans = new ArrayList<>();
@@ -44,16 +45,26 @@ public class PronunService
         return ans;
     }
 
-    public List<CharMdr> getEdit(int id, Dialect d)
+    public List<MdrChar> getEdit(int id, Dialect d)
     {
-        return settle(m.getMdrInfoByDialectId(id, d.toString()));
+        return settle(m.getMandarinInfoByDialectId(id, d.toString()));
     }
 
-    public void edit(List<CharMdr> ch, Dialect d)
+    public void edit(List<MdrChar> ch, Dialect d)
     {
         if (ch.isEmpty()) return;
-        m.clearMapByDialectId(ch.get(0).getRightId(), d.toString());
-        for (CharMdr i : ch) m.insertMap(i.getLeftId(), i.getRightId(), d.toString());
-    }
 
+        m.clearMapByDialectId(ch.get(0).getRightId(), d.toString());
+
+        var conflict = m.getMandarinInfoByMandarinId(
+                ListTool.mapping(ch, MdrChar::getLeftId), d.toString());
+        if (!conflict.isEmpty())
+        {
+            var info = ListTool.mapping(conflict, i -> settle(i.getInfo()));
+            throw new IllegalArgumentException("普通话信息" + info + "和已有的重复了");
+        }
+
+        var data = ListTool.mapping(ch, i -> Pair.of(i.getLeftId(), i.getRightId()));
+        m.insertMap(data,d.toString());
+    }
 }

@@ -55,16 +55,14 @@ public class SearchController
             @RequestParam String hanzi,
             @RequestParam String lang,
             @RequestParam (required = false, defaultValue = "1") int phonogram,
-            @RequestParam (required = false, defaultValue = "0") int toneStyle,
-            @RequestParam (required = false, defaultValue = "0") int syllableStyle
+            @RequestParam (required = false, defaultValue = "1") int syllableStyle,
+            @RequestParam (required = false, defaultValue = "1") int toneStyle
     )
     {
         try
         {
             return APIResponse.success(h.getHanziDetailInfo(
-                    hanzi,
-                    Language.of(lang),
-                    Dialect.of(dialect),
+                    hanzi, Language.of(lang), Dialect.of(dialect),
                     PinyinOption.of(Phonogram.of(phonogram),
                             IPASyllableStyle.of(syllableStyle),
                             IPAToneStyle.of(toneStyle))
@@ -83,16 +81,14 @@ public class SearchController
             @RequestParam String ciyu,
             @RequestParam String lang,
             @RequestParam (required = false, defaultValue = "1") int phonogram,
-            @RequestParam (required = false, defaultValue = "1") int toneStyle,
-            @RequestParam (required = false, defaultValue = "0") int syllableStyle
+            @RequestParam (required = false, defaultValue = "1") int syllableStyle,
+            @RequestParam (required = false, defaultValue = "1") int toneStyle
     )
     {
         try
         {
             return APIResponse.success(c.getCiyuDetailInfo(
-                    ciyu,
-                    Language.of(lang),
-                    Dialect.of(dialect),
+                    ciyu, Language.of(lang), Dialect.of(dialect),
                     PinyinOption.of(Phonogram.of(phonogram),
                             IPASyllableStyle.of(syllableStyle),
                             IPAToneStyle.of(toneStyle))

@@ -4,19 +4,19 @@
 
 <mapper namespace="com.shuowen.yuzong.data.mapper.Character.PronunMapper">
 
-    <select id="getMandarinInfo" resultType="com.shuowen.yuzong.data.model.Character.CharMdr">
+    <select id="getAllMandarinInfo" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
+        SELECT * from NC.mdr_char
+    </select>
+
+
+    <select id="getMandarinInfoByScTc" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
         SELECT mc.info, mc.id AS left_id
         FROM NC.mdr_char mc
         LEFT JOIN NC.${dialect}_char_mdr nm ON nm.m = mc.id
-        WHERE
-        (mc.hanzi = #{hanzi} OR mc.hanzi = #{hantz})
-<!--        AND (-->
-<!--        nm.m IS NULL                      &#45;&#45; 完全没有映射，允许-->
-<!--        OR nm.n = #{dialectId}           &#45;&#45; 映射给当前 dialect，可保留-->
-<!--        );-->
+        WHERE mc.hanzi = #{hanzi} OR mc.hanzi = #{hantz}
     </select>
 
-    <select id="selectMdrDialectChars" resultType="com.shuowen.yuzong.data.model.Character.DialectChar">
+    <select id="selectMandarinByChars" resultType="com.shuowen.yuzong.data.model.Character.DialectChar">
         select info, std_py
         from mdr_char mdr
         RIGHT JOIN NC.${dialect}_char_mdr map ON mdr.id = map.m
@@ -28,19 +28,33 @@
         GROUP BY m, n
     </select>
 
-    <select id="getMdrInfoByDialectId" resultType="com.shuowen.yuzong.data.model.Character.CharMdr">
+    <select id="getMandarinInfoByDialectId" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
         SELECT map.n left_id, map.m right_id, info
         FROM ${dialect}_char_mdr map
         RIGHT JOIN mdr_char ON map.m = id
-        WHERE map.n = #{id};
+        WHERE map.n = #{n};
+    </select>
+
+    <select id="getMandarinInfoByMandarinId" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
+        SELECT info
+        FROM ${dialect}_char_mdr map
+        RIGHT JOIN mdr_char ON map.m = id
+        WHERE map.m IN
+        <foreach collection="m" item="i" open="(" separator="," close=")">
+            #{i}
+        </foreach>
     </select>
 
     <delete id="clearMapByDialectId">
-        DELETE FROM ${dialect}_char_mdr WHERE n = #{id}
+        DELETE FROM ${dialect}_char_mdr WHERE n = #{n}
     </delete>
 
+
     <insert id="insertMap">
-        INSERT INTO
-        ${dialect}_char_mdr values (#{m}, #{n})
+        INSERT INTO ${dialect}_char_mdr (m, n)
+        VALUES
+        <foreach collection="data" item="i" separator=",">
+            (#{i.left}, #{i.right})
+        </foreach>
     </insert>
 </mapper>
