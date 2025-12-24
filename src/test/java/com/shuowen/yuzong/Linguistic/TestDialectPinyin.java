@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Linguistic;
 
+import com.shuowen.yuzong.Counter;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
@@ -16,13 +17,16 @@ public class TestDialectPinyin
     @Test
     void test()
     {
-        if (ObjectTool.unchecked(true)) return;
+        if (ObjectTool.unchecked(true)) return;  // 这句话为了打包的时候跳过测试，开启测试请把true改成false
 
+        Counter ans = new Counter();
         for (var i : m.findAllPinyin("nam"))
         {
-            NamPinyin n = NamPinyin.of(i.getStandard(), false);
+            NamPinyin n = NamPinyin.of(i.getStandard());
             String a = n.getCode();
-            if (!a.equals(i.getCode())) ObjectTool.print(i.getStandard(), i.getCode(), a);
+            if (ans.check(a.equals(i.getCode())))
+                ObjectTool.print(i.getStandard(), i.getCode(), a);
         }
+        ans.report();
     }
 }

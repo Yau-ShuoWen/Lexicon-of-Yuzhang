@@ -2,6 +2,7 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 
 /**
@@ -245,11 +246,16 @@ public class NamPinyin extends UniPinyin<NamStyle>
             py = py.substring(idx);
 
             // 检查特殊韵母
-            if (py.equals("ii"))
+            if (ObjectTool.existEqual(code, "16", "17", "18") && py.startsWith("i"))
             {
-                code += "100";
-                return true;
+                if (py.equals("ii"))
+                {
+                    code += "100";
+                    return true;
+                }
+                else throw new IllegalArgumentException("zcs后面直接接的智能是ii");
             }
+
 
             // 介母：左指针统一移动一位
             // TODO 没有完全确定ü的具体显示方式，所以这里还是待定
@@ -320,17 +326,14 @@ public class NamPinyin extends UniPinyin<NamStyle>
             };
 
             code = StringTool.swap(code, 2, 3);  // 识别和显示优先级不同
-            if (code.length() == 5) return true;      // 是否有效位数
-            else
-            {
-                code = INVALID;
-                return false;
-            }
+
+            if (code.length() != 5) throw new IndexOutOfBoundsException();// 是否有效位数
         } catch (IndexOutOfBoundsException | IllegalArgumentException e) // 这里面拼音出现了任何错误，就认为是无效的，所以里面可以大胆sub和charAt
         {
             code = INVALID;
             return false;
         }
+        return true;
     }
 
 

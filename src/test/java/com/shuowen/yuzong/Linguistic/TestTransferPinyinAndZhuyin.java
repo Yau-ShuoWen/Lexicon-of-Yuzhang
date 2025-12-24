@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Linguistic;
 
+import com.shuowen.yuzong.Counter;
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
 
 public class TestTransferPinyinAndZhuyin
@@ -22,26 +23,17 @@ public class TestTransferPinyinAndZhuyin
      */
     private static void test1()
     {
-        int success = 0, fail = 0;
-        for (int i = 0; i < str.length; i++)
+        Counter cnt = new Counter();
+        for (String s : str)
         {
-            String[] tmp = str[i].split(" ");
+            String[] tmp = s.split(" ");
 
             String std = tmp[1];
             String zhuyin = (new Zhuyin(tmp[0], false)).toStringWithoutTone();
 
-            if (std.equals(zhuyin))
-            {
-                success++;
-            }
-            else
-            {
-                fail++;
-                System.out.println(std + " " + zhuyin);
-            }
+            if (cnt.check(std.equals(zhuyin))) System.out.println(std + " " + zhuyin);
         }
-        System.out.println("成功个数：" + success + "/" + str.length);
-        System.out.println("失败个数：" + fail + "/" + str.length);
+        cnt.report();
     }
 
     /**
@@ -49,56 +41,37 @@ public class TestTransferPinyinAndZhuyin
      */
     private static void test2()
     {
-        int success = 0, fail = 0;
-        for (int i = 0; i < str.length; i++)
+        Counter cnt = new Counter();
+        for (String s : str)
         {
-            String[] tmp = str[i].split(" ");
+            String[] tmp = s.split(" ");
 
             for (int j = 0; j <= 5; j++)
             {
                 String std = tmp[1] + j;
                 String zhuyin = (new Zhuyin(tmp[0] + j)).toStringWithNumTone();
 
-                if (std.equals(zhuyin))
-                {
-                    success++;
-                }
-                else
-                {
-                    fail++;
-                    System.out.println(std + " " + zhuyin);
-                }
+                if (cnt.check(std.equals(zhuyin))) System.out.println(std + " " + zhuyin);
             }
-
         }
-        System.out.println("成功个数：" + success + "/" + str.length * 6);
-        System.out.println("失败个数：" + fail + "/" + str.length * 6);
+        cnt.report();
     }
 
     private static void test3()
     {
-        int success = 0, fail = 0;
-        for (int i = 0; i < str.length; i++)
+        Counter cnt = new Counter();
+        for (String s : str)
         {
-            String[] tmp = str[i].split(" ");
+            String[] tmp = s.split(" ");
 
             for (int j = 0; j <= 5; j++)
             {
                 String std = tmp[0] + j;
                 String zhuyin = (new Zhuyin(std)).toPinyin();
 
-                if (std.equals(zhuyin))
-                {
-                    success++;
-                }
-                else
-                {
-                    fail++;
-                    System.out.println(std + " " + zhuyin);
-                }
+                if (cnt.check(std.equals(zhuyin))) System.out.println(std + " " + zhuyin);
             }
         }
-        System.out.println("成功个数：" + success + "/" + str.length * 6);
-        System.out.println("失败个数：" + fail + "/" + str.length * 6);
+        cnt.report();
     }
 }
