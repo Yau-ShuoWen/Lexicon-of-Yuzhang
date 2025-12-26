@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 public class WordEntity
 {
     private Integer id;
+    private Integer constrId;
     private String ciyu;
     private String tszyu;
 

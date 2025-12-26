@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.data.mapper.Word.WordMapper">
+
+    <!-- 基础字段定义 -->
+    <sql id="baseField">
+        main.*
+    </sql>
+
+    <!-- 相似词语字段 -->
+    <sql id="similarField">
+        CONCAT(
+        '{"sc" : [',
+        COALESCE(GROUP_CONCAT(DISTINCT '"', similar_field.ciyu, '"'), ''),
+        '], "tc": [',
+        COALESCE(GROUP_CONCAT(DISTINCT '"', similar_field.tszyu, '"'), ''),
+        ']}'
+        ) AS similar
+    </sql>
+
+    <!-- 多拼音字段 -->
+    <sql id="pinyinField">
+        (
+        SELECT CONCAT('[', GROUP_CONCAT( char_pinyin_json ORDER BY char_index SEPARATOR ',' ), ']' )
+        FROM (
+        SELECT wpm.word_id, wpm.char_index,
+        CONCAT('[',
+        GROUP_CONCAT(
+        CONCAT('{"id":', wpm.pinyin_id, ',"pinyin":"', cp.pinyin, '","sc":"', cp.sc, '","tc":"', cp.tc, '"}')
+        ORDER BY wpm.sort_order SEPARATOR ','
+        ),
+        ']'
+        ) AS char_pinyin_json
+        FROM ${dialect}_word_pinyin_map wpm
+        INNER JOIN ${dialect}_char_pinyin cp ON wpm.pinyin_id = cp.id
+        WHERE wpm.word_id = main.id
+        GROUP BY wpm.word_id, wpm.char_index
+        ) char_aggregates
+        ) AS mul_py
+    </sql>
+
+    <sql id="allFields">
+        <include refid="baseField"/>,
+        <include refid="similarField"/>,
+        <include refid="pinyinField"/>
+    </sql>
+
+    <!-- 连接字段 -->
+    <sql id="baseJoin">
+        FROM NC.${dialect}_word main
+        LEFT JOIN NC.${dialect}_word_similar similar ON main.id = similar.word_id
+        LEFT JOIN NC.${dialect}_word_similar similar_field ON main.id = similar_field.word_id
+    </sql>
+
+    <!-- 综合 -->
+    <sql id="allIn">
+        <include refid="allFields"/>
+        <include refid="baseJoin"/>
+    </sql>
+
+
+    <!-- 通过主键寻找词语 -->
+    <select id="findCiyuByWordId" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE
+        id = #{id}
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+    <!-- 使用简繁体寻找词语 -->
+    <select id="findCiyuByScTc" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE (
+        main.ciyu   = #{ciyu} OR
+        main.tszyu  = #{ciyu}
+        )
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+    <!-- 使用简繁体、模糊识别寻找词语 -->
+    <select id="findCiyuByVague" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE (
+        main.ciyu     = #{ciyu} OR
+        main.tszyu    = #{ciyu} OR
+        similar.ciyu  = #{ciyu} OR
+        similar.tszyu = #{ciyu}
+        )
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+    <!-- 使用简繁体句子寻找词语 -->
+    <select id="findCiyuByScTcInRange" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE (
+        main.ciyu  like concat('%', #{ciyu}, '%') OR
+        main.tszyu like concat('%', #{ciyu}, '%')
+        )
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+    <!-- 使用简繁体句子寻找词语 -->
+    <select id="findCiyuByVagueInRange" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE (
+        main.ciyu     like concat('%', #{ciyu}, '%') OR
+        main.tszyu    like concat('%', #{ciyu}, '%') OR
+        similar.ciyu  like concat('%', #{ciyu}, '%') OR
+        similar.tszyu like concat('%', #{ciyu}, '%')
+        )
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+    <select id="findCiyuByScOrTc" resultType="com.shuowen.yuzong.data.model.Word.WordEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE BINARY main.${lang == 'sc' ? 'ciyu' : 'tszyu'} = #{ciyu}
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+</mapper>
