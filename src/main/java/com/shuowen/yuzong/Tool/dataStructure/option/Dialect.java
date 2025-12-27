@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.Tool.dataStructure.option;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
+import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
@@ -9,7 +10,6 @@ import lombok.Getter;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * 方言代码，提供未来的扩展
@@ -19,18 +19,15 @@ import java.util.function.Supplier;
  */
 public enum Dialect
 {
-    NAM("nam", NamStyle.class, NamPinyin.class,
-            NamPinyin::of, NamStyle::getStandardStyle, NamStyle::getKeyboardStyle,
-            "ncdict");
+    NAM("nam", NamStyle.class, NamPinyin.class, NamPinyin::of, NamStyle::createStyle, "ncdict");
 
     private final String code;
     @Getter
     private final Class<? extends PinyinStyle> styleClass;
     @Getter
     private final Class<? extends UniPinyin<?>> pinyinClass;
-    private final Function<String, ? extends UniPinyin<?>> factory;
-    private final Supplier<? extends PinyinStyle> standardStyleGetter;
-    private final Supplier<? extends PinyinStyle> keyboardStyleGetter;
+    private final Function<String, ? extends UniPinyin<?>> pinyinCreator;
+    private final Function<PinyinParam, ? extends PinyinStyle> styleCreator;
     @Getter
     private final String defaultDict;
 
@@ -39,18 +36,16 @@ public enum Dialect
     Dialect(String code,
             Class<U> styleClass,
             Class<T> pinyinClass,
-            Function<String, T> factory,
-            Supplier<U> standardStyleGetter,
-            Supplier<U> keyboardStyleGetter,
+            Function<String, T> pinyinCreator,
+            Function<PinyinParam, U> styleCreator,
             String defaultDict
     )
     {
         this.code = code;
         this.styleClass = styleClass;
         this.pinyinClass = pinyinClass;
-        this.factory = factory;
-        this.standardStyleGetter = standardStyleGetter;
-        this.keyboardStyleGetter = keyboardStyleGetter;
+        this.pinyinCreator = pinyinCreator;
+        this.styleCreator = styleCreator;
         this.defaultDict = defaultDict;
     }
 
@@ -70,23 +65,24 @@ public enum Dialect
         return code;
     }
 
-
     @SuppressWarnings ("unchecked")
-    public <U extends PinyinStyle, T extends UniPinyin<U>> Function<String, T> getFactory()
+    public <U extends PinyinStyle, T extends UniPinyin<U>> T createPinyin(String py)
     {
-        return (Function<String, T>) factory;
+        return (T) pinyinCreator.apply(py);
     }
 
     @SuppressWarnings ("unchecked")
-    public <U extends PinyinStyle> U getStyle()
+    public <U extends PinyinStyle> U createStyle(PinyinParam param)
     {
-        return (U) standardStyleGetter.get();
+        return (U) styleCreator.apply(param);
     }
 
     @SuppressWarnings ("unchecked")
-    public <U extends PinyinStyle> U getKeyboardStyle()
+    public <U extends PinyinStyle> U castStyle(PinyinStyle style)
     {
-        return (U) keyboardStyleGetter.get();
+        if (!styleClass.isInstance(style))
+            throw new IllegalArgumentException("方言：" + this + " 和格式：" + style.getClass().getSimpleName() + "不匹配");
+        else return (U) styleClass.cast(style);
     }
 
     public static List<Dialect> getList()

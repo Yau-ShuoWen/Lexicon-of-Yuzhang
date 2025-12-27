@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.util.Comparator;
 import java.util.Objects;
 
-abstract public class UniPinyin<T extends PinyinStyle>
+abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
 {
     protected String pinyin;       // 不包括声调的标准拼音
     protected Integer tone;        // 数字音调，0表示轻声和没有声调
@@ -57,7 +57,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
      *
      * @apiNote 剩下的就是介韵母的编码长度了
      */
-    public abstract Integer syllableLen();
+    public abstract int syllableLen();
 
     /**
      * 在其他内容一样的时候，只比较 pinyin 和 tone
@@ -77,17 +77,9 @@ abstract public class UniPinyin<T extends PinyinStyle>
     }
 
     /**
-     * 默认是不信任的拼音的
-     */
-    public UniPinyin(String s)
-    {
-        this(s, false);
-    }
-
-    /**
      * @param trusty true 说明是可信任的来源，比如数据库，检查就少了。false就要经过严格的检查，有任何错误都是无效
      */
-    public UniPinyin(String s, boolean trusty)
+    protected UniPinyin(String s, boolean trusty)
     {
         var tmp = PinyinChecker.trySplit(s);  // 空字符串的检查杂这个函数里
         pinyin = tmp.getLeft();
@@ -131,7 +123,7 @@ abstract public class UniPinyin<T extends PinyinStyle>
     @Override
     public String toString()
     {
-        return "Default Unknown Pinyin:" + pinyin + tone;
+        return "默认的未知方言拼音：" + pinyin + tone;
     }
 
     /**

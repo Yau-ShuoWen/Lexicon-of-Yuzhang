@@ -1,7 +1,8 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
@@ -20,15 +21,15 @@ public class IPATool
      * @return 一个拼音的结果全部无效，就不会出现在结果Map里
      * @apiNote 只有两次查询，是最高效的版本
      */
-    public static <T extends UniPinyin<?>> Map<T, Map<String, String>> getMultiline(
-            Set<T> p, IPAToneStyle ts, IPASyllableStyle ss,
+    public static Map<Pinyin, Map<String, String>> getMultiline(
+            Set<Pinyin> p, IPAToneStyle ts, IPASyllableStyle ss,
             Set<String> dictionarySet,
             BiFunction<Set<String>, String, Set<IPASyllableEntity>> syllablePvd,
             BiFunction<Set<String>, String, Set<IPAToneEntity>> tonePvd,
             Dialect d)
     {
         // 结果
-        Map<T, Map<String, String>> map = new HashMap<>();
+        Map<Pinyin, Map<String, String>> map = new HashMap<>();
         // 声母韵母集合
         Set<String> syllable = new HashSet<>(), tone = new HashSet<>();
         for (var pinyin : p)
@@ -82,8 +83,8 @@ public class IPATool
     /**
      * 统一接口
      */
-    private static <T extends UniPinyin> String mergeAPI
-    (Yinjie y, Shengdiao d, T p, IPAToneStyle ts, IPASyllableStyle ss, String dict)
+    private static String mergeAPI
+    (Yinjie y, Shengdiao d, Pinyin p, IPAToneStyle ts, IPASyllableStyle ss, String dict)
     {
         return formatSyllable(
                 switch (ts)
@@ -230,8 +231,7 @@ public class IPATool
     /**
      * @return 返回 {@code Yinjie.of(null)} 是因为已经用null传参了就会被认为音节无效，是空安全的
      */
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    Yinjie constructIPA(T pinyin, Function<Pair<String, String>, Pair<YinjiePart, YinjiePart>> dataPvd)
+    public static Yinjie constructIPA(Pinyin pinyin, Function<Pair<String, String>, Pair<YinjiePart, YinjiePart>> dataPvd)
     {
         if (!pinyin.isValid()) return Yinjie.of(null);
 
@@ -253,16 +253,13 @@ public class IPATool
     /**
      * 查询所有音节，然后把他的拼音拆开，看组成部分是否可以拼出来，输出对应信息
      */
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    Pair<Map<String, Integer>, Set<String>> checkIPA(
+    public static EqualChecker<Yinjie> checkIPA(
             Function<String, List<IPASyllableEntity>> syllablePvd,   // 方法：获得全部音节
             Function<String, List<IPASyllableEntity>> elementPvd,    // 方法：获得所有组成部分
-            Function<String, T> pinyinCreator,                       // 方法：拼音构造
             Dialect d                                                // 方言代码
     )
     {
-        int success = 0, fail = 0;
-        Set<String> failCase = new HashSet<>();
+        EqualChecker<Yinjie> checker = new EqualChecker<>();
 
         Set<Yinjie> a = new HashSet<>();
         Map<String, YinjiePart> b = new HashMap<>();
@@ -272,33 +269,20 @@ public class IPATool
 
         for (var i : a)
         {
-            var merge = constructIPA(pinyinCreator.apply(i.getPinyin()),
-                    (Pair<String, String> code) ->
-                            Pair.of(b.get(code.getLeft()), b.get(code.getRight())));
+            var merge = constructIPA(d.createPinyin(i.getPinyin()),
+                    (Pair<String, String> code) -> Pair.of(b.get(code.getLeft()), b.get(code.getRight())));
 
-            if (i.equals(merge)) success++;
-            else
-            {
-                fail++;
-                failCase.add(i.getPinyin());
-                System.out.println(merge);
-                System.out.println(i);
-                System.out.println();
-            }
+            checker.check(i, merge);
         }
-        var ans = Pair.of(Map.of("success", success, "fail", fail), failCase);
-        System.out.println(ans);
-        return ans;
+        return checker;
     }
 
     /**
      * 查询所有音节，然后把他的拼音拆开，看组成部分是否可以拼出来，如果不可以就更新
      */
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    void updateIPA(
+    public static void updateIPA(
             Function<String, List<IPASyllableEntity>> syllablePvd,   // 方法：获得全部音节
             Function<String, List<IPASyllableEntity>> elementPvd,    // 方法：获得所有组成部分
-            Function<String, T> pinyinCreator,                       // 方法：拼音构造
             BiConsumer<IPASyllableEntity, String> updateCsm,         // 方法：更新内容
             Dialect d                                                // 方言代码
     )
@@ -311,7 +295,7 @@ public class IPATool
 
         for (var i : a)
         {
-            var merge = constructIPA(pinyinCreator.apply(i.getPinyin()),
+            var merge = constructIPA(d.createPinyin(i.getPinyin()),
                     (Pair<String, String> code) ->
                             Pair.of(b.get(code.getLeft()), b.get(code.getRight())));
 
@@ -323,11 +307,10 @@ public class IPATool
     /**
      * 根据 {@code constructIPA} 把音节的声母和韵母拆开重组，然后插入数据
      */
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    void insertSyllable(
+    public static void insertSyllable(
             BiFunction<String, String, IPASyllableEntity> elementPvd, // 方法：组成部分查询，给constructIPA用
             BiConsumer<IPASyllableEntity, String> insertConsumer,     // 方法：插入数据
-            T p, Dialect d                                            // 拼音、方言代码
+            Pinyin p, Dialect d                                       // 拼音、方言代码
     )
     {
         var merge = constructIPA(p, (Pair<String, String> code) -> Pair.of(

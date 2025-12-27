@@ -1,14 +1,13 @@
 package com.shuowen.yuzong.data.domain.Pinyin;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 
-import java.util.List;
-import java.util.function.Function;
+import java.util.*;
 
 public class PinyinChecker
 {
@@ -19,13 +18,11 @@ public class PinyinChecker
      *     <li>完全识别不了 {@code (3 , 空, 空 )}</li>
      * </ol>
      */
-    public static <U extends PinyinStyle, T extends UniPinyin<U>>
-    Triple<Integer, String, String> check(String text, Dialect d)
+    public static Triple<Integer, String, String> check(String text, Dialect d)
     {
         StringTool.checkTrimValid(text);
 
-        Function<String, T> pinyinCreator = d.getFactory();
-        T pinyin = pinyinCreator.apply(text);
+        var pinyin = d.createPinyin(text);
 
         if (pinyin.isValid()) return Triple.of(1, pinyin.toString(), "");
         else
@@ -35,11 +32,11 @@ public class PinyinChecker
             {
                 case NAM -> checkNam(text);
             };
-            pinyin = pinyinCreator.apply(text);
+            pinyin = d.createPinyin(text);
 
             if (pinyin.isValid())
             {
-                String trueAns = pinyin.toString(d.getKeyboardStyle());
+                String trueAns = pinyin.toString(d.createStyle(PinyinParam.of(Scheme.KEYBOARD)));
                 trueAns = trueAns.trim().replace("[", "").replace("]", "");
                 return Triple.of(2, pinyin.toString(), trueAns);
             }

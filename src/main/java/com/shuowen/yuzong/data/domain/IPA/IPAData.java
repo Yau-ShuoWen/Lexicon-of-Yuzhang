@@ -1,12 +1,10 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
 import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * 国际音标查询结果集
@@ -50,19 +48,15 @@ public class IPAData
         for (Object input : inputs) add(input);
     }
 
-    public <T extends UniPinyin<U>, U extends PinyinStyle>
-    void search(Dialect d, PinyinOption op,
-                TriFunction<Set<T>, PinyinOption, Dialect, Map<T, Map<String, String>>> ipaSE)
+    public void search(Dialect d, PinyinOption op,
+                       TriFunction<Set<Pinyin>, PinyinOption, Dialect, Map<Pinyin, Map<String, String>>> ipaSE)
     {
         if (data == null) data = new HashMap<>();
 
-        Set<T> pySet = new HashSet<>();
-        Function<String, T> pinyinFactory = d.getFactory();
-        for (String i : source) pySet.add(pinyinFactory.apply(i));
-
-
-        Map<T, Map<String, String>> metadata = ipaSE.apply(pySet, op, d);
-        for (String i : source) data.put(i, metadata.get(pinyinFactory.apply(i)));
+        Set<Pinyin> pySet = new HashSet<>();
+        for (String i : source) pySet.add(d.createPinyin(i));
+        Map<Pinyin, Map<String, String>> metadata = ipaSE.apply(pySet, op, d);
+        for (String i : source) data.put(i, metadata.get(d.createPinyin(i)));
     }
 
     public String get(String pinyin, String dict)
@@ -77,10 +71,9 @@ public class IPAData
         }
     }
 
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    IPAData getDirectly(Dialect d, PinyinOption op,
-                        TriFunction<Set<T>, PinyinOption, Dialect, Map<T, Map<String, String>>> ipaSE,
-                        Object... inputs)
+    public IPAData getDirectly(Dialect d, PinyinOption op,
+                               TriFunction<Set<Pinyin>, PinyinOption, Dialect, Map<Pinyin, Map<String, String>>> ipaSE,
+                               Object... inputs)
     {
         IPAData data = new IPAData();
         data.addAll(inputs);

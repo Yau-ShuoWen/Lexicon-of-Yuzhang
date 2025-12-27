@@ -1,20 +1,16 @@
 package com.shuowen.yuzong.service.impl.Pinyin;
 
-import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
+import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.IPA.*;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinPreviewer;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-
 import java.util.*;
-
-import static com.shuowen.yuzong.data.domain.Pinyin.PinyinTool.parseAndReplace;
 
 @Service
 public class PinyinService
@@ -26,22 +22,22 @@ public class PinyinService
     /**
      * 获得目标拼音「音节」的所有字典的IPA版本
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>>
-    Map<String, String> getAllIPASyllable(T p, Dialect d)
+    public Map<String, String> getAllIPASyllable(Pinyin p, Dialect d)
     {
         if (!p.isValid()) return Map.of();
         return Yinjie.of(m.findByPinyin(p.getPinyin(), d.toString())).getInfo();
     }
 
+
     /**
      * 获得目标拼音「音调」的所有字典的IPA版本
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>>
-    Map<String, String> getAllIPATone(T p, Dialect d)
+    public Map<String, String> getAllIPATone(Pinyin p, Dialect d)
     {
         if (!p.isValid()) return Map.of();
         return Shengdiao.of(m.findByTone(p.getTone(), d.toString())).getInfo();
     }
+
 
     /**
      * 获得所有的字典代号，用于遍历
@@ -53,13 +49,13 @@ public class PinyinService
         return Yinjie.of(m.findByPinyin("ba", d.toString())).getInfo().keySet();
     }
 
+
     /**
      * 传入一条拼音，把所有字典版本的IPA全部转换出来
      *
      * @apiNote 只有两次查询，是最高效的版本
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>>
-            Map<String, String> getAllIPA(T p,PinyinOption op, Dialect d)
+    public Map<String, String> getAllIPA(Pinyin p, PinyinOption op, Dialect d)
     {
         return getMultiLine(Set.of(p), op, d).getOrDefault(p, Map.of());
     }
@@ -71,14 +67,12 @@ public class PinyinService
      * @apiNote 只有两次查询，是最高效的版本
      * @see IPATool
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>>
-    Map<T, Map<String, String>> getMultiLine(Set<T> p, PinyinOption op, Dialect d)
+    public Map<Pinyin, Map<String, String>> getMultiLine(Set<Pinyin> p, PinyinOption op, Dialect d)
     {
         return IPATool.getMultiline(p, op.getTone(), op.getSyllable(), getDictionarySet(d), m::findAllPinyinList, m::findAllToneList, d);
     }
 
-    public <U extends PinyinStyle, T extends UniPinyin<U>>
-    void insertSyllable(T p, Dialect d)
+    public void insertSyllable(Pinyin p, Dialect d)
     {
         // 如果拼音无效，或者已经产生了数据
         if (!p.isValid()) return;
@@ -90,68 +84,27 @@ public class PinyinService
     /**
      * 测试
      */
-    public Pair<Map<String, Integer>, Set<String>> check(Dialect d)
+    public EqualChecker<Yinjie> check(Dialect d)
     {
-        return IPATool.checkIPA(m::findAllPinyin, m::findAllElement, d.getFactory(), d);
+        return IPATool.checkIPA(m::findAllPinyin, m::findAllElement, d);
     }
 
     public void updateIPA(Dialect d)
     {
-        int num = check(d).getRight().size();
-        if (num == 0)
+        var answer = check(d);
+        if (answer.allTrue()) System.out.println("没有需要更新的数据");
+        else
         {
-            System.out.println("没有需要更新的数据");
-            return;
+            System.out.println("以下数据要更新");
+            answer.report();
+            IPATool.updateIPA(m::findAllPinyin, m::findAllElement, m::changeInfo, d);
+            System.out.println("更新完成");
         }
-        System.out.println("开始更新 " + num + " 条数据");
-        // 执行更新
-        IPATool.updateIPA(m::findAllPinyin, m::findAllElement, d.getFactory(), m::changeInfo, d);
-        System.out.println("更新完成");
     }
 
 
-    /**
-     * 传入风格，返回这个风格的诗歌的示例
-     */
     public String getPreview(PinyinStyle style, Dialect d)
     {
-        switch (d)
-        {
-            case NAM ->
-            {
-                String s1 = "枫桥夜泊\n月落乌啼霜满天，江枫渔火对愁眠。\n姑苏城外寒山寺，夜半钟声到客船。\n";
-                String p1 = """
-                        [fung1][qieu2][ia5][pok6]
-                        [nyuot6][lok7][u1][ti2][song1][mon3][tien1]
-                        [gong1][fung1][yu4][fo3][dui4][ceu2][mien4]
-                        [gu1][su1][ceen2][uai5][hon2][san1][sii5]
-                        [ia5][bon4][zung1][sen1][tau5][kak6][cuon2]
-                        """;
-
-                String s2 = "山行\n远上寒山石径斜，白云生处有人家。\n停车坐爱枫林晚，霜叶红于二月花。\n";
-                String p2 = """
-                        [san1][xin4]
-                        [yuon2][song5][hon2][san1][sak7][jin4][xia4]
-                        [pak6][yun4][sang1][cu5][iu3][nin4][ga1]
-                        [tiang2][ca1][co5][ngai4][fung1][lin4][uon3]
-                        [suong1][iet6][fung4][yu4][oe5][nyuot6][fa1]
-                        """;
-
-                String s3 = "江雪\n千山鸟飞绝，万径人踪灭。\n孤舟蓑笠翁，独钓寒江雪。\n";
-                String p3 = """
-                        [gong1][xyuot6]
-                        [qien1][san1][nieu3][feei1][jyuot6]
-                        [uon5][jin4][nin4][zung1][miet6]
-                        [gu1][zeu1][suo1][lit7][ung4]
-                        [tuk7][dieu4][hon2][gong1][xyuot6]
-                        """;
-
-                return s1 + parseAndReplace(p1, NamPinyin::new, (NamStyle) style, "[", "]") + "\n" +
-                        s2 + parseAndReplace(p2, NamPinyin::new, (NamStyle) style, "[", "]") + "\n" +
-                        s3 + parseAndReplace(p3, NamPinyin::new, (NamStyle) style, "[", "]");
-            }
-
-            default -> throw new RuntimeException("不存在的方言");
-        }
+        return PinyinPreviewer.getPreview(style, d);
     }
 }

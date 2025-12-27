@@ -13,9 +13,9 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 
 public class NamPinyin extends UniPinyin<NamStyle>
 {
-    private static char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
+    private static final char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
 
-    private static char[] fourCorne = {' ', '꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
+    private static final char[] fourCorne = {' ', '꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
 
     public char getFourCornerTone()
     {
@@ -24,12 +24,12 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     public NamPinyin(String s)
     {
-        super(s);//按照通用格式格式化
+        super(s, false);
     }
 
-    public NamPinyin(String s, boolean v)
+    public NamPinyin(String s, boolean t)
     {
-        super(s, v);
+        super(s, t);
     }
 
     public static NamPinyin of(String s)
@@ -37,9 +37,9 @@ public class NamPinyin extends UniPinyin<NamStyle>
         return new NamPinyin(s);
     }
 
-    public static NamPinyin of(String s, boolean v)
+    public static NamPinyin of(String s, boolean t)
     {
-        return new NamPinyin(s, v);
+        return new NamPinyin(s, t);
     }
 
     /**
@@ -74,12 +74,12 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
     /**
-     * 默认配置的转字符串
+     * 默认配置的转字符串是不被推荐的
      */
     @Override
     public String toString()
     {
-        return toString(NamStyle.getStandardStyle()) + " | " + toString(NamStyle.getKeyboardStyle());
+        return "默认的未知格式南昌话拼音：" + pinyin + tone;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (!valid) return INVALID;
         show = pinyin;
 
-        p = NullTool.getDefault(p, NamStyle.getKeyboardStyle());
+        NullTool.checkNotNull(p);
 
         setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
         addMark(p.getNum());//加音调
@@ -179,7 +179,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
 
     @Override
-    public Integer syllableLen()
+    public int syllableLen()
     {
         return 2;
     }

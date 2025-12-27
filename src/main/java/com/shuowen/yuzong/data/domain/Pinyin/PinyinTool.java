@@ -1,7 +1,9 @@
 package com.shuowen.yuzong.data.domain.Pinyin;
 
+import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 
 import java.util.*;
@@ -9,52 +11,34 @@ import java.util.function.Function;
 
 /**
  * 静态拼音拼音处理类
+ *
+ * @implNote 因为内部有完善的机制处理null等情况，所以这个工具类本身不需要检查
  */
 public class PinyinTool
 {
-
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    String formatPinyin(String py, Function<String, T> pinyinCreator)
+    /**
+     * 对某一个方言，指定某种格式化方法的拼音格式化
+     */
+    public static String formatPinyin(String py, Dialect d, PinyinParam param)
     {
-        return pinyinCreator.apply(py).toString();
+        return d.createPinyin(py).toString(d.createStyle(param));
     }
 
+    /**
+     * 对某一个方言，指定一系列格式化方法的拼音格式化
+     */
+    public static String formatPinyin(String py, Dialect d, PinyinParam... param)
+    {
+        return String.join(" | ", ListTool.mapping(List.of(param), i -> formatPinyin(py, d, i)));
+    }
 
     /**
-     * 静态方法：拼音字符串变风格
-     *
-     * @param py            拼音字符串
-     * @param pinyinCreator 拼音对象的构造函数
-     * @param style         拼音格式
+     * 对某一个方言指定，一个专业格式化方法的拼音格式化
      */
     public static <T extends UniPinyin<U>, U extends PinyinStyle>
     String formatPinyin(String py, Function<String, T> pinyinCreator, U style)
     {
-        // 因为内部有完善的机制处理null等情况，所以这里不需要检查
-        // 所以直接创建并且按照style格式化即可
         return pinyinCreator.apply(py).toString(style);
-    }
-
-    /**
-     * 批量处理列表
-     */
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    List<String> formatPinyin(List<String> py, Function<String, T> pinyinCreator, U style)
-    {
-        List<String> res = new ArrayList<>();
-        for (String s : py) res.add(formatPinyin(s, pinyinCreator, style));
-        return res;
-    }
-
-    /**
-     * 批量渲染集合，获得对应键值对，可以反复使用
-     */
-    public static <T extends UniPinyin<U>, U extends PinyinStyle>
-    Map<String, String> formatPinyin(Set<String> py, Function<String, T> pinyinCreator, U style)
-    {
-        Map<String, String> map = new HashMap<>();
-        for (String s : py) map.put(s, formatPinyin(s, pinyinCreator, style));
-        return map;
     }
 
     /**

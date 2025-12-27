@@ -7,6 +7,10 @@ import lombok.EqualsAndHashCode;
 @Data
 public class NamStyle extends PinyinStyle
 {
+    public NamStyle()
+    {
+    }
+
     public NamStyle(int yu, int gn, int ee, int oe, int ii,
                     int ptk, int alt, int capital, int num)
     {
@@ -31,20 +35,18 @@ public class NamStyle extends PinyinStyle
     protected int capital;
     protected int num;
 
-
-    /**
-     * 使用附标内容的版本
-     */
-    public static NamStyle getStandardStyle()
+    public static NamStyle createStyle(PinyinParam p)
     {
-        return new NamStyle(1, 0, 1, 1, 1, 0, 0, 0, 1);
-    }
-
-    /**
-     * 只用上二十六字母和阿拉伯数字的版本，用于输入
-     */
-    public static NamStyle getKeyboardStyle()
-    {
-        return new NamStyle(0, 0, 0, 0, 0, 0, 0, 0, 2);
+        int capital = switch (p.capital)
+        {
+            case LOWER -> 0;
+            case UPPER -> 1;
+            case FIRST -> 2;
+        };
+        return switch (p.scheme)
+        {
+            case KEYBOARD -> new NamStyle(0, 0, 0, 0, 0, 0, 0, capital, 2);
+            case STANDARD -> new NamStyle(1, 0, 1, 1, 1, 0, 0, capital, 1);
+        };
     }
 }
