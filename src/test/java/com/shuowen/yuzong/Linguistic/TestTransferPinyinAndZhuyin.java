@@ -1,7 +1,8 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Counter;
+import com.shuowen.yuzong.Tool.TestTool.Counter;
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
+import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 
 public class TestTransferPinyinAndZhuyin
 {
@@ -23,7 +24,7 @@ public class TestTransferPinyinAndZhuyin
      */
     private static void test1()
     {
-        Counter cnt = new Counter();
+        EqualChecker<String> cnt = new EqualChecker<>();
         for (String s : str)
         {
             String[] tmp = s.split(" ");
@@ -31,7 +32,7 @@ public class TestTransferPinyinAndZhuyin
             String std = tmp[1];
             String zhuyin = (new Zhuyin(tmp[0], false)).toStringWithoutTone();
 
-            if (cnt.check(std.equals(zhuyin))) System.out.println(std + " " + zhuyin);
+            cnt.check(std, zhuyin);
         }
         cnt.report();
     }
@@ -41,7 +42,7 @@ public class TestTransferPinyinAndZhuyin
      */
     private static void test2()
     {
-        Counter cnt = new Counter();
+        EqualChecker<String> cnt = new EqualChecker<>();
         for (String s : str)
         {
             String[] tmp = s.split(" ");
@@ -51,7 +52,7 @@ public class TestTransferPinyinAndZhuyin
                 String std = tmp[1] + j;
                 String zhuyin = (new Zhuyin(tmp[0] + j)).toStringWithNumTone();
 
-                if (cnt.check(std.equals(zhuyin))) System.out.println(std + " " + zhuyin);
+                cnt.check(std, zhuyin);
             }
         }
         cnt.report();
@@ -59,7 +60,7 @@ public class TestTransferPinyinAndZhuyin
 
     private static void test3()
     {
-        Counter cnt = new Counter();
+        EqualChecker<String> cnt = new EqualChecker<>();
         for (String s : str)
         {
             String[] tmp = s.split(" ");
@@ -69,7 +70,7 @@ public class TestTransferPinyinAndZhuyin
                 String std = tmp[0] + j;
                 String zhuyin = (new Zhuyin(std)).toPinyin();
 
-                if (cnt.check(std.equals(zhuyin))) System.out.println(std + " " + zhuyin);
+                cnt.check(std, zhuyin);
             }
         }
         cnt.report();

@@ -18,7 +18,7 @@ public class TestIPA
     {
         if (ObjectTool.unchecked(true)) return;  // 这句话为了打包的时候跳过测试，开启测试请把true改成false
 
-        System.out.println(py.check(Dialect.NAM));
+        System.out.println(py.check(Dialect.NAM).toString());
     }
 
     @Test
