@@ -1,140 +1,140 @@
 package com.shuowen.yuzong.Linguistics.Mandarin;
 
-
 import com.hankcs.hanlp.*;
 import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 
 import java.util.*;
 
-import static com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool.replace;
-
 /**
- * 所有汉语拼音有关内容都放在这里， Pinyin类不要用在外面，外面直接用字符串接住
- * @apiNote 由于Hanlp使用5表示轻声，这里不做修改，0声是无效的
- * */
-
+ * 所有汉语拼音有关内容都放在这里， Pinyin类不要用在外面，外面直接用字符串接住，
+ * 改掉了一些不想要的形式，比如 {@code none5} 的写法和  {@code 5} 作为轻声，
+ * 顺便为两个常用字补丁一个读音。
+ */
 public class HanPinyin
 {
+    public static String INVALID = "-";
+
     /**
-     *字转拼音数组：一段这样的文字，自動判斷多音字 -> [yi1, duan4, zhe4, yang4, de5, wen2, zi4]
-     *  */
-    public static List<String> txtPinyin(String txt)
+     * Hanlp使用5表示轻声，这里还是把他改成0。
+     */
+    private static String HanlpPinyinToString(Pinyin py)
     {
-        List<Pinyin> a = HanLP.convertToPinyinList(txt);
+        String ans = py.toString();
+        if ("none5".equals(ans)) return INVALID;
+        if (ans.endsWith("5")) ans = ans.substring(0, ans.length() - 1) + "0";
+        return ans;
+    }
+
+    /**
+     * 字转拼音数组：一段这样的文字，自動判斷多音字 -> [yi1, duan4, zhe4, yang4, de5, wen2, zi4]
+     */
+    public static List<String> textPinyin(String text)
+    {
+        List<Pinyin> pinyin = HanLP.convertToPinyinList(text);
         List<String> ans = new ArrayList<>();
-        if (a.size() != txt.length()) throw new RuntimeException("数量不对应");
-        for (int i = 0; i < a.size(); i++)
+        if (pinyin.size() != text.length()) throw new RuntimeException("数量不对应");
+        for (int i = 0; i < pinyin.size(); i++)
         {
-            switch (txt.substring(i, i + 1))
+            ans.add(switch (text.charAt(i))
             {
-                case "兀" -> ans.add("wu4");
-                case "嗀" -> ans.add("hu4");
-                default -> ans.add(a.get(i).toString());
-            }
+                case '兀' -> "wu4";
+                case '嗀' -> "hu4";
+                default -> HanlpPinyinToString(pinyin.get(i));
+            });
         }
         return ans;
     }
 
     /**
      * 字转拼音数组：行 ->[xing2, hang2]
-     * */
-    public static List<String> toPinyin(String c)//看上去是字符串，但只调用一个字
+     */
+    public static List<String> toPinyinList(String c)//看上去是字符串，但只调用一个字
     {
         // hanlp的小bug，读音标不出来
-        if("兀".equals(c)) return List.of("wu4"); //组词没有问题
-        if("嗀".equals(c)) return List.of("hu4","gu3");
+        if ("兀".equals(c)) return List.of("wu4");  //组词没有问题
+        if ("嗀".equals(c)) return List.of("hu4", "gu3");
 
-        Pinyin[] ans = PinyinDictionary.get(c);
-        List<String> py=new ArrayList<>();
-        if(ans==null)
+        Pinyin[] py = PinyinDictionary.get(c);
+        if (py == null) return List.of();
+        else
         {
-            py.add("none5");
-            return py;
+            List<Pinyin> pinyin = new ArrayList<>(List.of(PinyinDictionary.get(c)));
+            return ListTool.mapping(pinyin, HanPinyin::HanlpPinyinToString);
         }
-        for(Pinyin i:ans)
-        {
-            py.add(i.toString());
-        }
-        return py;
     }
 
-
-
     /**
-     * 拼音去除标号  zhe4->zhe
-     * */
+     * 标准的拼音去除标号（没有安全检查）
+     *
+     * @return 传入无效拼音"-"返回""
+     */
     public static String toSyllable(String string)
     {
-        if(string.equals("none5")) return null;
-
-        StringBuilder str = new StringBuilder(string);
-        str.deleteCharAt(str.length() - 1);
-        return str.toString();
+        if (INVALID.equals(string)) return "";
+        return string.substring(0, string.length() - 1);
     }
 
     /**
-     * 拼音轉注音標號  zhe4->4
-     * @apiNote 无效的时候使用-1做返回值
-     * */
-    public static int toTone(String str)
+     * 拼音提取音调（没有安全检查）
+     *
+     * @return 字符串长度小于等于1，或者返回超过[0,4]，返回-1
+     */
+    public static int toTone(String string)
     {
-        if (str.length() <= 1) return -1;
+        if (string.length() <= 1) return -1;  //无效的字符串正好也是长度小于1的
 
-        int ans = str.charAt(str.length() - 1) - '0';
-        return (ans >= 1 && ans <= 5) ? ans : -1;
+        int ans = string.charAt(string.length() - 1) - '0';
+        return (ans >= 0 && ans <= 4) ? ans : -1;
     }
 
     /**
-     * 一个电脑处理的拼音变常见拼音，把{@code pin1} 转换成{@code pīn}
-     * @apiNote 无效的时候使用空字符串做返回值
+     * 把使用数字标注音调的读音，把{@code pin1} 转换成{@code pīn}，没有安全检查，
+     * 因为默认是和{@code textPinyin} {@code toPinyinList} 的结果一起使用：
+     *
+     * <blockquote><pre>
+     * ListTool.mapping(HanPinyin.textPinyin("一段这样的文字"), HanPinyin::topMark)
+     * ListTool.mapping(HanPinyin.toPinyinList("行"), HanPinyin::topMark)
+     * </pre></blockquote>
+     *
+     * <p>
+     * 使用的算法是基于简化描述：<br>
+     * 1. 依照 {@code a > o > e > i > u > ü} 的顺序标记在最先出现的字母上<br>
+     * 2. 例外的只有当出现 {@code iu/ui}组合时标记在后一个字母上（而{@code ui}也符合{@code i > u}，所以不用单独拿出来）
+     *
+     * @return 无效的时候使用空字符串做返回值
      **/
     public static String topMark(String pinyin)
     {
-        StringBuilder str = new StringBuilder(pinyin);
-        str.deleteCharAt(str.length() - 1);
+        if (INVALID.equals(pinyin)) return "";
 
         int tongue = toTone(pinyin);
-
-        if ("none".contentEquals(str)||tongue == -1) return "";
-
-        replace(str, "v", "ü");
-
-        /* 使用的算法是基于简化描述：
-         *
-         * 1. 有iu组合时标记在u上，有ui组合时标记在i上
-         * 2. 依照a o e i u ü 的顺序标记在最先出现的字母上
-         * */
+        if (tongue == -1) return "";
+        pinyin = toSyllable(pinyin).replace("v", "ü");
 
         // 二维查找：map.get(元音).get(声调)
         Map<String, List<String>> map = Map.of(
-                "a", List.of("", "ā", "á", "ǎ", "à", "a"),
-                "o", List.of("", "ō", "ó", "ǒ", "ò", "o"),
-                "e", List.of("", "ē", "é", "ě", "è", "e"),
-                "i", List.of("", "ī", "í", "ǐ", "ì", "i"),
-                "u", List.of("", "ū", "ú", "ǔ", "ù", "u"),
-                "ü", List.of("", "ǖ", "ǘ", "ǚ", "ǜ", "ü")
+                "a", List.of("a", "ā", "á", "ǎ", "à"),
+                "o", List.of("o", "ō", "ó", "ǒ", "ò"),
+                "e", List.of("e", "ē", "é", "ě", "è"),
+                "i", List.of("i", "ī", "í", "ǐ", "ì"),
+                "u", List.of("u", "ū", "ú", "ǔ", "ù"),
+                "ü", List.of("ü", "ǖ", "ǘ", "ǚ", "ǜ")
         );
 
-        if (str.indexOf("iu") != -1)
-        {
-            replace(str, "u", map.get("u").get(tongue));
-        }
-        else if (str.indexOf("ui") != -1)
-        {
-            replace(str, "i", map.get("i").get(tongue));
-        }
+        if (pinyin.contains("iu")) pinyin = pinyin.replace("u", map.get("u").get(tongue));
         else
         {
             for (String i : List.of("a", "o", "e", "i", "u", "ü"))
             {
-                if (str.indexOf(i) != -1)
+                if (pinyin.contains(i))
                 {
-                    replace(str, i, map.get(i).get(tongue));
+                    pinyin = pinyin.replace(i, map.get(i).get(tongue));
                     break;
                 }
             }
         }
-        return str.toString();
+        return pinyin;
     }
 }
