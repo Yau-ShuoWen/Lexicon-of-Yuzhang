@@ -1,11 +1,9 @@
 package com.shuowen.yuzong.service.impl.Pinyin;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
 import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.data.domain.IPA.*;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinPreviewer;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -100,11 +98,5 @@ public class PinyinService
             IPATool.updateIPA(m::findAllPinyin, m::findAllElement, m::changeInfo, d);
             System.out.println("更新完成");
         }
-    }
-
-
-    public String getPreview(PinyinStyle style, Dialect d)
-    {
-        return PinyinPreviewer.getPreview(style, d);
     }
 }

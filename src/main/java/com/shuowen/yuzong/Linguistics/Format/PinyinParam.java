@@ -29,4 +29,9 @@ public class PinyinParam
     {
         return new PinyinParam(s);
     }
+
+    public static PinyinParam[] defaultList()
+    {
+        return new PinyinParam[]{PinyinParam.of(Scheme.STANDARD), PinyinParam.of(Scheme.KEYBOARD)};
+    }
 }

@@ -1,12 +1,14 @@
 package com.shuowen.yuzong.controller.search;
 
-import com.shuowen.yuzong.Linguistics.Format.NamStyle;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
-import com.shuowen.yuzong.service.impl.Pinyin.PinyinService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinPreviewer;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -15,31 +17,30 @@ import java.util.*;
 @RequestMapping ("/api/pinyin/")
 public class PinyinController
 {
-    @Autowired
-    PinyinService s;
-
-    @GetMapping (value = "{dialect}/style/init")
-    public PinyinStyle pinyin(@PathVariable String dialect)
+    @GetMapping (value = "{dialect}/style-init")
+    public PinyinStyle pinyin(
+            @PathVariable String dialect,
+            @RequestParam Integer SchemeParam
+    )
     {
-        return Dialect.of(dialect).getStyle();
+        return Dialect.of(dialect).createStyle(PinyinParam.of(Scheme.of(SchemeParam)));
     }
 
     /**
-     * 传入Nam格式，预览效果
+     * 传入拼音配置，预览效果
      */
     @PostMapping ("{dialect}/preview")
-    public Map<String, String> preview(
+    public APIResponse<String> preview(
             @PathVariable String dialect,
-            @RequestBody NamStyle style)
+            @RequestBody Map<String, Object> styleParam)
     {
-        Map<String, String> response = new HashMap<>();
-
-        response.put("message", s.getPreview(style, Dialect.of(dialect)));
-        return response;
+        Dialect d = Dialect.of(dialect);
+        return APIResponse.success(PinyinPreviewer.getPreview(
+                new ObjectMapper().convertValue(styleParam, d.getStyleClass()), d));
     }
 
     @GetMapping ("{dialect}/normalize")
-    public Triple<Integer, String,String> normalizeCheck(
+    public Triple<Integer, String, String> normalizeCheck(
             @PathVariable String dialect,
             @RequestParam String pinyin)
     {
