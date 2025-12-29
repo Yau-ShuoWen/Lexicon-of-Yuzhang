@@ -25,7 +25,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     @Getter
     protected boolean valid;
 
-    protected static final String INVALID = "[无效]";
+    protected static final String INVALID = "无效拼音";
 
     public String getPinyin()
     {
@@ -45,6 +45,14 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
             return code;
         }
         else return INVALID;
+    }
+
+    /**
+     * 音节使用的是code，音调使用的是tone
+     */
+    public Integer getWeight()
+    {
+        return isValid() ? Integer.parseInt(getCode() + tone) : -1;
     }
 
     public static String getError()
@@ -123,7 +131,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     @Override
     public String toString()
     {
-        return "默认的未知方言拼音：" + pinyin + tone;
+        return (valid) ? "默认的未知方言拼音：" + pinyin + tone : INVALID;
     }
 
     /**
@@ -150,14 +158,6 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
      * 检查音调是否合理。
      */
     protected abstract boolean toneValid();
-
-    /**
-     * 音节使用的是code，音调使用的是tone
-     */
-    public Integer getWeight()
-    {
-        return isValid() ? Integer.parseInt(code + tone) : -1;
-    }
 
     public static final Comparator<UniPinyin<?>> ASC = Comparator.comparingInt(UniPinyin::getWeight);
 

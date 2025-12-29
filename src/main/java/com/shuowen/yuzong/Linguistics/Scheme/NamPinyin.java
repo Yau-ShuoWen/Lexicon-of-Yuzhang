@@ -79,7 +79,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
     @Override
     public String toString()
     {
-        return "默认的未知格式南昌话拼音：" + pinyin + tone;
+        return (valid) ? "默认的南昌话拼音：" + pinyin + tone + "（未知格式）" : INVALID;
     }
 
     @Override
