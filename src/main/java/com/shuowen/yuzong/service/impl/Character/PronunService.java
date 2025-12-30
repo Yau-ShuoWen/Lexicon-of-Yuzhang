@@ -24,7 +24,7 @@ public class PronunService
      */
     public List<Pair<String, String>> notation(String s, Dialect d)
     {
-        List<String> pinyin = HanPinyin.txtPinyin(s);
+        List<String> pinyin = HanPinyin.textPinyin(s);
         List<String> tmp = new ArrayList<>();
         for (int i = 0; i < pinyin.size(); i++)
         {

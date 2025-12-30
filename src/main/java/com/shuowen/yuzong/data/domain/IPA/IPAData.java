@@ -71,13 +71,13 @@ public class IPAData
         }
     }
 
-    public IPAData getDirectly(Dialect d, PinyinOption op,
-                               TriFunction<Set<Pinyin>, PinyinOption, Dialect, Map<Pinyin, Map<String, String>>> ipaSE,
-                               Object... inputs)
+    public static String getDirectly(Dialect d, PinyinOption op,
+                                     TriFunction<Set<Pinyin>, PinyinOption, Dialect, Map<Pinyin, Map<String, String>>> ipaSE,
+                                     String input, String dict)
     {
         IPAData data = new IPAData();
-        data.addAll(inputs);
+        data.addAll(input);
         data.search(d, op, ipaSE);
-        return data;
+        return data.get(input, dict);
     }
 }

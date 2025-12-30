@@ -114,6 +114,10 @@ public class IPATool
         return (b ? toFiveDegreeNum(Y, D) : toFiveDegreeLine(Y, D));
     }
 
+    public static String merge(String y, String d, boolean b)
+    {
+        return (b ? toFiveDegreeNum(y, d) : toFiveDegreeLine(y, d));
+    }
 
     private static String toFiveDegreeNum(String syllable, String tone)
     {
