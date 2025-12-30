@@ -35,7 +35,7 @@ com/shuowen/yuzong/
 └── Tool/         工具类
 ```
 
-### 📝 [提交记录符号说明](https://github.com/Yau-ShuoWen/Electronic-Data/blob/main/text/style/%E6%8F%90%E4%BA%A4%E8%AE%B0%E5%BD%95%E7%AC%A6%E5%8F%B7%E8%AF%B4%E6%98%8E.md)
+### 📝 [提交记录符号说明](./docs/name/提交记录符号说明.md)
 
 ### 🏷️ [结构和命名](./docs/name)
 ### 🔌 [应用程序接口](./docs/api)
