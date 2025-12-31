@@ -1,13 +1,11 @@
 package com.shuowen.yuzong.data.dto.Word;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.WeightSort;
-import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.domain.Word.Ciyu;
 import com.shuowen.yuzong.data.domain.Word.CiyuEntry;
@@ -79,10 +77,7 @@ public class CiyuShow
         return list.get(0);
     }
 
-    public <T extends UniPinyin<U>, U extends PinyinStyle>
-    void init(U style, PinyinOption op, Dialect d, Map<String, String> dictInfo,
-              TriFunction<Set<T>, PinyinOption, Dialect, Map<T, Map<String, String>>> ipaSE
-    )
+    public void init(Dialect d, PinyinOption op, final IPAData data)
     {
 
     }

@@ -1,12 +1,14 @@
 package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.domain.Character.HanziEdit;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
+import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.dto.Character.HanziOutline;
 import com.shuowen.yuzong.data.dto.Character.HanziShow;
@@ -34,7 +36,7 @@ public class HanziService
     private PronunService mdr;
 
     @Autowired
-    private ReferServiceImpl re;
+    private ReferServiceImpl refer;
 
     /**
      * 查询匹配确定的简体或繁体，获得结果集
@@ -101,13 +103,11 @@ public class HanziService
      */
     public HanziShow getHanziDetailInfo(String hanzi, Language lang, Dialect d, PinyinOption op)
     {
-        var ans = getHanziOrganize(hanzi, lang, d, 1);
+        var ans = ListTool.checkSizeOne(getHanziOrganize(hanzi, lang, d, 1),
+                "not found 未找到汉字", "not unique 汉字不唯一");
 
-        if (ans.size() != 1)
-            throw new RuntimeException(ans.size() > 1 ? "not unique 汉字不唯一" : "not found 未找到汉字");
-
-        ans.get(0).init(op, d, re.getDictMap(d, lang), ipa::getMultiLine);
-        return ans.get(0);
+        ans.init(d, op, new IPAData(lang, d, op, refer::getDictMap, ipa::getMultiLine));
+        return ans;
     }
 
     /**

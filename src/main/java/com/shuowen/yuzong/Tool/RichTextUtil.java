@@ -3,16 +3,12 @@ package com.shuowen.yuzong.Tool;
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
-import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.IPATool;
-import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinTool;
 
-import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,10 +36,7 @@ public class RichTextUtil
         return sb.toString();
     }
 
-    /**
-     * 对于文本的渲染，见文档写的内容
-     * */
-    public static String format(String s, Dialect d, TriFunction<Set<Pinyin>, PinyinOption, Dialect, Map<Pinyin, Map<String, String>>> ipaSE)
+    public static String format(String s, Dialect d, final IPAData data)
     {
         // 处理拼音类内容：[]
         Function<String, String> replaceToken = token ->
@@ -51,16 +44,16 @@ public class RichTextUtil
             // 去掉 [ ]
             String content = token.substring(1, token.length() - 1);
 
-            /* 包含"/"   "[/s]" -> " [s] "
-             * 包含"+"   "[+yi1]" -> " [yī] "
-             * 包含"*"
-             * 包含"-"
-             * 默认情况
+            /* 包含"/"   "[/s]"      -> " [s] "
+             * 包含"+"   "[+yi1]"    -> " [yī] "
+             * 包含"*"   "[*cong1]"  -> " [ts'ɔŋ-˦˨] "
+             * 包含"-"   ”[tsaŋ-42]“ -> " [tsaŋ-˦˨] "
+             * 默认情况   "[ieu]"     -> " [iēu] "
              */
             if (content.startsWith("/")) return " [" + content.substring(1) + "] ";
             if (content.startsWith("+")) return " [" + HanPinyin.topMark(content.substring(1)) + "] ";
             if (content.startsWith("*"))
-                return " " + IPAData.getDirectly(d, PinyinOption.defaultOf(), ipaSE, content.substring(1), d.getDefaultDict()) + " ";
+                return " " + data.getDirectly(content.substring(1), d.getDefaultDict()) + " ";
             if (content.contains("-"))
             {
                 int dashIndex = content.indexOf('-');

@@ -1,9 +1,7 @@
 package com.shuowen.yuzong.data.dto.Character;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
-import com.shuowen.yuzong.Tool.dataStructure.functions.TriFunction;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
@@ -17,8 +15,6 @@ import lombok.Data;
 import java.util.*;
 import java.util.function.Function;
 
-import static com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool.getOrDefault;
-
 /**
  * 用作词条的汉字，隐藏细节，不显示简繁体等信息
  */
@@ -27,10 +23,10 @@ public class HanziShow
 {
     protected String hanzi;
     protected String language;
-    protected Map<String, Info> infoMap = new HashMap<>();
+    protected Map<String, Info> infoMap = new TreeMap<>();
 
     @Data
-    static class Info
+    public static class Info
     {
         String stdPy;
         List<Integer> special = new ArrayList<>();
@@ -68,6 +64,8 @@ public class HanziShow
 
         for (var i : infoMap.values())
         {
+            // 保留原来顺序的去重
+            i.mulPy = new ArrayList<>(new LinkedHashSet<>(i.mulPy));
             // 有顺序的去重
             i.special = new ArrayList<>(new TreeSet<>(i.special));
             i.similar = new ArrayList<>(new TreeSet<>(i.similar));
@@ -81,22 +79,14 @@ public class HanziShow
         return ans;
     }
 
-
-    public <T extends UniPinyin<U>, U extends PinyinStyle>
-    void init(PinyinOption op, Dialect d, Map<String, String> dictInfo,
-              TriFunction<Set<T>, PinyinOption, Dialect, Map<T, Map<String, String>>> ipaSE
-    )
+    public void init(Dialect d, PinyinOption op, final IPAData data)
     {
-        Function<String, T> pinyinFactory = d.getFactory();
-        Function<String, String> format = p -> PinyinTool.formatPinyin(p, pinyinFactory);
+        Function<String, String> format = p -> PinyinTool.formatPinyin(p, d);
         String dict = d.getDefaultDict();
 
-        IPAData data = new IPAData();
-
-        // 三轮循环
+        // 两轮循环
         // 第一次：格式化拼音、获得国际音标资料、处理字符串内容
         // 第二次：回填国际音标数据
-        // 第三次：修改字段名称
 
         for (var i : infoMap.values())
         {
@@ -107,7 +97,11 @@ public class HanziShow
                 {
                     i.stdPy = format.apply(i.stdPy);
                     for (var j : i.mulPy) j.setRight(format.apply(j.getRight()));
-                    for (var j : i.ipaExp) j.setRight(format.apply(j.getRight()));
+                    for (var j : i.ipaExp)
+                    {
+                        j.setLeft(data.getDictionaryName(j.getLeft()));
+                        j.setRight(format.apply(j.getRight()));
+                    }
                 }
                 case PinyinIPA ->
                 {
@@ -119,25 +113,18 @@ public class HanziShow
             // 获得国际音标资料
             switch (op.getPhonogram())
             {
-                case PinyinIPA ->
-                {
-                    for (var j : i.ipaExp) data.add(j.getRight());
-                }
-                case AllIPA ->
-                {
-                    data.add(i.stdPy);
-                    for (var j : i.mulPy) data.add(j.getRight());
-                    for (var j : i.ipaExp) data.add(j.getRight());
-                }
+                case PinyinIPA -> data.add(ListTool.mapping(i.ipaExp, Pair::getRight));
+                case AllIPA -> data.add(i.stdPy,
+                        ListTool.mapping(i.mulPy, Pair::getRight),
+                        ListTool.mapping(i.ipaExp, Pair::getRight)
+                );
             }
 
             // 处理字符串中内容
             i.mdrInfo.replaceAll(MdrTool::format);
-            i.mean.replaceAll(s -> RichTextUtil.format(s, d));
-            for (var j : i.note) j.setRight(RichTextUtil.format(j.getRight(), d));
+            i.mean.replaceAll(s -> RichTextUtil.format(s, d, data));
+            for (var j : i.note) j.setRight(RichTextUtil.format(j.getRight(), d, data));
         }
-
-        data.search(d, op, ipaSE); // 提交查询
 
         // 回填
         for (var i : infoMap.values())
@@ -146,7 +133,12 @@ public class HanziShow
             {
                 case PinyinIPA ->
                 {
-                    for (var j : i.ipaExp) j.setRight(data.get(j.getRight(), j.getLeft()));
+                    for (var j : i.ipaExp)
+                    {
+                        // 先把拼音转换了，再把简写的转换了，因为前者用到了词典简写
+                        j.setRight(data.get(j.getRight(), j.getLeft()));
+                        j.setLeft(data.getDictionaryName(j.getLeft()));
+                    }
                 }
                 case AllIPA ->
                 {
@@ -155,13 +147,6 @@ public class HanziShow
                     for (var j : i.ipaExp) j.setRight(data.get(j.getRight(), j.getLeft()));
                 }
             }
-        }
-
-        // 这个不能合并到前面，因为在格式化的时候用到了词典简写，现在才能换掉
-        for (var i : infoMap.values())
-        {
-            for (var j : i.ipaExp)
-                j.setLeft(getOrDefault(dictInfo, j.getLeft(), s -> ("《" + s + "》"), "词典错误"));
         }
     }
 }

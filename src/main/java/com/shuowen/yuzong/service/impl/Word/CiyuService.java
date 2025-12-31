@@ -1,12 +1,13 @@
 package com.shuowen.yuzong.service.impl.Word;
 
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.WeightSort;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
-import com.shuowen.yuzong.data.domain.Word.Ciyu;
 import com.shuowen.yuzong.data.domain.Word.CiyuEntry;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.dto.Word.CiyuShow;
@@ -98,11 +99,10 @@ public class CiyuService
 
     public CiyuShow getCiyuDetailInfo(String ciyu, Language lang, Dialect d, PinyinOption op)
     {
-        var ans = getCiyuOrganize(ciyu, lang, d,1);
-        if (ans.size() != 1)
-            throw new RuntimeException(ans.size() > 1 ? "not unique 词语不唯一" : "not found 未找到词语");
+        var ans = ListTool.checkSizeOne(getCiyuOrganize(ciyu, lang, d, 1),
+                "not found 未找到汉字", "not unique 汉字不唯一");
 
-        ans.get(0).init(d.getStyle(), op, d, refer.getDictMap(d, lang), ipa::getMultiLine);
-        return ans.get(0);
+        ans.init(d, op, new IPAData(lang, d, op, refer::getDictMap, ipa::getMultiLine));
+        return ans;
     }
 }
