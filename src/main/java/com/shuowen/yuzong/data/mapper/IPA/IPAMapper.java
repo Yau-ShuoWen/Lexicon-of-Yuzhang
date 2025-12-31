@@ -40,16 +40,13 @@ public interface IPAMapper
     /**
      * 通过带空位的code查询
      *
-     * @param code 声母或者韵母的号码<ul>
-     *             <li>声母的格式为xx~~~</li>
-     *             <li>韵母的格式为~~xxx</li>
-     *             </ul>
+     * @param code 声母或者韵母的号码
      */
-    IPASyllableEntity findElement(String code, String dialect);
+    IPASyllableEntity findSegment(String code, String dialect);
 
-    List<IPASyllableEntity> findAllElement(String dialect);
+    List<IPASyllableEntity> findAllSegment(String dialect);
 
-    List<IPASyllableEntity> findAllElementList(List<String> list, String dialect);
+    List<IPASyllableEntity> findAllSegmentList(List<String> list, String dialect);
 
     // 声调表 -------------------------------
 

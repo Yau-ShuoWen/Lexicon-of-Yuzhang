@@ -235,7 +235,7 @@ public class IPATool
     /**
      * @return 返回 {@code Yinjie.of(null)} 是因为已经用null传参了就会被认为音节无效，是空安全的
      */
-    public static Yinjie constructIPA(Pinyin pinyin, Function<Pair<String, String>, Pair<YinjiePart, YinjiePart>> dataPvd)
+    public static Yinjie constructIPA(Pinyin pinyin, Function<Pair<String, String>, Pair<Shengyun, Shengyun>> dataPvd)
     {
         if (!pinyin.isValid()) return Yinjie.of(null);
 
@@ -259,17 +259,17 @@ public class IPATool
      */
     public static EqualChecker<Yinjie> checkIPA(
             Function<String, List<IPASyllableEntity>> syllablePvd,   // 方法：获得全部音节
-            Function<String, List<IPASyllableEntity>> elementPvd,    // 方法：获得所有组成部分
+            Function<String, List<IPASyllableEntity>> segmentPvd,    // 方法：获得所有组成部分
             Dialect d                                                // 方言代码
     )
     {
         EqualChecker<Yinjie> checker = new EqualChecker<>();
 
         Set<Yinjie> a = new HashSet<>();
-        Map<String, YinjiePart> b = new HashMap<>();
+        Map<String, Shengyun> b = new HashMap<>();
         for (var i : syllablePvd.apply(d.toString())) a.add(Yinjie.of(i));
-        for (var i : elementPvd.apply(d.toString()))
-            b.put(YinjiePart.of(i).getCode(), YinjiePart.of(i));
+        for (var i : segmentPvd.apply(d.toString()))
+            b.put(Shengyun.of(i).getCode(), Shengyun.of(i));
 
         for (var i : a)
         {
@@ -286,16 +286,16 @@ public class IPATool
      */
     public static void updateIPA(
             Function<String, List<IPASyllableEntity>> syllablePvd,   // 方法：获得全部音节
-            Function<String, List<IPASyllableEntity>> elementPvd,    // 方法：获得所有组成部分
+            Function<String, List<IPASyllableEntity>> segmentPvd,    // 方法：获得所有组成部分
             BiConsumer<IPASyllableEntity, String> updateCsm,         // 方法：更新内容
             Dialect d                                                // 方言代码
     )
     {
         Set<Yinjie> a = new HashSet<>();
-        Map<String, YinjiePart> b = new HashMap<>();
+        Map<String, Shengyun> b = new HashMap<>();
         for (var i : syllablePvd.apply(d.toString())) a.add(Yinjie.of(i));
-        for (var i : elementPvd.apply(d.toString()))
-            b.put(YinjiePart.of(i).getCode(), YinjiePart.of(i));
+        for (var i : segmentPvd.apply(d.toString()))
+            b.put(Shengyun.of(i).getCode(), Shengyun.of(i));
 
         for (var i : a)
         {
@@ -312,14 +312,14 @@ public class IPATool
      * 根据 {@code constructIPA} 把音节的声母和韵母拆开重组，然后插入数据
      */
     public static void insertSyllable(
-            BiFunction<String, String, IPASyllableEntity> elementPvd, // 方法：组成部分查询，给constructIPA用
+            BiFunction<String, String, IPASyllableEntity> segmentPvd, // 方法：组成部分查询，给constructIPA用
             BiConsumer<IPASyllableEntity, String> insertConsumer,     // 方法：插入数据
             Pinyin p, Dialect d                                       // 拼音、方言代码
     )
     {
         var merge = constructIPA(p, (Pair<String, String> code) -> Pair.of(
-                YinjiePart.of(elementPvd.apply(code.getLeft(), d.toString())),
-                YinjiePart.of(elementPvd.apply(code.getRight(), d.toString()))
+                Shengyun.of(segmentPvd.apply(code.getLeft(), d.toString())),
+                Shengyun.of(segmentPvd.apply(code.getRight(), d.toString()))
         ));
 
         insertConsumer.accept(merge.transfer(), d.toString());

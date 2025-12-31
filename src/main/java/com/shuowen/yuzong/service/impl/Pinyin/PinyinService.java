@@ -63,7 +63,6 @@ public class PinyinService
      * 传入多条拼音，把所有字典版本的IPA全部转换出来
      *
      * @apiNote 只有两次查询，是最高效的版本
-     * @see IPATool
      */
     public Map<Pinyin, Map<String, String>> getMultiLine(Set<Pinyin> p, PinyinOption op, Dialect d)
     {
@@ -76,7 +75,7 @@ public class PinyinService
         if (!p.isValid()) return;
         if (!getAllIPA(p, PinyinOption.defaultOf(), d).isEmpty()) return;
 
-        IPATool.insertSyllable(m::findElement, m::insertPinyin, p, d);
+        IPATool.insertSyllable(m::findSegment, m::insertPinyin, p, d);
     }
 
     /**
@@ -84,7 +83,7 @@ public class PinyinService
      */
     public EqualChecker<Yinjie> check(Dialect d)
     {
-        return IPATool.checkIPA(m::findAllPinyin, m::findAllElement, d);
+        return IPATool.checkIPA(m::findAllPinyin, m::findAllSegment, d);
     }
 
     public void updateIPA(Dialect d)
@@ -95,7 +94,7 @@ public class PinyinService
         {
             System.out.println("以下数据要更新");
             answer.report();
-            IPATool.updateIPA(m::findAllPinyin, m::findAllElement, m::changeInfo, d);
+            IPATool.updateIPA(m::findAllPinyin, m::findAllSegment, m::changeInfo, d);
             System.out.println("更新完成");
         }
     }

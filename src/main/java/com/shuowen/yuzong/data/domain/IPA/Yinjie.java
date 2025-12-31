@@ -29,12 +29,7 @@ public class Yinjie
 
         pinyin = ipa.getStandard();
         code = ipa.getCode();
-
         info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
-        Map<String, String> tmp = new HashMap<>();
-        info.forEach((k, v) -> tmp.put(k.toLowerCase(), v));
-        info = tmp;
-
         valid = true;
     }
 
@@ -43,29 +38,32 @@ public class Yinjie
         return new Yinjie(ipa);
     }
 
-    public Yinjie(YinjiePart i1, YinjiePart i2)
+    /**
+     * 从声母和韵母拼接而成
+     */
+    public Yinjie(Shengyun initial, Shengyun last)
     {
-        pinyin = i1.pinyin + i2.pinyin;
-        code = (i1.code + i2.code).replace("~", "");
+        pinyin = initial.pinyin + last.pinyin;
+        code = (initial.code + last.code).replace("~", "");
         info = new HashMap<>();
-        for (var i : i1.getInfo().keySet())
+        for (var i : initial.getInfo().keySet())
         {
-            String ipa = i1.getInfo().get(i) + i2.getInfo().get(i);
+            String ipa = initial.getInfo().get(i) + last.getInfo().get(i);
             if (ipa.contains("-")) ipa = "-";
-            info.put(i.toLowerCase(), ipa);
+            info.put(i, ipa);
         }
 
         valid = true;
     }
 
-    public static Yinjie of(YinjiePart i1, YinjiePart i2)
+    public static Yinjie of(Shengyun i1, Shengyun i2)
     {
         return new Yinjie(i1, i2);
     }
 
     public String getInfo(String dict)
     {
-        return info.getOrDefault(dict.toLowerCase(), INVAILD_DICT + pinyin);
+        return info.getOrDefault(dict, INVAILD_DICT + pinyin);
     }
 
     public IPASyllableEntity transfer()
