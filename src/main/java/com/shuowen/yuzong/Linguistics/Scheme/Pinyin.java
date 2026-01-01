@@ -15,5 +15,5 @@ public interface Pinyin
 
     char getFourCornerTone();
 
-    int syllableLen();
+    int initialLen();
 }

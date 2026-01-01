@@ -17,6 +17,11 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     private static final char[] fourCorne = {' ', '꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
 
+    public int getTonesNumber()
+    {
+        return 7;
+    }
+
     public char getFourCornerTone()
     {
         return fourCorne[tone];
@@ -179,7 +184,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
 
     @Override
-    public int syllableLen()
+    public int initialLen()
     {
         return 2;
     }
@@ -193,16 +198,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
             code = "";
             String py = pinyin;
             int idx;
-
-            // 对特殊的韵母处理，m n ng 直接赋值返回
-            // 必须放在识别声母之前，否则就会被识别掉了
-            switch (py)
-            {
-                case "m" -> code = "00007";
-                case "n" -> code = "00008";
-                case "ng" -> code = "00009";
-            }
-            if (!code.isEmpty()) return true;
 
 
             // 声母：特殊的地方只有
@@ -245,7 +240,21 @@ public class NamPinyin extends UniPinyin<NamStyle>
             };
             py = py.substring(idx);
 
-            // 检查特殊韵母
+
+            // 对特殊的韵母处理，m n ng 直接赋值返回
+            // 流程：如果被截取声母之后拼音没有了，如果是m n ng，识别为成音节辅音，否则返回失败
+            if (py.isEmpty())
+            {
+                switch (code)
+                {
+                    case "03" -> code = "00007";
+                    case "14" -> code = "00008";
+                    case "10" -> code = "00009";
+                }
+                if(code.length() == 5) return true;
+                else throw new IllegalArgumentException("声母之后没有内容了");
+            }
+            // 检查特殊韵母zii cii sii
             if (ObjectTool.existEqual(code, "16", "17", "18") && py.startsWith("i"))
             {
                 if (py.equals("ii"))
@@ -253,7 +262,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
                     code += "100";
                     return true;
                 }
-                else throw new IllegalArgumentException("zcs后面直接接的智能是ii");
+                else throw new IllegalArgumentException("zcs后面接的不是ii");
             }
 
 
@@ -330,6 +339,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
             if (code.length() != 5) throw new IndexOutOfBoundsException();// 是否有效位数
         } catch (IndexOutOfBoundsException | IllegalArgumentException e) // 这里面拼音出现了任何错误，就认为是无效的，所以里面可以大胆sub和charAt
         {
+            // 因为这里的要统一设置code为无效，所以不能直接返回false，要抛出异常放这里来处理
             code = INVALID;
             return false;
         }
@@ -400,13 +410,12 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     protected void addMark(int num)
     {
-        if (tone == 0) return;//不用加任何音调
-
         switch (num)
         {
             case 0:
                 break;
             case 1:
+                if (tone == 0) break; //不用加任何符号
                 StringBuilder Str = new StringBuilder(show);
 
                 if ("ng".equalsIgnoreCase(show))

@@ -8,7 +8,9 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinDetail;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinPreviewer;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinTablizer;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -17,7 +19,7 @@ import java.util.*;
 @RequestMapping ("/api/pinyin/")
 public class PinyinController
 {
-    @GetMapping (value = "{dialect}/style-init")
+    @GetMapping ("{dialect}/style-init")
     public PinyinStyle pinyin(
             @PathVariable String dialect,
             @RequestParam Integer SchemeParam
@@ -45,5 +47,19 @@ public class PinyinController
             @RequestParam String pinyin)
     {
         return PinyinChecker.check(pinyin, Dialect.of(dialect));
+    }
+
+    @GetMapping ("{dialect}/table")
+    public List<List<PinyinDetail>> getTable(@PathVariable String dialect)
+    {
+        return PinyinTablizer.getTable(Dialect.of(dialect));
+    }
+
+    @GetMapping ("{dialect}/get-tone-preview")
+    public List<PinyinDetail> getTone(
+            @PathVariable String dialect,
+            @RequestParam String last)
+    {
+        return PinyinTablizer.getTonePrewiew(Dialect.of(dialect), last);
     }
 }

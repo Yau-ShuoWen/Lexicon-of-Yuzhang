@@ -241,7 +241,7 @@ public class IPATool
 
         String code = pinyin.getCode();
 
-        int sl = pinyin.syllableLen();
+        int sl = pinyin.initialLen();
         int l = code.length();
         if (l <= sl) throw new IllegalArgumentException("一般还到不了这里，你这拼音配置有问题啊");
 

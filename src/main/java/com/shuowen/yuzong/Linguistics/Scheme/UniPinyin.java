@@ -65,7 +65,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
      *
      * @apiNote 剩下的就是介韵母的编码长度了
      */
-    public abstract int syllableLen();
+    public abstract int initialLen();
 
     /**
      * 在其他内容一样的时候，只比较 pinyin 和 tone
@@ -107,6 +107,8 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
         }
         valid = true;
     }
+
+    public abstract int getTonesNumber();
 
     /**
      * 返回四角调类
