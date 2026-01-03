@@ -6,6 +6,7 @@ import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import lombok.Getter;
 
 import java.util.*;
@@ -19,35 +20,46 @@ import java.util.function.Function;
  */
 public enum Dialect
 {
-    NAM("nam", NamStyle.class, NamPinyin.class, NamPinyin::of, NamStyle::createStyle, "ncdict");
+    NAM("nam", NamStyle.class, NamPinyin.class, NamPinyin::tryOf, NamStyle::createStyle, "ncdict", 7);
 
     private final String code;
     @Getter
     private final Class<? extends PinyinStyle> styleClass;
     @Getter
     private final Class<? extends UniPinyin<?>> pinyinClass;
-    private final Function<String, ? extends UniPinyin<?>> pinyinCreator;
+    private final Function<String, Maybe<?>> pinyinTryCreator;
     private final Function<PinyinParam, ? extends PinyinStyle> styleCreator;
     @Getter
     private final String defaultDict;
 
+    /**
+     * 返回声调的数量<br>
+     * 不包含轻声，这样好循环: {@code [0, tonesAmount()]}
+     */
+    @Getter
+    private final int toneAmount;
 
+    @SuppressWarnings ("unchecked")
     <U extends PinyinStyle, T extends UniPinyin<U>>
-    Dialect(String code,
+    Dialect(
+            String code,
             Class<U> styleClass,
             Class<T> pinyinClass,
-            Function<String, T> pinyinCreator,
+            Function<String, Maybe<T>> pinyinTryCreator,
             Function<PinyinParam, U> styleCreator,
-            String defaultDict
+            String defaultDict,
+            int toneAmount
     )
     {
         this.code = code;
         this.styleClass = styleClass;
         this.pinyinClass = pinyinClass;
-        this.pinyinCreator = pinyinCreator;
+        this.pinyinTryCreator = (Function) pinyinTryCreator;
         this.styleCreator = styleCreator;
         this.defaultDict = defaultDict;
+        this.toneAmount = toneAmount;
     }
+
 
     public static Dialect of(String s)
     {
@@ -66,9 +78,9 @@ public enum Dialect
     }
 
     @SuppressWarnings ("unchecked")
-    public <U extends PinyinStyle, T extends UniPinyin<U>> T createPinyin(String py)
+    public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(String py)
     {
-        return (T) pinyinCreator.apply(py);
+        return (Maybe<T>) pinyinTryCreator.apply(py);
     }
 
     @SuppressWarnings ("unchecked")

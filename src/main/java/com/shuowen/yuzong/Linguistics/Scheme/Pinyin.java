@@ -2,18 +2,15 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 
 public interface Pinyin
 {
-    boolean isValid();
-
     String getPinyin();
 
     Integer getTone();
 
+    Integer getCorner();
+
     String getCode();
 
-    @Override
     String toString();
 
-    char getFourCornerTone();
-
-    int initialLen();
+    int getInitialLen();
 }

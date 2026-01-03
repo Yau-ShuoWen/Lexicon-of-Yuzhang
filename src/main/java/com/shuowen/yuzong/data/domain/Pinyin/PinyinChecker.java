@@ -1,41 +1,46 @@
 package com.shuowen.yuzong.data.domain.Pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
-
-import java.util.*;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 
 public class PinyinChecker
 {
     /**
      * @return <br>1. 正确  {@code (1, 拼音预览, 空)}
-     * <br>2. 错了，但是被模糊识别了 {@code (2 , 正确拼音预览 , 正确写法)}
-     * <br>3. 完全识别不了 {@code (3 , 空, 空 )}
-     * <br>4. 需要补充音调 {@code (4 , 空, 空 )}
+     * <br>2. 错了，但是被模糊识别了 {@code (2, 正确拼音预览 , 正确写法)}
+     * <br>3. 完全识别不了 {@code (3, 空, 空)}
+     * <br>4. 需要补充音调 {@code (4, 空, 空)}
      */
-    public static Triple<Integer, String, String> check(String text, Dialect d)
+    public static Triple<Integer, String, String> check(final String text, Dialect d)
     {
         StringTool.checkTrimValid(text);
 
         if (!haveTone(text)) return Triple.of(4, "", "");
 
-        var rawPinyin = d.createPinyin(text);
-        String newText = text.toLowerCase();
+        String newText = text.toLowerCase(); // 因为大小写错误也是错误，所以text的转小写不能转移到新的地方
         newText = switch (d)
         {
             case NAM -> filterNam(newText);
         };
-        var newPinyin = d.createPinyin(newText);
+
+        var rawPinyinAnswer = d.tryCreatePinyin(text);
+        var newPinyinAnswer = d.tryCreatePinyin(newText);
 
         // 如果修正格式的有效，那么相等就是对的（1），不等的就是被修复的（2）
         // 如果修正格式的也无效，相当于救不回来了，无效（3）
-        if (newPinyin.isValid())
+        if (newPinyinAnswer.isValid())
         {
-            if (Objects.equals(rawPinyin, newPinyin)) return Triple.of(1, PinyinTool.formatPinyin(rawPinyin, d), "");
+            var newPinyin = newPinyinAnswer.getValue();
+            if (Maybe.allValidAndEqual(rawPinyinAnswer, newPinyinAnswer))
+            {
+                return Triple.of(1, PinyinTool.formatPinyin(newPinyin, d), "");
+            }
             else
             {
                 String trueAns = newPinyin.toString(d.createStyle(PinyinParam.of(Scheme.KEYBOARD))).
@@ -57,9 +62,7 @@ public class PinyinChecker
 
     public static boolean haveTone(String text)
     {
-        StringTool.checkTrimValid(text); // 如果是空的，取最后一个会报错
-        char ch = text.charAt(text.length() - 1);
-        return ch >= '0' && ch <= '9';
+        return NumberTool.closeBetween(StringTool.back(text), '0', '9');
     }
 
     /**
@@ -69,16 +72,13 @@ public class PinyinChecker
     {
         StringTool.checkTrimValid(text); // 如果是空的，取最后一个会报错
 
-        char ch = text.charAt(text.length() - 1);
-        if (ch >= '0' && ch <= '9')
+        char ch = StringTool.back(text);
+        if (NumberTool.closeBetween(ch, '0', '9'))
         {
-            text = text.substring(0, text.length() - 1);
+            text = StringTool.deleteBack(text);
             return Pair.of(text, ch - '0');
         }
-        else
-        {
-            return Pair.of(text, 0);
-        }
+        else return Pair.of(text, 0);
     }
 
     private static String filterNam(String text)

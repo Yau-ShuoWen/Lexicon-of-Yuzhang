@@ -28,14 +28,19 @@ public class PinyinTablizer
                 };
 
 
-        for (int i = 0; i <= d.createPinyin(p).getTonesNumber(); i++)
+        for (int i = 0; i <= d.getToneAmount(); i++)
         {
-            var py = d.createPinyin(escape.apply(p, true) + i);
-            if (py.isValid()) result.add(PinyinDetail.exist(
-                    escape.apply(PinyinTool.formatPinyin(py, d, PinyinParam.of(Scheme.STANDARD)), false),
-                    escape.apply(PinyinTool.formatPinyin(py, d, PinyinParam.of(Scheme.KEYBOARD)), false)
-            ));
+            var maybe = d.tryCreatePinyin(escape.apply(p, true) + i);
+            if (maybe.isValid())
+            {
+                var py = maybe.getValue();
+                result.add(PinyinDetail.exist(
+                        escape.apply(PinyinTool.formatPinyin(py, d, PinyinParam.of(Scheme.STANDARD)), false),
+                        escape.apply(PinyinTool.formatPinyin(py, d, PinyinParam.of(Scheme.KEYBOARD)), false)
+                ));
+            }
             else result.add(PinyinDetail.notExist());
+
         }
         return result;
     }

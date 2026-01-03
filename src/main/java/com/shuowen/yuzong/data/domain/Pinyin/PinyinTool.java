@@ -7,6 +7,7 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 
 import java.util.*;
+
 /**
  * 静态拼音拼音处理类
  *
@@ -14,6 +15,8 @@ import java.util.*;
  */
 public class PinyinTool
 {
+    private static final String error = "无效拼音";
+
     /**
      * 拼音直接返回对应的内容
      */
@@ -42,23 +45,27 @@ public class PinyinTool
      */
     public static String formatPinyin(String py, Dialect d, PinyinParam param)
     {
-        return formatPinyin(d.createPinyin(py), d, param);
+        var maybe = d.tryCreatePinyin(py);
+        return (maybe.isValid()) ? formatPinyin(maybe.getValue(), d, param) : error;
     }
 
 
     public static String formatPinyin(String py, Dialect d, PinyinParam[] param)
     {
-        return formatPinyin(d.createPinyin(py), d, param);
+        var maybe = d.tryCreatePinyin(py);
+        return (maybe.isValid()) ? formatPinyin(maybe.getValue(), d, param) : error;
     }
 
     public static String formatPinyin(String py, Dialect d)
     {
-        return formatPinyin(d.createPinyin(py), d);
+        var maybe = d.tryCreatePinyin(py);
+        return (maybe.isValid()) ? formatPinyin(maybe.getValue(), d) : error;
     }
 
     public static <U extends PinyinStyle>
     String formatPinyin(String py, U style, Dialect d)
     {
-        return d.createPinyin(py).toString(style);
+        var maybe = d.tryCreatePinyin(py);
+        return (maybe.isValid()) ? maybe.getValue().toString(style) : error;
     }
 }

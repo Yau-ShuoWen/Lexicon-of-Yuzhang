@@ -2,200 +2,40 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+
+import java.util.Objects;
 
 /**
  * 南昌话拼音方案
- *
- * @author 说文 豫章鸿也
  */
-
 public class NamPinyin extends UniPinyin<NamStyle>
 {
-    private static final char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
-
-    private static final char[] fourCorne = {' ', '꜀', '꜁', '꜂', '꜄', '꜅', '꜆', '꜇'};
-
-    public int getTonesNumber()
+    protected NamPinyin(String s)
     {
-        return 7;
+        super(s);
     }
 
-    public char getFourCornerTone()
-    {
-        return fourCorne[tone];
-    }
-
-    public NamPinyin(String s)
-    {
-        super(s, false);
-    }
-
-    public NamPinyin(String s, boolean t)
-    {
-        super(s, t);
-    }
-
-    public static NamPinyin of(String s)
-    {
-        return new NamPinyin(s);
-    }
-
-    public static NamPinyin of(String s, boolean t)
-    {
-        return new NamPinyin(s, t);
-    }
-
-    /**
-     * 基本过程
-     * <ul>
-     *     <li>条件1：范围在0-7</li>
-     *     <li>条件2:1-5不是入声尾，6-7是（0，可以都是）</li>
-     * </ul>
-     */
-    @Override
-    protected boolean toneValid()
-    {
-        int n = tone;
-
-        // 数字是否是[0,7]，如果要简单判断直接返回这句话即可
-        boolean range = (n >= 0 && n < mark.length);
-        // 是否配上合适的韵尾
-        boolean rhythm = true;
-
-        char last = pinyin.charAt(pinyin.length() - 1);
-        if (n >= 1 && n <= 5)
-        {
-            // 不是入声，但是结尾是t或k
-            if (last == 't' || last == 'k') rhythm = false;
-        }
-        if (n >= 6 && n <= 7)
-        {
-            // 为入声，但是韵尾既不为t，也不为k
-            if (last != 't' && last != 'k') rhythm = false;
-        }
-        return range && rhythm;
-    }
-
-    /**
-     * 默认配置的转字符串是不被推荐的
-     */
-    @Override
-    public String toString()
-    {
-        return (valid) ? "默认的南昌话拼音：" + pinyin + tone + "（未知格式）" : INVALID;
-    }
-
-    @Override
-    public String toString(NamStyle p)
-    {
-        if (!valid) return INVALID;
-        show = pinyin;
-
-        NullTool.checkNotNull(p);
-
-        setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
-        addMark(p.getNum());//加音调
-        return " [" + show + "] ";
-    }
-
-    public void setFormat(int yu, int gn, int ee, int oe, int ii,
-                          int ptk, int alt, int capital)
-    {
-        String s = show;
-        if (gn > 0)
-        {
-            s = s.replace("ni", "gni");
-            s = s.replace("nyu", "gnyu");
-        }
-        if (yu > 0)
-        {
-            if (yu == 1) s = s.replace("yu", "ü");
-            if (yu == 2) s = s.replace("yu", "v");
-            if (yu == 3) s = s.replace("yu", "ụ");
-        }
-        if (ee > 0)
-        {
-            if (ee == 1) s = s.replace("ee", "ẹ");
-            if (ee == 2) s = s.replace("ee", "ё");
-        }
-        if (oe > 0)
-        {
-            if (oe == 1) s = s.replace("oe", "ọ");
-            if (oe == 2) s = s.replace("oe", "ö");
-            if (oe == 3) s = s.replace("oe", "o");
-        }
-        if (ii > 0)
-        {
-            if (ii == 1) s = s.replace("ii", "i");
-            if (ii == 2) s = s.replace("ii", "");
-            if (ii == 3) s = s.replace("ii", "ị");
-        }
-        if (ptk > 0)
-        {
-            char c = s.charAt(s.length() - 1);
-            if (c == 't' || c == 'k')
-            {
-                s = s.substring(0, s.length() - 1);
-                if (ptk == 1) s += "";
-                if (ptk == 2) s += 'h';
-                if (ptk == 3) s += 'q';
-                if (ptk == 4)
-                {
-                    if (c == 'k') s += 'h';
-                    else s += 't';
-                }
-            }
-
-        }
-        if (alt > 0)
-        {
-            char c = s.charAt(0);
-            if (alt == 1)//符合普通话规律
-            {
-                if (c == 'i')
-                {
-                    // i ->yi it->yit iu->yiu in->yin
-                    if (s.equals("i") || s.equals("it") || s.equals("iu") || s.equals("in"))
-                        s = "y" + s;
-                    else s = "y" + s.substring(1);
-                }
-                if (c == 'u')
-                {
-                    if (s.length() >= 2 && (s.charAt(1) == 'a' || s.charAt(1) == 'o'))
-                        s = "w" + s.substring(1);
-                    else s = "w" + s;
-                }
-            }
-            if (alt == 2)//硬加
-            {
-                if (c == 'i') s = "y" + s;
-                if (c == 'u') s = "w" + s;
-            }
-        }
-        if (capital > 0)
-        {
-            if (capital == 1) s = s.toUpperCase();
-            if (capital == 2) s = s.substring(0, 1).toUpperCase() + s.substring(1);
-        }
-        show = s;
-    }
-
-
-    @Override
-    public int initialLen()
-    {
-        return 2;
-    }
-
-    @Override
-    public boolean toCode()
+    public static Maybe<NamPinyin> tryOf(String s)
     {
         try
         {
-            // code 置空
-            code = "";
+            return Maybe.exist(new NamPinyin(s));
+        } catch (InvalidPinyinException e)
+        {
+            return Maybe.nothing();
+        }
+    }
+
+    protected String initCode()
+    {
+        try
+        {
+            String ans = "";
             String py = pinyin;
             int idx;
 
@@ -204,7 +44,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
             // 1. n和ng都是n开头，需要具体区分
             // 2. 除了零声母识别，ng识别长度为2，其他都是1位（所以统一idx=1，其他的调整）
             idx = 1;
-            code += switch (StringTool.substring(py, 0, 1))
+            ans += switch (StringTool.substring(py, 0, 1))
             {
                 case "b" -> "01";
                 case "p" -> "02";
@@ -245,31 +85,25 @@ public class NamPinyin extends UniPinyin<NamStyle>
             // 流程：如果被截取声母之后拼音没有了，如果是m n ng，识别为成音节辅音，否则返回失败
             if (py.isEmpty())
             {
-                switch (code)
+                return switch (ans)
                 {
-                    case "03" -> code = "00007";
-                    case "14" -> code = "00008";
-                    case "10" -> code = "00009";
-                }
-                if(code.length() == 5) return true;
-                else throw new IllegalArgumentException("声母之后没有内容了");
+                    case "03" -> "00007";
+                    case "14" -> "00008";
+                    case "10" -> "00009";
+                    default -> throw new IllegalArgumentException("声母之后没有内容了");
+                };
             }
             // 检查特殊韵母zii cii sii
-            if (ObjectTool.existEqual(code, "16", "17", "18") && py.startsWith("i"))
+            if (ObjectTool.existEqual(ans, "16", "17", "18") && py.startsWith("i"))
             {
-                if (py.equals("ii"))
-                {
-                    code += "100";
-                    return true;
-                }
+                if (py.equals("ii")) return ans + "100";
                 else throw new IllegalArgumentException("zcs后面接的不是ii");
             }
 
 
             // 介母：左指针统一移动一位
-            // TODO 没有完全确定ü的具体显示方式，所以这里还是待定
             idx = 1;
-            code += switch (StringTool.substring(py, 0, 1)) // 删掉了开头的就是现在的
+            ans += switch (StringTool.substring(py, 0, 1)) // 删掉了开头的就是现在的
             {
                 case "i" -> "1";
                 case "u" -> "2";
@@ -294,7 +128,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
             // 韵尾：特殊的地方只有
             // 除了没有韵尾不移动，ng要移动两位，其他都是移动一位（所以统一移动一位，其他的调整）
             idx = 1;
-            code += switch (StringTool.substring(py, py.length() - 1))
+            ans += switch (StringTool.substring(py, py.length() - 1))
             {
                 case "i" -> "3";
                 case "u" -> "4";
@@ -316,7 +150,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
             py = py.substring(0, py.length() - idx);
 
 
-            code += switch (py)
+            ans += switch (py)
             {
                 case "a" -> "1";
                 case "o" -> "2";
@@ -334,27 +168,21 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 }
             };
 
-            code = StringTool.swap(code, 2, 3);  // 识别和显示优先级不同
+            ans = StringTool.swap(ans, 2, 3);  // 识别和显示优先级不同
 
-            if (code.length() != 5) throw new IndexOutOfBoundsException();// 是否有效位数
+            if (ans.length() != 5) throw new IndexOutOfBoundsException();// 是否有效位数
+            return ans;
         } catch (IndexOutOfBoundsException | IllegalArgumentException e) // 这里面拼音出现了任何错误，就认为是无效的，所以里面可以大胆sub和charAt
         {
-            // 因为这里的要统一设置code为无效，所以不能直接返回false，要抛出异常放这里来处理
-            code = INVALID;
-            return false;
+            throw new InvalidPinyinException("拼音编码出现异常");
         }
-        return true;
     }
 
-
-    /**
-     * 反向建立即可，非常简单
-     */
-    protected String constuctPinyin()
+    protected void checkEncodable()
     {
         String c = code;
-        if (c.length() < 5) return "";
-        return switch ("" + c.charAt(0) + c.charAt(1))
+        if (c.length() < 5) throw new InvalidPinyinException("code不是5位");
+        String reverse = switch (c.substring(0, 2))
         {
             case "01" -> "b";
             case "02" -> "p";
@@ -405,28 +233,158 @@ public class NamPinyin extends UniPinyin<NamStyle>
             case '9' -> "l";
             default -> "";
         };
+
+        if (!Objects.equals(pinyin, reverse))
+            throw new InvalidPinyinException("没有正确逆推");
     }
 
-
-    protected void addMark(int num)
+    protected void checkToneValid()
     {
-        switch (num)
-        {
-            case 0:
-                break;
-            case 1:
-                if (tone == 0) break; //不用加任何符号
-                StringBuilder Str = new StringBuilder(show);
+        if (!NumberTool.closeBetween(tone, 0, 7)) throw new InvalidPinyinException("音调范围超出");
 
-                if ("ng".equalsIgnoreCase(show))
+        boolean end = ObjectTool.existEqual(StringTool.back(pinyin), 't', 'k');
+        if (NumberTool.closeBetween(tone, 1, 5)) if (end) throw new InvalidPinyinException("非入声音调配对入声韵尾");
+        if (NumberTool.closeBetween(tone, 6, 7)) if (!end) throw new InvalidPinyinException("入声音调配对非入声韵尾");
+    }
+
+    protected char initMark()
+    {
+        char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
+        return mark[tone];
+    }
+
+    protected int initCorner()
+    {
+        int[] fourCorner = {0, 1, 2, 3, 5, 6, 7, 8}; // 没有写错，没有4是因为南昌话没有「阳上」音
+        return fourCorner[tone];
+    }
+
+    protected String initWeight()
+    {
+        return code + tone;
+    }
+
+    public int getInitialLen()
+    {
+        return 2;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "默认的南昌话拼音：" + pinyin + tone + "（未知格式）";
+    }
+
+    @Override
+    public String toString(NamStyle p)
+    {
+        NullTool.checkNotNull(p);
+
+        String builder = setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
+        builder = addMark(builder, p.getNum());
+
+        return " [" + builder + "] ";
+    }
+
+    public String setFormat(int yu, int gn, int ee, int oe, int ii, int ptk, int alt, int capital)
+    {
+        String s = pinyin;
+        if (gn > 0)
+        {
+            s = s.replace("ni", "gni");
+            s = s.replace("nyu", "gnyu");
+        }
+        if (yu > 0)
+        {
+            if (yu == 1) s = s.replace("yu", "ü");
+            if (yu == 2) s = s.replace("yu", "v");
+            if (yu == 3) s = s.replace("yu", "ụ");
+        }
+        if (ee > 0)
+        {
+            if (ee == 1) s = s.replace("ee", "ẹ");
+            if (ee == 2) s = s.replace("ee", "ё");
+        }
+        if (oe > 0)
+        {
+            if (oe == 1) s = s.replace("oe", "ọ");
+            if (oe == 2) s = s.replace("oe", "ö");
+            if (oe == 3) s = s.replace("oe", "o");
+        }
+        if (ii > 0)
+        {
+            if (ii == 1) s = s.replace("ii", "i");
+            if (ii == 2) s = s.replace("ii", "");
+            if (ii == 3) s = s.replace("ii", "ị");
+        }
+        if (ptk > 0)
+        {
+            char c = StringTool.back(s);
+            if (c == 't' || c == 'k')
+            {
+                s = StringTool.deleteBack(s);
+                if (ptk == 1) s += "";
+                if (ptk == 2) s += 'h';
+                if (ptk == 3) s += 'q';
+                if (ptk == 4)
                 {
-                    Str.insert(1, mark[tone]);
-                    show = Str.toString();
-                    return;
+                    if (c == 'k') s += 'h';
+                    else s += 't';
+                }
+            }
+
+        }
+        if (alt > 0)
+        {
+            char c = s.charAt(0);
+            if (alt == 1)//符合普通话规律
+            {
+                if (c == 'i')
+                {
+                    // i ->yi it->yit iu->yiu in->yin
+                    if (ObjectTool.existEqual(s, "i", "it", "iu", "in"))
+                        s = "y" + s;
+                    else s = "y" + s.substring(1);
+                }
+                if (c == 'u')
+                {
+                    if (s.length() >= 2 && ObjectTool.existEqual(s.charAt(1), 'a', 'o'))
+                        s = "w" + s.substring(1);
+                    else s = "w" + s;
+                }
+            }
+            if (alt == 2)//硬加
+            {
+                if (c == 'i') s = "y" + s;
+                if (c == 'u') s = "w" + s;
+            }
+        }
+        if (capital > 0)
+        {
+            if (capital == 1) s = s.toUpperCase();
+            if (capital == 2) s = s.substring(0, 1).toUpperCase() + s.substring(1);
+        }
+        return s;
+    }
+
+    protected String addMark(String builder, int num)
+    {
+        return switch (num)
+        {
+            case 1 ->
+            {
+                if (tone == 0) yield builder; //不用加任何符号
+
+                StringBuilder str = new StringBuilder(builder);
+
+                if ("ng".equalsIgnoreCase(builder))
+                {
+                    str.insert(1, mark);
+                    yield str.toString();
                 }
 
                 int idx = -1;
-                int i = Str.length();
+                int i = str.length();
 
                 /*
                  * 问：为什么不用包含大小写的正则表达式？
@@ -434,7 +392,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
                  * */
                 while (i-- > 0)
                 {
-                    char c = Str.charAt(i);
+                    char c = str.charAt(i);
                     if (String.valueOf(c).matches("[aAoOöÖọỌeEẹẸёЁ]"))
                     {
                         idx = i;
@@ -443,17 +401,14 @@ public class NamPinyin extends UniPinyin<NamStyle>
                     if (String.valueOf(c).matches("[iIịỊuUvVüÜụỤ]")) idx = i;
                 }
 
-                if (idx == -1) Str.append(mark[tone]);
-                else Str.insert(idx + 1, mark[tone]);
+                if (idx == -1) str.append(mark);
+                else str.insert(idx + 1, mark);
 
-                show = Str.toString();
-                break;
-            case 2:
-                show = show + tone;
-                break;
-            case 3:
-                show = show + " " + mark[tone];
-                break;
-        }
+                yield str.toString();
+            }
+            case 2 -> builder + tone;
+            case 3 -> builder + " " + mark;
+            default -> builder; // 0 也就是不加的意思，和默认不加是重合的
+        };
     }
 }
