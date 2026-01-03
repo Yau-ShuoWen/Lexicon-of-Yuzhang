@@ -1,5 +1,7 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
+import static java.lang.Math.max;
+
 public class StringTool
 {
     /**
@@ -37,21 +39,16 @@ public class StringTool
     public static void checkTrimValid(String... str)
     {
         if (!isTrimValid(str)) throw new IllegalArgumentException(
-                "字符串无效或者只包含空格。String is null or trimmed empty.");
+                "字符串无效、为空或者只包含空格。String is null, empty or trimmed empty.");
     }
 
     /**
-     * 检查一个索引是否在字符串有效
+     * 检查索引是否在字符串有效
      */
-    public static boolean isIndexValid(String str, int index)
-    {
-        return index >= 0 && index < str.length();
-    }
-
     public static boolean isIndexValid(String str, int... index)
     {
         boolean flag = true;
-        for (int i : index) flag = flag && isIndexValid(str, i);
+        for (int i : index) flag = flag && NumberTool.arrayBetween(i, 0, str.length());
         return flag;
     }
 
@@ -129,16 +126,31 @@ public class StringTool
         int length = source.length();
 
         // 调整 beginIndex 到有效范围
-        beginIndex = Math.max(0, beginIndex);
+        beginIndex = max(0, beginIndex);
         beginIndex = Math.min(beginIndex, length);
 
         // 调整 endIndex 到有效范围
-        endIndex = Math.max(beginIndex, endIndex);
+        endIndex = max(beginIndex, endIndex);
         endIndex = Math.min(endIndex, length);
 
         // 如果调整后没有有效的子字符串
         if (beginIndex >= endIndex) return "";
 
         return source.substring(beginIndex, endIndex);
+    }
+
+    /**
+     * 这个获取是空安全的，空的内容可以被正确处理
+     */
+    public static char back(String s)
+    {
+        checkTrimValid(s);
+        return s.charAt(s.length() - 1);
+    }
+
+    public static String deleteBack(String s)
+    {
+        checkTrimValid(s);
+        return s.substring(0, s.length() - 1);
     }
 }

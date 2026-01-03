@@ -28,15 +28,15 @@ public class MapTool
     /**
      * 批量更换键名
      *
-     * @param map         Map对象
-     * @param keyMappings 键名映射关系
+     * @param map    Map对象
+     * @param mapper 键名映射函数
      */
-    public static <K, V> void renameKeys(Map<K, V> map, Map<K, K> keyMappings)
+    public static <K, V> void mappingKeyName(Map<K, V> map, Function<K, K> mapper)
     {
-        for (Map.Entry<K, K> entry : keyMappings.entrySet())
-        {
-            renameKey(map, entry.getKey(), entry.getValue());
-        }
+        Map<K, V> tmp = new HashMap<>();
+        for (var i : map.entrySet()) tmp.put(mapper.apply(i.getKey()), i.getValue());
+        map.clear();
+        map.putAll(tmp);
     }
 
     /**
