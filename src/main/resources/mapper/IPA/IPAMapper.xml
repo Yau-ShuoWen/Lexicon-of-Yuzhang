@@ -6,35 +6,35 @@
 
     <!-- 音节表相关查询 -->
 
-    <!-- 按照拼音为关键字，查询单行信息 -->
-    <select id="findByPinyin" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
-        select * from NC.${dialect}_ipa_syllable where standard = #{pinyin}
+    <!-- 关键字：标注拼音，单行信息 -->
+    <select id="findSyllableByStandard" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+        select * from NC.${dialect}_ipa_syllable where standard = #{standard}
     </select>
 
-    <!-- 按照编号为关键字，查询单行信息 -->
-    <select id="findByCode" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+    <!-- 关键字：编码，单行信息 -->
+    <select id="findSyllableByCode" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.${dialect}_ipa_syllable where code = #{code}
     </select>
 
     <!-- 获取音节表的所有信息，按照编号排序 -->
-    <select id="findAllPinyin" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+    <select id="getAllSyllable" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.${dialect}_ipa_syllable order by code
     </select>
 
     <!-- 批量查询音节信息 -->
-    <select id="findAllPinyinList" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+    <select id="findSyllableListByStandard" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         SELECT * FROM NC.${dialect}_ipa_syllable WHERE standard IN
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>
 
-    <select id="insertPinyin" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+    <select id="insertSyllable" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         insert into NC.${dialect}_ipa_syllable (standard, Code, info)
         values (#{standard}, #{code}, #{info})
     </select>
 
-    <select id="changeInfo" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+    <select id="changeSyllableInfo" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         update NC.${dialect}_ipa_syllable
         set info = #{py.info}
         where standard = #{py.standard} ;
@@ -43,16 +43,12 @@
     <!-- 音节成分表相关查询 -->
 
     <!-- 通过带空位的code查询 -->
-    <select id="findSegment" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+    <select id="findSegmentByCode" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.${dialect}_ipa_segment where code = #{code}
     </select>
 
-    <select id="findAllSegment" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
-        select * from NC.${dialect}_ipa_segment order by code
-    </select>
-
     <!-- order by code 保证了一定是先声母再韵母 -->
-    <select id="findAllSegmentList" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+    <select id="findSegmentListByCode" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
         select * from NC.${dialect}_ipa_segment where code in
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
@@ -60,24 +56,28 @@
         order by code
     </select>
 
+    <select id="getAllSegment" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllableEntity">
+        select * from NC.${dialect}_ipa_segment order by code
+    </select>
+
     <!-- 声调表相关查询 -->
 
-    <!-- 按照声调为关键字，查询单行信息 -->
-    <select id="findByTone" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
+    <!-- 单行信息 -->
+    <select id="findToneByTone" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
         select * from NC.${dialect}_ipa_tone where standard = #{tone}
     </select>
 
-    <!-- 获取声调表的所有信息 -->
-    <select id="findAllTone" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
-        select * from NC.${dialect}_ipa_tone order by standard
-    </select>
-
-    <!-- 批量查询声调信息 -->
-    <select id="findAllToneList" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
+    <!-- 多行信息 -->
+    <select id="findToneListByTone" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
         SELECT * FROM NC.${dialect}_ipa_tone WHERE standard IN
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
+    </select>
+
+    <!-- 所有信息 -->
+    <select id="getAllTone" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
+        select * from NC.${dialect}_ipa_tone order by standard
     </select>
 
 </mapper>

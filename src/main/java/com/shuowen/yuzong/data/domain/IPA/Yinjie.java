@@ -2,6 +2,8 @@ package com.shuowen.yuzong.data.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
 import lombok.Data;
 
@@ -12,7 +14,7 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
 
 
 /**
- * 音节DTO类
+ * 音节领域模型类
  */
 @Data
 public class Yinjie
@@ -20,28 +22,37 @@ public class Yinjie
     protected String pinyin;
     protected Map<String, String> info;
     protected String code;
-    protected boolean valid = false;
-    protected static String INVAILD_DICT = "不正确的字典，拼音：";
 
-    public Yinjie(IPASyllableEntity ipa)
+    private Yinjie(IPASyllableEntity ipa)
     {
-        if (ipa == null) return;
-
         pinyin = ipa.getStandard();
         code = ipa.getCode();
         info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
-        valid = true;
     }
 
-    public static Yinjie of(IPASyllableEntity ipa)
+    public static Maybe<Yinjie> tryOf(IPASyllableEntity ipa)
     {
-        return new Yinjie(ipa);
+        if (ipa == null) return Maybe.nothing();
+        else return Maybe.exist(new Yinjie(ipa));
     }
+
+    public static List<Yinjie> listOf(List<IPASyllableEntity> list)
+    {
+        return ListTool.mapping(list, Yinjie::new);
+    }
+
+    public Maybe<String> getInfo(String dict)
+    {
+        // 如果等于"-"，改成null，因为Maybe可以处理null
+        var ans = "-".equals(info.get(dict)) ? null : info.get(dict);
+        return Maybe.uncertain(ans);
+    }
+
 
     /**
      * 从声母和韵母拼接而成
      */
-    public Yinjie(Shengyun initial, Shengyun last)
+    private Yinjie(Shengyun initial, Shengyun last)
     {
         pinyin = initial.pinyin + last.pinyin;
         code = (initial.code + last.code).replace("~", "");
@@ -52,19 +63,15 @@ public class Yinjie
             if (ipa.contains("-")) ipa = "-";
             info.put(i, ipa);
         }
-
-        valid = true;
     }
 
-    public static Yinjie of(Shengyun i1, Shengyun i2)
+
+    public static Maybe<Yinjie> merge(Maybe<Shengyun> initial, Maybe<Shengyun> last)
     {
-        return new Yinjie(i1, i2);
+        if (initial.isEmpty() || last.isEmpty()) return Maybe.nothing();
+        return Maybe.exist(new Yinjie(initial.getValue(), last.getValue()));
     }
 
-    public String getInfo(String dict)
-    {
-        return info.getOrDefault(dict, INVAILD_DICT + pinyin);
-    }
 
     public IPASyllableEntity transfer()
     {

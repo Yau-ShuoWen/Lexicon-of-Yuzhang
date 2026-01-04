@@ -4,7 +4,7 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 
 public class PinyinOption
 {
-    Triple<Phonogram, IPASyllableStyle, IPAToneStyle> data;
+    private final Triple<Phonogram, IPASyllableStyle, IPAToneStyle> data;
 
     public PinyinOption(Phonogram p, IPASyllableStyle s, IPAToneStyle t)
     {
