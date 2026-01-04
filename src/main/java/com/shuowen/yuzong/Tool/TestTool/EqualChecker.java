@@ -1,12 +1,15 @@
 package com.shuowen.yuzong.Tool.TestTool;
 
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import lombok.Getter;
 
 import java.util.*;
 
 public class EqualChecker<T>
 {
     Counter counter = new Counter();
+    @Getter
     List<Pair<T, T>> log = new ArrayList<>();
 
     /**
@@ -23,6 +26,12 @@ public class EqualChecker<T>
             return true;
         }
         return false;
+    }
+
+    public boolean maybeCheck(T a, Maybe<T> b)
+    {
+        if (b.isValid()) return check(a, b.getValue());
+        else return check(a, null);
     }
 
     public String info()

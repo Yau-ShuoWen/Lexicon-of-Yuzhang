@@ -7,13 +7,18 @@ import java.util.Objects;
 public class ObjectTool
 {
     /**
-     * 返回自己
-     *
-     * @apiNote 担心if(true)和if(false)在测试里的问题，就用{@code if(ObjectTool.unchecked(true))} 就可以了
+     * 这句话为了对于那些偶尔测试一次的测试文件，打包的时候跳过测试，只能在测试文件里使用
+     * <blockquote><pre>
+     * if (ObjectTool.unchecked(true)) return;
+     * </pre></blockquote>
+     * 设计出来的目的就是：<p>
+     * - 如果写成 {@code return;}，编译器直接报错<br>
+     * - 如果写成 {@code if(true) return;}，编译器报出强警告<br>
+     * - 这里特意设计了一个不容易推断的内容，避免直接警告
      */
     public static boolean unchecked(boolean b)
     {
-        // 小聪明哈，有些地方测试如果是明确的true或者false，编译器会直接报错或报警告，这里可以把他绕晕
+        System.out.println(b ? "未打开测试（打包过程中请忽略）" : "打开测试");
         int a = 0;
         if (b) a++;
         return a == 1;
