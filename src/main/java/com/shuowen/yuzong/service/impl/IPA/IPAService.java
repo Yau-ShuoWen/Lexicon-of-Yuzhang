@@ -68,7 +68,7 @@ public class IPAService
         for (var i : Yinjie.listOf(m.getAllSyllable(d.toString())))
         {
             var pinyinAnswer = d.tryCreatePinyin(i.getPinyin());
-            var merge = constructIPA(pinyinAnswer, a -> Maybe.uncertain(map.get(a)));
+            var merge = constructIPA(d, pinyinAnswer, a -> Maybe.uncertain(map.get(a)));
             checker.maybeCheck(i, merge);
         }
         return checker;
@@ -100,7 +100,7 @@ public class IPAService
     public void insertSyllable(Pinyin p, Dialect d)
     {
         if (m.findSyllableByStandard(p.getPinyin(), d.toString()) != null) return;
-        var merge = constructIPA(Maybe.exist(p), i -> Shengyun.tryOf(m.findSegmentByCode(i, d.toString())));
+        var merge = constructIPA(d, Maybe.exist(p), i -> Shengyun.tryOf(m.findSegmentByCode(i, d.toString())));
         if (merge.isValid()) m.insertSyllable(merge.getValue().transfer(), d.toString());
     }
 
@@ -108,15 +108,15 @@ public class IPAService
      * @param pinyinMaybe 可能有效也可能无效的拼音，无效就直接返回安全空
      * @param data        查询可能找得到也可能找不到的函数，找不到会在Yinjie.merge()里返回安全空
      */
-    private static Maybe<Yinjie> constructIPA
-    (Maybe<? extends Pinyin> pinyinMaybe, Function<String, Maybe<Shengyun>> data)
+    private static Maybe<Yinjie> constructIPA(
+            Dialect d, Maybe<? extends Pinyin> pinyinMaybe, Function<String, Maybe<Shengyun>> data)
     {
         if (pinyinMaybe.isEmpty()) return Maybe.nothing();
         var pinyin = pinyinMaybe.getValue();
 
         String code = pinyin.getCode();
 
-        int left = pinyin.getInitialLen();
+        int left = d.getInitialLength();
         int right = code.length() - left;
 
         String initial = code.substring(0, left) + "~".repeat(right);

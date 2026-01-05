@@ -24,12 +24,15 @@ public class RichTextUtil
     public static <U extends PinyinStyle> String format(String s, U style, Dialect d)
     {
         Matcher m = Pattern.compile("\\[[^\\]]+]").matcher(s);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         while (m.find())
         {
             String content = m.group();
-            String ans = PinyinTool.formatPinyin(content.substring(1, content.length() - 1), style, d);
+            var pyMaybe = d.tryCreatePinyin(content.substring(1, content.length() - 1));
+            String ans = pyMaybe.isValid() ?
+                    PinyinTool.formatPinyin((pyMaybe.getValue()), style) :
+                    "{b 此处拼音无效，无法格式化}";
             m.appendReplacement(sb, Matcher.quoteReplacement(ans));
         }
         m.appendTail(sb);
@@ -53,19 +56,30 @@ public class RichTextUtil
             if (content.startsWith("/")) return " [" + content.substring(1) + "] ";
             if (content.startsWith("+")) return " [" + HanPinyin.topMark(content.substring(1)) + "] ";
             if (content.startsWith("*"))
-                return " " + data.getDirectly(content.substring(1), d.getDefaultDict()) + " ";
+            {
+                var pyMaybe = d.tryCreatePinyin(content.substring(1));
+                return pyMaybe.isValid() ?
+                        " " + data.getDirectly(pyMaybe.getValue(), d.getDefaultDict()) + " " :
+                        "{b 此处拼音无效，无法转换国际音标}";
+            }
             if (content.contains("-"))
             {
                 int dashIndex = content.indexOf('-');
-                String ans = IPATool.merge(content.substring(0, dashIndex), content.substring(dashIndex + 1), true);
+                String ans = IPATool.mergeFiveDegree(content.substring(0, dashIndex), content.substring(dashIndex + 1), true);
                 return " [" + ans + "] ";
             }
-            return PinyinTool.formatPinyin(content, d, PinyinParam.of(Scheme.STANDARD));
+            //  默认情况
+            {
+                var pyMaybe = d.tryCreatePinyin(content);
+                return pyMaybe.isValid() ?
+                        PinyinTool.formatPinyin(pyMaybe.getValue(), d, PinyinParam.of(Scheme.STANDARD)) :
+                        "{b 此处拼音无效，无法格式化}";
+            }
         };
 
 
         Matcher m = Pattern.compile("\\[[^\\]]+]").matcher(s);
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         while (m.find())
         {

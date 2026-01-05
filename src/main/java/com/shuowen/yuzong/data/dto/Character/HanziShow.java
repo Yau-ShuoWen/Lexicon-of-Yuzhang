@@ -1,9 +1,10 @@
 package com.shuowen.yuzong.data.dto.Character;
 
+import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.Character.Hanzi;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
@@ -29,124 +30,149 @@ public class HanziShow
     public static class Info
     {
         String stdPy;
-        List<Integer> special = new ArrayList<>();
-        List<Pair<String, String>> mulPy = new ArrayList<>();
-        List<String> similar = new ArrayList<>();
-        List<String> mdrInfo = new ArrayList<>();
-        List<Pair<String, String>> ipaExp = new ArrayList<>();
-        List<String> mean = new ArrayList<>();
-        List<Pair<String, String>> note = new ArrayList<>();
+        Set<Integer> special;
+        List<Pair<String, String>> mulPy;
+        Set<String> similar;
+        List<String> mdrInfo;
+        List<Pair<String, String>> ipaExp;
+        List<String> mean;
+        List<Pair<String, String>> note;
         //TODO:refer!
     }
 
-
-    private HanziShow(List<Hanzi> hz, Language language)
+    public static HanziShow of(HanziEntry hz, final IPAData data)
     {
-        hanzi = (language == Language.SC) ? hz.get(0).getHanzi() : hz.get(0).getHantz();
-        this.language = language.toString();
+        var list = ListTool.checkSizeOne(hz.getList(), "not found 未找到汉字", "not unique 汉字不唯一");
+        return new HanziShow(list, data);
+    }
 
-        for (Hanzi data : hz)
+    private HanziShow(List<Hanzi> hz, final IPAData data)
+    {
+        hanzi = hz.get(0).getTheHanzi();
+        language = data.getLanguage().toString();
+
+        Dialect d = data.getDialect();
+
+        @Data
+        class tmpInfo
         {
-            String pinyin = data.getStdPy();
-            // 根据拼音分类
-            // 如果没有这个键，就加入，如果加入了这个键，就处理这个键
-            Info info = infoMap.computeIfAbsent(pinyin, k -> new Info());
+            UniPinyin<?> stdPy;                                           // 标准拼音
+            Set<Integer> special = new TreeSet<>();                       // 特殊性数字：默认顺序的集合
+            Set<Pair<String, UniPinyin<?>>> mulPy = new LinkedHashSet<>();// 读音变体：插入顺序的集合
+            Set<String> similar = new TreeSet<>();                        // 模糊识别汉字：默认顺序的集合
+            List<String> mdrInfo = new ArrayList<>();
+            List<Pair<String, UniPinyin<?>>> ipaExp = new ArrayList<>();
+            List<String> mean = new ArrayList<>();
+            List<Pair<String, String>> note = new ArrayList<>();
+        }
 
+        // 初始化 ----------------------------------------------------------------------
+
+        Map<UniPinyin<?>, tmpInfo> tmpInfoMap = new HashMap<>();
+
+        // 根据信息初始化
+        for (Hanzi h : hz)
+        {
+            // 拼音根据方言的信任初始化创建
+            var pinyin = d.trustedCreatePinyin(h.getStdPy());
+            // 根据拼音分类：如果没有这个键，就加入，如果加入了这个键，就处理这个键
+            tmpInfo info = tmpInfoMap.computeIfAbsent(pinyin, k -> new tmpInfo());
+
+            // 普通类直接变过来
             info.stdPy = pinyin;
-            info.special.add(data.getSpecial());
-            info.similar.addAll(data.getSimilarData());
-            info.mulPy.addAll(data.getMulPyData());
-            info.mdrInfo.addAll(data.getMdrInfo());
-            info.ipaExp.addAll(data.getIpaExpData());
-            info.mean.addAll(data.getMeanData());
-            info.note.addAll(data.getNoteData());
+            info.special.add(h.getSpecial());
+            info.mean.addAll(h.getMeanData());
+            info.mdrInfo.addAll(h.getMdrInfo());
+            info.note.addAll(h.getNoteData());
+
+            // 普通类稍微变动
+            info.similar.addAll(SetTool.mapping(h.getSimilarData(), i -> i)); // similar直接list转set
+
+            // 拼音根据方言的信任初始化创建
+            info.mulPy.addAll(SetTool.mapping(h.getMulPyData(),
+                    i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(i.getRight()))));
+            info.ipaExp.addAll(SetTool.mapping(h.getIpaExpData(),
+                    i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(i.getRight()))));
         }
 
-        for (var i : infoMap.values())
+        // 格式化，两轮循环 ----------------------------------------------------------------------
+
+
+        // 第一次：获得国际音标资料
+        for (var i : tmpInfoMap.values())
         {
-            // 保留原来顺序的去重
-            i.mulPy = new ArrayList<>(new LinkedHashSet<>(i.mulPy));
-            // 有顺序的去重
-            i.special = new ArrayList<>(new TreeSet<>(i.special));
-            i.similar = new ArrayList<>(new TreeSet<>(i.similar));
+            switch (data.getPinyinOption().getPhonogram())
+            {
+                case PinyinIPA -> data.add(SetTool.mapping(i.ipaExp, Pair::getRight));
+                case AllIPA ->
+                {
+                    data.add(i.stdPy);
+                    data.add(SetTool.mapping(i.mulPy, Pair::getRight));
+                    data.add(SetTool.mapping(i.ipaExp, Pair::getRight));
+                }
+            }
         }
-    }
 
-    public static List<HanziShow> listOf(HanziEntry hz)
-    {
-        List<HanziShow> ans = new ArrayList<>();
-        for (var i : hz.getList()) ans.add(new HanziShow(i, hz.getLanguage()));
-        return ans;
-    }
-
-    public void init(Dialect d, PinyinOption op, final IPAData data)
-    {
-        Function<String, String> format = p -> PinyinTool.formatPinyin(p, d);
+        // 函数：快速调用拼音格式化成字符串
+        Function<UniPinyin<?>, String> format = p -> PinyinTool.formatPinyin(p, d);
         String dict = d.getDefaultDict();
 
-        // 两轮循环
-        // 第一次：格式化拼音、获得国际音标资料、处理字符串内容
-        // 第二次：回填国际音标数据
 
-        for (var i : infoMap.values())
+        // 第二次：对于展示类，格式化拼音、回填国际音标数据、处理字符串内容
+        for (var i : tmpInfoMap.values())
         {
-            // 格式化拼音
-            switch (op.getPhonogram())
+            Info info = new Info();
+            // 和「数据库拼音初始化」无关的内容先处理
+            info.special = i.special;
+            info.similar = i.similar;
+            info.mdrInfo = ListTool.mapping(i.mdrInfo, MdrTool::format);
+
+            // 这是三个明确要初始化的内容，已经在上一轮获取了信息
+            switch (data.getPinyinOption().getPhonogram())
             {
                 case AllPinyin ->
                 {
-                    i.stdPy = format.apply(i.stdPy);
-                    for (var j : i.mulPy) j.setRight(format.apply(j.getRight()));
-                    for (var j : i.ipaExp)
-                    {
-                        j.setLeft(data.getDictionaryName(j.getLeft()));
-                        j.setRight(format.apply(j.getRight()));
-                    }
+                    info.stdPy = format.apply(i.stdPy);
+                    info.mulPy = ListTool.mapping(i.mulPy, pair -> Pair.of(
+                            pair.getLeft(), format.apply(pair.getRight())
+                    ));
+                    info.ipaExp = ListTool.mapping(i.ipaExp, pair -> Pair.of(
+                            data.getDictionaryName(pair.getLeft()),
+                            format.apply(pair.getRight())
+                    ));
                 }
                 case PinyinIPA ->
                 {
-                    i.stdPy = format.apply(i.stdPy);
-                    for (var j : i.mulPy) j.setRight(format.apply(j.getRight()));
-                }
-            }
-
-            // 获得国际音标资料
-            switch (op.getPhonogram())
-            {
-                case PinyinIPA -> data.add(ListTool.mapping(i.ipaExp, Pair::getRight));
-                case AllIPA -> data.add(i.stdPy,
-                        ListTool.mapping(i.mulPy, Pair::getRight),
-                        ListTool.mapping(i.ipaExp, Pair::getRight)
-                );
-            }
-
-            // 处理字符串中内容
-            i.mdrInfo.replaceAll(MdrTool::format);
-            i.mean.replaceAll(s -> RichTextUtil.format(s, d, data));
-            for (var j : i.note) j.setRight(RichTextUtil.format(j.getRight(), d, data));
-        }
-
-        // 回填
-        for (var i : infoMap.values())
-        {
-            switch (op.getPhonogram())
-            {
-                case PinyinIPA ->
-                {
-                    for (var j : i.ipaExp)
-                    {
-                        // 先把拼音转换了，再把简写的转换了，因为前者用到了词典简写
-                        j.setRight(data.get(j.getRight(), j.getLeft()));
-                        j.setLeft(data.getDictionaryName(j.getLeft()));
-                    }
+                    // stdPy 和 mulPy 和上面的一样
+                    info.stdPy = format.apply(i.stdPy);
+                    info.mulPy = ListTool.mapping(i.mulPy, pair -> Pair.of(
+                            pair.getLeft(), format.apply(pair.getRight())
+                    ));
+                    // ipaExp 和下面一样
+                    info.ipaExp = ListTool.mapping(i.ipaExp, pair -> Pair.of(
+                            data.getDictionaryName(pair.getLeft()),
+                            data.submitAndGet(pair.getRight(), pair.getLeft())
+                    ));
                 }
                 case AllIPA ->
                 {
-                    i.stdPy = data.get(i.stdPy, dict);
-                    for (var j : i.mulPy) j.setRight(data.get(j.getRight(), dict));
-                    for (var j : i.ipaExp) j.setRight(data.get(j.getRight(), j.getLeft()));
+                    info.stdPy = data.submitAndGet(i.stdPy, dict);
+                    info.mulPy = ListTool.mapping(i.ipaExp, pair -> Pair.of(
+                            pair.getLeft(), data.submitAndGet(pair.getRight(), dict)
+                    ));
+                    info.ipaExp = ListTool.mapping(i.ipaExp, pair -> Pair.of(
+                            data.getDictionaryName(pair.getLeft()),
+                            data.submitAndGet(pair.getRight(), pair.getLeft())
+                    ));
                 }
             }
+
+            // 使用富文本的内容，放在最后，说不定可以用上前面获得的数据
+            info.mean = ListTool.mapping(i.mean, s -> RichTextUtil.format(s, d, data));
+            info.note = ListTool.mapping(i.note, pair -> Pair.of(pair.getLeft(), RichTextUtil.format(pair.getRight(), d, data)));
+
+            // 提交数据，顺序是权重
+            infoMap.put(i.stdPy.getWeight(), info);
         }
     }
 }

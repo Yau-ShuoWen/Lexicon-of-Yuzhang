@@ -18,21 +18,20 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 @Data
 public class Hanzi
 {
-    protected Integer id;
-    protected String hanzi;
-    protected String hantz;
-    protected String stdPy;
-    protected Integer special;
+    private final Integer id;
+    private final String theHanzi; // 加一个定冠词是因为在数据库层hanzi和hantz是指简体字和繁体字
+    private final String stdPy;
+    private final Integer special;
 
-    protected Map<String, List<String>> similar;
-    protected List<Map<String, String>> mulPy;
-    protected List<String> mdrInfo;
-    protected List<Map<String, String>> ipaExp;
-    protected Map<String, List<String>> mean;
-    protected Map<String, List<Map<String, String>>> note;
-    protected Map<String, List<Map<String, String>>> refer;
-    protected LocalDateTime createdAt;
-    protected LocalDateTime updatedAt;
+    private final Map<String, List<String>> similar;
+    private final List<Map<String, String>> mulPy;
+    private final List<String> mdrInfo;
+    private final List<Map<String, String>> ipaExp;
+    private final Map<String, List<String>> mean;
+    private final Map<String, List<Map<String, String>>> note;
+    private final Map<String, List<Map<String, String>>> refer;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime updatedAt;
 
     @JsonIgnore
     protected static String TAG = "text";
@@ -41,8 +40,7 @@ public class Hanzi
     {
         // 数据导入
         id = ch.getId();
-        hanzi = ch.getHanzi();
-        hantz = ch.getHantz();
+        theHanzi = (lang == Language.SC) ? ch.getHanzi() : ch.getHantz();
         stdPy = ch.getStdPy();
         special = ch.getSpecial();
 
@@ -66,9 +64,9 @@ public class Hanzi
         tagTrim(mean, lang, TAG);
         tagTrim(note, lang, TAG);
         tagTrim(refer, lang, TAG);
+
         // 语言初始化：过滤普通话读音内容
-        mdrInfo = ListTool.filter(mdrInfo, i -> Objects.equals(
-                i.split(" ")[0], (lang == Language.SC) ? hanzi : hantz));
+        ListTool.filter(mdrInfo, i -> Objects.equals(i.split(" ")[0], theHanzi));
     }
 
     public static Hanzi of(CharEntity ch, Language lang)

@@ -11,6 +11,4 @@ public interface Pinyin
     String getCode();
 
     String toString();
-
-    int getInitialLen();
 }

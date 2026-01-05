@@ -10,13 +10,9 @@ import java.util.*;
 
 /**
  * 静态拼音拼音处理类
- *
- * @implNote 因为内部有完善的机制处理null等情况，所以这个工具类本身不需要检查
  */
 public class PinyinTool
 {
-    private static final String error = "无效拼音";
-
     /**
      * 拼音直接返回对应的内容
      */
@@ -33,39 +29,19 @@ public class PinyinTool
         return String.join(" | ", ListTool.mapping(List.of(param), i -> formatPinyin(pinyin, d, i)));
     }
 
+    /**
+     * 默认的初始化方式就是两个并列的列出来
+     */
     public static String formatPinyin(UniPinyin<?> pinyin, Dialect d)
     {
         return formatPinyin(pinyin, d, PinyinParam.defaultList());
     }
 
     /**
-     * 对某一个方言，指定某种格式化方法的拼音格式化
-     *
-     * @param py 字符串形式的拼音
+     * 对于专业的版本，直接使用对应的style处理
      */
-    public static String formatPinyin(String py, Dialect d, PinyinParam param)
+    public static <U extends PinyinStyle> String formatPinyin(UniPinyin<U> pinyin, U style)
     {
-        var maybe = d.tryCreatePinyin(py);
-        return (maybe.isValid()) ? formatPinyin(maybe.getValue(), d, param) : error;
-    }
-
-
-    public static String formatPinyin(String py, Dialect d, PinyinParam[] param)
-    {
-        var maybe = d.tryCreatePinyin(py);
-        return (maybe.isValid()) ? formatPinyin(maybe.getValue(), d, param) : error;
-    }
-
-    public static String formatPinyin(String py, Dialect d)
-    {
-        var maybe = d.tryCreatePinyin(py);
-        return (maybe.isValid()) ? formatPinyin(maybe.getValue(), d) : error;
-    }
-
-    public static <U extends PinyinStyle>
-    String formatPinyin(String py, U style, Dialect d)
-    {
-        var maybe = d.tryCreatePinyin(py);
-        return (maybe.isValid()) ? maybe.getValue().toString(style) : error;
+        return pinyin.toString(style);
     }
 }

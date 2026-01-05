@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -15,7 +14,7 @@ import com.shuowen.yuzong.data.dto.Character.HanziShow;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.mapper.Character.CharMapper;
 import com.shuowen.yuzong.data.model.Character.CharEntity;
-import com.shuowen.yuzong.service.impl.Pinyin.PinyinService;
+import com.shuowen.yuzong.service.impl.IPA.IPAService;
 import com.shuowen.yuzong.service.impl.Refer.ReferServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,7 @@ public class HanziService
     private CharMapper hz;
 
     @Autowired
-    private PinyinService ipa;
+    private IPAService ipa;
 
     @Autowired
     private PronunService mdr;
@@ -67,16 +66,15 @@ public class HanziService
      *
      * @param grading 模糊识别粒度 1：{@code getHanziScOrTc}  2：{@code getHanziScTc}  3：{@code getHanziVague}
      */
-    private List<HanziShow> getHanziOrganize(String hanzi, Language lang, Dialect d, int grading)
+    private HanziEntry getHanziOrganize(String hanzi, Language lang, Dialect d, int grading)
     {
-        HanziEntry ans = HanziEntry.of(switch (grading)
+        return HanziEntry.of(switch (grading)
         {
             case 1 -> getHanziScOrTc(hanzi, lang, d);
             case 2 -> getHanziScTc(hanzi, d);
             case 3 -> getHanziVague(hanzi, d);
             default -> throw new RuntimeException("超范围");
         }, lang);
-        return HanziShow.listOf(ans);
     }
 
     /**
@@ -87,11 +85,11 @@ public class HanziService
         UniqueList<SearchResult, SearchResult> ans = UniqueList.of();
         for (String hanzi : UString.of(query))
         {
-            for (var i : getHanziOrganize(hanzi, lang, d, vague ? 3 : 2))
+            for (var i : getHanziOrganize(hanzi, lang, d, vague ? 3 : 2).getList())
             {
                 ans.add(new SearchResult(
-                        i.getHanzi(), "无", "hanzi",
-                        Map.of("hanzi", i.getHanzi(), "lang", i.getLanguage())
+                        i.get(0).getTheHanzi(), "无", "hanzi",
+                        Map.of("hanzi", i.get(0).getTheHanzi(), "lang", lang.toString())
                 ));
             }
         }
@@ -103,11 +101,10 @@ public class HanziService
      */
     public HanziShow getHanziDetailInfo(String hanzi, Language lang, Dialect d, PinyinOption op)
     {
-        var ans = ListTool.checkSizeOne(getHanziOrganize(hanzi, lang, d, 1),
-                "not found 未找到汉字", "not unique 汉字不唯一");
-
-        ans.init(d, op, new IPAData(lang, d, op, refer::getDictMap, ipa::getMultiLine));
-        return ans;
+        return HanziShow.of(
+                getHanziOrganize(hanzi, lang, d, 1),
+                new IPAData(lang, d, op, refer::getDictMap, ipa::getIPA)
+        );
     }
 
     /**

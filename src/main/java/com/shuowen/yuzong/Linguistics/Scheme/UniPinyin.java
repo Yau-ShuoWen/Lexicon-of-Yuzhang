@@ -52,16 +52,6 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
 
     protected abstract String initWeight();
 
-
-    // 下面这一个函数返回的是固定值
-
-    /**
-     * 返回{@code code}里从头开始多少位是声母编码，剩下的就是介韵母的编码长度了<p>
-     * 这里名称只是因为声母的英文 {@code initial} 的写法，和初始化无关
-     */
-    public abstract int getInitialLen();
-
-
     // 转字符串
 
     /**

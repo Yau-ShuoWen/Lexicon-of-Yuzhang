@@ -264,11 +264,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
         return code + tone;
     }
 
-    public int getInitialLen()
-    {
-        return 2;
-    }
-
     @Override
     public String toString()
     {
