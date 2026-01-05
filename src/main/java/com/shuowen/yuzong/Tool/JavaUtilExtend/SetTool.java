@@ -2,22 +2,17 @@ package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class SetTool
 {
-    public static <T, U> Set<U> mapping(Set<T> list, Function<T, U> mapper)
+    public static <T, U> Set<U> mapping(Collection<? extends T> collection, Function<? super T, ? extends U> mapper)
     {
-        NullTool.checkNotNull(list);
-        Set<U> result = new HashSet<>(list.size());
-        for (T i : list) result.add(mapper.apply(i));
-        return result;
+        return CollectionTool.mapping(collection, mapper, new HashSet<>(collection.size()));
     }
 
-    public static <T> Set<T> filter(Set<T> list, Function<T, Boolean> check)
+    public static <T> void filter(Collection<T> collection, Predicate<? super T> predicate)
     {
-        NullTool.checkNotNull(list);
-        Set<T> result = new HashSet<>(list.size());
-        for (T i : list) if (check.apply(i)) result.add(i);
-        return result;
+        CollectionTool.filter(collection, predicate);
     }
 }

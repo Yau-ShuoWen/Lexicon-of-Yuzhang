@@ -52,4 +52,14 @@ public class MapTool
         V value = map.get(key);
         return (value == null) ? defaultValue : operation.apply(value);
     }
+
+    /**
+     *
+     */
+    public static <K, V> Map<K, V> fromSet(Set<V> set, Function<V, K> getKey)
+    {
+        Map<K, V> map = new HashMap<>();
+        for (var i : set) map.put(getKey.apply(i), i);
+        return map;
+    }
 }
