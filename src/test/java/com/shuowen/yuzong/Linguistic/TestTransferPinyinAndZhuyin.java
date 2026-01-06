@@ -1,6 +1,5 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Tool.TestTool.Counter;
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
 import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 
@@ -12,27 +11,22 @@ public class TestTransferPinyinAndZhuyin
 
     public static void main(String[] args)
     {
-        test1();
-        System.out.println();
-        test2();
-        System.out.println();
-        test3();
+        withoutTone();
+        withTone();
+        tryPinyinEqual();
     }
 
     /**
      * 无音调拼音状注音测试
      */
-    private static void test1()
+    private static void withoutTone()
     {
         EqualChecker<String> cnt = new EqualChecker<>();
         for (String s : str)
         {
             String[] tmp = s.split(" ");
 
-            String std = tmp[1];
-            String zhuyin = (new Zhuyin(tmp[0], false)).toStringWithoutTone();
-
-            cnt.check(std, zhuyin);
+            cnt.check(tmp[1], Zhuyin.tryOf(tmp[0]), Zhuyin::toStringWithoutTone);
         }
         cnt.report();
     }
@@ -40,37 +34,33 @@ public class TestTransferPinyinAndZhuyin
     /**
      * 有音调拼音转注音测试
      */
-    private static void test2()
+    private static void withTone()
     {
         EqualChecker<String> cnt = new EqualChecker<>();
         for (String s : str)
         {
             String[] tmp = s.split(" ");
 
-            for (int j = 0; j <= 5; j++)
+            for (int j = 0; j < 5; j++)
             {
-                String std = tmp[1] + j;
-                String zhuyin = (new Zhuyin(tmp[0] + j)).toStringWithNumTone();
-
-                cnt.check(std, zhuyin);
+                cnt.check(tmp[1] + j,Zhuyin.tryOf(tmp[0] + j),Zhuyin::toStringWithNumTone);
             }
         }
         cnt.report();
     }
 
-    private static void test3()
+    private static void tryPinyinEqual()
     {
         EqualChecker<String> cnt = new EqualChecker<>();
         for (String s : str)
         {
             String[] tmp = s.split(" ");
 
-            for (int j = 0; j <= 5; j++)
+            for (int j = 0; j < 5; j++)
             {
                 String std = tmp[0] + j;
-                String zhuyin = (new Zhuyin(std)).toPinyin();
 
-                cnt.check(std, zhuyin);
+                cnt.check(std, Zhuyin.tryOf(std),Zhuyin::getPinyin);
             }
         }
         cnt.report();

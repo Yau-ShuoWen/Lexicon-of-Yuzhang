@@ -5,6 +5,7 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.Character.Hanzi;
 import com.shuowen.yuzong.data.domain.Character.HanziEntry;
@@ -125,7 +126,9 @@ public class HanziShow
             // 和「数据库拼音初始化」无关的内容先处理
             info.special = i.special;
             info.similar = i.similar;
-            info.mdrInfo = ListTool.mapping(i.mdrInfo, MdrTool::format);
+            info.mdrInfo = data.getLanguage() == Language.SC ?
+                    ListTool.mapping(i.mdrInfo, MdrTool::showWithPinyin) :
+                    ListTool.mapping(i.mdrInfo, MdrTool::showWithZhuyin);
 
             // 这是三个明确要初始化的内容，已经在上一轮获取了信息
             switch (data.getPinyinOption().getPhonogram())

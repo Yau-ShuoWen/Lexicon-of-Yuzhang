@@ -4,14 +4,13 @@ import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.data.domain.Character.MdrTool;
 import com.shuowen.yuzong.data.mapper.Character.PronunMapper;
 import com.shuowen.yuzong.data.model.Character.MdrChar;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
-import static com.shuowen.yuzong.data.domain.Character.MdrTool.settle;
 
 @Service
 public class PronunService
@@ -47,7 +46,7 @@ public class PronunService
 
     public List<MdrChar> getEdit(int id, Dialect d)
     {
-        return settle(m.getMandarinInfoByDialectId(id, d.toString()));
+        return MdrTool.initWithPinyin(m.getMandarinInfoByDialectId(id, d.toString()));
     }
 
     public void edit(List<MdrChar> ch, Dialect d)
@@ -60,11 +59,11 @@ public class PronunService
                 ListTool.mapping(ch, MdrChar::getLeftId), d.toString());
         if (!conflict.isEmpty())
         {
-            var info = ListTool.mapping(conflict, i -> settle(i.getInfo()));
+            var info = ListTool.mapping(conflict, i -> MdrTool.initWithPinyin(i.getInfo()));
             throw new IllegalArgumentException("普通话信息" + info + "和已有的重复了");
         }
 
         var data = ListTool.mapping(ch, i -> Pair.of(i.getLeftId(), i.getRightId()));
-        m.insertMap(data,d.toString());
+        m.insertMap(data, d.toString());
     }
 }

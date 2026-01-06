@@ -69,7 +69,7 @@ public class IPAService
         {
             var pinyinAnswer = d.tryCreatePinyin(i.getPinyin());
             var merge = constructIPA(d, pinyinAnswer, a -> Maybe.uncertain(map.get(a)));
-            checker.maybeCheck(i, merge);
+            checker.check(i, merge);
         }
         return checker;
     }

@@ -1,6 +1,11 @@
 package com.shuowen.yuzong.Linguistics.Mandarin;
 
-
+import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import lombok.Getter;
 
 /**
@@ -9,91 +14,91 @@ import lombok.Getter;
 @Getter
 public class Zhuyin
 {
-    String Sheng = "", Jie = "", Yun = "";
-    int tone;
-    boolean valid = true;
+    final private String initial, middle, last;
+    final private int tone;
+    final private String code;
+    final private String pinyin;
 
-    /**
-     * T：臺灣注音符號側標（T為Taiwan的首字母）
-     */
-    public char[] sidemark = {' ', ' ', 'ˊ', 'ˇ', 'ˋ'};
-
-    /**
-     * @apiNote 为了宽泛适配，第0调和第5调都被认为是轻声
-     */
-    @Override
     public String toString()
     {
-        if (!valid) return "[无效]";
-        else return (tone > 1 && tone < 4) ?
-                Sheng + Jie + Yun + sidemark[tone] :
-                "·" + Sheng + Jie + Yun;
-    }
+        String[] sidemark = {null, "", "ˊ", "ˇ", "ˋ"};
 
+        return NumberTool.closeBetween(tone, 1, 4) ?
+                initial + middle + last + sidemark[tone] :
+                "·" + initial + middle + last;
+    }
 
     public String toStringWithNumTone()
     {
-        if (!valid) return "[无效]";
-        else return Sheng + Jie + Yun + tone;
+        return initial + middle + last + tone;
     }
 
     public String toStringWithoutTone()
     {
-        if (!valid) return "[无效]";
-        else return Sheng + Jie + Yun;
+        return initial + middle + last;
     }
 
-    public Zhuyin(String pinyin)
+    public static Maybe<Zhuyin> tryOf(String pinyin)
     {
-        toZhuYin(pinyin, true);
-    }
-
-    public Zhuyin(String pinyin, boolean useTone)
-    {
-        toZhuYin(pinyin, useTone);
+        try
+        {
+            return Maybe.exist(new Zhuyin(pinyin));
+        } catch (InvalidPinyinException e)
+        {
+            return Maybe.nothing();
+        }
     }
 
     public static Zhuyin of(String pinyin)
     {
-        return new Zhuyin(pinyin);
+        var maybe = tryOf(pinyin);
+        if (maybe.isEmpty()) throw new InvalidPinyinException("初始化失败");
+        return maybe.getValue();
     }
 
-    public static Zhuyin of(String pinyin, boolean useTone)
+    private Zhuyin(String pinyin)
     {
-        return new Zhuyin(pinyin, useTone);
+        var tmp = PinyinChecker.trySplit(pinyin);
+        var syllablePinyin = tmp.getLeft();  // 拼音的音节
+        var lastPinyin = tmp.getRight();     // 拼音的音调
+
+        var syllable = initSyllable(syllablePinyin);
+        initial = syllable.getLeft();
+        middle = syllable.getMiddle();
+        last = syllable.getRight();
+
+        tone = initTone(lastPinyin);
+
+
+        code = initCode();
+
+        this.pinyin = toPinyin();
+
+        //这里比较的不是原来的字符串，因为音调原因
+        if (!this.pinyin.equals(syllablePinyin + lastPinyin))
+            throw new InvalidPinyinException("不可恢复");
     }
 
-    private void toZhuYin(String pinyin, boolean useTone)
+
+    private Integer initTone(Integer tone)
     {
-        if (pinyin.equals("none5"))
-        {
-            valid = false;
-            return;
-        }
+        if (!NumberTool.closeBetween(tone, 0, 4))
+            throw new InvalidPinyinException("音调超出范围");
+        return tone;
+    }
 
-        StringBuilder str = new StringBuilder(pinyin);
+    private Triple<String, String, String> initSyllable(String str)
+    {
+        var ans = Triple.of("", "", "");
 
-        if (useTone)
-        {
-            //聲調是最後一個字母，讀取并刪除
-            tone = str.charAt(str.length() - 1) - '0';
-            str.deleteCharAt(str.length() - 1);
-        }
-        else
-        {
-            tone = 5;
-        }
+        // 儿化音单独处理
+        if ("er".equals(str)) return Triple.of("", "", "ㄦ");
 
-        //兒化音不和其他讀音拼合
-        if (str.toString().equals("er"))
-        {
-            Yun = "ㄦ";
-            return;
-        }
+        str = str.replace("v", "ü");
 
-        int i = 0;
+        int idx = 0;
 
-        Sheng = switch (str.charAt(i))
+        ans.setLeft(switch (str.charAt(idx))
         {
             case 'b' -> "ㄅ";
             case 'p' -> "ㄆ";
@@ -108,195 +113,141 @@ public class Zhuyin
             case 'h' -> "ㄏ";
             case 'j' ->
             {
-                if (str.charAt(i + 1) == 'u') str.setCharAt(i + 1, 'v');
+                if (StringTool.charEquals(str, idx + 1, 'u'))
+                    str = str.replace("u", "ü");
                 yield "ㄐ";
             }
             case 'q' ->
             {
-                if (str.charAt(i + 1) == 'u') str.setCharAt(i + 1, 'v');
+                if (StringTool.charEquals(str, idx + 1, 'u'))
+                    str = str.replace("u", "ü");
                 yield "ㄑ";
             }
             case 'x' ->
             {
-                if (str.charAt(i + 1) == 'u') str.setCharAt(i + 1, 'v');
+                if (StringTool.charEquals(str, idx + 1, 'u'))
+                    str = str.replace("u", "ü");
                 yield "ㄒ";
             }
             case 'r' ->
             {
-                if (str.charAt(i + 1) == 'i') i++;
+                if (StringTool.charEquals(str, idx + 1, 'i')) idx++;
                 yield "ㄖ";
             }
             case 'z' ->
             {
-                String res;
-                if (str.charAt(i + 1) == 'h')
+                String tmp;
+                if (StringTool.charEquals(str, idx + 1, 'h'))
                 {
-                    i++; res = "ㄓ";
+                    tmp = "ㄓ";
+                    idx++;
                 }
-                else res = "ㄗ";
-                if (str.charAt(i + 1) == 'i') i++;
-                yield res;
+                else tmp = "ㄗ";
+
+                if (StringTool.charEquals(str, idx + 1, 'i')) idx++;
+                yield tmp;
             }
             case 'c' ->
             {
-                String res;
-                if (str.charAt(i + 1) == 'h')
+                String tmp;
+                if (StringTool.charEquals(str, idx + 1, 'h'))
                 {
-                    i++; res = "ㄔ";
+                    tmp = "ㄔ";
+                    idx++;
                 }
-                else res = "ㄘ";
-                if (str.charAt(i + 1) == 'i') i++;
-                yield res;
+                else tmp = "ㄘ";
+
+                if (StringTool.charEquals(str, idx + 1, 'i')) idx++;
+                yield tmp;
             }
             case 's' ->
             {
-                String res;
-                if (str.charAt(i + 1) == 'h')
+                String tmp;
+                if (StringTool.charEquals(str, idx + 1, 'h'))
                 {
-                    i++; res = "ㄕ";
+                    tmp = "ㄕ";
+                    idx++;
                 }
-                else res = "ㄙ";
-                if (str.charAt(i + 1) == 'i') i++;
-                yield res;
+                else tmp = "ㄙ";
+
+                if (StringTool.charEquals(str, idx + 1, 'i')) idx++;
+                yield tmp;
             }
             case 'y' ->
             {
-                if (str.charAt(i + 1) == 'i')
-                {
-                }//ying
-                else if (str.charAt(i + 1) == 'u')
-                {
-                    str.setCharAt(i + 1, 'v');
-                }//yuan->yvan
-                else
-                {
-                    str.setCharAt(i, 'i'); i--;
-                }  //yan->ian
+                str = str.replace("yu", "ü")
+                        .replace("yi", "i")
+                        .replace("y", "i");
+                idx--;
                 yield "";
             }
             case 'w' ->
             {
-                if (str.charAt(i + 1) == 'u')
-                {
-                }  //wu
-                else
-                {
-                    str.setCharAt(i, 'u'); i--;
-                } //wan->uan
+                str = str.replace("wu", "u")
+                        .replace("w", "u");
+                idx--;
                 yield "";
             }
             default ->
             {
-                i--;
+                idx--;
                 yield "";
             }
-        };
-        i++;
-        if (i == str.length()) return;
+        });
+        idx++;
+        str = str.substring(idx);
+        if (str.isEmpty()) return ans;
 
+        str = str.replace("ie", "iê")
+                .replace("iu", "iou")
+                .replace("in", "ien")
+                .replace("ing", "ieng")
+                .replace("ui", "uei")
+                .replace("un", "uen")
+                .replace("üe", "üê")
+                .replace("ün", "üen")
+                .replace("iong", "üeng")
+                .replace("ong", "ueng");
 
-        if (str.toString().endsWith("ong"))
-        {
-            Jie = (str.toString().endsWith("iong")) ? "ㄩ" : "ㄨ";
-            Yun = "ㄥ";
-            return;
-        }
-
-
-        Jie = switch (str.charAt(i))
+        idx = 0;
+        ans.setMiddle(switch (str.charAt(idx))
         {
             case 'i' -> "ㄧ";
             case 'u' -> "ㄨ";
-            case 'v' -> "ㄩ";
+            case 'ü' -> "ㄩ";
             default ->
             {
-                i--; yield "";
+                idx--;
+                yield "";
             }
-        };
-        i++;
+        });
+        idx++;
+        str = str.substring(idx);
+        if (str.isEmpty()) return ans;
 
-        //祇有介韻母沒有
-        if (i == str.length()) return;
-
-        //如果有介韻母
-        if (!Jie.isEmpty())
+        ans.setRight(switch (str)
         {
-            Yun += switch (str.charAt(i))
-            {
-                //jie jue
-                case 'e' ->
-                {
-                    if (Jie.equals("ㄧ") || Jie.equals("ㄩ"))
-                    {
-                        yield "ㄝ";
-                    }
-                    i--;
-                    yield "";
-                }
-                //jin jing
-                case 'n' ->
-                {
-                    if (str.toString().endsWith("ng"))
-                    {
-                        i++;
-                        yield "ㄥ";
-                    }
-                    else yield "ㄣ";//in un vn
-                }
-                case 'u' -> "ㄡ";
-                case 'i' -> "ㄟ";
-                default ->
-                {
-                    i--; yield "";
-                }
-            };
-            i++;
-        }
-        if (i == str.length()) return;
+            case "a" -> "ㄚ";
+            case "o" -> "ㄛ";
+            case "e" -> "ㄜ";
+            case "ê" -> "ㄝ";
+            case "ai" -> "ㄞ";
+            case "ei" -> "ㄟ";
+            case "ao" -> "ㄠ";
+            case "ou" -> "ㄡ";
+            case "an" -> "ㄢ";
+            case "en" -> "ㄣ";
+            case "ang" -> "ㄤ";
+            case "eng" -> "ㄥ";
+            default -> throw new InvalidPinyinException("剩下的不能再匹配了");
+        });
 
-        Yun += switch (str.charAt(i))
-        {
-            case 'a' ->
-            {
-                if (i + 1 == str.length()) yield "ㄚ";
-                if (i + 2 == str.length())
-                {
-                    if (str.charAt(i + 1) == 'i') yield "ㄞ";
-                    if (str.charAt(i + 1) == 'o') yield "ㄠ";
-                    if (str.charAt(i + 1) == 'n') yield "ㄢ";
-                }
-                if (i + 3 == str.length()) yield "ㄤ";
-                yield "";
-            }
-            case 'o' ->
-            {
-                if (i + 1 == str.length()) yield "ㄛ";
-                if (i + 2 == str.length()) yield "ㄡ";
-                yield "";
-            }
-            case 'e' ->
-            {
-                if (i + 1 == str.length()) yield "ㄜ";
-                if (i + 2 == str.length())
-                {
-                    if (str.charAt(i + 1) == 'i') yield "ㄟ";
-                    if (str.charAt(i + 1) == 'n') yield "ㄣ";
-                }
-                if (i + 3 == str.length()) yield "ㄥ";
-                yield "";
-            }
-            default -> "";
-        };
+        return ans;
     }
 
-    /**
-     * 把注音转换为更容易解析度Code代码，便于复杂方案的解析
-     *
-     * @return 长度为五位的数字
-     */
-    public String toCode()
+    private String initCode()
     {
-        return switch (Sheng)
+        return switch (initial)
         {
             case "ㄅ" -> "01";
             case "ㄆ" -> "02";
@@ -320,13 +271,13 @@ public class Zhuyin
             case "ㄘ" -> "20";
             case "ㄙ" -> "21";
             default -> "00";
-        } + switch (Jie)
+        } + switch (middle)
         {
             case "ㄧ" -> "1";
             case "ㄨ" -> "2";
             case "ㄩ" -> "3";
             default -> "0";
-        } + switch (Yun)
+        } + switch (last)
         {
             case "ㄚ" -> "01";
             case "ㄛ" -> "02";
@@ -341,31 +292,14 @@ public class Zhuyin
             case "ㄤ" -> "11";
             case "ㄥ" -> "12";
             case "ㄦ" -> "13";
-            default -> "0";
+            default -> "00";
         };
     }
 
-    /**
-     * 在上面函数的基础上再加上音调符号
-     */
-    public String toCodeWithTone()
-    {
-        return toCode() + tone;
-    }
-
-    /**
-     * 这里转换的内容是中国大陆的，软件里会有的，可供输入的内容
-     * <ul>
-     *     <li>软件里会有的：只存在字典里的读音ê m等，输入法会用ei en等代替，不考虑这个的转换</li>
-     *     <li>可供输入的内容：使用的是键盘的版本，没有ü的，要么变成u，要么变成v</li>
-     * </ul>
-     *
-     * @see HanPinyin HanPinyin：完整的汉语拼音处理类
-     */
-    public String toPinyin()
+    private String toPinyin()
     {
         boolean zero = false;  //零声母
-        String sheng = switch (Sheng)
+        String sheng = switch (initial)
         {
             case "ㄅ" -> "b";
             case "ㄆ" -> "p";
@@ -395,7 +329,7 @@ public class Zhuyin
             }
         };
 
-        String yun = switch (Jie + Yun)
+        String yun = switch (middle + last)
         {
             case "ㄚ" -> "a";
             case "ㄛ" -> "o";
