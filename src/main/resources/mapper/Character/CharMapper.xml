@@ -224,14 +224,14 @@
     <!-- |                             | -->
 
     <select id="findPreviousId" parameterType="Integer" resultType="Integer">
-        SELECT * FROM ${dialect}_char
+        SELECT * FROM NC.${dialect}_char
         WHERE id &lt; #{id}
         ORDER BY id DESC
         LIMIT 1;
     </select>
 
     <select id="findNextId" parameterType="Integer" resultType="Integer">
-        SELECT * FROM ${dialect}_char
+        SELECT * FROM NC.${dialect}_char
         WHERE id > #{id}
         ORDER BY id ASC
         LIMIT 1;
@@ -241,11 +241,19 @@
             parameterType="com.shuowen.yuzong.data.model.Character.CharEntity"
             resultType="com.shuowen.yuzong.data.model.Character.CharEntity"
     >
-        SELECT * FROM ${dialect}_char
+        SELECT * FROM NC.${dialect}_char
         WHERE
         hanzi = #{ch.hanzi} AND
         hantz = #{ch.hantz} AND
         std_py = #{ch.stdPy}
+    </select>
+
+    <select id="findRowCountInHanziTable" resultType="int">
+        SELECT COUNT(*) FROM NC.${dialect}_char
+    </select>
+
+    <select id="findRowCountInPinyinTable" resultType="int">
+        SELECT COUNT(*) FROM NC.${dialect}_char_pinyin
     </select>
 
 </mapper>

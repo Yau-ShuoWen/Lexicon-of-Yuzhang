@@ -39,4 +39,6 @@ public interface WordMapper
      * 精确查询
      */
     List<WordEntity> findCiyuByScOrTc(String ciyu, String lang, String dialect);
+
+    Integer findRowCountInCiyuTable(String dialect);
 }

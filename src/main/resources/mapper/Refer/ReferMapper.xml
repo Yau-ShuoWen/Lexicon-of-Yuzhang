@@ -55,4 +55,12 @@
     <insert id="delete">
         DELETE FROM NC.reference WHERE id = #{id}
     </insert>
+
+    <select id="findRowCountInReferTable" resultType="int">
+        select count(*) from reference
+        where dictionary in (
+        SELECT code from dictionary_info
+        where language like concat('%', #{dialect}, '%')
+        )
+    </select>
 </mapper>

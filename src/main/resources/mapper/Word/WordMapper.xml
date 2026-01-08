@@ -130,5 +130,9 @@
         AND special &lt; 2
         GROUP BY main.id
     </select>
+    
+    <select id="findRowCountInCiyuTable" resultType="int">
+        SELECT COUNT(*) FROM NC.${dialect}_word
+    </select>
 
 </mapper>

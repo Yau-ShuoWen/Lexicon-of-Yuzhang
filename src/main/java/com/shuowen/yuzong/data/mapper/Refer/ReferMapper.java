@@ -28,4 +28,6 @@ public interface ReferMapper
     void update(ReferEntity refer,List<String> list);
 
     void delete(Integer id);
+
+    Integer findRowCountInReferTable(String dialect);
 }

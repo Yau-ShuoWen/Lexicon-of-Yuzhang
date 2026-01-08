@@ -105,4 +105,14 @@ public interface CharMapper
      * 查询唯一键是否重复
      */
     CharEntity findByUniqueKey(@Param ("ch") CharEntity ch, @Param ("dialect") String dialect);
+
+    /**
+     * 计算字行数
+     */
+    Integer findRowCountInHanziTable(String dialect);
+
+    /**
+     * 计算拼音行数
+     */
+    Integer findRowCountInPinyinTable(String dialect);
 }
