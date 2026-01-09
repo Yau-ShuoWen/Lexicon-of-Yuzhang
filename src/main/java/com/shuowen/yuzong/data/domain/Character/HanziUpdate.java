@@ -8,9 +8,9 @@ import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
-import com.shuowen.yuzong.data.model.Character.CharEntity;
-import com.shuowen.yuzong.data.model.Character.CharPinyin;
-import com.shuowen.yuzong.data.model.Character.CharSimilar;
+import com.shuowen.yuzong.data.model.Character.HanziEntity;
+import com.shuowen.yuzong.data.model.Character.HanziPinyin;
+import com.shuowen.yuzong.data.model.Character.HanziSimilar;
 import com.shuowen.yuzong.data.model.Character.MdrChar;
 import lombok.Data;
 
@@ -20,18 +20,18 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
 
 @Data
-public class HanziEdit
+public class HanziUpdate
 {
     protected Integer id;
-    protected String hanzi;
-    protected String hantz;
-    protected String stdPy;
+    protected String sc;
+    protected String tc;
+    protected String mainPy;
     protected Integer special;
 
-    protected List<CharSimilar> similar = new ArrayList<>();
-    protected List<CharPinyin> mulPy = new ArrayList<>();
+    protected List<HanziSimilar> similar = new ArrayList<>();
+    protected List<HanziPinyin> variantPy = new ArrayList<>();
     protected List<MdrChar> mandarin = new ArrayList<>();
-    protected List<Pair<String, String>> ipaExp = new ArrayList<>();
+    protected List<Pair<String, String>> ipa = new ArrayList<>();
     protected List<Pair<String, String>> mean = new ArrayList<>();
     protected List<Pair<Pair<String, String>, Pair<String, String>>> note = new ArrayList<>();
     /* ↑这个的结构是：
@@ -39,20 +39,20 @@ public class HanziEdit
      * 里面的Pair负责区分标签和内容，Left标签、Right内容。
      */
 
-    public HanziEdit()
+    public HanziUpdate()
     {
     }
 
-    public HanziEdit(CharEntity ch, List<CharSimilar> sim, List<CharPinyin> py, List<MdrChar> mdr)
+    public HanziUpdate(HanziEntity ch, List<HanziSimilar> sim, List<HanziPinyin> py, List<MdrChar> mdr)
     {
         id = ch.getId();
-        hanzi = ch.getHanzi();
-        hantz = ch.getHantz();
-        stdPy = ch.getStdPy();
+        sc = ch.getSc();
+        tc = ch.getTc();
+        mainPy = ch.getMainPy();
         special = ch.getSpecial();
 
         similar.addAll(sim);
-        mulPy.addAll(py);
+        variantPy.addAll(py);
         mandarin.addAll(mdr);
 
         readDAO(ch);
@@ -65,22 +65,22 @@ public class HanziEdit
     {
         // 《批评和自我批评》
 
-        if (!StringTool.isTrimValid(hanzi, hantz, stdPy))
+        if (!StringTool.isTrimValid(sc, tc, mainPy))
             throw new IllegalArgumentException("簡體字、繁體字、主拼音不可以缺少");
 
-        if (!UString.isChar(hanzi, hantz))
+        if (!UString.isChar(sc, tc))
             throw new IllegalArgumentException("输入的字不止一个");
 
-        PinyinChecker.checkStrictly(stdPy, d);
+        PinyinChecker.checkStrictly(mainPy, d);
 
         NullTool.checkNotNull(special);
 
         for (var i : similar)
         {
-            StringTool.checkTrimValid(i.getHanzi(), i.getHantz());
-            UString.checkChar(i.getHanzi(), i.getHantz());
+            StringTool.checkTrimValid(i.getSc(), i.getTc());
+            UString.checkChar(i.getSc(), i.getTc());
         }
-        for (var i : mulPy)
+        for (var i : variantPy)
         {
             StringTool.checkTrimValid(i.getSc(), i.getTc(), i.getPinyin());
             PinyinChecker.checkStrictly(i.getPinyin(), d);
@@ -99,14 +99,14 @@ public class HanziEdit
         }
     }
 
-    public CharEntity transfer()
+    public HanziEntity transfer()
     {
-        CharEntity ans = new CharEntity();
+        HanziEntity ans = new HanziEntity();
 
         ans.setId(id);
-        ans.setHanzi(hanzi);
-        ans.setHantz(hantz);
-        ans.setStdPy(stdPy);
+        ans.setSc(sc);
+        ans.setTc(tc);
+        ans.setMainPy(mainPy);
         ans.setSpecial(special);
 
         toDao(ans);
@@ -114,19 +114,19 @@ public class HanziEdit
         return ans;
     }
 
-    public static HanziEdit of(CharEntity ch, List<CharSimilar> sim, List<CharPinyin> py, List<MdrChar> mdr)
+    public static HanziUpdate of(HanziEntity ch, List<HanziSimilar> sim, List<HanziPinyin> py, List<MdrChar> mdr)
     {
-        return new HanziEdit(ch, sim, py, mdr);
+        return new HanziUpdate(ch, sim, py, mdr);
     }
 
-    private void readDAO(CharEntity ch)
+    private void readDAO(HanziEntity ch)
     {
         ObjectMapper om = new ObjectMapper();
 
         {
-            List<Map<String, String>> tmp = readJson(ch.getIpaExp(), new TypeReference<>() {}, om);
+            List<Map<String, String>> tmp = readJson(ch.getIpa(), new TypeReference<>() {}, om);
             for (var i : tmp)
-                ipaExp.add(Pair.of(i.get("tag"), i.get("content")));
+                ipa.add(Pair.of(i.get("tag"), i.get("content")));
         }
 
         {
@@ -145,7 +145,7 @@ public class HanziEdit
         }
     }
 
-    private void toDao(CharEntity ch)
+    private void toDao(HanziEntity ch)
     {
         // 空的结构
         String emptyScTc = "{\"sc\": [], \"tc\": []}";
@@ -153,14 +153,14 @@ public class HanziEdit
 
         {
             List<Map<String, String>> tmp = new ArrayList<>();
-            for (var i : ipaExp)
+            for (var i : ipa)
             {
                 Map<String, String> t = new HashMap<>();
                 t.put("tag", i.getLeft());
                 t.put("content", i.getRight());
                 tmp.add(t);
             }
-            ch.setIpaExp(toJson(tmp, om, "[]"));
+            ch.setIpa(toJson(tmp, om, "[]"));
         }
 
         {

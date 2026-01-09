@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.data.model.Character.CharEntity;
+import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -15,18 +15,21 @@ import java.util.*;
 import static com.shuowen.yuzong.Linguistics.Mandarin.TcSc.tagTrim;
 import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 
+/**
+ * 格式化的汉字主体
+ */
 @Data
-public class Hanzi
+public class HanziItem
 {
     private final Integer id;
-    private final String theHanzi; // 加一个定冠词是因为在数据库层hanzi和hantz是指简体字和繁体字
-    private final String stdPy;
+    private final String hanzi;
+    private final String mainPy;
     private final Integer special;
 
     private final Map<String, List<String>> similar;
-    private final List<Map<String, String>> mulPy;
+    private final List<Map<String, String>> variantPy;
     private final List<String> mdrInfo;
-    private final List<Map<String, String>> ipaExp;
+    private final List<Map<String, String>> ipa;
     private final Map<String, List<String>> mean;
     private final Map<String, List<Map<String, String>>> note;
     private final Map<String, List<Map<String, String>>> refer;
@@ -34,21 +37,21 @@ public class Hanzi
     private final LocalDateTime updatedAt;
 
     @JsonIgnore
-    protected static String TAG = "text";
+    protected static String TEXT = "text";
 
-    protected Hanzi(CharEntity ch, Language lang)
+    protected HanziItem(HanziEntity ch, Language lang)
     {
         // 数据导入
         id = ch.getId();
-        theHanzi = (lang == Language.SC) ? ch.getHanzi() : ch.getHantz();
-        stdPy = ch.getStdPy();
+        hanzi = lang.isSimplified() ? ch.getSc() : ch.getTc();
+        mainPy = ch.getMainPy();
         special = ch.getSpecial();
 
         ObjectMapper om = new ObjectMapper();
         similar = readJson(ch.getSimilar(), new TypeReference<>() {}, om);
-        mulPy = readJson(ch.getMulPy(), new TypeReference<>() {}, om);
+        variantPy = readJson(ch.getVariantPy(), new TypeReference<>() {}, om);
         mdrInfo = readJson(ch.getMdrInfo(), new TypeReference<>() {}, om);
-        ipaExp = readJson(ch.getIpaExp(), new TypeReference<>() {}, om);
+        ipa = readJson(ch.getIpa(), new TypeReference<>() {}, om);
 
         mean = readJson(ch.getMean(), new TypeReference<>() {}, om);
         note = readJson(ch.getNote(), new TypeReference<>() {}, om);
@@ -58,25 +61,25 @@ public class Hanzi
         updatedAt = ch.getUpdatedAt();
 
         // 语言初始化：把SC TC标签简化
-        for (var i : mulPy) tagTrim(i, lang, TAG);
-        for (var i : ipaExp) tagTrim(i, lang, TAG);
-        tagTrim(similar, lang, TAG);
-        tagTrim(mean, lang, TAG);
-        tagTrim(note, lang, TAG);
-        tagTrim(refer, lang, TAG);
+        for (var i : variantPy) tagTrim(i, lang, TEXT);
+        for (var i : ipa) tagTrim(i, lang, TEXT);
+        tagTrim(similar, lang, TEXT);
+        tagTrim(mean, lang, TEXT);
+        tagTrim(note, lang, TEXT);
+        tagTrim(refer, lang, TEXT);
 
         // 语言初始化：过滤普通话读音内容
-        ListTool.filter(mdrInfo, i -> Objects.equals(i.split(" ")[0], theHanzi));
+        ListTool.filter(mdrInfo, i -> Objects.equals(i.split(" ")[0], hanzi));
     }
 
-    public static Hanzi of(CharEntity ch, Language lang)
+    public static HanziItem of(HanziEntity ch, Language lang)
     {
-        return new Hanzi(ch, lang);
+        return new HanziItem(ch, lang);
     }
 
     public List<String> getSimilarData()
     {
-        return new ArrayList<>(similar.get(TAG));
+        return new ArrayList<>(similar.get(TEXT));
     }
 
     /**
@@ -84,7 +87,7 @@ public class Hanzi
      */
     public List<Pair<String, String>> getMulPyData()
     {
-        return ListTool.mapping(mulPy, i -> Pair.of(i.get(TAG), i.get("content")));
+        return ListTool.mapping(variantPy, i -> Pair.of(i.get(TEXT), i.get("content")));
     }
 
     /**
@@ -92,7 +95,7 @@ public class Hanzi
      */
     public List<Pair<String, String>> getIpaExpData()
     {
-        return ListTool.mapping(ipaExp, i -> Pair.of(i.get("tag"), i.get("content")));
+        return ListTool.mapping(ipa, i -> Pair.of(i.get("tag"), i.get("content")));
     }
 
     /**
@@ -100,7 +103,7 @@ public class Hanzi
      */
     public List<String> getMeanData()
     {
-        return mean.get(TAG);
+        return mean.get(TEXT);
     }
 
     /**
@@ -108,6 +111,6 @@ public class Hanzi
      */
     public List<Pair<String, String>> getNoteData()
     {
-        return ListTool.mapping(note.get(TAG), i -> Pair.of(i.get("tag"), i.get("content")));
+        return ListTool.mapping(note.get(TEXT), i -> Pair.of(i.get("tag"), i.get("content")));
     }
 }
