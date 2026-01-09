@@ -14,14 +14,16 @@ import java.util.Objects;
  * @apiNote 因为结构简单，没有转换的必要，所以兼任{@code DAO} {@code domain} {@code DTO}
  */
 
-
 @Data
-public class CharSimilar implements ChangeDetectable<CharSimilar>
+public class HanziPinyin implements ChangeDetectable<HanziPinyin>
 {
     Integer id;     // 新增的内容id设置为0
     Integer charId; // 永远不可以在前端修改
-    String hanzi;
-    String hantz;
+    String sc;      // 简体标签
+    String tc;      // 繁体标签
+    String pinyin;  // 读音变体
+    Integer sort;   // 有限等级
+
 
     // 比较内容 -------------------------------------
 
@@ -30,9 +32,11 @@ public class CharSimilar implements ChangeDetectable<CharSimilar>
     {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CharSimilar ct = (CharSimilar) o;
-        return Objects.equals(hanzi, ct.hanzi) &&
-                Objects.equals(hantz, ct.hantz);
+        HanziPinyin ct = (HanziPinyin) o;
+        return Objects.equals(sc, ct.sc) &&
+                Objects.equals(tc, ct.tc) &&
+                Objects.equals(pinyin, ct.pinyin) &&
+                Objects.equals(charId, ct.charId);
     }
 
     @JsonIgnore
@@ -43,11 +47,13 @@ public class CharSimilar implements ChangeDetectable<CharSimilar>
     }
 
     @Override
-    public List<String> getChangedFields(CharSimilar other)
+    public List<String> getChangedFields(HanziPinyin other)
     {
         List<String> res = new ArrayList<>();
-        if (!Objects.equals(hanzi, other.hanzi)) res.add("hanzi");
-        if (!Objects.equals(hantz, other.hantz)) res.add("hantz");
+        if (!Objects.equals(sc, other.sc)) res.add("sc");
+        if (!Objects.equals(tc, other.tc)) res.add("tc");
+        if (!Objects.equals(pinyin, other.pinyin)) res.add("pinyin");
+        if (!Objects.equals(sort, other.sort)) res.add("sort");
         return res;
     }
 

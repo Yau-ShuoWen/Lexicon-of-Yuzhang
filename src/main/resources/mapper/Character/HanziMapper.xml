@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.data.mapper.Character.HanziMapper">
+
+    <!-- 查询的时候复杂字段的合成- - - - - - - - - - - - - - - - - - - - -->
+    <sql id="fields">
+        <!-- 主表字段 -->
+        main.*,
+        <!-- 模糊匹配汉字的字段 -->
+        CONCAT
+        ('{
+        "sc" : [', COALESCE(GROUP_CONCAT(DISTINCT '"', similar_field.sc, '"'), ''), '],
+        "tc" : [', COALESCE(GROUP_CONCAT(DISTINCT '"', similar_field.tc, '"'), ''), ']
+        }')
+        AS similar,
+        <!-- 拼音变体字段 -->
+        CONCAT( '[',
+        GROUP_CONCAT(DISTINCT
+        '{"sc": "', pinyin.sc, '", "tc": "', pinyin.tc, '", "content": "', pinyin.pinyin, '"}'
+        ORDER BY pinyin.sort ASC
+        SEPARATOR ',' ), ']'
+        )
+        AS variant_py,
+        <!-- 普通话对应信息字段 -->
+        CONCAT( '[',
+        COALESCE(GROUP_CONCAT(DISTINCT '"', mdr.info, '"' SEPARATOR ','), ''),
+        ']')
+        AS mdr_info
+
+        FROM
+
+        <!-- 主表 -->
+        NC.${dialect}_char main
+        <!-- 相似字符表连接 -->
+        LEFT JOIN NC.${dialect}_char_similar similar ON main.id = similar.char_id
+        LEFT JOIN NC.${dialect}_char_similar similar_field ON main.id = similar_field.char_id
+        <!-- 拼音表连接 -->
+        LEFT JOIN NC.${dialect}_char_pinyin pinyin ON main.id = pinyin.char_id
+        <!-- 普通话信息表连接 -->
+        LEFT JOIN NC.${dialect}_char_mdr char_mdr ON main.id = char_mdr.n
+        LEFT JOIN NC.mdr_char mdr ON char_mdr.m = mdr.id
+    </sql>
+
+    <!--  下面的是为了展示而查询的方法，GROUP BY main.id实际上是上面连接的结果，但没有办法写在一起  -->
+
+    <!-- 使用简繁体寻找汉字 -->
+    <select id="findHanziByScTc" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+        SELECT
+        <include refid="fields"/>
+        WHERE
+        BINARY main.sc = #{hanzi} OR
+        BINARY main.tc = #{hanzi}
+        GROUP BY main.id
+    </select>
+
+    <!-- 使用简繁体、模糊识别寻找汉字 -->
+    <select id="findHanziByVague" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+        SELECT
+        <include refid="fields"/>
+        WHERE
+        BINARY main.sc = #{hanzi} OR
+        BINARY main.tc = #{hanzi} OR
+        BINARY similar.sc = #{hanzi} OR
+        BINARY similar.tc = #{hanzi}
+        GROUP BY main.id
+    </select>
+
+    <!--  精确查询  -->
+    <select id="findHanziByScOrTc" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+        SELECT
+        <include refid="fields"/>
+        WHERE
+        BINARY main.${lang} = #{hanzi}
+        GROUP BY main.id
+    </select>
+
+    <!--  查询所有内容  -->
+    <select id="getAllHanzi" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+        SELECT
+        <include refid="fields"/>
+        GROUP BY main.id
+    </select>
+
+
+    <!-- 下面这一段是和编辑有关的内容，这里不需要复杂的聚合了 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- 编辑时候的寻找模块：-->
+
+    <!-- 通过主键寻找汉字 -->
+    <select id="findHanziByCharId" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+        SELECT * FROM NC.${dialect}_char WHERE id = #{id}
+    </select>
+
+    <!--  通过唯一键寻找汉字，查看是不是唯一性重复了  -->
+    <select id="findByUniqueKey"
+            parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity"
+            resultType="com.shuowen.yuzong.data.model.Character.HanziEntity"
+    >
+        SELECT * FROM NC.${dialect}_char
+        WHERE
+        sc = #{ch.sc} AND
+        tc = #{ch.tc} AND
+        main_py = #{ch.mainPy}
+    </select>
+
+
+    <!-- 通过主键寻找：附表里的模糊识别汉字 -->
+    <select id="findHanziSimilarByCharId" resultType="com.shuowen.yuzong.data.model.Character.HanziSimilar">
+        SELECT * FROM NC.${dialect}_char_similar
+        WHERE char_id = #{id}
+    </select>
+
+    <!-- 通过主键寻找：附表里的多种拼音 -->
+    <select id="findHanziPinyinByCharId" resultType="com.shuowen.yuzong.data.model.Character.HanziPinyin">
+        SELECT * FROM NC.${dialect}_char_pinyin
+        WHERE char_id = #{id}
+        ORDER BY sort
+    </select>
+
+
+    <!-- 编辑时候插入的模块：（用于「如果之前没有这个id」，插入新的数据）-->
+
+    <!--  插入新的内容（主表）  -->
+    <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity" useGeneratedKeys="true"
+            keyProperty="ch.id">
+        INSERT INTO ${dialect}_char
+        (sc, tc, main_py, special, ipa, mean, note, refer)
+        VALUES
+        (#{ch.sc}, #{ch.tc}, #{ch.mainPy}, #{ch.special}, #{ch.ipa}, #{ch.mean}, #{ch.note}, #{ch.refer})
+    </insert>
+
+    <!--  插入新的内容（相似汉字表）  -->
+    <insert id="insertCharSimilar" parameterType="com.shuowen.yuzong.data.model.Character.HanziSimilar">
+        INSERT into NC.${dialect}_char_similar
+        (char_id, sc, tc)
+        VALUES (#{ch.charId}, #{ch.sc}, #{ch.tc})
+    </insert>
+
+    <!--  插入新的内容（读音变体表）  -->
+    <insert id="insertCharPinyin" parameterType="com.shuowen.yuzong.data.model.Character.HanziPinyin">
+        INSERT INTO NC.${dialect}_char_pinyin
+        (char_id, sc, tc, pinyin, sort)
+        VALUES (#{ch.charId}, #{ch.sc}, #{ch.tc}, #{ch.pinyin}, #{ch.sort})
+    </insert>
+
+
+    <!-- 编辑时候修改的模块：（用于「如果之前已经有了这个id」，覆盖非重要字段）-->
+
+    <!--  更新内容（主表）  -->
+    <update id="updateCharById" parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+        UPDATE NC.${dialect}_char
+        SET
+        main_py = #{ch.mainPy},
+        special = #{ch.special},
+        ipa = #{ch.ipa},
+        mean = #{ch.mean},
+        note = #{ch.note},
+        refer = #{ch.refer}
+        WHERE id = #{ch.id}
+    </update>
+
+    <!--  更新内容（相似汉字表）  -->
+    <update id="updateCharSimilarById" parameterType="com.shuowen.yuzong.data.model.Character.HanziSimilar">
+        UPDATE NC.${dialect}_char_similar
+        SET
+        char_id = #{ch.charId}, sc = #{ch.sc}, tc = #{ch.tc}
+        WHERE id = #{ch.id}
+    </update>
+
+    <!--  更新内容（读音变体表）  -->
+    <update id="updateCharPinyinById" parameterType="com.shuowen.yuzong.data.model.Character.HanziPinyin">
+        UPDATE NC.${dialect}_char_pinyin
+        SET
+        char_id = #{ch.charId}, sc = #{ch.sc}, tc = #{ch.tc}, pinyin = #{ch.pinyin}, sort = #{ch.sort}
+        WHERE id = #{ch.id}
+    </update>
+
+    <!-- 编辑时候删除的模块        -->
+
+    <!--  要等我做好备份系统，才能做主表删除  -->
+
+    <delete id="deleteCharSimilarById">
+        DELETE FROM NC.${dialect}_char_similar WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteCharPinyinById">
+        DELETE FROM NC.${dialect}_char_pinyin WHERE id = #{id}
+    </delete>
+
+
+    <!--  跳转特定的表的内容  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+
+    <select id="getRandomId" resultType="int">
+        SELECT id FROM NC.${dialect}_char
+        LIMIT FLOOR(RAND() * (SELECT COUNT(*) FROM dict_word)), 1;
+    </select>
+
+    <select id="findPreviousId" parameterType="Integer" resultType="Integer">
+        SELECT * FROM NC.${dialect}_char
+        WHERE id &lt; #{id}
+        ORDER BY id DESC
+        LIMIT 1;
+    </select>
+
+    <select id="findNextId" parameterType="Integer" resultType="Integer">
+        SELECT * FROM NC.${dialect}_char
+        WHERE id > #{id}
+        ORDER BY id ASC
+        LIMIT 1;
+    </select>
+
+
+    <!--  获得里程碑数据  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  -->
+
+    <select id="findRowCountInHanziTable" resultType="int">
+        SELECT COUNT(*) FROM NC.${dialect}_char
+    </select>
+
+    <select id="findRowCountInPinyinTable" resultType="int">
+        SELECT COUNT(*) FROM NC.${dialect}_char_pinyin
+    </select>
+
+
+</mapper>
