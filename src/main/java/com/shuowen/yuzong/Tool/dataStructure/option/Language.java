@@ -1,6 +1,5 @@
 package com.shuowen.yuzong.Tool.dataStructure.option;
 
-
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 
 /**
@@ -9,6 +8,7 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
  * <li> SC 简体中文 </li>
  * <li> TC 繁体中文 </li>
  * </ul>
+ * 永远不要在任何地方使用 == 来判断 Language
  */
 public enum Language
 {
@@ -40,7 +40,23 @@ public enum Language
     @Override
     public String toString()
     {
-        return this == SC ? "sc" : "tc";
+        return switch (this)
+        {
+            case SC -> "sc";
+            case TC -> "tc";
+        };
+    }
+
+    /**
+     * 一般是判断简体字
+     */
+    public boolean isSimplified()
+    {
+        return switch (this)
+        {
+            case SC -> true;
+            case TC -> false;
+        };
     }
 }
 
