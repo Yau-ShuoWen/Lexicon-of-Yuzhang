@@ -70,12 +70,12 @@ public class Obfuscation
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    private static String encodeInt(int input)
+    public static String encodeInt(int input)
     {
         return encode(String.valueOf(input * GAP + OFFSET));
     }
 
-    private static int decodeInt(String base62)
+    public static int decodeInt(String base62)
     {
         return (Integer.parseInt(decode(base62)) - OFFSET) / GAP;
     }

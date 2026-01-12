@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 @EqualsAndHashCode
 public class Maybe<T>
@@ -69,5 +70,13 @@ public class Maybe<T>
     public static <T> boolean allValidAndEqual(Maybe<T> a, Maybe<T> b)
     {
         return a.isValid() && b.isValid() && Objects.equals(a.getValue(), b.getValue());
+    }
+
+    /**
+     * 如果里面有内容，就把这个内容转换成新的
+     */
+    public <U> Maybe<U> handleIfExist(Function<T, U> fun)
+    {
+        return isValid() ? Maybe.exist(fun.apply(value)) : Maybe.nothing();
     }
 }
