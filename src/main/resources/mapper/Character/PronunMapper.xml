@@ -4,57 +4,100 @@
 
 <mapper namespace="com.shuowen.yuzong.data.mapper.Character.PronunMapper">
 
-    <select id="getAllMandarinInfo" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
-        SELECT * from NC.mdr_char
+    <!--  把普通话汉字表当做主表，所以查询的行为是：  -->
+    <!--  1. 左连接，无论是否出现在映射表里，都会有，反应的是原始数据  -->
+    <!--  2. 使用主表 id 作为 mandarin_id，因为这时候关联表可以没有数据  -->
+    <!--  3. 在下面称作全匹配  -->
+    <sql id="leftJoins">
+        SELECT
+        mandarin.info as info,
+        mandarin.id as mandarin_id,
+        map_table.dialect_id as dialect_id
+        FROM mdr_char mandarin
+        LEFT JOIN NC.${dialect}_char_mdr map_table ON mandarin.id = map_table.mandarin_id
+    </sql>
+
+    <!--  把映射表当做主表，所以查询的行为是：  -->
+    <!--  1. 右连接，只有目前已经存储的映射关系，才会出现，反应的是新的数据 -->
+    <!--  2. 使用映射表的 mandarin_id，因为后两个字段展示的都是映射表数据  -->
+    <!--  3. 在下面称作存在匹配  -->
+    <sql id="rightJoins">
+        SELECT
+        mandarin.info as info,
+        map_table.mandarin_id as mandarin_id,
+        map_table.dialect_id as dialect_id
+        FROM mdr_char mandarin
+        RIGHT JOIN NC.${dialect}_char_mdr map_table ON mandarin.id = map_table.mandarin_id
+    </sql>
+
+    <!-- 对于汉字表格单独的筛选  - - - - - - - - - - - - - - - - - -  -->
+
+    <!--  这个表里存的就是GBK汉字  -->
+    <select id="getAllHanziInGBK" resultType="String">
+        SELECT info FROM NC.mdr_char
     </select>
 
-
-    <select id="getMandarinInfoByScTc" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
-        SELECT mc.info, mc.id AS left_id
-        FROM NC.mdr_char mc
-        LEFT JOIN NC.${dialect}_char_mdr nm ON nm.m = mc.id
-        WHERE mc.hanzi = #{hanzi} OR mc.hanzi = #{hantz}
+    <!--  语言的作用是检查是否出现在常用字表里  -->
+    <select id="getHanziCommonByPinyin" resultType="Integer">
+        SELECT id FROM NC.mdr_char
+        WHERE
+        <if test="language == 'sc'">in_3500 = 1</if>
+        <if test="language == 'tc'">in_4800 = 1</if>
+        AND CONCAT(pinyin, tone) = #{pinyin}
     </select>
 
-    <select id="selectMandarinByChars" resultType="com.shuowen.yuzong.data.model.Character.DialectChar">
-        select info, std_py
-        from mdr_char mdr
-        RIGHT JOIN NC.${dialect}_char_mdr map ON mdr.id = map.m
-        RIGHT JOIN NC.${dialect}_char main ON map.n = main.id
-        WHERE info IN
-        <foreach collection="list" item="info" open="(" separator="," close=")">
-            #{info}
-        </foreach>
-        GROUP BY m, n
+    <!-- 对于汉字和方言表格的筛选  - - - - - - - - - - - - - - - - - - -->
+
+    <!--  对于汉字简体和繁体的筛选，因为是待选项，所以是全匹配  -->
+    <select id="getInfoByScTc" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
+        <include refid="leftJoins"/>
+        WHERE mandarin.hanzi = #{sc} OR mandarin.hanzi = #{tc}
     </select>
 
-    <select id="getMandarinInfoByDialectId" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
-        SELECT map.n left_id, map.m right_id, info
-        FROM ${dialect}_char_mdr map
-        RIGHT JOIN mdr_char ON map.m = id
-        WHERE map.n = #{n};
+    <!--  对于方言主键的筛选，因为是已选项，所以是存在匹配  -->
+    <select id="getInfoByDialectId" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
+        <include refid="rightJoins"/>
+        WHERE map_table.dialect_id = #{dialectId};
     </select>
 
-    <select id="getMandarinInfoByMandarinId" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
-        SELECT info
-        FROM ${dialect}_char_mdr map
-        RIGHT JOIN mdr_char ON map.m = id
-        WHERE map.m IN
-        <foreach collection="m" item="i" open="(" separator="," close=")">
+    <!--  对于汉字的主键的筛选，并不限定方式  -->
+    <select id="getInfoByMandarinId" resultType="com.shuowen.yuzong.data.model.Character.MdrChar">
+        <if test="all == true">
+            <include refid="leftJoins"/>
+        </if>
+        <if test="all == false">
+            <include refid="rightJoins"/>
+        </if>
+        WHERE mandarin.id IN
+        <foreach collection="mandarinIds" item="i" open="(" separator="," close=")">
             #{i}
         </foreach>
     </select>
 
+
+    <!--  编辑内容  -->
     <delete id="clearMapByDialectId">
-        DELETE FROM ${dialect}_char_mdr WHERE n = #{n}
+        DELETE FROM ${dialect}_char_mdr WHERE dialect = #{dialectId}
     </delete>
 
 
     <insert id="insertMap">
-        INSERT INTO ${dialect}_char_mdr (m, n)
+        INSERT INTO ${dialect}_char_mdr (mdr, dialect)
         VALUES
         <foreach collection="data" item="i" separator=",">
             (#{i.left}, #{i.right})
         </foreach>
     </insert>
+
+    <!--    <select id="selectMandarinByChars" resultType="com.shuowen.yuzong.data.model.Character.DialectChar">-->
+    <!--        select info, std_py-->
+    <!--        from mdr_char mdr-->
+    <!--        RIGHT JOIN NC.${dialect}_char_mdr map ON mdr.id = map.m-->
+    <!--        RIGHT JOIN NC.${dialect}_char main ON map.n = main.id-->
+    <!--        WHERE info IN-->
+    <!--        <foreach collection="list" item="info" open="(" separator="," close=")">-->
+    <!--            #{info}-->
+    <!--        </foreach>-->
+    <!--        GROUP BY m, n-->
+    <!--    </select>-->
 </mapper>

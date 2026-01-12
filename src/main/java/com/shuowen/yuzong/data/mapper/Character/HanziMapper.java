@@ -104,7 +104,7 @@ public interface HanziMapper
     /**
      * 根据主键寻找上一条数据的主键号码
      */
-    Integer findPreviousId(Integer id, String dialect);
+    Integer findPrevId(Integer id, String dialect);
 
     /**
      * 根据主键寻找下一条数据的主键号码

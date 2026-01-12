@@ -39,8 +39,8 @@
         <!-- 拼音表连接 -->
         LEFT JOIN NC.${dialect}_char_pinyin pinyin ON main.id = pinyin.char_id
         <!-- 普通话信息表连接 -->
-        LEFT JOIN NC.${dialect}_char_mdr char_mdr ON main.id = char_mdr.n
-        LEFT JOIN NC.mdr_char mdr ON char_mdr.m = mdr.id
+        LEFT JOIN NC.${dialect}_char_mdr char_mdr ON main.id = char_mdr.dialect_id
+        LEFT JOIN NC.mdr_char mdr ON char_mdr.mandarin_id = mdr.id
     </sql>
 
     <!--  下面的是为了展示而查询的方法，GROUP BY main.id实际上是上面连接的结果，但没有办法写在一起  -->
@@ -197,7 +197,7 @@
         LIMIT FLOOR(RAND() * (SELECT COUNT(*) FROM dict_word)), 1;
     </select>
 
-    <select id="findPreviousId" parameterType="Integer" resultType="Integer">
+    <select id="findPrevId" parameterType="Integer" resultType="Integer">
         SELECT * FROM NC.${dialect}_char
         WHERE id &lt; #{id}
         ORDER BY id DESC
