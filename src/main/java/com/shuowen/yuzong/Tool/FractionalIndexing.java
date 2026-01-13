@@ -355,3 +355,171 @@ public class FractionalIndexing
         return result;
     }
 }
+
+// 第一版草稿
+
+//    // 可以修改字符集，所以编码不要使用任何真正的字符，所有的描述都使用十进制描述，但是之后可以直接修改
+//    private static final char[] NUMBERS = "0123456789".toCharArray();
+//
+//    private static int getIndex(char ch)
+//    {
+//        if (NumberTool.closeBetween(ch, '0', '9')) return ch - '0';
+//        // if (NumberTool.closeBetween(ch, 'a', 'z')) return ch - 'a' + 10;
+//        // if (NumberTool.closeBetween(ch, 'A', 'Z')) return ch - 'A' + 36;
+//        throw new IllegalArgumentException("超出范围");
+//    }
+//
+//    private static final char NIL = NUMBERS[0]; // 最小的数字，开区间的边界
+//    private static final char MIN = NUMBERS[1]; // 可以往末尾加的最小的数字（0不可以）
+//    private static final char MAX = NUMBERS[NUMBERS.length - 1]; // 可以往末尾加的最大的数字
+//    private static final char MID = average(MIN, MAX).getValue();
+//
+//    /**
+//     * 检查字符串是否有效，判断依据，末尾是否是零
+//     */
+//    public static boolean isValid(String... str)
+//    {
+//        try
+//        {
+//            for (String s : str) if (StringTool.back(s) == NIL) return false;
+//            return true;
+//        } catch (IllegalArgumentException e) //back函数抛出异常，也就是字符串为空
+//        {
+//            return false;
+//        }
+//    }
+//
+//    /**
+//     * 返回一个能充分应用区间的端点值
+//     */
+//    public static Pair<String, String> endPoint()
+//    {
+//        return Pair.of(MIN + "", MAX + ""); // 返回 0.1 和 0.9
+//    }
+//
+//    private static Maybe<Character> average(char left, char right)
+//    {
+//        int l = getIndex(left);
+//        int r = getIndex(right);
+//        int m = (l + r) / 2;
+//
+//        return (ObjectTool.existEqual(m, l, r)) ?
+//                Maybe.nothing() : Maybe.exist(NUMBERS[m]);
+//    }
+//
+//
+//    /**
+//     *
+//     */
+//    public static Maybe<String> midPoint(String left, String right)
+//    {
+//        // 不是有效的索引    或者   索引left 大于等于 right
+//        if (!isValid(left, right) || left.compareTo(right) >= 0) return Maybe.nothing();
+//
+//        for (int idx = 0; idx < Math.min(left.length(), right.length()); idx++)
+//        {
+//            if (left.charAt(idx) != right.charAt(idx))
+//            {
+//                var mid = average(left.charAt(idx), right.charAt(idx));
+//                if (mid.isValid()) //123 125 -> 124
+//                {
+//                    return Maybe.exist(left.substring(0, idx) + mid.getValue());
+//                }
+//                else // 123 124
+//                {
+//                    // idx ：第一位不匹配的，str1，所有匹配的加上这一位
+//                    String prefix = left.substring(0, idx + 1);
+//
+//                    var ch = StringTool.tryCharAt(left, idx + 1);
+//                    if (ch.isValid())
+//                    {
+//                        char nextchar = ch.getValue();
+//
+//                        if (nextchar == MAX) return Maybe.exist(prefix + MAX + MID); // 0.29 0.3 -> 0.295
+//                        if (nextchar + 1 == MAX) return Maybe.exist(prefix + MAX);   // 0.28 0.3 -> 0.29
+//
+//                        return average(nextchar, MAX).handleIfExist(s -> prefix + s);
+//                    }
+//                    else // 0.23 0.24 0.235
+//                    {
+//                        return average(MIN, MAX).handleIfExist(s -> prefix + s);
+//                    }
+//                }
+//            }
+//        }
+//        throw new IllegalArgumentException("未知文字");
+//    }
+
+//    private Maybe<String> handleDifferent(Maybe<Character> left, Maybe<Character> right)
+//    {
+//        if (Maybe.allValidAndEqual(left, right)) throw new RuntimeException("不一样的才能处理");
+//        if (!left.isValid() && !right.isValid()) throw new RuntimeException("这一位两个都没有了");
+//
+//        if (left.isValid()) // 小的数字更长一些 0.39 0.4
+//        {
+//            char ch = left.getValue();
+//
+//
+//        }
+//
+//    }
+
+
+//     if (right.length() > idx + 1) return Maybe.exist(right.substring(0, idx + 1));
+//                    else return Maybe.exist(left.substring(0, idx + 1) + MID);
+//    return Maybe.exist(left + midPoint("", right.substring(left.length())));
+
+// 处理流程
+// 0.123  0.123  异常，两个字符串相等
+// 0.124  0.123  异常，前者大于后者
+// 0.1237 0.124
+// 1227 124  123
+
+
+// 第二版草稿
+
+
+//    private static BigDecimal fromString(String s)
+//    {
+//        if (!s.matches("\\d+")) throw new NumberFormatException("字符串不是纯数字");
+//
+//        BigDecimal d = new BigDecimal("0." + s);
+//        if (d.compareTo(BigDecimal.ZERO) == 0) throw new IllegalArgumentException("zero");
+//        else return d;
+//    }
+//
+//    private static String toString(BigDecimal d)
+//    {
+//        return d.stripTrailingZeros().toPlainString().replace("0.", "");  // 去除"0."
+//    }
+//
+//
+//
+//    /**
+//     *
+//     */
+//    public static Pair<String, String> endPoint()
+//    {
+//        return Pair.of(
+//                toString(BigDecimal.valueOf(0.1)),
+//                toString(BigDecimal.valueOf(0.9))
+//        );
+//    }
+//
+//    @SuppressWarnings ("BigDecimalMethodWithoutRoundingCalled")
+//    public static String midPoint(String left, String right)
+//    {
+//        BigDecimal l = fromString(left);
+//        BigDecimal r = fromString(right);
+//
+//        if (l.compareTo(r) >= 0) throw new IllegalArgumentException();
+//
+//        var ans = l.add(r).divide(new BigDecimal(2));
+//
+//        return toString(ans);
+//    }
+
+// 第三版废弃部分
+
+//        @SuppressWarnings ("BigDecimalMethodWithoutRoundingCalled")
+//        var ans = l.add(r).divide(new BigDecimal(2)); // 这里除以二能保证除尽
