@@ -79,4 +79,11 @@ public class Maybe<T>
     {
         return isValid() ? Maybe.exist(fun.apply(value)) : Maybe.nothing();
     }
+
+    @Override
+    public String toString()
+    {
+        var s = isValid() ? "value=" + value : "empty=" + empty;
+        return "Maybe(" + s + ")";
+    }
 }
