@@ -7,25 +7,23 @@ import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Character.HanziUpdate;
 import com.shuowen.yuzong.data.domain.Character.HanziCreate;
 import com.shuowen.yuzong.data.dto.SearchResult;
-import com.shuowen.yuzong.data.mapper.Character.PronunMapper;
 import com.shuowen.yuzong.data.model.Character.MdrChar;
 import com.shuowen.yuzong.service.impl.Character.HanziService;
+import com.shuowen.yuzong.service.impl.Character.PronunService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-
-import static com.shuowen.yuzong.data.domain.Character.MdrTool.initWithPinyin;
 
 @RestController
 @RequestMapping ("/api/edit/")
 public class EditHanziController
 {
     @Autowired
-    HanziService s;
+    HanziService hz;
 
     @Autowired
-    PronunMapper pronun;
+    PronunService p;
 
     /**
      * 在编辑之前筛选内容
@@ -36,7 +34,7 @@ public class EditHanziController
             @RequestParam String hanzi
     )
     {
-        return s.getHanziFilterInfo(hanzi, Dialect.of(dialect));
+        return hz.getHanziFilterInfo(hanzi, Dialect.of(dialect));
     }
 
 
@@ -51,9 +49,7 @@ public class EditHanziController
     {
         try
         {
-            return APIResponse.success(Maybe.uncertain(
-                    s.getHanziById(id, Dialect.of(dialect))
-            ));
+            return APIResponse.success(Maybe.uncertain(hz.getHanziById(id, Dialect.of(dialect))));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -73,7 +69,7 @@ public class EditHanziController
     {
         try
         {
-            s.editHanzi(he, Dialect.of(dialect));
+            hz.editHanzi(he, Dialect.of(dialect));
             return APIResponse.success();
         } catch (Exception e)
         {
@@ -93,7 +89,7 @@ public class EditHanziController
             @RequestParam String tc
     )
     {
-        return initWithPinyin(pronun.getInfoByScTc(sc, tc, Dialect.of(dialect).toString()));
+        return p.getHanziMenu(sc, tc, Dialect.of(dialect));
     }
 
 
@@ -106,7 +102,7 @@ public class EditHanziController
     {
         try
         {
-            return APIResponse.success(s.getNearBy(id, Dialect.of(dialect)));
+            return APIResponse.success(hz.getNearBy(id, Dialect.of(dialect)));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -122,7 +118,7 @@ public class EditHanziController
 //    {
 //        try
 //        {
-//            s.initHanzi(he, Dialect.of(dialect));
+//            hz.initHanzi(he, Dialect.of(dialect));
 //            return APIResponse.success();
 //        } catch (Exception e)
 //        {

@@ -43,19 +43,32 @@ public class PronunService
     //        return ans;
     //    }
 
-    public List<MdrChar> getEdit(int id, Dialect d)
+    /**
+     * 通过简体字和繁体字获得选项
+     */
+    public List<MdrChar> getHanziMenu(String sc, String tc, Dialect d)
+    {
+        return MdrTool.initWithPinyin(m.getInfoByScTc(sc, tc, d.toString()));
+    }
+
+    /**
+     * 通过主键获得已经选择了的内容
+     */
+    public List<MdrChar> getHanziSelected(int id, Dialect d)
     {
         return MdrTool.initWithPinyin(m.getInfoByDialectId(id, d.toString()));
     }
 
-    public void edit(List<MdrChar> ch, Dialect d)
+    /**
+     * 处理编辑
+     */
+    public void handleEdit(List<MdrChar> ch, Dialect d)
     {
         if (ch.isEmpty()) return;
 
         m.clearMapByDialectId(ch.get(0).getDialectId(), d.toString());
 
-        var conflict = m.getInfoByMandarinId(
-                ListTool.mapping(ch, MdrChar::getMandarinId),false, d.toString());
+        var conflict = m.getInfoByMandarinId(ListTool.mapping(ch, MdrChar::getMandarinId), false, d.toString());
         if (!conflict.isEmpty())
         {
             var info = ListTool.mapping(conflict, i -> MdrTool.initWithPinyin(i.getInfo()));

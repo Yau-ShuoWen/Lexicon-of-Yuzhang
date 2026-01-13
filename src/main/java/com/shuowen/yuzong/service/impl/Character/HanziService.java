@@ -128,7 +128,7 @@ public class HanziService
                 hz.findHanziByCharId(id, d.toString()),
                 hz.findHanziSimilarByCharId(id, d.toString()),
                 hz.findHanziPinyinByCharId(id, d.toString()),
-                mdr.getEdit(id, d)
+                mdr.getHanziSelected(id, d)
         );
     }
 
@@ -188,13 +188,10 @@ public class HanziService
             }
         }
 
-        for (var i : he.getMandarin())
-        {
-            i.setDialectId(id);
-        }
+        for (var i : he.getMandarin()) i.setDialectId(id);
 
         // 普通话对应字段，丢给专门的类处理
-        mdr.edit(he.getMandarin(), d);
+        mdr.handleEdit(he.getMandarin(), d);
     }
 
     public Pair<Maybe<String>, Maybe<String>> getNearBy(String id, Dialect d)
@@ -215,7 +212,7 @@ public class HanziService
 //        he.check(d);
 //
 //        var model = he.transfer();
-//        var mulpy = model.getRight();
+//        var pyModel = model.getRight();
 //
 //        for (var i : model.getLeft())
 //        {
@@ -224,8 +221,8 @@ public class HanziService
 //                hz.insertChar(i, d.toString());
 //                int id = i.getId();
 //
-//                mulpy.setCharId(id);
-//                hz.insertCharPinyin(mulpy, d.toString());
+//                pyModel.setCharId(id);
+//                hz.insertCharPinyin(pyModel, d.toString());
 //            }
 //        }
 //    }

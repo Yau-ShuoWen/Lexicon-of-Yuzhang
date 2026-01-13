@@ -2,7 +2,7 @@ package com.shuowen.yuzong.controller.info;
 
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.controller.APIResponse;
-import com.shuowen.yuzong.data.mapper.Character.CharMapper;
+import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.data.mapper.Refer.ReferMapper;
 import com.shuowen.yuzong.data.mapper.Word.WordMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.Map;
 public class GetInfoController
 {
     @Autowired
-    private CharMapper hz;
+    private HanziMapper hz;
 
     @Autowired
     private WordMapper cy;
