@@ -65,6 +65,15 @@ public class Maybe<T>
     }
 
     /**
+     * 受控的直接返回值，传入自定义的信息
+     */
+    public T getValueDirectly(String caseNull)
+    {
+        NullTool.checkNotNull(value, caseNull);
+        return value;
+    }
+
+    /**
      * 比较两个是否都有值并且值相等
      */
     public static <T> boolean allValidAndEqual(Maybe<T> a, Maybe<T> b)
