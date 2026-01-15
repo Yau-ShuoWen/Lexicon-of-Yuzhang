@@ -6,7 +6,11 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserMapper
 {
-    UserEntity getUser(String username);
+    UserEntity getUserByName(String username);
 
     void insertUser(UserEntity user);
+
+    void updateUsername(UserEntity user);
+
+    void updatePassword(UserEntity user);
 }

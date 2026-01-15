@@ -4,7 +4,7 @@
 
 <mapper namespace="com.shuowen.yuzong.data.mapper.Account.UserMapper">
 
-    <select id="getUser" resultType="com.shuowen.yuzong.data.model.Account.UserEntity">
+    <select id="getUserByName" resultType="com.shuowen.yuzong.data.model.Account.UserEntity">
         SELECT * FROM NC.user
         WHERE username = #{username}
     </select>
@@ -14,5 +14,17 @@
         (username, password, authority)
         values (#{username}, #{password}, #{authority})
     </insert>
+
+    <update id="updateUsername" parameterType="com.shuowen.yuzong.data.model.Account.UserEntity">
+        UPDATE NC.user
+        SET username = #{username}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updatePassword" parameterType="com.shuowen.yuzong.data.model.Account.UserEntity">
+        UPDATE NC.user
+        SET password = #{password}
+        WHERE id = #{id}
+    </update>
 
 </mapper>
