@@ -275,13 +275,14 @@ public class NamPinyin extends UniPinyin<NamStyle>
     {
         NullTool.checkNotNull(p);
 
-        String builder = setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getAlt(), p.getCapital());
-        builder = addMark(builder, p.getNum());
+        String builder = setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getYw());
+        builder = addMark(builder, p.getNum(), p.getIu());
+        builder = setCapital(builder, p.getCapital());
 
         return " [" + builder + "] ";
     }
 
-    public String setFormat(int yu, int gn, int ee, int oe, int ii, int ptk, int alt, int capital)
+    public String setFormat(int yu, int gn, int ee, int oe, int ii, int ptk, int yw)
     {
         String s = pinyin;
         if (gn > 0)
@@ -329,10 +330,10 @@ public class NamPinyin extends UniPinyin<NamStyle>
             }
 
         }
-        if (alt > 0)
+        if (yw > 0)
         {
             char c = s.charAt(0);
-            if (alt == 1)//符合普通话规律
+            if (yw == 1)//符合普通话规律
             {
                 if (c == 'i')
                 {
@@ -348,21 +349,16 @@ public class NamPinyin extends UniPinyin<NamStyle>
                     else s = "w" + s;
                 }
             }
-            if (alt == 2)//硬加
+            if (yw == 2)//硬加
             {
                 if (c == 'i') s = "y" + s;
                 if (c == 'u') s = "w" + s;
             }
         }
-        if (capital > 0)
-        {
-            if (capital == 1) s = s.toUpperCase();
-            if (capital == 2) s = s.substring(0, 1).toUpperCase() + s.substring(1);
-        }
         return s;
     }
 
-    protected String addMark(String builder, int num)
+    protected String addMark(String builder, int num, int iu)
     {
         return switch (num)
         {
@@ -370,40 +366,30 @@ public class NamPinyin extends UniPinyin<NamStyle>
             {
                 if (tone == 0) yield builder; //不用加任何符号
 
-                StringBuilder str = new StringBuilder(builder);
+                // 标在后的情况下iu是例外，都是本来应该标在i上，根据这个规则标在u上反之亦然
+                if (iu == 1 && builder.contains("iu")) yield builder.replace("u", "u" + mark);
+                if (iu == 2 && builder.contains("ui")) yield builder.replace("u", "u" + mark);
+                // 通常情况按照顺序识别
+                for (String i : "aoöọeẹёiịuvüụ".split(""))
+                    if (builder.contains(i)) yield builder.replace(i, i + mark);
 
-                if ("ng".equalsIgnoreCase(builder))
-                {
-                    str.insert(1, mark);
-                    yield str.toString();
-                }
-
-                int idx = -1;
-                int i = str.length();
-
-                /*
-                 * 问：为什么不用包含大小写的正则表达式？
-                 * 答：因为经过测试无法正确识别(ẹ Ẹ)(ё Ё)(ọ Ọ)，所以用回直接匹配大小写 25/11/10
-                 * */
-                while (i-- > 0)
-                {
-                    char c = str.charAt(i);
-                    if (String.valueOf(c).matches("[aAoOöÖọỌeEẹẸёЁ]"))
-                    {
-                        idx = i;
-                        break;
-                    }
-                    if (String.valueOf(c).matches("[iIịỊuUvVüÜụỤ]")) idx = i;
-                }
-
-                if (idx == -1) str.append(mark);
-                else str.insert(idx + 1, mark);
-
-                yield str.toString();
+                // 例外：没有主元音m n ng，只有ng要特殊处理
+                if ("ng".equals(builder)) yield StringTool.insert(builder, 1, mark);
+                else yield builder + mark;
             }
             case 2 -> builder + tone;
             case 3 -> builder + " " + mark;
-            default -> builder; // 0 也就是不加的意思，和默认不加是重合的
+            default -> builder; // 0 也就是不加的意思，和异常参数的静默处理是重合的
         };
+    }
+
+    protected String setCapital(String builder, int capital)
+    {
+        if (capital > 0)
+        {
+            if (capital == 1) return builder.toUpperCase();
+            if (capital == 2) return builder.substring(0, 1).toUpperCase() + builder.substring(1);
+        }
+        return builder;
     }
 }

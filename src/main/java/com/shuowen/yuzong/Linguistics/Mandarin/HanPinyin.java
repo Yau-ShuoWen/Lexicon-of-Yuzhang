@@ -113,28 +113,22 @@ public class HanPinyin
         if (tongue == -1) return "";
         pinyin = toSyllable(pinyin).replace("v", "ü");
 
-        // 二维查找：map.get(元音).get(声调)
-        Map<String, List<String>> map = Map.of(
-                "a", List.of("a", "ā", "á", "ǎ", "à"),
-                "o", List.of("o", "ō", "ó", "ǒ", "ò"),
-                "e", List.of("e", "ē", "é", "ě", "è"),
-                "i", List.of("i", "ī", "í", "ǐ", "ì"),
-                "u", List.of("u", "ū", "ú", "ǔ", "ù"),
-                "ü", List.of("ü", "ǖ", "ǘ", "ǚ", "ǜ")
+        // 二维查找：map.get(元音)[声调]
+        Map<String, String[]> map = Map.of(
+                "a", "aāáǎà".split(""),
+                "o", "oōóǒò".split(""),
+                "e", "eēéěè".split(""),
+                "i", "iīíǐì".split(""),
+                "u", "uūúǔù".split(""),
+                "ü", "üǖǘǚǜ".split("")
         );
 
-        if (pinyin.contains("iu")) pinyin = pinyin.replace("u", map.get("u").get(tongue));
-        else
-        {
-            for (String i : List.of("a", "o", "e", "i", "u", "ü"))
-            {
-                if (pinyin.contains(i))
-                {
-                    pinyin = pinyin.replace(i, map.get(i).get(tongue));
-                    break;
-                }
-            }
-        }
+        // iu是特殊规则的例外，改变后直接返回
+        if (pinyin.contains("iu")) return pinyin.replace("u", map.get("u")[tongue]);
+        // 通常情况按照顺序识别
+        for (String i : "aoeiuü".split(""))
+            if (pinyin.contains(i)) return pinyin.replace(i, map.get(i)[tongue]);
+        // 例外直接返回（应该没有例外）
         return pinyin;
     }
 }

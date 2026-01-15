@@ -12,7 +12,7 @@ public class NamStyle extends PinyinStyle
     }
 
     public NamStyle(int yu, int gn, int ee, int oe, int ii,
-                    int ptk, int alt, int capital, int num)
+                    int ptk, int yw, int capital, int num, int iu)
     {
         this.yu = yu;
         this.gn = gn;
@@ -20,9 +20,10 @@ public class NamStyle extends PinyinStyle
         this.oe = oe;
         this.ii = ii;
         this.ptk = ptk;
-        this.alt = alt;
+        this.yw = yw;
         this.capital = capital;
         this.num = num;
+        this.iu = iu;
     }
 
     protected int yu;
@@ -31,9 +32,10 @@ public class NamStyle extends PinyinStyle
     protected int oe;
     protected int ii;
     protected int ptk;
-    protected int alt;
+    protected int yw;
     protected int capital;
     protected int num;
+    protected int iu;
 
     public static NamStyle createStyle(PinyinParam p)
     {
@@ -45,8 +47,8 @@ public class NamStyle extends PinyinStyle
         };
         return switch (p.scheme)
         {
-            case KEYBOARD -> new NamStyle(0, 0, 0, 0, 0, 0, 0, capital, 2);
-            case STANDARD -> new NamStyle(1, 0, 1, 1, 1, 0, 0, capital, 1);
+            case KEYBOARD -> new NamStyle(0, 0, 0, 0, 0, 0, 0, capital, 2, 0);
+            case STANDARD -> new NamStyle(1, 0, 1, 1, 1, 0, 0, capital, 1, 0);
         };
     }
 }
