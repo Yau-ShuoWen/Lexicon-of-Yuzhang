@@ -1,11 +1,16 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
-import static java.lang.Math.max;
-
+/**
+ * 字符串的扩展函数
+ */
 public class StringTool
 {
+    // 检查字符串的合法性
+
     /**
-     * 检查一系列字符串，是否存在至少一个无效（null）或者为空，将结果返回
+     * 检查一系列字符串，是否存在至少一个无效（null）或者为空
+     *
+     * @return 返回结果
      */
     public static boolean isValid(String... str)
     {
@@ -15,7 +20,9 @@ public class StringTool
     }
 
     /**
-     * 检查一系列字符串，是否存在至少一个无效（null）或者为空，存在的话就抛出异常
+     * 检查一系列字符串，是否存在至少一个无效（null）或者为空
+     *
+     * @throws IllegalArgumentException 存在的话就抛出异常
      */
     public static void checkValid(String... str)
     {
@@ -24,7 +31,9 @@ public class StringTool
     }
 
     /**
-     * 检查一系列字符串，是否存在至少一个无效（null）或者只包含空格，将结果返回
+     * 检查一系列字符串，是否存在至少一个无效（null）或者只包含空格
+     *
+     * @return 返回结果
      */
     public static boolean isTrimValid(String... str)
     {
@@ -34,7 +43,9 @@ public class StringTool
     }
 
     /**
-     * 检查一系列字符串，是否存在至少一个无效（null）或者只包含空格，存在的话就抛出异常
+     * 检查一系列字符串，是否存在至少一个无效（null）或者只包含空格
+     *
+     * @throws IllegalArgumentException 存在的话就抛出异常
      */
     public static void checkTrimValid(String... str)
     {
@@ -42,23 +53,38 @@ public class StringTool
                 "字符串无效、为空或者只包含空格。String is null, empty or trimmed empty.");
     }
 
+    // 检查索引的合法性
+
     /**
-     * 检查索引是否在字符串有效
+     * 检查索引是否在字符串有效：{@code [0, length)}，为三个参数版本的简化调用
      */
     public static boolean isIndexValid(String str, int... index)
     {
-        boolean flag = true;
-        for (int i : index) flag = flag && NumberTool.arrayBetween(i, 0, str.length());
-        return flag;
+        return isIndexValid(str, true, index);
     }
 
     /**
-     * 和 isIndexValid 的区别就是后一个坐标可以 ==length 的
+     * 检查索引
+     *
+     * @param open 是否要判定在右侧length可不可以取，true - 大部分情况右侧为开区间{@code [0, length)} false - 右侧为闭区间{@code [0, length]}（substring的参数）
      */
-    public static boolean isTwoIndexValid(String str, int index1, int index2)
+    public static boolean isIndexValid(String str, boolean open, int... index)
     {
-        return isIndexValid(str, index1, index2 - 1) && (index1 < index2);
+        for (int i : index)
+        {
+            if (open) // 右侧开区间
+            {
+                if (!NumberTool.arrayBetween(i, 0, str.length())) return false;
+            }
+            else // 右侧闭区间
+            {
+                if (!NumberTool.closeBetween(i, 0, str.length())) return false;
+            }
+        }
+        return true;
     }
+
+    // 字符串构造器的扩展函数
 
     /**
      * 对于 StringBuilder 的一次性根据值替换
@@ -73,16 +99,19 @@ public class StringTool
         }
     }
 
+    // 字符串的扩展函数
+
     /**
      * 如果索引越界或者不对应，都返回false，不抛出异常
      */
     public static boolean charEquals(String str, int index, char expectedChar)
     {
-        return str != null
-                && isIndexValid(str, index)
-                && str.charAt(index) == expectedChar;
+        return isValid(str) && isIndexValid(str, index) && str.charAt(index) == expectedChar;
     }
 
+    /**
+     * 交换字符串的两个变量
+     */
     public static String swap(String str, int i, int j)
     {
         if (!isIndexValid(str, i, j)) return str;
@@ -110,37 +139,17 @@ public class StringTool
      */
     public static String substring(String source, int beginIndex, int endIndex)
     {
-        if (!isValid(source) || !isTwoIndexValid(source, beginIndex, endIndex)) return "";
-
-        return source.substring(beginIndex, endIndex);
-    }
-
-
-    /**
-     * 更宽松的版本：自动调整边界而不是返回空字符串
-     */
-    public static String safeSubstringLenient(String source, int beginIndex, int endIndex)
-    {
-        if (!isValid(source)) return "";
-
-        int length = source.length();
-
-        // 调整 beginIndex 到有效范围
-        beginIndex = max(0, beginIndex);
-        beginIndex = Math.min(beginIndex, length);
-
-        // 调整 endIndex 到有效范围
-        endIndex = max(beginIndex, endIndex);
-        endIndex = Math.min(endIndex, length);
-
-        // 如果调整后没有有效的子字符串
-        if (beginIndex >= endIndex) return "";
-
-        return source.substring(beginIndex, endIndex);
+        if ((isValid(source) &&
+                isIndexValid(source, true, beginIndex) &&
+                isIndexValid(source, false, endIndex) &&
+                beginIndex < endIndex)
+        ) return source.substring(beginIndex, endIndex);
+        else return "";
     }
 
     /**
-     * 这个获取是空安全的，空的内容可以被正确处理
+     * 获取最后一个字符，避免长的变量名写出{@code theString.charAt(theString.length() - 1)}<br>
+     * 空安全，空的内容可以被正确处理
      */
     public static char back(String s)
     {
@@ -148,9 +157,32 @@ public class StringTool
         return s.charAt(s.length() - 1);
     }
 
+    /**
+     * 删掉最后一个字符，避免长的变量名写出{@code theString.substring(0, theString.length() - 1)}<br>
+     * 空安全，空的内容可以被正确处理
+     */
     public static String deleteBack(String s)
     {
         checkTrimValid(s);
         return s.substring(0, s.length() - 1);
+    }
+
+    /**
+     * 字符串插入函数，当只有很少次数的插入，不适合另外构造字符串时使用
+     */
+    public static String insert(String s, int index, char ch)
+    {
+        return insert(s, index, String.valueOf(ch));
+    }
+
+    /**
+     * 字符串插入函数，当只有很少次数的插入，不适合另外构造字符串时使用
+     */
+    public static String insert(String s, int index, String ch)
+    {
+        checkTrimValid(s);
+        if (!isIndexValid(s, false, index)) throw new IndexOutOfBoundsException("插入索引为[0, length]");
+
+        return s.substring(0, index) + ch + s.substring(index);
     }
 }

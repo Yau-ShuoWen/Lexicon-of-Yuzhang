@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
+import java.util.function.Function;
 
 public class ObjectTool
 {
@@ -42,6 +42,9 @@ public class ObjectTool
         System.out.println();
     }
 
+    /**
+     * 检查给出的所有参数是否相等
+     */
     @SafeVarargs
     public static <T> boolean allEqual(T... values)
     {
@@ -50,6 +53,29 @@ public class ObjectTool
         return true;
     }
 
+    /**
+     * 检查集合里所有元素是否相等
+     */
+    public static <T> boolean allEqual(Collection<T> values)
+    {
+        if (values == null || values.size() <= 1) return true;
+
+        T first = values.iterator().next();
+        for (T value : values) if (!Objects.equals(first, value)) return false;
+        return true;
+    }
+
+    /**
+     * 检查集合里所有元素做一种运算之后是否相等
+     */
+    public static <T, U> boolean allEqual(Collection<T> values, Function<T, U> f)
+    {
+        return allEqual(ListTool.mapping(values, f));
+    }
+
+    /**
+     * 检查所有元素是否存在一个与目标相等
+     */
     @SafeVarargs
     public static <T> boolean existEqual(T pattern, T... values)
     {
@@ -58,22 +84,21 @@ public class ObjectTool
         return false;
     }
 
-    public static <T> boolean allEqual(Collection<T> values)
-    {
-        if (values == null || values.size() <= 1) return true;
-
-        Iterator<T> it = values.iterator();
-        T first = it.next();
-        while (it.hasNext()) if (!Objects.equals(first, it.next())) return false;
-        return true;
-    }
-
+    /**
+     * 检查集合里所有元素是否存在一个与目标相等
+     */
     public static <T> boolean existEqual(T pattern, Collection<T> values)
     {
         if (values == null || values.isEmpty()) return false;
-        Iterator<T> it = values.iterator();
-        T first = it.next();
-        while (it.hasNext()) if (Objects.equals(pattern, first)) return true;
+        for (T value : values) if (!Objects.equals(pattern, value)) return true;
         return false;
+    }
+
+    /**
+     * 检查集合里所有元素做运算之后是否存在一个与目标相等
+     */
+    public static <T, U> boolean existEqual(U pattern, Collection<T> values, Function<T, U> f)
+    {
+        return existEqual(pattern, ListTool.mapping(values, f));
     }
 }

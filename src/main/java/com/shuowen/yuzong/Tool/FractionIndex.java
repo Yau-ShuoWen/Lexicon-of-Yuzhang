@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.Tool;
 
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import lombok.Getter;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -15,8 +15,8 @@ import java.util.*;
  * - 所有索引都表示 (0, 1) 区间内的小数，开区间，索引永不为 0、1<br>
  * - 因为输入的字符串是小数位，实际上只需要限制不为0即可
  */
-@Getter
-public class FractionIndex
+@Data
+public class FractionIndex implements Comparable<FractionIndex>
 {
     private final BigDecimal d;
 
@@ -60,7 +60,7 @@ public class FractionIndex
     }
 
     /**
-     * 返回一对能充分应用区间，又不限制前后区域的端点值
+     * 返回一对能充分应用区间的端点值
      */
     public static Pair<FractionIndex, FractionIndex> getEndPoint()
     {
@@ -77,13 +77,13 @@ public class FractionIndex
 
         if (l.compareTo(r) >= 0) throw new IllegalArgumentException("左索引应该比右边小");
 
-        return new FractionIndex(smartMid(l, r));
+        return new FractionIndex(calculateMid(l, r));
     }
 
     /**
      * 核心算法：选取插入点，有「空隙」就不扩位
      */
-    private static BigDecimal smartMid(BigDecimal l, BigDecimal r)
+    private static BigDecimal calculateMid(BigDecimal l, BigDecimal r)
     {
         int scale = Math.max(l.scale(), r.scale());
 
