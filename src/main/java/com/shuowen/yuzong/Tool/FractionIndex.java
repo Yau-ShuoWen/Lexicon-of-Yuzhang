@@ -33,7 +33,7 @@ public class FractionIndex implements Comparable<FractionIndex>
 
     public String toString()
     {
-        return d.toString();
+        return "#" + d.toString();
     }
 
     public int compareTo(FractionIndex other)
@@ -55,6 +55,7 @@ public class FractionIndex implements Comparable<FractionIndex>
      */
     public static FractionIndex of(String str)
     {
+        if (str.startsWith("#")) str = str.substring(1);
         if (str.contains("0.")) return new FractionIndex(str);
         return FractionIndex.fromInteger(str);
     }

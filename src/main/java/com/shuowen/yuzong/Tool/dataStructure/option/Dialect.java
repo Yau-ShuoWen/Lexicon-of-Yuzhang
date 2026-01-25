@@ -78,7 +78,7 @@ public enum Dialect
         return switch (s.toLowerCase().trim())
         {
             case "nam" -> NAM;
-            default -> throw new IllegalArgumentException("方言代号不正确");
+            default -> throw new IllegalArgumentException("方言代号无效：" + s);
         };
     }
 
@@ -90,6 +90,7 @@ public enum Dialect
 
     /**
      * 当流程本身不能保证这个字符串是有效的拼音的时候（所有输入的内容），使用这个
+     *
      * @return 需要解析最后是否成功
      */
     @SuppressWarnings ("unchecked")
@@ -100,6 +101,7 @@ public enum Dialect
 
     /**
      * 当从流程本身就能保证这个字符串是有效的拼音的时候（从数据库里拿出来的数据），使用这个
+     *
      * @return 直接返回内容，不需要解析，但是如果是无效的，就直接报异常，说明流程的漏洞把缺陷的拼音存进去了
      */
     @SuppressWarnings ("unchecked")

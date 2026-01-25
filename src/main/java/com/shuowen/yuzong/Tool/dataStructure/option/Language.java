@@ -8,7 +8,7 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
  * <li> SC 简体中文 </li>
  * <li> TC 繁体中文 </li>
  * </ul>
- * 永远不要在任何地方使用 == 来判断 Language
+ * 不要使用 == 来判断 Language，需要两个分开处理的时候使用{@code isSimplified()}和默认分支
  */
 public enum Language
 {
@@ -21,7 +21,7 @@ public enum Language
         {
             case "sc" -> SC;
             case "tc" -> TC;
-            default -> throw new IllegalArgumentException("要么是简体，要么是繁体");
+            default -> throw new IllegalArgumentException("简繁体代号无效：" + s);
         };
     }
 
