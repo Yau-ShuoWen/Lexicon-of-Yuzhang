@@ -1,6 +1,8 @@
 package com.shuowen.yuzong.Tool.dataStructure;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -58,9 +60,19 @@ public class Maybe<T>
     /**
      * 安全的获得值
      */
+    @JsonIgnore
     public T getValue()
     {
         NullTool.checkNotNull(value, "这个对象没有值，不可以获取。Can not get.");
+        return value;
+    }
+
+    /**
+     * 序列化的时候不使用上面一个，可能会误触异常，但是序列化使用同名参数
+     */
+    @JsonProperty ("value")
+    public T getValueOrNull()
+    {
         return value;
     }
 
