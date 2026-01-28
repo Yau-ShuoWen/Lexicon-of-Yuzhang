@@ -4,13 +4,13 @@
 
 <mapper namespace="com.shuowen.yuzong.data.mapper.Refer.DictMapper">
 
-    <select id="getAllDict" resultType="com.shuowen.yuzong.data.model.Refer.DictEntity">
+    <select id="getAll" resultType="com.shuowen.yuzong.data.model.Refer.DictEntity">
         SELECT * FROM NC.dictionary_info
     </select>
 
-    <select id="findDictByDialect" resultType="com.shuowen.yuzong.data.model.Refer.DictEntity">
+    <select id="findByDialect" resultType="com.shuowen.yuzong.data.model.Refer.DictEntity">
         SELECT * FROM NC.dictionary_info
-        WHERE language LIKE CONCAT('%', #{lang}, '%')
+        WHERE dialects LIKE CONCAT('%', #{dialect}, '%')
     </select>
 
 </mapper>

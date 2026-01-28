@@ -8,7 +8,7 @@ import java.util.*;
 @Mapper
 public interface DictMapper
 {
-    List<DictEntity> getAllDict();
+    List<DictEntity> getAll();
 
-    List<DictEntity> findDictByDialect(String lang);
+    List<DictEntity> findByDialect(String dialect);
 }
