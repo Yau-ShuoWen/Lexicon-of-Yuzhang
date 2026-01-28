@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.data.mapper.Reference.RefMapper">
+
+    <select id="isDictionaryExist" resultType="Boolean">
+        <![CDATA[
+            SELECT EXISTS
+            (
+              SELECT 1 FROM NC.reference1
+              WHERE dictionary = #{dictionary}
+            )
+        ]]>
+    </select>
+
+    <select id="isDictionaryNotEmpty" resultType="Boolean">
+        <![CDATA[
+            SELECT EXISTS
+            (
+              SELECT 1 FROM NC.reference1
+              WHERE dictionary = #{dictionary}
+               AND content not like '//%//'
+            )
+        ]]>
+    </select>
+
+    <select id="getItemsByQuery" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        SELECT * FROM NC.reference1
+        WHERE content like CONCAT('%', #{query}, '%')
+        AND dictionary = #{dictionary}
+    </select>
+
+    <select id="getPageBySort" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        <![CDATA[
+            SELECT *
+            FROM NC.reference1
+            WHERE dictionary = #{dictionary}
+            AND sort BETWEEN
+            (
+                SELECT MAX(sort) FROM NC.reference1
+                WHERE dictionary = #{dictionary}
+                AND sort <=
+                (
+                  SELECT sort FROM NC.reference1
+                  WHERE dictionary = #{dictionary}
+                  AND sort = #{sort}
+                  LIMIT 1
+                )
+                AND content LIKE '%/FRONT/%'
+            )
+            AND
+            (
+                SELECT MIN(sort) FROM NC.reference1
+                WHERE dictionary = #{dictionary}
+                AND sort >=
+                (
+                   SELECT sort FROM NC.reference1
+                   WHERE dictionary = #{dictionary}
+                   AND sort = #{sort}
+                   LIMIT 1
+                )
+                AND content LIKE '%/END/%'
+            )
+            ORDER BY sort;
+        ]]>
+    </select>
+
+    <select id="findNearby" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        SELECT * FROM NC.reference1
+        WHERE dictionary = #{dictionary}
+        AND sort ${before ? '&lt;' : '>'} #{sort}
+        ORDER BY sort ${before ? 'DESC' : 'ASC'}
+        LIMIT 1
+    </select>
+
+    <!--  插入  -->
+    <insert id="insert" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        INSERT INTO NC.reference1(dictionary, sort, content, page)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.dictionary}, #{item.sort}, #{item.content}, #{item.page})
+        </foreach>
+    </insert>
+
+    <!-- 页面边缘的标记符号，除了序号是可以更改的，其他的都是要稳定的 -->
+    <update id="updateEdge" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        UPDATE NC.reference1
+        SET page = #{page}
+        WHERE dictionary = #{dictionary}
+        AND sort = #{sort}
+    </update>
+
+    <!-- 清空 -->
+    <delete id="delete" parameterType="String">
+        DELETE FROM NC.reference1 WHERE
+        (sort > #{frontSort} AND #{endSort} > sort )
+        AND dictionary = #{dictionary}
+    </delete>
+</mapper>
