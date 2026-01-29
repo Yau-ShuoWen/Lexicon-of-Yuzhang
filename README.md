@@ -1,43 +1,38 @@
-# 豫章词 —— 方言词典和学习软件
+<div style="text-align: center">
+<h1>📖 豫章词 —— 方言是我们能听见的历史</h1>
+</div>
 
-## 介绍
+[//]: # (## 介绍)
 
-### 目的
+[//]: # ([访问网站]&#40;https://yuzhangci.com&#41;)
 
-尝试使用编程能力实现一个完整的方言词典
+## 开发进度
 
-### 相关内容
+| 功能     | 状态      |
+|--------|---------|
+| 简繁体支持  | ✅ 已完成   |
+| 方言拼音   | ✅ 已完成   |
+| 汉字查询   | 🔄 数据录入 |
+| 词语查询   | 🔄 数据录入 |
+| 方言词典查询 | 🔄 数据录入 |
+| 方言发音   | 🧭 规划中  |
+| 支持多门方言 | 🧭 规划中  |
+| 方言学习🐦 | 🧭 规划中  |
 
-<a href="https://github.com/Yau-ShuoWen/Lexicon-of-Yuzhang-Android">安卓应用程序正在开发（进入）</a>
+## 代码
 
-<a href="https://github.com/Yau-ShuoWen/Lexicon-of-Yuzhang-Web" target="_blank">网站前端正在开发（进入）</a>
+| 相关仓库：正在开发，诚邀协助                                                                                    |
+|---------------------------------------------------------------------------------------------------|
+| <a href="https://github.com/Yau-ShuoWen/Lexicon-of-Yuzhang-Web" target="_blank">🌐 网站前端</a>       |
+| <a href="https://github.com/Yau-ShuoWen/Lexicon-of-Yuzhang-Android" target="_blank">🤖 安卓应用程序</a> |
 
+## 文档
 
-## 历程
+| 分类       | 列表                       |
+|----------|--------------------------|
+| 📜️ 代码结构 | [代码目录](docs/命名/代码包结构.md) |
+| 📜️ 代码结构 | [结构和命名](./docs/命名)       |
+| 🎨 设计思路  | [数据库设计](./docs/数据库)      |
+| 🎨 设计思路  | [类的设计](./docs/类描述)       |
+| 🕰️ 历程   | [历史版本演进](./docs/历史.md)   |
 
-创建于2024/10/03
-
-<img src="docs/创建时间.png" width="50%" height="auto" alt="项目创建时间">
-
-#### 🕰️ [历史版本演进](./docs/历史.md)
-
-## 代码相关
-
-### 📜 [详细代码目录](./docs/name/代码包结构.md)
-```
-com/shuowen/yuzong/
-│
-├── config/       配置文件
-├── controller/   控制层
-├── data/         数据层
-├── Linguistics/  语言学内容
-├── service/      服务层
-└── Tool/         工具类
-```
-
-### 📝 [提交记录符号说明](./docs/name/提交记录符号说明.md)
-
-### 🏷️ [结构和命名](./docs/name)
-### 🔌 [应用程序接口](./docs/api)
-### 🎨 [类的设计](./docs/class)
-### 🗄️ [数据库设计](./docs/database)
