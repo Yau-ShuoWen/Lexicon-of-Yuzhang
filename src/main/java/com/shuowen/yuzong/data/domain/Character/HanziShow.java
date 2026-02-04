@@ -7,7 +7,7 @@ import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.IPA.*;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinTool;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter;
 import lombok.Data;
 
 import java.util.*;
@@ -111,7 +111,7 @@ public class HanziShow
         }
 
         // 函数：快速调用拼音格式化成字符串
-        Function<UniPinyin<?>, String> format = p -> PinyinTool.formatPinyin(p, d);
+        Function<UniPinyin<?>, String> format = p -> PinyinFormatter.handle(p, d);
         String dict = d.getDefaultDict();
 
 

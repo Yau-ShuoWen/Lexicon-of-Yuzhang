@@ -71,7 +71,7 @@ public class HanziUpdate
         if (!UString.isChar(sc, tc))
             throw new IllegalArgumentException("输入的字不止一个");
 
-        PinyinChecker.checkStrictly(mainPy, d);
+        PinyinChecker.strictly(mainPy, d);
 
         NullTool.checkNotNull(special);
 
@@ -83,7 +83,7 @@ public class HanziUpdate
         for (var i : variantPy)
         {
             StringTool.checkTrimValid(i.getSc(), i.getTc(), i.getPinyin());
-            PinyinChecker.checkStrictly(i.getPinyin(), d);
+            PinyinChecker.strictly(i.getPinyin(), d);
         }
         for (var i : mean)
         {

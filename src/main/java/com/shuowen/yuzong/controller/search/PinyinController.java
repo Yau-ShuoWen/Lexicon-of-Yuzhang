@@ -46,7 +46,7 @@ public class PinyinController
             @PathVariable String dialect,
             @RequestParam String pinyin)
     {
-        return PinyinChecker.check(pinyin, Dialect.of(dialect));
+        return PinyinChecker.suggestively(pinyin, Dialect.of(dialect));
     }
 
     @GetMapping ("{dialect}/table")

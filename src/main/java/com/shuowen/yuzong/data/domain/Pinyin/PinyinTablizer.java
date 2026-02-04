@@ -35,8 +35,8 @@ public class PinyinTablizer
             {
                 var py = maybe.getValue();
                 result.add(PinyinDetail.exist(
-                        escape.apply(PinyinTool.formatPinyin(py, d, PinyinParam.of(Scheme.STANDARD)), false),
-                        escape.apply(PinyinTool.formatPinyin(py, d, PinyinParam.of(Scheme.KEYBOARD)), false)
+                        escape.apply(PinyinFormatter.handle(py, d, PinyinParam.of(Scheme.STANDARD)), false),
+                        escape.apply(PinyinFormatter.handle(py, d, PinyinParam.of(Scheme.KEYBOARD)), false)
                 ));
             }
             else result.add(PinyinDetail.notExist());

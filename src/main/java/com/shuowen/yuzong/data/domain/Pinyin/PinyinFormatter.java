@@ -9,14 +9,14 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import java.util.*;
 
 /**
- * 静态拼音拼音处理类
+ * 方言拼音格式化类
  */
-public class PinyinTool
+public class PinyinFormatter
 {
     /**
      * 拼音直接返回对应的内容
      */
-    public static String formatPinyin(UniPinyin<?> pinyin, Dialect d, PinyinParam param)
+    public static String handle(UniPinyin<?> pinyin, Dialect d, PinyinParam param)
     {
         return pinyin.toString(d.createStyle(param));
     }
@@ -24,23 +24,23 @@ public class PinyinTool
     /**
      * 对某一个方言，指定一系列格式化方法的拼音格式化
      */
-    public static String formatPinyin(UniPinyin<?> pinyin, Dialect d, PinyinParam[] param)
+    public static String handle(UniPinyin<?> pinyin, Dialect d, PinyinParam[] param)
     {
-        return String.join(" | ", ListTool.mapping(List.of(param), i -> formatPinyin(pinyin, d, i)));
+        return String.join(" | ", ListTool.mapping(List.of(param), i -> handle(pinyin, d, i)));
     }
 
     /**
      * 默认的初始化方式就是两个并列的列出来
      */
-    public static String formatPinyin(UniPinyin<?> pinyin, Dialect d)
+    public static String handle(UniPinyin<?> pinyin, Dialect d)
     {
-        return formatPinyin(pinyin, d, PinyinParam.defaultList());
+        return handle(pinyin, d, PinyinParam.defaultList());
     }
 
     /**
      * 对于专业的版本，直接使用对应的style处理
      */
-    public static <U extends PinyinStyle> String formatPinyin(UniPinyin<U> pinyin, U style)
+    public static <U extends PinyinStyle> String handle(UniPinyin<U> pinyin, U style)
     {
         return pinyin.toString(style);
     }
