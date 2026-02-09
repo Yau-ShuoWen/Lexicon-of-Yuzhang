@@ -5,11 +5,12 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import lombok.Getter;
 
+import static com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter.trySplit;
+
 /**
- * 这是一个不可变格式
+ * 不可变汉语注音对象
  */
 @Getter
 public class Zhuyin
@@ -56,9 +57,9 @@ public class Zhuyin
         return maybe.getValue();
     }
 
-    private Zhuyin(String pinyin)
+    private Zhuyin(String text)
     {
-        var tmp = PinyinChecker.trySplit(pinyin);
+        var tmp = trySplit(text);
         var syllablePinyin = tmp.getLeft();  // 拼音的音节
         var lastPinyin = tmp.getRight();     // 拼音的音调
 
@@ -68,15 +69,12 @@ public class Zhuyin
         last = syllable.getRight();
 
         tone = initTone(lastPinyin);
-
-
         code = initCode();
+        pinyin = toPinyin();
 
-        this.pinyin = toPinyin();
-
-        //这里比较的不是原来的字符串，因为音调原因
-        if (!this.pinyin.equals(syllablePinyin + lastPinyin))
-            throw new InvalidPinyinException("不可恢复");
+        // 这里比较的是按照解析后数据重新构造的拼音是否正确
+        if (!pinyin.equals(syllablePinyin + lastPinyin))
+            throw new InvalidPinyinException("校验失败，拼音无效");
     }
 
 
@@ -239,7 +237,7 @@ public class Zhuyin
             case "en" -> "ㄣ";
             case "ang" -> "ㄤ";
             case "eng" -> "ㄥ";
-            default -> throw new InvalidPinyinException("剩下的不能再匹配了");
+            default -> throw new InvalidPinyinException("匹配结束，却仍然有剩余内容");
         });
 
         return ans;

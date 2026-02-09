@@ -22,21 +22,15 @@ public class PinyinChecker
      * <br>3. 完全识别不了 {@code (3, 空, 空)}
      * <br>4. 需要补充音调 {@code (4, 空, 空)}
      */
-    public static Triple<Integer, String, String> suggestively(final String text, Dialect d)
+    public static Triple<Integer, String, String> suggestively(String text, Dialect d)
     {
         StringTool.checkTrimValid(text);
 
         if (!NumberTool.closeBetween(StringTool.back(text), '0', '9'))
             return Triple.of(4, "", "");
 
-        String newText = text.toLowerCase(); // 因为大小写错误也是错误，所以text的转小写不能转移到新的地方
-        newText = switch (d)
-        {
-            case NAM -> PinyinNormalizer.filterNam(newText);
-        };
-
         var rawPinyinAnswer = d.tryCreatePinyin(text);
-        var newPinyinAnswer = d.tryCreatePinyin(newText);
+        var newPinyinAnswer = d.tryCreatePinyin(d.normalizePinyin(text));
 
         // 如果修正格式的有效，那么相等就是对的（1），不等的就是被修复的（2）
         // 如果修正格式的也无效，相当于救不回来了，无效（3）
@@ -49,9 +43,8 @@ public class PinyinChecker
             }
             else
             {
-                String trueAns = newPinyin.toString(d.createStyle(PinyinParam.of(Scheme.KEYBOARD))).
-                        replace("[", "").replace("]", "").replace(" ", "");
-                return Triple.of(2, PinyinFormatter.handle(newPinyin, d), trueAns);
+                String trueAns = PinyinFormatter.handle(newPinyin, d, PinyinParam.of(Scheme.KEYBOARD));
+                return Triple.of(2, PinyinFormatter.handle(newPinyin, d), trueAns.substring(2, trueAns.length() - 2));
             }
         }
         else return Triple.of(3, "", "");

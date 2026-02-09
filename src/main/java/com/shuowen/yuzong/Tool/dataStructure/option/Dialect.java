@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Tool.dataStructure.option;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
@@ -7,10 +8,12 @@ import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinDetail;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * 方言代码，提供未来的扩展
@@ -18,18 +21,20 @@ import java.util.function.Function;
  * <li> {@code NAM} 南昌话 </li>
  * </ul>
  */
+@SuppressWarnings ({"unchecked", "rawtypes", "unused"})
 public enum Dialect
 {
-    NAM("nam", NamStyle.class, NamPinyin.class, NamPinyin::tryOf, NamStyle::createStyle,
+    NAM("nam", NamStyle.class, NamPinyin.class,
+            NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize, NamPinyin::tablizer,
             "ncdict", 7, 2);
 
     private final String code;
-    @Getter
     private final Class<? extends PinyinStyle> styleClass;
-    @Getter
     private final Class<? extends UniPinyin<?>> pinyinClass;
     private final Function<String, Maybe<?>> pinyinTryCreator;
     private final Function<PinyinParam, ? extends PinyinStyle> styleCreator;
+    private final Function<String, String> normalizer;
+    private final Supplier<List<List<PinyinDetail>>> tablizer;
     @Getter
     private final String defaultDict;
 
@@ -47,18 +52,14 @@ public enum Dialect
     @Getter
     private final int initialLength;
 
-
-    @SuppressWarnings ("unchecked")
+    /**
+     * 构造函数
+     */
     <U extends PinyinStyle, T extends UniPinyin<U>>
-    Dialect(
-            String code,
-            Class<U> styleClass,
-            Class<T> pinyinClass,
-            Function<String, Maybe<T>> pinyinTryCreator,
-            Function<PinyinParam, U> styleCreator,
-            String defaultDict,
-            int toneAmount,
-            int initialLength
+    Dialect(String code, Class<U> styleClass, Class<T> pinyinClass,
+            Function<String, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
+            Function<String, String> normalizer, Supplier<List<List<PinyinDetail>>> tablizer,
+            String defaultDict, int toneAmount, int initialLength
     )
     {
         this.code = code;
@@ -66,6 +67,8 @@ public enum Dialect
         this.pinyinClass = pinyinClass;
         this.pinyinTryCreator = (Function) pinyinTryCreator;
         this.styleCreator = styleCreator;
+        this.normalizer = normalizer;
+        this.tablizer = tablizer;
         this.defaultDict = defaultDict;
         this.toneAmount = toneAmount;
         this.initialLength = initialLength;
@@ -93,7 +96,6 @@ public enum Dialect
      *
      * @return 需要解析最后是否成功
      */
-    @SuppressWarnings ("unchecked")
     public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(String py)
     {
         return (Maybe<T>) pinyinTryCreator.apply(py);
@@ -104,7 +106,6 @@ public enum Dialect
      *
      * @return 直接返回内容，不需要解析，但是如果是无效的，就直接报异常，说明流程的漏洞把缺陷的拼音存进去了
      */
-    @SuppressWarnings ("unchecked")
     public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(String py)
     {
         var pinyin = tryCreatePinyin(py);
@@ -112,18 +113,36 @@ public enum Dialect
         return (T) pinyin.getValue();
     }
 
-    @SuppressWarnings ("unchecked")
+    /**
+     * 根据通用的拼音参数创建方言拼音格式
+     */
     public <U extends PinyinStyle> U createStyle(PinyinParam param)
     {
         return (U) styleCreator.apply(param);
     }
 
-    @SuppressWarnings ("unchecked")
-    public <U extends PinyinStyle> U castStyle(PinyinStyle style)
+    /**
+     * 根据键值对参数创建拼音格式
+     */
+    public <U extends PinyinStyle> U createStyle(Map<String, Object> styleMap)
     {
-        if (!styleClass.isInstance(style))
-            throw new IllegalArgumentException("方言：" + this + " 和格式：" + style.getClass().getSimpleName() + "不匹配");
-        else return (U) styleClass.cast(style);
+        try
+        {
+            return (U) new ObjectMapper().convertValue(styleMap, styleClass);
+        } catch (Exception e)
+        {
+            throw new IllegalArgumentException("没有正确转换参数");
+        }
+    }
+
+    public String normalizePinyin(String s)
+    {
+        return normalizer.apply(s);
+    }
+
+    public List<List<PinyinDetail>> getTable()
+    {
+        return tablizer.get();
     }
 
     public static List<Dialect> getList()

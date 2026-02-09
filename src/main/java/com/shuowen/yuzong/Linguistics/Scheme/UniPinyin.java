@@ -2,9 +2,11 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinNormalizer;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+
+import static com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter.trySplit;
+
 
 @Getter
 @EqualsAndHashCode // 因为其他字段只由这 pinyin tone 两个决定，所以实际上也只是比较这两个的区别
@@ -25,7 +27,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
      */
     protected UniPinyin(String s)
     {
-        var tmp = PinyinNormalizer.trySplit(s); // 空字符串的检查已经在这个函数里
+        var tmp = trySplit(s); // 空字符串的检查已经在这个函数里
         pinyin = tmp.getLeft();
         tone = tmp.getRight();
 

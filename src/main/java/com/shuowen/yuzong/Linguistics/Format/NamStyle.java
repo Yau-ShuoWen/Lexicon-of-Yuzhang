@@ -1,8 +1,10 @@
 package com.shuowen.yuzong.Linguistics.Format;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+@JsonIgnoreProperties (ignoreUnknown = true)
 @EqualsAndHashCode (callSuper = true)
 @Data
 public class NamStyle extends PinyinStyle
@@ -11,8 +13,7 @@ public class NamStyle extends PinyinStyle
     {
     }
 
-    public NamStyle(int yu, int gn, int ee, int oe, int ii,
-                    int ptk, int yw, int capital, int num, int iu)
+    public NamStyle(int yu, int gn, int ee, int oe, int ii, int ptk, int yw, int capital, int num, int iu)
     {
         this.yu = yu;
         this.gn = gn;
