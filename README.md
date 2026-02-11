@@ -1,10 +1,22 @@
 <div style="text-align: center">
 <h1>📖 豫章词 —— 方言是我们能听见的历史</h1>
+<img src="docs/yuzhangci.svg" width="30%" height="auto" alt="项目创建时间">
 </div>
 
-[//]: # (## 介绍)
 
-[//]: # ([访问网站]&#40;https://yuzhangci.com&#41;)
+
+## 介绍
+
+[访问网站](https://yuzhangci.com)
+
+
+
+[//]: # (有什么不一样？)
+
+[//]: # (不同于传统的翻译软件，对于汉语方言的支持率较低)
+
+
+
 
 ## 开发进度
 
