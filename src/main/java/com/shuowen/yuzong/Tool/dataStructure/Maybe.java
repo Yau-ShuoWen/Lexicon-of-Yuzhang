@@ -69,11 +69,18 @@ public class Maybe<T>
 
     /**
      * 序列化的时候不使用上面一个，可能会误触异常，但是序列化使用同名参数
+     * <br>编码时候不可以使用这个函数，特意使用{@code @Deprecated}提示
      */
+    @Deprecated
     @JsonProperty ("value")
     public T getValueOrNull()
     {
         return value;
+    }
+
+    public T getValueOrDefault(T defaultValue)
+    {
+        return isValid() ? value : defaultValue;
     }
 
     /**
