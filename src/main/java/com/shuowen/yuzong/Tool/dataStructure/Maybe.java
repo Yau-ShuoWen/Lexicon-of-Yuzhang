@@ -78,8 +78,12 @@ public class Maybe<T>
         return value;
     }
 
+    /**
+     * 如果为null，返回默认值。默认值不能再为null
+     */
     public T getValueOrDefault(T defaultValue)
     {
+        NullTool.checkNotNull(defaultValue, "默认值不能为空");
         return isValid() ? value : defaultValue;
     }
 

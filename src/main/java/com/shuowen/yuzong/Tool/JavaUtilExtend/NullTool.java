@@ -8,15 +8,6 @@ import java.util.stream.Stream;
 public class NullTool
 {
     /**
-     * 如果为null，返回默认值。默认值不能再为null了
-     */
-    public static <T> T getDefault(T obj, T defaultValue)
-    {
-        checkNotNull(defaultValue, "默认值不能为空");
-        return (obj == null) ? defaultValue : obj;
-    }
-
-    /**
      * 如果这一个元素为null，抛出默认异常
      */
     public static void checkNotNull(Object obj)

@@ -26,8 +26,7 @@ public class StringTool
      */
     public static void checkValid(String... str)
     {
-        if (!isValid(str)) throw new IllegalArgumentException(
-                "字符串无效或者为空。String is null or empty.");
+        if (!isValid(str)) throw new IllegalArgumentException("字符串无效或者为空。String is null or empty.");
     }
 
     /**
@@ -146,6 +145,12 @@ public class StringTool
         ) return source.substring(beginIndex, endIndex);
         else return "";
     }
+
+    public static String limitLength(String str, int num, String surplus)
+    {
+        checkTrimValid(str);
+        return str.length() > num ? str.substring(0, num) + surplus : str;
+     }
 
     /**
      * 获取最后一个字符，避免长的变量名写出{@code theString.charAt(theString.length() - 1)}<br>
