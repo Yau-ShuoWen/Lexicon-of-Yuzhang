@@ -2,13 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.data.mapper.Refer.DictMapper">
+<mapper namespace="com.shuowen.yuzong.data.mapper.Reference.DictMapper">
 
-    <select id="getAll" resultType="com.shuowen.yuzong.data.model.Refer.DictEntity">
+    <select id="getAll" resultType="com.shuowen.yuzong.data.model.Reference.DictEntity">
         SELECT * FROM NC.dictionary_info
     </select>
 
-    <select id="findByDialect" resultType="com.shuowen.yuzong.data.model.Refer.DictEntity">
+    <select id="findByDialect" resultType="com.shuowen.yuzong.data.model.Reference.DictEntity">
         SELECT * FROM NC.dictionary_info
         WHERE dialects LIKE CONCAT('%', #{dialect}, '%')
     </select>

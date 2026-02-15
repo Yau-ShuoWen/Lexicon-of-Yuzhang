@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.data.model.Refer;
+package com.shuowen.yuzong.data.model.Reference;
 
 import lombok.Data;
 

@@ -1,6 +1,6 @@
-package com.shuowen.yuzong.data.mapper.Refer;
+package com.shuowen.yuzong.data.mapper.Reference;
 
-import com.shuowen.yuzong.data.model.Refer.DictEntity;
+import com.shuowen.yuzong.data.model.Reference.DictEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.*;
