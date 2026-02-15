@@ -47,5 +47,12 @@ public interface RefMapper
 
     void updateEdge(RefEntity ref);
 
-    void delete(String dictionary, String frontSort, String endSort);
+    void deleteEdge(String dictionary, String sort);
+
+    /**
+     *
+     */
+    void deleteInside(String dictionary, String frontSort, String endSort);
+
+    Integer findRowCountInReferTable(String dialect);
 }

@@ -1,8 +1,17 @@
 package com.shuowen.yuzong.Tool;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonDeserializer;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import lombok.Data;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
@@ -16,6 +25,8 @@ import java.util.*;
  * - 因为输入的字符串是小数位，实际上只需要限制不为0即可
  */
 @Data
+@JsonSerialize (using = FractionIndex.FractionIndexSerializer.class)
+@JsonDeserialize (using = FractionIndex.FractionIndexDeserializer.class)
 public class FractionIndex implements Comparable<FractionIndex>
 {
     private final BigDecimal d;
@@ -129,5 +140,35 @@ public class FractionIndex implements Comparable<FractionIndex>
         result.addAll(between(mid, right, rightCount));
 
         return result;
+    }
+
+    public static class FractionIndexDeserializer extends JsonDeserializer<FractionIndex>
+    {
+        @Override
+        public FractionIndex deserialize(
+                JsonParser p,
+                DeserializationContext ctxt
+        ) throws IOException
+        {
+            String encoded = p.getValueAsString();
+            return FractionIndex.of(
+                    Obfuscation.decode(encoded)
+            );
+        }
+    }
+
+    public static class FractionIndexSerializer extends JsonSerializer<FractionIndex>
+    {
+        @Override
+        public void serialize(
+                FractionIndex value,
+                JsonGenerator gen,
+                SerializerProvider serializers
+        ) throws IOException
+        {
+            gen.writeString(
+                    Obfuscation.encode(value.toString())
+            );
+        }
     }
 }

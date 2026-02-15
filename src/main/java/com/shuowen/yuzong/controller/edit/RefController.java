@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.controller.edit;
 
-import com.shuowen.yuzong.Tool.Obfuscation;
-import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Reference.RefPage;
 import com.shuowen.yuzong.data.dto.SearchResult;
@@ -26,8 +26,7 @@ public class RefController
      */
     @GetMapping ("/get-dictionaries/{dialect}")
     public List<Pair<String, String>> getDictionaries(
-            @PathVariable String dialect
-    )
+            @PathVariable String dialect)
     {
         return ck.getDictionaryMenu(Dialect.of(dialect));
     }
@@ -50,13 +49,12 @@ public class RefController
      */
     @GetMapping ("/find-content/{dictionary}")
     public APIResponse<List<SearchResult>> findContent(
-            @PathVariable String dictionary,
-            @RequestParam String query
-    )
+            @PathVariable String dictionary, @RequestParam String query)
     {
         try
         {
-            return APIResponse.success(ck.findContent(dictionary, query));
+            var ans = ck.findContent(dictionary, query);
+            return APIResponse.success(ans);
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -66,23 +64,24 @@ public class RefController
 
     @GetMapping ("/get-page/{dictionary}")
     public APIResponse<RefPage> getPage(
-            @PathVariable String dictionary,
-            @RequestParam String sort)
+            @PathVariable String dictionary, @RequestParam FractionIndex sort)
     {
         try
         {
-            var ans = ck.getPageInfo(dictionary, Obfuscation.decode(sort));
-            return APIResponse.success(ans.encode());
+            var ans = RefPage.tryOf(ck.getPage(dictionary, sort.toString()));
+            return (ans.isValid()) ?
+                    APIResponse.success(ans.getValue()) :
+                    APIResponse.failure("未找到数据。not found");
         } catch (Exception e)
         {
-            return APIResponse.failure("获取失败。Fail to get.");
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
         }
     }
 
     @PostMapping ("/update-page/{dictionary}")
     public APIResponse<Void> updatePage(
-            @PathVariable String dictionary,
-            @RequestBody RefPage page)
+            @PathVariable String dictionary, @RequestBody RefPage page)
     {
         try
         {
@@ -102,13 +101,12 @@ public class RefController
     @PostMapping ("/create-page/{dictionary}")
     public APIResponse<RefPage> createPage(
             @PathVariable String dictionary,
-            @RequestParam String sort, @RequestParam boolean before
+            @RequestParam FractionIndex sort, @RequestParam boolean before
     )
     {
         try
         {
-            var ans = ck.insertPage(dictionary, Obfuscation.decode(sort), before);
-            return APIResponse.success(ans);
+            return APIResponse.success(ck.insertPage(dictionary, sort, before));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -117,16 +115,26 @@ public class RefController
     }
 
     @PostMapping ("/get-nearby/{dictionary}")
-    public APIResponse<Pair<Maybe<String>, Maybe<String>>> getNearBy(
-            @PathVariable String dictionary, @RequestBody Pair<String, String> sorts)
+    public APIResponse<Twin<Maybe<FractionIndex>>> getNearBy(
+            @PathVariable String dictionary, @RequestBody Twin<FractionIndex> sorts)
     {
         try
         {
-            var decodeSorts = Pair.of(
-                    Obfuscation.decode(sorts.getLeft()),
-                    Obfuscation.decode(sorts.getRight())
-            );
-            return APIResponse.success(ck.getNearBy(dictionary, decodeSorts));
+            return APIResponse.success(ck.getNearBy(dictionary, sorts));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
+    @PostMapping ("/delete-page/{dictionary}")
+    public APIResponse<RefPage> deletePage(
+            @PathVariable String dictionary, @RequestParam FractionIndex frontSort)
+    {
+        try
+        {
+            return APIResponse.success(ck.deletePage(dictionary, frontSort));
         } catch (Exception e)
         {
             e.printStackTrace();

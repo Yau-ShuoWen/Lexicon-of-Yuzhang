@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.data.model.Reference;
 
 import com.shuowen.yuzong.Tool.FractionIndex;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.Reference.Keyword;
 import lombok.Data;
 
@@ -49,9 +50,9 @@ public class RefEntity
     /**
      * 生成一页开头结尾的两个标记
      */
-    public static List<RefEntity> initPage(String dictionary, FractionIndex prev, FractionIndex next)
+    public static List<RefEntity> initPage(String dictionary, Twin<FractionIndex> sorts)
     {
-        var p = FractionIndex.between(prev, next, 2);
+        var p = FractionIndex.between(sorts.getLeft(), sorts.getRight(), 2);
         return List.of(
                 new RefEntity(dictionary, p.get(0).toString(), Keyword.FRONT_OF_PAGE, -1),
                 new RefEntity(dictionary, p.get(1).toString(), Keyword.END_OF_PAGE, -1)
