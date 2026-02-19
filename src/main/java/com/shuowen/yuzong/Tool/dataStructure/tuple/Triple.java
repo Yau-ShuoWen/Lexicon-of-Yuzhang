@@ -9,6 +9,10 @@ public class Triple<T, U, V>
     private U middle;
     private V right;
 
+    public Triple()
+    {
+    }
+
     public Triple(T left, U middle, V right)
     {
         this.left = left;

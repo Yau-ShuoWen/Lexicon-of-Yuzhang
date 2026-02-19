@@ -11,6 +11,10 @@ public class Quintuple<T, U, V, W, X>
     private W delta;
     private X epsilon;
 
+    public Quintuple()
+    {
+    }
+
     public Quintuple(T alpha, U beta, V gamma, W delta, X epsilon)
     {
         this.alpha = alpha;

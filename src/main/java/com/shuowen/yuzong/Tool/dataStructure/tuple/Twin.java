@@ -12,6 +12,10 @@ public class Twin<T>
     private T left;
     private T right;
 
+    public Twin()
+    {
+    }
+
     public Twin(T left, T right)
     {
         this.left = left;

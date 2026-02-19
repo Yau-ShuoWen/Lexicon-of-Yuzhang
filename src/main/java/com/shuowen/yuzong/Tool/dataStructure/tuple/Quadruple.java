@@ -11,6 +11,10 @@ public class Quadruple<T, U, V, W>
     private V gamma;
     private W delta;
 
+    public Quadruple()
+    {
+    }
+
     public Quadruple(T alpha, U beta, V gamma, W delta)
     {
         this.alpha = alpha;
@@ -18,7 +22,9 @@ public class Quadruple<T, U, V, W>
         this.gamma = gamma;
         this.delta = delta;
     }
-    public static <T, U, V, W> Quadruple<T, U, V, W> of(T alpha, U beta, V gamma, W delta) {
+
+    public static <T, U, V, W> Quadruple<T, U, V, W> of(T alpha, U beta, V gamma, W delta)
+    {
         return new Quadruple<>(alpha, beta, gamma, delta);
     }
 }
