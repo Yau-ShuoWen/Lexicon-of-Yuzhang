@@ -7,9 +7,7 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinDetail;
 
-import java.util.List;
 import java.util.Objects;
 
 import static com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter.trySplit;
@@ -462,40 +460,5 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (text.contains("uen")) text = text.replace("uen", "un");
 
         return text + tone;
-    }
-
-    public static List<List<PinyinDetail>> tablizer()
-    {
-        var tone = PinyinDetail.listOf(
-                "tone",
-                "a|à|á|ǎ|ā|ả|a̋|ȁ",
-                "a0|a1|a2|a3|a4|a5|a6|a7"
-        );
-        var initial = PinyinDetail.listOf(
-                "initial",
-                "b|p|m|f|d|t|l|g|k|ng|h|j|q|n|x|z|c|s",
-                "b|p|m|f|d|t|l|g|k|ng|h|j|q|n|x|z|c|s"
-        );
-        var lastWithSingle = PinyinDetail.listOf( // ii 去除，简化
-                "lastWithSingle",
-                "a|o|e|ọ|ẹ|i|u|ü",
-                "a|o|e|oe|ee|i|u|yu"
-        );
-        var lastWithDouble = PinyinDetail.listOf(
-                "lastWithDouble",
-                "ai|uai|ẹi|ui|au|eu|ieu|ẹu|iu",
-                "ai|uai|eei|ui|au|eu|ieu|eeu|iu"
-        );
-        var lastWithNasal = PinyinDetail.listOf(
-                "lastWithNasal",
-                "an|on|en|ẹn|in|un|ün|ang|ong|ung|iung",
-                "an|on|en|een|in|un|yun|ang|ong|ung|iung"
-        );
-        var lastWithShort = PinyinDetail.listOf(
-                "lastWithShort",
-                "at|ot|et|ẹt|it|ut|üt|ak|ok|uk|iuk",
-                "at|ot|et|eet|it|ut|yut|ak|ok|uk|iuk"
-        );
-        return List.of(tone, initial, lastWithSingle, lastWithDouble, lastWithNasal, lastWithShort);
     }
 }

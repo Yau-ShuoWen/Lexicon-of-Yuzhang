@@ -63,24 +63,4 @@ public class PinyinFormatter
                 Pair.of(StringTool.deleteBack(text), ch - '0') :
                 Pair.of(text, 0);
     }
-
-    public static List<PinyinDetail> getTonePreview(Dialect d, String p)
-    {
-        List<PinyinDetail> result = new ArrayList<>();
-
-        for (int i = 0; i <= d.getToneAmount(); i++)
-        {
-            var maybe = d.tryCreatePinyin(p + i);
-            if (maybe.isValid())
-            {
-                var py = maybe.getValue();
-                result.add(PinyinDetail.exist(
-                        PinyinFormatter.handle(py, d, PinyinParam.of(Scheme.STANDARD)),
-                        PinyinFormatter.handle(py, d, PinyinParam.of(Scheme.KEYBOARD)))
-                );
-            }
-            else result.add(PinyinDetail.notExist());
-        }
-        return result;
-    }
 }

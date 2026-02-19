@@ -1,20 +1,24 @@
 package com.shuowen.yuzong.controller.search;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinTable;
 import com.shuowen.yuzong.service.impl.KeyValueService;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinDetail;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+
+import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 
 @RestController
 @RequestMapping ("/api/pinyin/")
@@ -43,12 +47,11 @@ public class PinyinController
         try
         {
             Dialect d = Dialect.of(dialect);
-            String text = kv.get("pinyin-style-display-text:"+d.toString());
+            String text = kv.get("pinyin-style-display-text:" + d.toString());
             var style = d.createStyle(styleParam);
 
             return APIResponse.success(RichTextUtil.format(text, style, d));
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
             return APIResponse.failure(e.getMessage());
@@ -63,17 +66,22 @@ public class PinyinController
         return PinyinChecker.suggestively(pinyin, Dialect.of(dialect));
     }
 
-    @GetMapping ("{dialect}/table")
-    public List<List<PinyinDetail>> getTable(@PathVariable String dialect)
+    @GetMapping ("/{dialect}/table")
+    public PinyinTable getTable(@PathVariable String dialect)
     {
-        return Dialect.of(dialect).getTable();
+        Dialect d = Dialect.of(dialect);
+        String text = kv.get("pinyin-table-display-json:" + d.toString());
+        List<Pair<Map<String, String>, List<Map<String, String>>>> data =
+                readJson(text, new TypeReference<>() {}, new ObjectMapper());
+        return new PinyinTable(data);
     }
 
     @GetMapping ("{dialect}/get-tone-preview")
-    public List<PinyinDetail> getTone(
+    public PinyinTable getTone(
             @PathVariable String dialect,
             @RequestParam String last)
     {
-        return PinyinFormatter.getTonePreview(Dialect.of(dialect), last);
+        Dialect d = Dialect.of(dialect);
+        return PinyinTable.getTonePreview(d, last);
     }
 }

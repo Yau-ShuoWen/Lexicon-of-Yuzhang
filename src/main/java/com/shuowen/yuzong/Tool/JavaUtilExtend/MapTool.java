@@ -62,4 +62,12 @@ public class MapTool
         for (var i : set) map.put(getKey.apply(i), i);
         return map;
     }
+
+    public static Map<String, String> m(String... kv)
+    {
+        Map<String, String> map = new LinkedHashMap<>();
+        for (int i = 0; i < kv.length; i += 2) map.put(kv[i], kv[i + 1]);
+        return map;
+    }
+
 }

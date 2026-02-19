@@ -8,12 +8,10 @@ import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinDetail;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * 方言代码，提供未来的扩展
@@ -25,8 +23,11 @@ import java.util.function.Supplier;
 public enum Dialect
 {
     NAM("nam", NamStyle.class, NamPinyin.class,
-            NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize, NamPinyin::tablizer,
+            NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize,
             "ncdict", 7, 2);
+//    ,
+//    LCS("ncs"); 未来的南昌话
+
 
     private final String code;
     private final Class<? extends PinyinStyle> styleClass;
@@ -34,7 +35,6 @@ public enum Dialect
     private final Function<String, Maybe<?>> pinyinTryCreator;
     private final Function<PinyinParam, ? extends PinyinStyle> styleCreator;
     private final Function<String, String> normalizer;
-    private final Supplier<List<List<PinyinDetail>>> tablizer;
     @Getter
     private final String defaultDict;
 
@@ -58,7 +58,7 @@ public enum Dialect
     <U extends PinyinStyle, T extends UniPinyin<U>>
     Dialect(String code, Class<U> styleClass, Class<T> pinyinClass,
             Function<String, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
-            Function<String, String> normalizer, Supplier<List<List<PinyinDetail>>> tablizer,
+            Function<String, String> normalizer,
             String defaultDict, int toneAmount, int initialLength
     )
     {
@@ -68,7 +68,6 @@ public enum Dialect
         this.pinyinTryCreator = (Function) pinyinTryCreator;
         this.styleCreator = styleCreator;
         this.normalizer = normalizer;
-        this.tablizer = tablizer;
         this.defaultDict = defaultDict;
         this.toneAmount = toneAmount;
         this.initialLength = initialLength;
@@ -109,7 +108,7 @@ public enum Dialect
     public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(String py)
     {
         var pinyin = tryCreatePinyin(py);
-        if (pinyin.isEmpty()) throw new IllegalArgumentException("来自信任端的拼音无效");
+        if (pinyin.isEmpty()) throw new IllegalArgumentException("来自信任端的拼音无效。文本：" + py);
         return (T) pinyin.getValue();
     }
 
@@ -138,11 +137,6 @@ public enum Dialect
     public String normalizePinyin(String s)
     {
         return normalizer.apply(s);
-    }
-
-    public List<List<PinyinDetail>> getTable()
-    {
-        return tablizer.get();
     }
 
     public static List<Dialect> getList()
