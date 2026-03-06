@@ -6,18 +6,33 @@ import java.util.function.Predicate;
 
 public class ListTool
 {
-    public static <T, U> List<U> mapping(Collection<? extends T> collection, Function<? super T, ? extends U> mapper)
+    private ListTool()
     {
-        return CollectionTool.mapping(collection, mapper, new ArrayList<>(collection.size()));
     }
 
-    public static <T> void filter(Collection<T> collection, Predicate<? super T> predicate)
+    public static <T, U> List<U> mapping(Collection<T> list, Function<T, U> fun)
     {
-        CollectionTool.filter(collection, predicate);
+        NullTool.checkNotNull(list);
+        List<U> result = new ArrayList<>(list.size());
+        for (T i : list) result.add(fun.apply(i));
+        return result;
     }
 
-    public static <T> T checkSizeOne(Collection<? extends T> collection, String ifSmaller, String ifLarger)
+    public static <T> List<T> filter(Collection<T> list, Predicate<T> fun)
     {
-        return CollectionTool.checkSizeOne(collection, ifSmaller, ifLarger);
+        NullTool.checkNotNull(list);
+        List<T> result = new ArrayList<>(list.size());
+        for (T i : list) if (fun.test(i)) result.add(i);
+        return result;
+    }
+
+    /**
+     * 当业务流程「按道理说」应该得到一个元素，但在不确定情况下，实际结果可能是 0 个或多个，就可以使用这个方法来校验。
+     */
+    public static <T> T checkSizeOne(List<T> list, String ifSmaller, String ifLarger)
+    {
+        NullTool.checkNotNull(list);
+        if (list.size() == 1) return list.get(0);
+        else throw new IllegalArgumentException(list.isEmpty() ? ifSmaller : ifLarger);
     }
 }

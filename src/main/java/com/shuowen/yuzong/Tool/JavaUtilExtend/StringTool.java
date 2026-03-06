@@ -1,58 +1,90 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
+import com.shuowen.yuzong.Tool.dataStructure.ErrorInfo;
+import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 字符串的扩展函数
  */
 public class StringTool
 {
-    // 检查字符串的合法性
+    private StringTool()
+    {
+    }
+
+    // 检查字符串的合法性 -------------------------------------------------------------------------------------------------
 
     /**
-     * 检查一系列字符串，是否存在至少一个无效（null）或者为空
-     *
-     * @return 返回结果
+     * 检查字符串是否有效：不是{@code null}，也不是空字符串{@code ""}
      */
-    public static boolean isValid(String... str)
+    public static boolean isValid(String str)
     {
-        NullTool.checkNotNull(str);
-        for (String s : str) if (s == null || s.isEmpty()) return false;
-        return true;
+        return str != null && !str.isEmpty();
     }
 
     /**
-     * 检查一系列字符串，是否存在至少一个无效（null）或者为空
-     *
-     * @throws IllegalArgumentException 存在的话就抛出异常
+     * @throws IllegalStringException 如果存在{@code null} 或者 空字符串{@code ""}，抛出异常
      */
-    public static void checkValid(String... str)
+    public static void checkValid(ErrorInfo note, String... str)
     {
-        if (!isValid(str)) throw new IllegalArgumentException("字符串无效或者为空。String is null or empty.");
+        List<String> log = new ArrayList<>();
+        for (String s : str) if (!isValid(s)) log.add(s);
+
+        if (!log.isEmpty())
+            throw new IllegalStringException(String.format("""
+                    异常：字符串为null，或者字符串为空。String is null or empty.
+                    提示：%s
+                    内容：%s
+                    """, note.info(), log)
+            );
     }
 
     /**
-     * 检查一系列字符串，是否存在至少一个无效（null）或者只包含空格
-     *
-     * @return 返回结果
+     * 检查字符串是否有效：不是{@code null}、不是{@code ""}、不是全空格串{@code "  "}
      */
-    public static boolean isTrimValid(String... str)
+    public static boolean isTrimValid(String str)
     {
-        NullTool.checkNotNull(str);
-        for (String s : str) if (s == null || s.trim().isEmpty()) return false;
-        return true;
+        return str != null && !str.trim().isEmpty();
     }
 
     /**
-     * 检查一系列字符串，是否存在至少一个无效（null）或者只包含空格
-     *
-     * @throws IllegalArgumentException 存在的话就抛出异常
+     * @throws IllegalStringException 如果存在{@code null}、空字符串{@code ""}或者全空格串{@code "  "}，抛出异常
      */
     public static void checkTrimValid(String... str)
     {
-        if (!isTrimValid(str)) throw new IllegalArgumentException(
-                "字符串无效、为空或者只包含空格。String is null, empty or trimmed empty.");
+        List<String> log = new ArrayList<>();
+        for (String s : str) if (!isTrimValid(s)) log.add(s);
+
+        if (!log.isEmpty())
+            throw new IllegalStringException(String.format("""
+                    异常：字符串为null、为空或者只包含空格。String is null, empty or trimmed empty.
+                    内容：%s
+                    """, log)
+            );
     }
 
-    // 检查索引的合法性
+    /**
+     * @throws IllegalStringException 如果存在{@code null}、空字符串{@code ""}或者全空格串{@code "  "}，抛出异常
+     */
+    public static void checkTrimValid(ErrorInfo note, String... str)
+    {
+        List<String> log = new ArrayList<>();
+        for (String s : str) if (!isTrimValid(s)) log.add(s);
+
+        if (!log.isEmpty())
+            throw new IllegalStringException(String.format("""
+                    异常：字符串为null、为空或者只包含空格。String is null, empty or trimmed empty.
+                    提示：%s
+                    内容：%s
+                    """, note.info(), log)
+            );
+    }
+
+
+    // 检查索引的合法性 -------------------------------------------------------------------------------------------------
 
     /**
      * 检查索引是否在字符串有效：{@code [0, length)}，为三个参数版本的简化调用
@@ -150,7 +182,7 @@ public class StringTool
     {
         checkTrimValid(str);
         return str.length() > num ? str.substring(0, num) + surplus : str;
-     }
+    }
 
     /**
      * 获取最后一个字符，避免长的变量名写出{@code theString.charAt(theString.length() - 1)}<br>

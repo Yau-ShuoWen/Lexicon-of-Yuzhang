@@ -5,6 +5,10 @@ import java.util.function.Function;
 
 public class MapTool
 {
+    private MapTool()
+    {
+    }
+
     /**
      * 更换Map的键名
      *
@@ -63,10 +67,10 @@ public class MapTool
         return map;
     }
 
-    public static Map<String, String> m(String... kv)
+    public static <V> Map<String, V> orderMapOf(Object... kv)
     {
-        Map<String, String> map = new LinkedHashMap<>();
-        for (int i = 0; i < kv.length; i += 2) map.put(kv[i], kv[i + 1]);
+        Map<String, V> map = new LinkedHashMap<>();
+        for (int i = 0; i < kv.length; i += 2) map.put((String) kv[i], (V) kv[i + 1]);
         return map;
     }
 

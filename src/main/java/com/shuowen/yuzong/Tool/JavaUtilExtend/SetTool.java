@@ -6,13 +6,23 @@ import java.util.function.Predicate;
 
 public class SetTool
 {
-    public static <T, U> Set<U> mapping(Collection<? extends T> collection, Function<? super T, ? extends U> mapper)
+    private SetTool()
     {
-        return CollectionTool.mapping(collection, mapper, new HashSet<>(collection.size()));
     }
 
-    public static <T> void filter(Collection<T> collection, Predicate<? super T> predicate)
+    public static <T, U> Set<U> mapping(Collection<T> set, Function<T, U> fun)
     {
-        CollectionTool.filter(collection, predicate);
+        NullTool.checkNotNull(set);
+        Set<U> result = new HashSet<>(set.size());
+        for (T i : set) result.add(fun.apply(i));
+        return result;
+    }
+
+    public static <T> Set<T> filter(Collection<T> set, Predicate<T> fun)
+    {
+        NullTool.checkNotNull(set);
+        Set<T> result = new HashSet<>(set.size());
+        for (T i : set) if (fun.test(i)) result.add(i);
+        return result;
     }
 }
