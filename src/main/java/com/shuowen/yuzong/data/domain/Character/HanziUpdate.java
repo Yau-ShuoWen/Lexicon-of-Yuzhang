@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.dataStructure.ErrorInfo;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
@@ -63,39 +64,46 @@ public class HanziUpdate
      */
     public void check(Dialect d)
     {
+        final var empty = ErrorInfo.of("内容不能为空。Can't be empty");
+        final var sizeOne = ErrorInfo.of("汉字栏，只能填入一个字。Only can have one character.");
+        final var ScTcLen = ErrorInfo.of("简体繁体长度不相等。The lengths of SCTC are not equal.");
+
         // 《批评和自我批评》
+        // 1. 简体字、繁体字、主拼音 是必须字段
+        // 2. 简体字、繁体字 是单个字符
+        // 3. 主拼音符合格式
+        // 4. 特殊性标记必须在范围里面
 
-        if (!StringTool.isTrimValid(sc, tc, mainPy))
-            throw new IllegalArgumentException("簡體字、繁體字、主拼音不可以缺少");
-
-        if (!UString.isChar(sc, tc))
-            throw new IllegalArgumentException("输入的字不止一个");
-
+        StringTool.checkTrimValid(empty, sc, tc, mainPy);
+        UString.checkUChar(sizeOne, sc, tc);
         PinyinChecker.strictly(mainPy, d);
-
         NullTool.checkNotNull(special);
+
+
+        // 5. 相似汉字单个字符
+        // 6. 读音变体里，简繁标签不为空，拼音不为空且符合格式
+        // 7. 含义里，简繁版本不为空且
 
         for (var i : similar)
         {
-            StringTool.checkTrimValid(i.getSc(), i.getTc());
-            UString.checkChar(i.getSc(), i.getTc());
+            UString.checkUChar(sizeOne, i.getSc(), i.getTc());
         }
         for (var i : variantPy)
         {
-            StringTool.checkTrimValid(i.getSc(), i.getTc(), i.getPinyin());
+            StringTool.checkTrimValid(empty, i.getSc(), i.getTc(), i.getPinyin());
             PinyinChecker.strictly(i.getPinyin(), d);
         }
         for (var i : mean)
         {
-            StringTool.checkTrimValid(i.getLeft(), i.getRight());
-            UString.checkLenEqual(i.getLeft(), i.getRight());
+            StringTool.checkTrimValid(empty, i.getLeft(), i.getRight());
+            UString.checkLenEqual(ScTcLen, i.getLeft(), i.getRight());
         }
         for (var i : note)
         {
-            StringTool.checkTrimValid(i.getLeft().getLeft(), i.getLeft().getRight(),
+            StringTool.checkTrimValid(empty, i.getLeft().getLeft(), i.getLeft().getRight(),
                     i.getRight().getLeft(), i.getRight().getRight());
-            UString.checkLenEqual(i.getLeft().getLeft(), i.getRight().getLeft());
-            UString.checkLenEqual(i.getLeft().getRight(), i.getRight().getRight());
+            UString.checkLenEqual(ScTcLen, i.getLeft().getLeft(), i.getRight().getLeft());
+            UString.checkLenEqual(ScTcLen, i.getLeft().getRight(), i.getRight().getRight());
         }
     }
 

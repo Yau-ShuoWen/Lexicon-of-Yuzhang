@@ -78,17 +78,17 @@ public class HanziShow
             // 普通类直接变过来
             info.mainPy = key;
             info.special.add(h.getSpecial());
-            info.mean.addAll(h.getMeanData());
+            info.mean.addAll(h.getMean());
             info.mdrInfo.addAll(h.getMdrInfo());
-            info.note.addAll(h.getNoteData());
+            info.note.addAll(h.getNote());
 
             // 普通类稍微变动
-            info.similar.addAll(SetTool.mapping(h.getSimilarData(), i -> i)); // similar直接list转set
+            info.similar.addAll(SetTool.mapping(h.getSimilar(), i -> i)); // similar直接list转set
 
             // 拼音根据方言的信任初始化创建
-            info.variantPy.addAll(SetTool.mapping(h.getMulPyData(),
+            info.variantPy.addAll(SetTool.mapping(h.getVariantPy(),
                     i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(i.getRight()))));
-            info.ipa.addAll(SetTool.mapping(h.getIpaExpData(),
+            info.ipa.addAll(SetTool.mapping(h.getIpa(),
                     i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(i.getRight()))));
         }
 

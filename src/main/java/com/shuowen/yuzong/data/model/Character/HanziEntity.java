@@ -14,7 +14,7 @@ public class HanziEntity
     private Integer special;
 
     private String similar;    // Map<String,List<String>>
-    private String variantPy;  // Map<String,Map<String,String>>
+    private String variantPy;  // List<Map<String, String>>
     private String mdrInfo;    // List<String>
     private String ipa;        // Map<String,String>
     private String mean;       // Map<String,List<String>>

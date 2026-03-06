@@ -10,7 +10,6 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.Character.HanziUpdate;
 import com.shuowen.yuzong.data.domain.Character.HanziGroup;
-import com.shuowen.yuzong.data.domain.Character.HanziCreate;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.domain.Character.HanziShow;
@@ -18,7 +17,7 @@ import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
-import com.shuowen.yuzong.service.impl.Refer.ReferServiceImpl;
+import com.shuowen.yuzong.service.impl.Reference.RefService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +37,7 @@ public class HanziService
     private PronunService mdr;
 
     @Autowired
-    private ReferServiceImpl refer;
+    private RefService ck;
 
     /**
      * 获得结果的集根据分类结果合并内容
@@ -89,7 +88,7 @@ public class HanziService
     {
         return HanziShow.of(
                 getHanziOrganize(Obfuscation.decode(hanzi), l, d, 1),
-                new IPAData(l, d, op, refer::getDictMap, ipa::getIPA)
+                new IPAData(l, d, op, ck::getDictionaryMap, ipa::getIPA)
         );
     }
 

@@ -1,6 +1,5 @@
 package com.shuowen.yuzong.data.domain.Character;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
@@ -12,7 +11,6 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.shuowen.yuzong.Linguistics.Mandarin.TcSc.tagTrim;
 import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 
 /**
@@ -26,91 +24,76 @@ public class HanziItem
     private final String mainPy;
     private final Integer special;
 
-    private final Map<String, List<String>> similar;
-    private final List<Map<String, String>> variantPy;
+    private final List<String> similar;
+    private final List<Pair<String, String>> variantPy;
     private final List<String> mdrInfo;
-    private final List<Map<String, String>> ipa;
-    private final Map<String, List<String>> mean;
-    private final Map<String, List<Map<String, String>>> note;
-    private final Map<String, List<Map<String, String>>> refer;
+    private final List<Pair<String, String>> ipa;
+    private final List<String> mean;
+    private final List<Pair<String, String>> note;
+    private final List<Map<String, String>> refer;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    @JsonIgnore
-    protected static String TEXT = "text";
-
     protected HanziItem(HanziEntity ch, Language lang)
     {
-        // 数据导入
         id = ch.getId();
         hanzi = lang.isSimplified() ? ch.getSc() : ch.getTc();
         mainPy = ch.getMainPy();
         special = ch.getSpecial();
 
         ObjectMapper om = new ObjectMapper();
-        similar = readJson(ch.getSimilar(), new TypeReference<>() {}, om);
-        variantPy = readJson(ch.getVariantPy(), new TypeReference<>() {}, om);
-        mdrInfo = readJson(ch.getMdrInfo(), new TypeReference<>() {}, om);
-        ipa = readJson(ch.getIpa(), new TypeReference<>() {}, om);
+        String l = lang.toString();
 
-        mean = readJson(ch.getMean(), new TypeReference<>() {}, om);
-        note = readJson(ch.getNote(), new TypeReference<>() {}, om);
-        refer = readJson(ch.getRefer(), new TypeReference<>() {}, om);
+        // 解析为 Map< 简繁标签 , List<String>>
+        // 使用 .get(l)选取对应语言
+        // 得到 List<String>
+        similar = readJson(ch.getSimilar(), new TypeReference<Map<String, List<String>>>() {}, om)
+                .get(l);
+
+        // 解析为 List< 标签 ,Map<String,String>> 标签：简、繁标签，拼音内容
+        // 使用 .get(l)选取对应语言，使用content获取拼音内容
+        // 得到 List<Pair< 标签, 拼音 >>
+        variantPy = ListTool.mapping(
+                readJson(ch.getVariantPy(), new TypeReference<List<Map<String, String>>>() {}, om)
+                , i -> Pair.of(i.get(l), i.get("content")));
+
+        // 解析为 List<String>，并且筛选
+        // 筛选条件：「mdrInfo里汉字」==「目前的汉字」，为了筛选简繁体
+        mdrInfo = ListTool.filter(
+                readJson(ch.getMdrInfo(), new TypeReference<>() {}, om),
+                i -> Objects.equals(i.split(" ")[0], hanzi)
+        );
+
+        // TODO ：这个字段从来没有被更新过用法
+        ipa = ListTool.mapping(
+                readJson(ch.getIpa(), new TypeReference<List<Map<String, String>>>() {}, om)
+                , i -> Pair.of(i.get("tag"), i.get("content")));
+
+        // 解析为 Map< 简繁 , List<String>>
+        // 使用 .get(l)选取对应语言
+        mean = readJson(ch.getMean(), new TypeReference<Map<String, List<String>>>() {}, om)
+                .get(l);
+
+        // 解析为 Map< 简繁 , List<Map< 标签 , 内容 >>>>
+        // 使用 .get(l)选取对应语言
+        // 使用tag获得题目，content获取内容
+        // 变成List<Pair<String, String>>
+        note = ListTool.mapping(
+                readJson(ch.getNote(), new TypeReference<Map<String, List<Map<String, String>>>>() {}, om)
+                        .get(l),
+                i -> Pair.of(i.get("tag"), i.get("content"))
+        );
+
+        // TODO ：这个字段从来没有被更新过用法
+        refer = readJson(ch.getRefer(), new TypeReference<Map<String, List<Map<String, String>>>>() {}, om)
+                .get(l);
 
         createdAt = ch.getCreatedAt();
         updatedAt = ch.getUpdatedAt();
-
-        // 语言初始化：把SC TC标签简化
-        for (var i : variantPy) tagTrim(i, lang, TEXT);
-        for (var i : ipa) tagTrim(i, lang, TEXT);
-        tagTrim(similar, lang, TEXT);
-        tagTrim(mean, lang, TEXT);
-        tagTrim(note, lang, TEXT);
-        tagTrim(refer, lang, TEXT);
-
-        // 语言初始化：过滤普通话读音内容
-        ListTool.filter(mdrInfo, i -> Objects.equals(i.split(" ")[0], hanzi));
     }
 
     public static HanziItem of(HanziEntity ch, Language lang)
     {
         return new HanziItem(ch, lang);
-    }
-
-    public List<String> getSimilarData()
-    {
-        return new ArrayList<>(similar.get(TEXT));
-    }
-
-    /**
-     * 返回值 「读音标签 - 读音」列表
-     */
-    public List<Pair<String, String>> getMulPyData()
-    {
-        return ListTool.mapping(variantPy, i -> Pair.of(i.get(TEXT), i.get("content")));
-    }
-
-    /**
-     * 返回值 「字典代号 - 字典」列表，只返回代码是因为还需要去数据库反查
-     */
-    public List<Pair<String, String>> getIpaExpData()
-    {
-        return ListTool.mapping(ipa, i -> Pair.of(i.get("tag"), i.get("content")));
-    }
-
-    /**
-     * 返回值 含义列表
-     */
-    public List<String> getMeanData()
-    {
-        return mean.get(TEXT);
-    }
-
-    /**
-     * 返回值 「描述标签 - 描述」 列表
-     */
-    public List<Pair<String, String>> getNoteData()
-    {
-        return ListTool.mapping(note.get(TEXT), i -> Pair.of(i.get("tag"), i.get("content")));
     }
 }
