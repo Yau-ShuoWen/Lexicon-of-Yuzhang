@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.*;
 
 @Data
-public class ChangeResult<T extends ChangeDetectable<T>>
+public class ChangeResult<T>
 {
     private ChangeType changeType;
     private T oldItem;

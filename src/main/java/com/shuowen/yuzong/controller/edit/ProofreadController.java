@@ -1,16 +1,38 @@
 package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.TcSc;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import com.shuowen.yuzong.Tool.ProofreadTool;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Trio;
+import com.shuowen.yuzong.controller.APIResponse;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping ("/api/transfer")
 public class ProofreadController
 {
+
+    @PostMapping ("{dialect}/sc-tc-translate")
+    public APIResponse<Map<String, UString>> translate(
+            @PathVariable String dialect,
+            @RequestBody Trio<String> text
+    )
+    {
+        try
+        {   //var d= Dialect.of(dialect); 是为了之后查询Set.of什么用的
+            var UText = text.map(UString::of);
+            return APIResponse.success(
+                    ProofreadTool.retainContextTranslate(UText.getLeft(), UText.getMiddle(), UText.getRight(), Set.of("箇", "嗰"))
+            );
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
 
     /**
      * 使用hanlp直接繁体转简体

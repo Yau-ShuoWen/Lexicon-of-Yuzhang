@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.Tool.dataStructure;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 
 import java.util.*;
 
@@ -12,7 +13,7 @@ import java.util.*;
  */
 public class UString implements Iterable<String>, Comparable<UString>
 {
-    private StringBuilder str;
+    private final StringBuilder str;
     private int size;
 
     /**
@@ -82,9 +83,8 @@ public class UString implements Iterable<String>, Comparable<UString>
      */
     private int mapIndex(int idx)
     {
-        if (idx < 0 || idx > size) throw new IndexOutOfBoundsException("超范围：" + idx);
-
         if (size == idx) return str.length();
+        if (idx < 0 || idx > size) throw new IndexOutOfBoundsException("超范围：" + idx);
 
         //快指针是字符索引，慢指针是代码点索引
         int fast = 0, slow = 0;
@@ -167,7 +167,7 @@ public class UString implements Iterable<String>, Comparable<UString>
         UString that = (UString) o;
         if (size != that.size) return false;
 
-        return str.toString().equals(that.str.toString());
+        return str.toString().contentEquals(that.str);
     }
 
     @Override
@@ -201,27 +201,52 @@ public class UString implements Iterable<String>, Comparable<UString>
         };
     }
 
-    public static boolean isChar(String... str)
+    public static List<String> toUCharList(String str)
     {
-        for (String s : str) if (s.codePointCount(0, s.length()) != 1) return false;
-        return true;
+        List<String> ans = new ArrayList<>();
+        for (var i : UString.of(str)) ans.add(i);
+        return ans;
     }
 
-    public static void checkChar(String... str)
+    public static int getULen(String str)
     {
-        if (!isChar(str)) throw new IllegalArgumentException(
-                Arrays.toString(str) + " 这一批文本有的不止一个字。not a char.");
+        return str.codePointCount(0, str.length());
+    }
+
+    public static boolean isUChar(String str)
+    {
+        return getULen(str) == 1;
+    }
+
+    public static void checkUChar(ErrorInfo note, String... str)
+    {
+        List<String> log = new ArrayList<>();
+        for (String s : str) if (!isUChar(s)) log.add(s);
+
+        if (!log.isEmpty())
+            throw new IllegalStringException(String.format("""
+                    异常：字符串不是单个UTF-16字符。not a character.
+                    内容：%s
+                    上下文：%s
+                    """, log, note.info())
+            );
     }
 
     public static boolean isLenEqual(String str1, String str2)
     {
-        return str1.codePointCount(0, str1.length()) == str2.codePointCount(0, str2.length());
+        return getULen(str1) == getULen(str2);
     }
 
-    public static void checkLenEqual(String str1, String str2)
+    public static void checkLenEqual(ErrorInfo note, String str1, String str2)
     {
-        if (!isLenEqual(str1, str2)) throw new IllegalArgumentException(
-                str1 + " " + str2 + " 这两段文本长度不相等，请重新校对。length not equal.");
+        if (!isLenEqual(str1, str2))
+            throw new IllegalStringException(String.format("""
+                    异常：两段文本UTF-16字符长度不相等。length not equal.
+                    （长度%s）:%s
+                    （长度%s）:%s
+                    上下文：%s
+                    """, str1.length(), str1, str2.length(), str2, note.info())
+            );
     }
 
 }
