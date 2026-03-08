@@ -20,15 +20,24 @@
             (
               SELECT 1 FROM NC.reference
               WHERE dictionary = #{dictionary}
-              AND content not like '//%//'
+              AND content NOT LIKE '//%//'
             )
         ]]>
     </select>
 
     <select id="getItemsByQuery" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
-        WHERE content like CONCAT('%', #{query}, '%')
+        WHERE content LIKE CONCAT('%', #{query}, '%')
         AND dictionary = #{dictionary}
+    </select>
+
+    <select id="getItemByRandom" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        SELECT *
+        FROM NC.reference
+        WHERE dictionary = 'ncdict'
+        AND content NOT LIKE '//%//'
+        ORDER BY RAND()
+        LIMIT 1;
     </select>
 
     <select id="getPageBySort" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
@@ -47,7 +56,7 @@
                   AND sort = #{sort}
                   LIMIT 1
                 )
-                AND content LIKE '%/FRONT/%'
+                AND content = '/FRONT/'
             )
             AND
             (
@@ -60,7 +69,7 @@
                    AND sort = #{sort}
                    LIMIT 1
                 )
-                AND content LIKE '%/END/%'
+                AND content = '/END/'
             )
             ORDER BY sort;
         ]]>
@@ -76,17 +85,17 @@
 
     <!--  插入  -->
     <insert id="insert" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
-        INSERT INTO NC.reference(dictionary, sort, content, page)
+        INSERT INTO NC.reference(dictionary, sort, content, page_info)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (#{item.dictionary}, #{item.sort}, #{item.content}, #{item.page})
+            (#{item.dictionary}, #{item.sort}, #{item.content}, #{item.pageInfo})
         </foreach>
     </insert>
 
     <!-- 页面边缘的标记符号，除了序号是可以更改的，其他的都是要稳定的 -->
     <update id="updateEdge" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         UPDATE NC.reference
-        SET page = #{page}
+        SET page_info = #{pageInfo}
         WHERE dictionary = #{dictionary}
         AND sort = #{sort}
     </update>
@@ -104,11 +113,23 @@
         AND dictionary = #{dictionary}
     </delete>
 
+
+    <select id="findPageinfo" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        SELECT * FROM NC.reference
+        WHERE dictionary = #{dictionary}
+        AND BINARY content = '/FRONT/'
+        ORDER BY sort
+    </select>
+
+    <!--  获取统计数据  -->
     <select id="findRowCountInReferTable" resultType="int">
-        select count(*) from reference
-        where dictionary in (
-        SELECT code from dictionary_info
-        where language like concat('%', #{dialect}, '%')
+        <![CDATA[
+        SELECT COUNT(*) FROM NC.reference
+        WHERE BINARY dictionary IN
+        (
+            SELECT code FROM NC.dictionary_info
+            WHERE BINARY dialects LIKE CONCAT('%', #{dialect}, '%')
         )
+        ]]>
     </select>
 </mapper>

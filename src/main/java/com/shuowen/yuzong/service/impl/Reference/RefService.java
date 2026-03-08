@@ -3,12 +3,14 @@ package com.shuowen.yuzong.service.impl.Reference;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.FractionIndex;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.Obfuscation;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.domain.Reference.Keyword;
@@ -98,7 +100,7 @@ public class RefService
             var tmp = new SearchResult();
             tmp.setTitle(StringTool.limitLength(i.getContent(), 30, "  ……"));
             tmp.setExplain("");  // 暂时不需要这个字段
-            tmp.setTag(i.getPage().toString());
+            tmp.setTag(i.getThePageInfo().getRight().toString());
 
             var sort = RefPage.of(getPage(dictionary, i.getSort())).getFrontSort();
             tmp.setInfo(Map.of("dict", i.getDictionary(), "sort",
@@ -108,6 +110,42 @@ public class RefService
             ans.add(tmp);
         }
         return ans;
+    }
+
+    public RefPage getPageSpecial(String dict, String query)
+    {
+        if (!ck.isDictionaryNotEmpty(dict)) throw new NoSuchElementException("字典数据为空");
+
+        return switch (query)
+        {
+            case "first-page" ->
+            {
+                var item = ck.getItemsByQuery(dict, Keyword.FRONT_OF_BOOK);
+                var sort = ListTool.checkSizeOne(item, "", "").getSort();
+                var pageEdge = ck.findNearby(dict, sort, false);
+                if (!Keyword.FRONT_OF_PAGE.equals(pageEdge.getContent()))
+                    throw new RuntimeException("对不上");
+                yield RefPage.of(getPage(dict, pageEdge.getSort()));
+            }
+
+            case "last-page" ->
+            {
+                var item = ck.getItemsByQuery(dict, Keyword.END_OF_BOOK);
+                var sort = ListTool.checkSizeOne(item, "", "").getSort();
+                var pageEdge = ck.findNearby(dict, sort, true);
+                if (!Keyword.END_OF_PAGE.equals(pageEdge.getContent()))
+                    throw new RuntimeException("对不上");
+                yield RefPage.of(getPage(dict, pageEdge.getSort()));
+            }
+
+            case "random" ->
+            {
+                var item = ck.getItemByRandom(dict);
+                yield RefPage.of(getPage(dict, item.getSort()));
+            }
+
+            default -> throw new NoSuchElementException("关键词错误");
+        };
     }
 
     /**
@@ -183,5 +221,15 @@ public class RefService
         // 如果有下一页，跳转下一页，否则上一页
         var newPageSort = (nearby.getRight().isValid() ? nearby.getRight() : nearby.getLeft()).getValue().toString();
         return RefPage.of(getPage(dictionary, newPageSort));
+    }
+
+    /**
+     * 获得书的页码目录
+     */
+    public List<Triple<FractionIndex, String, Integer>> getCatalog(String dictionary)
+    {
+        return ListTool.mapping(ck.findPageinfo(dictionary), i -> Triple.of(
+                i.getTheSort(), i.getThePageInfo().getLeft(), i.getThePageInfo().getRight())
+        );
     }
 }

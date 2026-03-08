@@ -24,6 +24,11 @@ public interface RefMapper
     List<RefEntity> getItemsByQuery(String dictionary, String query);
 
     /**
+     * 随机选取一个词条
+     */
+    RefEntity getItemByRandom(String dictionary);
+
+    /**
      * 根据词条寻找页面
      */
     List<RefEntity> getPageBySort(String dictionary, String sort);
@@ -53,6 +58,8 @@ public interface RefMapper
      *
      */
     void deleteInside(String dictionary, String frontSort, String endSort);
+
+    List<RefEntity> findPageinfo(String dictionary);
 
     Integer findRowCountInReferTable(String dialect);
 }

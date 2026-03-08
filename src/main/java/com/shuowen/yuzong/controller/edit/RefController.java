@@ -4,6 +4,7 @@ import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Reference.RefPage;
@@ -79,6 +80,20 @@ public class RefController
         }
     }
 
+    @GetMapping ("/get-page-special/{dictionary}")
+    public APIResponse<RefPage> getPageRandom(
+            @PathVariable String dictionary, @RequestParam String query)
+    {
+        try
+        {
+            return APIResponse.success(ck.getPageSpecial(dictionary, query));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
     @PostMapping ("/update-page/{dictionary}")
     public APIResponse<Void> updatePage(
             @PathVariable String dictionary, @RequestBody RefPage page)
@@ -135,6 +150,21 @@ public class RefController
         try
         {
             return APIResponse.success(ck.deletePage(dictionary, frontSort));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
+    @GetMapping ("/get-catalog/{dictionary}")
+    public APIResponse<List<Triple<FractionIndex, String, Integer>>> getCatalog(
+            @PathVariable String dictionary
+    )
+    {
+        try
+        {
+            return APIResponse.success(ck.getCatalog(dictionary));
         } catch (Exception e)
         {
             e.printStackTrace();

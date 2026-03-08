@@ -17,7 +17,7 @@ public class RefPage
     private FractionIndex endSort;
 
     private String content;
-    private Integer page;
+    private Pair<String, Integer> pageInfo;
 
     public RefPage()
     {
@@ -26,7 +26,7 @@ public class RefPage
     private RefPage(List<RefEntity> list)
     {
         if (list.size() < 2) throw new IllegalStateException("页面结构异常，记录数量少于2（至少需要开头结尾的两个标记）");
-        if (!ObjectTool.allEqual(list, RefEntity::getDictionary) || !ObjectTool.allEqual(list, RefEntity::getPage))
+        if (!ObjectTool.allEqual(list, RefEntity::getDictionary) || !ObjectTool.allEqual(list, RefEntity::getPageInfo))
             throw new IllegalStateException("页面结构异常，页码或者字典不一致");
 
         var l = new ArrayList<>(list); // 创建新的对象是因为其他地方可能是不可变的数组
@@ -40,7 +40,7 @@ public class RefPage
         frontSort = FractionIndex.of(front.getSort());
         endSort = FractionIndex.of(end.getSort());
         dictionary = front.getDictionary();  // 已经被证明全部相等，直接获取即可
-        page = front.getPage();
+        pageInfo = front.getThePageInfo();
         content = "";
         for (int i = 1; i < l.size() - 1; i++)
         {
@@ -82,8 +82,8 @@ public class RefPage
     {
         // 页面开始和结束部分，页数的边界部分
         var edge = List.of(
-                new RefEntity(dictionary, frontSort.toString(), Keyword.FRONT_OF_PAGE, page),
-                new RefEntity(dictionary, endSort.toString(), Keyword.END_OF_PAGE, page)
+                new RefEntity(dictionary, frontSort, Keyword.FRONT_OF_PAGE, pageInfo),
+                new RefEntity(dictionary, endSort, Keyword.END_OF_PAGE, pageInfo)
         );
 
         // 中段，内容部分
@@ -91,7 +91,7 @@ public class RefPage
         var texts = content.split("\n\n");
         var sorts = FractionIndex.between(frontSort, endSort, texts.length);
         for (int i = 0; i < sorts.size(); i++)
-            mid.add(new RefEntity(dictionary, sorts.get(i).toString(), texts[i], page));
+            mid.add(new RefEntity(dictionary, sorts.get(i), texts[i], pageInfo));
 
         return Pair.of(edge, mid);
     }
