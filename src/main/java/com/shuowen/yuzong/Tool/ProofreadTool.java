@@ -3,6 +3,7 @@ package com.shuowen.yuzong.Tool;
 import com.hankcs.hanlp.HanLP;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.UStringCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool;
+import com.shuowen.yuzong.Tool.TextTool.Punctuation;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
@@ -40,14 +41,16 @@ public class ProofreadTool
     /**
      * 少数方言正字需要保留不要转换
      */
-    public static UString escapeCharTraslate(UString text, Language from, Set<String> escapeCharset)
+    public static UString escapeCharTraslate(UString text, Language from, final OrthoCharset charset)
     {
-        var newTmp = UString.of(useHanlpTranslate(text.toString(), from));
+        // 先机翻，然后立刻转换成统一码字符串
+        var tmp = UString.of(useHanlpTranslate(text.toString(), from));
+
+        // 是否更换的标准取决于charset规则
         var ans = UString.of();
-        for (int i = 0; i < text.length(); i++)
+        for (int i=0;i<text.length();i++)
         {
-            // 如果在「转义字符」范围里，不更换
-            ans.append(escapeCharset.contains(text.at(i)) ? text.at(i) : newTmp.at(i));
+            ans.append(charset.choose(text.uCharAt(i),tmp.uCharAt(i)));
         }
         return ans;
     }
@@ -56,12 +59,15 @@ public class ProofreadTool
      * 在不干扰不变区域的情况下对修改部分新增，防止全量更新导致的已经编辑的简体字部分在繁体更新后被覆盖
      */
     public static Map<String, UString> retainContextTranslate(
-            UString oldTc, UString newTc, UString oldSc, Set<String> escapeCharset)
+            UString oldTc, UString newTc, UString oldSc, final OrthoCharset charset)
     {
         // 长度相等才能共用索引
         if (oldTc.length() != oldSc.length()) throw new IllegalArgumentException("旧字符串长度不等");
 
-        var newScTmp = escapeCharTraslate(newTc, Language.TC, escapeCharset);
+        // 在方言的基础上加上标点符号的规则
+        charset.addIgnores(Punctuation.getCharset());
+
+        var newScTmp = escapeCharTraslate(newTc, Language.TC, charset);
         var changes = UStringCompareUtil.compare(oldTc, newTc);
         var newSc = UString.of();
 

@@ -5,6 +5,8 @@ import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 
 import java.util.*;
 
+import static com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool.checkNotNull;
+
 /**
  * 增强版基于代理对的字符串类，旨在封装掉所有和代码点有关的内容，专为字典应用设计，
  * 提供完整的Unicode支持和高性能操作
@@ -30,6 +32,7 @@ public class UString implements Iterable<String>, Comparable<UString>
      */
     public UString(String s)
     {
+        checkNotNull(s);
         str = new StringBuilder(s);
         size = computeSize(s);
     }
@@ -118,6 +121,12 @@ public class UString implements Iterable<String>, Comparable<UString>
         size += s.length();
     }
 
+    public void insert(int idx, UChar c)
+    {
+        str.insert(mapIndex(idx), c.toString());
+        size += 1;
+    }
+
     public void append(String s)
     {
         str.append(s);
@@ -128,6 +137,12 @@ public class UString implements Iterable<String>, Comparable<UString>
     {
         str.append(s.toString());
         size += s.length();
+    }
+
+    public void append(UChar c)
+    {
+        str.append(c.toString());
+        size += 1;
     }
 
     public void delete(int start, int end)
@@ -144,6 +159,11 @@ public class UString implements Iterable<String>, Comparable<UString>
     public String at(int idx)
     {
         return new String(Character.toChars(str.codePointAt(mapIndex(idx))));
+    }
+
+    public UChar uCharAt(int idx)
+    {
+        return UChar.of(at(idx));
     }
 
     @Override
@@ -168,6 +188,45 @@ public class UString implements Iterable<String>, Comparable<UString>
         if (size != that.size) return false;
 
         return str.toString().contentEquals(that.str);
+    }
+
+    public boolean contentEquals(UChar c)
+    {
+        return size == 1 && uCharAt(0).contentEquals(c);
+    }
+
+    public boolean contentEquals(char c)
+    {
+        return size == 1 && uCharAt(0).contentEquals(c);
+    }
+
+    public boolean contentEquals(UString s)
+    {
+        if (s == null) return false;
+        return this.str.toString().contentEquals(s.str);
+    }
+
+    public boolean contentEquals(CharSequence s)
+    {
+        if (s == null) return false;
+
+        if (Character.codePointCount(s, 0, s.length()) != size)
+            return false;
+
+        int i = 0, j = 0;
+
+        while (i < str.length() && j < s.length())
+        {
+            int p1 = str.codePointAt(i);
+            int p2 = Character.codePointAt(s, j);
+
+            if (p1 != p2) return false;
+
+            i += Character.charCount(p1);
+            j += Character.charCount(p2);
+        }
+
+        return true;
     }
 
     @Override
@@ -195,6 +254,29 @@ public class UString implements Iterable<String>, Comparable<UString>
             {
                 if (!hasNext()) throw new NoSuchElementException();
                 String ch = at(index);
+                index++;
+                return ch;
+            }
+        };
+    }
+
+    public Iterable<UChar> uchars()
+    {
+        return () -> new Iterator<>()
+        {
+            private int index = 0;
+
+            @Override
+            public boolean hasNext()
+            {
+                return index < size;
+            }
+
+            @Override
+            public UChar next()
+            {
+                if (!hasNext()) throw new NoSuchElementException();
+                UChar ch = UChar.of(at(index));
                 index++;
                 return ch;
             }
