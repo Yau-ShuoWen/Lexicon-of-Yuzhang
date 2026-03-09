@@ -13,7 +13,6 @@ import com.shuowen.yuzong.data.domain.Pinyin.PinyinTable;
 import com.shuowen.yuzong.service.impl.KeyValueService;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -24,9 +23,6 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 @RequestMapping ("/api/pinyin/")
 public class PinyinController
 {
-    @Autowired
-    KeyValueService kv;
-
     @GetMapping ("{dialect}/style-init")
     public PinyinStyle pinyin(
             @PathVariable String dialect,
@@ -47,7 +43,7 @@ public class PinyinController
         try
         {
             Dialect d = Dialect.of(dialect);
-            String text = kv.get("pinyin-style-display-text:" + d.toString());
+            String text = KeyValueService.get("pinyin-style-display-text:" + d.toString());
             var style = d.createStyle(styleParam);
 
             return APIResponse.success(RichTextUtil.format(text, style, d));
@@ -70,18 +66,22 @@ public class PinyinController
     public PinyinTable getTable(@PathVariable String dialect)
     {
         Dialect d = Dialect.of(dialect);
-        String text = kv.get("pinyin-table-display-json:" + d.toString());
+        String text = KeyValueService.get("pinyin-table-display-json:" + d.toString());
         List<Pair<Map<String, String>, List<Map<String, String>>>> data =
                 readJson(text, new TypeReference<>() {}, new ObjectMapper());
         return new PinyinTable(data);
     }
 
-    @GetMapping ("{dialect}/get-tone-preview")
-    public PinyinTable getTone(
-            @PathVariable String dialect,
-            @RequestParam String last)
-    {
-        Dialect d = Dialect.of(dialect);
-        return PinyinTable.getTonePreview(d, last);
-    }
+//    @GetMapping ("{dialect}/get-tone-preview")
+//    public PinyinTable getTone(
+//            @PathVariable String dialect,
+//            @RequestParam String last)
+//    {
+//        Dialect d = Dialect.of(dialect);
+//        return PinyinTable.getTonePreview(d, last);
+//    }
+
+
+//    @GetMapping("{dialect}/get")
+//    public
 }

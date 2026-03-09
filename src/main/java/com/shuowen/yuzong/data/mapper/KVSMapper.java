@@ -14,6 +14,6 @@ public interface KVSMapper
     @Insert ("INSERT INTO NC.kvs (k, v) values (#{k}, #{v})")
     void set(String k, String v);
 
-    @Delete ("DELETE FROM NC.kvs where k = v")
+    @Delete ("DELETE FROM NC.kvs where k = #{k}")
     void del(String k);
 }
