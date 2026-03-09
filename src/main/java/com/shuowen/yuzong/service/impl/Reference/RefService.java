@@ -19,6 +19,7 @@ import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.mapper.Reference.DictMapper;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +58,18 @@ public class RefService
         return ans;
     }
 
+    private static RefService instance;
+
+    @PostConstruct
+    public void init()
+    {
+        instance = this;
+    }
+
+    public static Map<String, String> getDictionary(Dialect d, Language l)
+    {
+        return instance.getDictionaryMap(d, l);
+    }
 
     @Autowired
     private RefMapper ck;

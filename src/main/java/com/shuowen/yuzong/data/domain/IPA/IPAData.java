@@ -1,13 +1,13 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
 import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
-import com.shuowen.yuzong.Tool.dataStructure.functions.QuaFunction;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.service.impl.IPA.IPAService;
+import com.shuowen.yuzong.service.impl.Reference.RefService;
 import lombok.Getter;
 
 import java.util.*;
-import java.util.function.BiFunction;
 
 /**
  * 国际音标查询结果集
@@ -27,17 +27,13 @@ public class IPAData
     private final Set<Pinyin> buffer = new HashSet<>();    // 没有查的内容的缓冲区
     private final Set<Pinyin> failCase = new HashSet<>();  // 失败用例
     private final Map<Pinyin, Map<String, String>> data = new HashMap<>(); // 信息
-    private final QuaFunction<Set<Pinyin>, PinyinOption, Dialect, Set<String>, Map<Pinyin, Map<String, String>>> ipaSE;
 
-    public IPAData(Language lang, Dialect d, PinyinOption op,
-                   BiFunction<Dialect, Language, Map<String, String>> dictPvd,
-                   QuaFunction<Set<Pinyin>, PinyinOption, Dialect, Set<String>, Map<Pinyin, Map<String, String>>> ipaPvd)
+    public IPAData(Language l, Dialect d, PinyinOption op)
     {
-        language = lang;
+        language = l;
         dialect = d;
         pinyinOption = op;
-        ipaSE = ipaPvd;
-        dictionary = dictPvd.apply(d, lang);
+        dictionary = RefService.getDictionary(dialect,language);
     }
 
     /**
@@ -62,7 +58,7 @@ public class IPAData
      */
     private void search(Set<Pinyin> set)
     {
-        data.putAll(ipaSE.apply(set, pinyinOption, dialect, dictionary.keySet()));
+        data.putAll(IPAService.getTheIPA(set, pinyinOption, dialect, dictionary.keySet()));
         for (var i : set) if (!data.containsKey(i)) failCase.add(i);
     }
 

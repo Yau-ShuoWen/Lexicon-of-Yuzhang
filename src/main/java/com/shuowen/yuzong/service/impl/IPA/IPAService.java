@@ -10,6 +10,7 @@ import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
 import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
 import com.shuowen.yuzong.data.model.IPA.IPAToneEntity;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -123,5 +124,18 @@ public class IPAService
         String last = "~".repeat(left) + code.substring(left);
 
         return Yinjie.merge(data.apply(initial), data.apply(last));
+    }
+
+    private static IPAService instance;
+
+    @PostConstruct
+    public void init()
+    {
+        instance = this;
+    }
+
+    public static Map<Pinyin, Map<String, String>> getTheIPA(Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<String> dictSet)
+    {
+        return instance.getIPA(pinyinSet, op, d, dictSet);
     }
 }
