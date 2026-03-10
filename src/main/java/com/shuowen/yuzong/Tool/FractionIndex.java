@@ -42,6 +42,9 @@ public class FractionIndex implements Comparable<FractionIndex>
         this.d = d;
     }
 
+    /**
+     * 井号是为了防止长得像数字被弱类型错误解读
+     */
     public String toString()
     {
         return "#" + d.toString();
@@ -142,33 +145,45 @@ public class FractionIndex implements Comparable<FractionIndex>
         return result;
     }
 
+    /**
+     * 整理、重建索引。
+     */
+    public static List<FractionIndex> rebuild(int n)
+    {
+        // 0.(0)1  0.(99)
+        var dataSize = String.valueOf(n).length();
+        var first = FractionIndex.of("0." + "0".repeat(dataSize - 1) + "1");
+        var end = FractionIndex.of("0." + "9".repeat(dataSize));
+
+        List<FractionIndex> result = new ArrayList<>(n);
+        result.add(first);
+        result.addAll(between(first, end, n - 2));
+        result.add(end);
+
+        return result;
+    }
+
+    public static FractionIndex valueOf(String encoded)
+    {
+        return of(Obfuscation.decode(encoded));
+    }
+
     public static class FractionIndexDeserializer extends JsonDeserializer<FractionIndex>
     {
         @Override
-        public FractionIndex deserialize(
-                JsonParser p,
-                DeserializationContext ctxt
-        ) throws IOException
+        public FractionIndex deserialize(JsonParser p, DeserializationContext ctxt) throws IOException
         {
             String encoded = p.getValueAsString();
-            return FractionIndex.of(
-                    Obfuscation.decode(encoded)
-            );
+            return FractionIndex.of(Obfuscation.decode(encoded));
         }
     }
 
     public static class FractionIndexSerializer extends JsonSerializer<FractionIndex>
     {
         @Override
-        public void serialize(
-                FractionIndex value,
-                JsonGenerator gen,
-                SerializerProvider serializers
-        ) throws IOException
+        public void serialize(FractionIndex value, JsonGenerator gen, SerializerProvider serializers) throws IOException
         {
-            gen.writeString(
-                    Obfuscation.encode(value.toString())
-            );
+            gen.writeString(Obfuscation.encode(value.toString()));
         }
     }
 }
