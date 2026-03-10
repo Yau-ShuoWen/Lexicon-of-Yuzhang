@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
 import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
@@ -12,9 +13,8 @@ import java.util.*;
 /**
  * 国际音标查询结果集
  *
- * @apiNote 为了使得资源复用，把他当做参数传递的时候都要final标注，这样可以保证局部「单例」，减少重复查询
+ * @apiNote 为了使得资源复用，把他当做参数传递的时候都要final标注，这样可以保证共用同一个实例，减少重复查询
  */
-
 public class IPAData
 {
     @Getter
@@ -33,7 +33,7 @@ public class IPAData
         language = l;
         dialect = d;
         pinyinOption = op;
-        dictionary = RefService.getDictionary(dialect,language);
+        dictionary = RefService.getDictionary(dialect, language);
     }
 
     /**
@@ -101,19 +101,26 @@ public class IPAData
      *
      * @apiNote 在这之前一定要用这个之前加入信息，这里才可以获得
      */
-    public String submitAndGet(Pinyin pinyin, String dict)
+    public Maybe<String> submitAndGet(Pinyin pinyin, String dict)
     {
         search(); // 性能仅限于批量查询、批量获取的第一个获取，后续只要不加内容就不会查询
-        if (failCase.contains(pinyin)) return pinyin + "找不到对应数据。data not found.";
-        if (!inDictionary(dict)) return dict + "找不到对应字典。dictionary not found.";
 
-        return data.get(pinyin).get(dict);
+        if (!inDictionary(dict)) return Maybe.nothing();
+        if (failCase.contains(pinyin)) return Maybe.nothing();
+        if (!data.get(pinyin).containsKey(dict)) return Maybe.nothing();
+        return Maybe.exist(data.get(pinyin).get(dict));
+
+//        .fail(new IllegalArgumentException(dict + "找不到对应字典。dictionary not found."));
+//        return Result.fail(new InvalidPinyinException(pinyin + "这个拼音没有数据。"));
+//        return Result.fail(new InvalidPinyinException(String.format("%s字典没有拼音%s的数据", dict, pinyin)));
+//        Result.ok(data.get(pinyin).get(dict));
+
     }
 
     /**
      * 直接需要内容的时候
      */
-    public String getDirectly(Pinyin pinyin, String dict)
+    public Maybe<String> getDirectly(Pinyin pinyin, String dict)
     {
         if (!haveHistory(pinyin)) search(Set.of(pinyin));
         return submitAndGet(pinyin, dict);

@@ -78,10 +78,10 @@ public class HanziService
      */
     public HanziShow getHanziDetailInfo(String hanzi, Language l, Dialect d, PinyinOption op)
     {
-        return HanziShow.of(
+        return HanziShow.tryOf(
                 getHanziOrganize(Obfuscation.decode(hanzi), l, d, 1),
                 new IPAData(l, d, op)
-        );
+        ).getValueOrThrow("");
     }
 
     /**
@@ -192,8 +192,8 @@ public class HanziService
         var nextId = Maybe.uncertain(hz.findNextId(idNum, d.toString()));
 
         return Pair.of(  // 编码
-                prevId.handleIfExist(Obfuscation::encodeInt),
-                nextId.handleIfExist(Obfuscation::encodeInt)
+                prevId.map(Obfuscation::encodeInt),
+                nextId.map(Obfuscation::encodeInt)
         );
     }
 //

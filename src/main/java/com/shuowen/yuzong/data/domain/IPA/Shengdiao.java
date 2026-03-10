@@ -33,6 +33,7 @@ public class Shengdiao
 
     public Maybe<String> getInfo(String dict)
     {
-        return Maybe.uncertain(info.get(dict));
+        var ans = "-".equals(info.get(dict)) ? null : info.get(dict);
+        return Maybe.uncertain(ans);
     }
 }

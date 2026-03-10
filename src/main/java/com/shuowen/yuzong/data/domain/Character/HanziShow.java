@@ -4,6 +4,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.IPA.*;
@@ -37,10 +38,16 @@ public class HanziShow
         //TODO:refer!
     }
 
-    public static HanziShow of(HanziGroup hz, final IPAData data)
+    public static Maybe<HanziShow> tryOf(HanziGroup hz, final IPAData data)
     {
-        var list = ListTool.checkSizeOne(hz.getList(), "not found 未找到汉字", "not unique 汉字不唯一");
-        return new HanziShow(list, data);
+        try
+        {
+            var list = ListTool.checkSizeOne(hz.getList(), "not found 未找到汉字", "not unique 汉字不唯一");
+            return Maybe.exist(new HanziShow(list, data));
+        } catch (Exception e)
+        {
+            return Maybe.nothing();
+        }
     }
 
     private HanziShow(List<HanziItem> hz, final IPAData data)
@@ -150,18 +157,19 @@ public class HanziShow
                     // ipa 和下面一样
                     info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
                             data.getDictionaryName(pair.getLeft()),
-                            data.submitAndGet(pair.getRight(), pair.getLeft())
+                            data.submitAndGet(pair.getRight(), pair.getLeft()).getValueOrThrow("获取音标失败")
                     ));
                 }
                 case AllIPA ->
                 {
-                    info.mainPy = data.submitAndGet(i.mainPy, dict);
+                    info.mainPy = data.submitAndGet(i.mainPy, dict).getValueOrThrow("获取音标失败");
                     info.variantPy = ListTool.mapping(i.ipa, pair -> Pair.of(
-                            pair.getLeft(), data.submitAndGet(pair.getRight(), dict)
+                            pair.getLeft(),
+                            data.submitAndGet(pair.getRight(), dict).getValueOrThrow("获取音标失败")
                     ));
                     info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
                             data.getDictionaryName(pair.getLeft()),
-                            data.submitAndGet(pair.getRight(), pair.getLeft())
+                            data.submitAndGet(pair.getRight(), pair.getLeft()).getValueOrThrow("获取音标失败")
                     ));
                 }
             }
