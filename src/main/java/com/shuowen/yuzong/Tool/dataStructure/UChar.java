@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Tool.dataStructure;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.Objects;
@@ -7,7 +8,7 @@ import java.util.Objects;
 import static com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool.checkNotNull;
 
 /**
- * 单个Unicode字符（code point）
+ * 单个Unicode字符（代码点）
  */
 public class UChar implements Comparable<UChar>
 {
@@ -21,6 +22,7 @@ public class UChar implements Comparable<UChar>
     /**
      * 从String创建
      */
+    @JsonCreator
     public static UChar of(String s)
     {
         checkNotNull(s);

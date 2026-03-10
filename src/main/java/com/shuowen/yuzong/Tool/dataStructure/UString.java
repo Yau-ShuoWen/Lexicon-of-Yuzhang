@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Tool.dataStructure;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 
@@ -42,6 +43,7 @@ public class UString implements Iterable<String>, Comparable<UString>
         return new UString();
     }
 
+    @JsonCreator
     public static UString of(String s)
     {
         return new UString(s);
