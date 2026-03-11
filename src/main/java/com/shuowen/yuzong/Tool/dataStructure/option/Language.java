@@ -1,5 +1,7 @@
 package com.shuowen.yuzong.Tool.dataStructure.option;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 
 /**
@@ -14,6 +16,7 @@ public enum Language
 {
     SC, TC;
 
+    @JsonCreator
     public static Language of(String s)
     {
         StringTool.checkTrimValid(s);
@@ -37,6 +40,7 @@ public enum Language
         };
     }
 
+    @JsonValue
     @Override
     public String toString()
     {

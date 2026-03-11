@@ -1,5 +1,7 @@
 package com.shuowen.yuzong.Tool.dataStructure.option;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
@@ -73,7 +75,7 @@ public enum Dialect
         this.initialLength = initialLength;
     }
 
-
+    @JsonCreator
     public static Dialect of(String s)
     {
         StringTool.checkTrimValid(s);
@@ -84,6 +86,7 @@ public enum Dialect
         };
     }
 
+    @JsonValue
     @Override
     public String toString()
     {
