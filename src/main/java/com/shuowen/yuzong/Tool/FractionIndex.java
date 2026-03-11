@@ -3,6 +3,7 @@ package com.shuowen.yuzong.Tool;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.format.ObfString;
 import lombok.Data;
 
 import java.math.*;
@@ -152,20 +153,21 @@ public class FractionIndex implements Comparable<FractionIndex>
         return result;
     }
 
-    public static FractionIndex valueOf(String encoded)
+    public static FractionIndex valueOf(String code)
     {
-        return of(Obfuscation.decode(encoded));
+        // spring boot只识别String参数的内容，不可以接力，所以要创建
+        return FractionIndex.of(ObfString.valueOf(code).decode());
     }
 
     @JsonCreator
-    public static FractionIndex fromJson(String encoded)
+    public static FractionIndex fromJson(ObfString code)
     {
-        return FractionIndex.of(Obfuscation.decode(encoded));
+        return FractionIndex.of(code.decode());
     }
 
     @JsonValue
-    public String toJson()
+    public ObfString toJson()
     {
-        return Obfuscation.encode(this.toString());
+        return ObfString.encode(this.toString());
     }
 }

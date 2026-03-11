@@ -1,8 +1,9 @@
 package com.shuowen.yuzong.controller.search;
 
-import com.shuowen.yuzong.Tool.Obfuscation;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.format.ObfInt;
+import com.shuowen.yuzong.Tool.format.ObfString;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
@@ -31,10 +32,10 @@ public class SearchController
     /**
      * 适用于搜索时候整合所有信息列成一个列表供选择，所以这里的结果集是可插拔的
      */
-    @GetMapping (value = "{l}/{d}/search-query")
+    @GetMapping ("{l}/{d}/query")
     public List<SearchResult> search(
             @PathVariable Dialect d, @PathVariable Language l, @RequestParam String query,
-            @RequestParam (required = false, defaultValue = "true") boolean vague
+            @RequestParam boolean vague
     )
     {
         List<SearchResult> ans = new ArrayList<>();
@@ -48,9 +49,9 @@ public class SearchController
     /**
      * 查询具体汉字信息
      */
-    @GetMapping ("{l}/{d}/by-hanzi")
+    @GetMapping ("{l}/{d}/hanzi")
     public APIResponse<HanziShow> hanziSearch(
-            @PathVariable Dialect d, @PathVariable Language l, @RequestParam String query,
+            @PathVariable Dialect d, @PathVariable Language l, @RequestParam ObfString query,
             @RequestParam Phonogram phonogram,
             @RequestParam IPASyllableStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
@@ -59,7 +60,7 @@ public class SearchController
         try
         {
             return APIResponse.success(h.getHanziDetailInfo(
-                    Obfuscation.decode(query), l, d,
+                    query.decode(), l, d,
                     PinyinOption.of(phonogram, syllableStyle, toneStyle)));
         } catch (Exception e)
         {
@@ -67,9 +68,9 @@ public class SearchController
         }
     }
 
-    @GetMapping ("{l}/{d}/by-ciyu")
+    @GetMapping ("{l}/{d}/ciyu")
     public APIResponse<CiyuShow> ciyuSearch(
-            @PathVariable Dialect d, @PathVariable Language l, @RequestParam String query,
+            @PathVariable Dialect d, @PathVariable Language l, @RequestParam ObfInt query,
             @RequestParam Phonogram phonogram,
             @RequestParam IPASyllableStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
@@ -78,7 +79,7 @@ public class SearchController
         try
         {
             return APIResponse.success(c.getCiyuDetailInfo(
-                    Obfuscation.decodeInt(query), l, d,
+                    query.decode(), l, d,
                     PinyinOption.of(phonogram, syllableStyle, toneStyle)
             ));
         } catch (Exception e)

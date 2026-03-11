@@ -2,10 +2,10 @@ package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
+import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Character.HanziUpdate;
-import com.shuowen.yuzong.data.domain.Character.HanziCreate;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.model.Character.MdrChar;
 import com.shuowen.yuzong.service.impl.Character.HanziService;
@@ -28,28 +28,28 @@ public class EditHanziController
     /**
      * 在编辑之前筛选内容
      */
-    @GetMapping ("{dialect}/by-hanzi")
+    @GetMapping ("{d}/by-hanzi")
     public List<SearchResult> filter(
-            @PathVariable String dialect,
+            @PathVariable Dialect d,
             @RequestParam String hanzi
     )
     {
-        return hz.getHanziFilterInfo(hanzi, Dialect.of(dialect));
+        return hz.getHanziFilterInfo(hanzi, d);
     }
 
 
     /**
      * 获得精确的某一个字的信息
      */
-    @GetMapping ("{dialect}/hanzi/by-id")
+    @GetMapping ("{d}/hanzi/by-id")
     public APIResponse<Maybe<HanziUpdate>> hanzifind(
-            @PathVariable String dialect,
-            @RequestParam String id
+            @PathVariable Dialect d,
+            @RequestParam ObfInt id
     )
     {
         try
         {
-            return APIResponse.success(Maybe.uncertain(hz.getHanziById(id, Dialect.of(dialect))));
+            return APIResponse.success(Maybe.uncertain(hz.getHanziById(id.decode(), d)));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -61,15 +61,15 @@ public class EditHanziController
     /**
      * 提交编辑
      */
-    @PostMapping ("{dialect}/edit")
+    @PostMapping ("{d}/edit")
     public APIResponse<Void> edit(
-            @PathVariable String dialect,
+            @PathVariable Dialect d,
             @RequestBody HanziUpdate he
     )
     {
         try
         {
-            hz.editHanzi(he, Dialect.of(dialect));
+            hz.editHanzi(he, d);
             return APIResponse.success();
         } catch (Exception e)
         {
@@ -82,27 +82,27 @@ public class EditHanziController
     /**
      * 获得普通话汉字信息
      */
-    @GetMapping ("{dialect}/get-hanzi")
+    @GetMapping ("{d}/get-hanzi")
     public List<MdrChar> getHanzi(
-            @PathVariable String dialect,
+            @PathVariable Dialect d,
             @RequestParam String sc,
             @RequestParam String tc
     )
     {
-        return p.getHanziMenu(sc, tc, Dialect.of(dialect));
+        return p.getHanziMenu(sc, tc, d);
     }
 
 
     /**
      * 获得上一号和下一号的号码给跳转
      */
-    @GetMapping ("{dialect}/get-nearby")
-    public APIResponse<Pair<Maybe<String>, Maybe<String>>>
-    getNearBy(@PathVariable String dialect, @RequestParam String id)
+    @GetMapping ("{d}/get-nearby")
+    public APIResponse<Twin<Maybe<ObfInt>>>
+    getNearBy(@PathVariable Dialect d, @RequestParam ObfInt id)
     {
         try
         {
-            return APIResponse.success(hz.getNearBy(id, Dialect.of(dialect)));
+            return APIResponse.success(hz.getNearBy(id.decode(), d));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -110,15 +110,15 @@ public class EditHanziController
         }
     }
 //
-//    @PostMapping ("{dialect}/quick-initialize")
+//    @PostMapping ("{d}/quick-initialize")
 //    public APIResponse<Void> quickInitialize(
-//            @PathVariable String dialect,
+//            @PathVariable Dialect d,
 //            @RequestParam HanziCreate he
 //    )
 //    {
 //        try
 //        {
-//            hz.initHanzi(he, Dialect.of(dialect));
+//            hz.initHanzi(he, d);
 //            return APIResponse.success();
 //        } catch (Exception e)
 //        {

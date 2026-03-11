@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
-import com.shuowen.yuzong.Tool.Obfuscation;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
@@ -13,6 +12,7 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.JsonTool;
+import com.shuowen.yuzong.Tool.format.ObfString;
 import com.shuowen.yuzong.data.domain.Reference.Keyword;
 import com.shuowen.yuzong.data.domain.Reference.RefPage;
 import com.shuowen.yuzong.data.dto.SearchResult;
@@ -117,7 +117,7 @@ public class RefService
 
             var sort = RefPage.of(getPage(dictionary, i.getSort())).getFrontSort();
             tmp.setInfo(Map.of("dict", i.getDictionary(), "sort",
-                    Obfuscation.encode(sort.toString()))
+                    ObfString.encode(sort.toString()))
             );
 
             ans.add(tmp);

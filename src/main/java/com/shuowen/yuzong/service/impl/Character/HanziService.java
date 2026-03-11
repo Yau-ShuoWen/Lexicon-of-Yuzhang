@@ -2,12 +2,13 @@ package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
-import com.shuowen.yuzong.Tool.Obfuscation;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
+import com.shuowen.yuzong.Tool.format.ObfInt;
+import com.shuowen.yuzong.Tool.format.ObfString;
 import com.shuowen.yuzong.data.domain.Character.HanziUpdate;
 import com.shuowen.yuzong.data.domain.Character.HanziGroup;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
@@ -65,7 +66,7 @@ public class HanziService
                 tmp.setTitle(i.get(0).getHanzi());
                 tmp.setExplain("");
                 tmp.setTag("hanzi");
-                tmp.setInfo(Map.of("hanzi", Obfuscation.encode(i.get(0).getHanzi()), "lang", l.toString()));
+                tmp.setInfo(Map.of("query", ObfString.encode(i.get(0).getHanzi())));
 
                 ans.add(tmp);
             }
@@ -79,9 +80,8 @@ public class HanziService
     public HanziShow getHanziDetailInfo(String hanzi, Language l, Dialect d, PinyinOption op)
     {
         return HanziShow.tryOf(
-                getHanziOrganize(Obfuscation.decode(hanzi), l, d, 1),
-                new IPAData(l, d, op)
-        ).getValueOrThrow("");
+                getHanziOrganize(hanzi, l, d, 1), new IPAData(l, d, op)
+        ).getValueDirectly("");
     }
 
     /**
@@ -100,8 +100,8 @@ public class HanziService
                 tmp.setTitle(Objects.equals(i.getSc(), i.getTc()) ?
                         i.getSc() : i.getSc() + " / " + i.getTc());
                 tmp.setExplain(i.getMainPy());
-                tmp.setTag(Obfuscation.encodeInt(i.getId()));
-                tmp.setInfo(Map.of());
+                tmp.setTag("");
+                tmp.setInfo(Map.of("query", ObfInt.encode(i.getId())));
 
                 ans.add(tmp);
             }
@@ -112,9 +112,8 @@ public class HanziService
     /**
      * 编辑词条的时候的明确的词条
      */
-    public HanziUpdate getHanziById(String idStr, Dialect d)
+    public HanziUpdate getHanziById(int id, Dialect d)
     {
-        int id = Obfuscation.decodeInt(idStr);
         return HanziUpdate.of(
                 hz.findHanziByCharId(id, d.toString()),
                 hz.findHanziSimilarByCharId(id, d.toString()),
@@ -185,15 +184,14 @@ public class HanziService
         mdr.handleEdit(he.getMandarin(), d);
     }
 
-    public Pair<Maybe<String>, Maybe<String>> getNearBy(String id, Dialect d)
+    public Twin<Maybe<ObfInt>> getNearBy(int id, Dialect d)
     {
-        int idNum = Obfuscation.decodeInt(id); //解码
-        var prevId = Maybe.uncertain(hz.findPrevId(idNum, d.toString()));
-        var nextId = Maybe.uncertain(hz.findNextId(idNum, d.toString()));
+        var prevId = Maybe.uncertain(hz.findPrevId(id, d.toString()));
+        var nextId = Maybe.uncertain(hz.findNextId(id, d.toString()));
 
-        return Pair.of(  // 编码
-                prevId.map(Obfuscation::encodeInt),
-                nextId.map(Obfuscation::encodeInt)
+        return Twin.of(  // 编码
+                prevId.handleIfExist(ObfInt::encode),
+                nextId.handleIfExist(ObfInt::encode)
         );
     }
 //
