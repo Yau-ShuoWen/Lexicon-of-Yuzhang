@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.data.domain.Pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
@@ -22,12 +22,9 @@ public class PinyinChecker
      * <br>3. 完全识别不了 {@code (3, 空, 空)}
      * <br>4. 需要补充音调 {@code (4, 空, 空)}
      */
-    public static Triple<Integer, String, String> suggestively(String text, Dialect d)
+    public static Triple<Integer, DPinyin, DPinyin> suggestively(DPinyin text, Dialect d)
     {
-        StringTool.checkTrimValid(text);
-
-        if (!NumberTool.closeBetween(StringTool.back(text), '0', '9'))
-            return Triple.of(4, "", "");
+        if(text.getTone().isEmpty()) return Triple.of(4, null, null);
 
         var rawPinyinAnswer = d.tryCreatePinyin(text);
         var newPinyinAnswer = d.tryCreatePinyin(d.normalizePinyin(text));
@@ -39,23 +36,23 @@ public class PinyinChecker
             var newPinyin = newPinyinAnswer.getValue();
             if (Maybe.allValidAndEqual(rawPinyinAnswer, newPinyinAnswer))
             {
-                return Triple.of(1, PinyinFormatter.handle(newPinyin, d), "");
+                return Triple.of(1, PinyinFormatter.handle(newPinyin, d), null);
             }
             else
             {
-                String trueAns = PinyinFormatter.handle(newPinyin, d, PinyinParam.of(Scheme.KEYBOARD));
-                return Triple.of(2, PinyinFormatter.handle(newPinyin, d), trueAns.substring(2, trueAns.length() - 2));
+                DPinyin trueAns = PinyinFormatter.handle(newPinyin, d, PinyinParam.of(Scheme.KEYBOARD));
+                return Triple.of(2, PinyinFormatter.handle(newPinyin, d), trueAns);
             }
         }
-        else return Triple.of(3, "", "");
+        else return Triple.of(3, null, null);
     }
 
     /**
      * 用于前端传送到后端的拼音检查
      * <br>使用场景：有了校对工具，如果再出现不正确的，那就报错回前端
      */
-    public static void strictly(String text, Dialect d)
+    public static void strictly(DPinyin text, Dialect d)
     {
-        if (suggestively(text, d).getLeft() != 1) throw new IllegalArgumentException(text + "拼音不符合格式");
+        if (suggestively(text, d).getLeft() != 1) throw new InvalidPinyinException(text + "拼音不符合格式");
     }
 }

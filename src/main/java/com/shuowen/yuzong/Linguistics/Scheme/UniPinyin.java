@@ -5,9 +5,6 @@ import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import static com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter.trySplit;
-
-
 @Getter
 @EqualsAndHashCode // 因为其他字段只由这 pinyin tone 两个决定，所以实际上也只是比较这两个的区别
 abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
@@ -25,11 +22,10 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
      *
      * @throws InvalidPinyinException 在子类静态工厂里捕获这个错误，说明构造错误，拼音建构失败，返回空集合
      */
-    protected UniPinyin(String s)
+    protected UniPinyin(DPinyin s)
     {
-        var tmp = trySplit(s); // 空字符串的检查已经在这个函数里
-        pinyin = tmp.getLeft();
-        tone = tmp.getRight();
+        pinyin = s.getSyllable();
+        tone = s.getTone().getValueOrDefault(0);
 
         code = initCode(); // 1. 编码的过程是否顺利？ initCode()，如果正常，把结果赋值code，否则抛出异常
         checkEncodable();  // 2. 获得的编码是否可逆？ encodeable()，不可逆在函数里会抛出异常
@@ -57,7 +53,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     // 转字符串
 
     /**
-     * 子类必须也要重写得非常「难看」，使得只在真正要展示的时候能立刻发现没有加参数的情况
+     * 子类必须也要重写得非常「难看」，目的是仅用于调试，不用于输出。
      */
     @Override
     public String toString()
@@ -67,6 +63,6 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
 
     /**
      * 这才是真正的转字符串的函数
-     * */
-    abstract public String toString(T params);
+     */
+    abstract public DPinyin toString(T params);
 }

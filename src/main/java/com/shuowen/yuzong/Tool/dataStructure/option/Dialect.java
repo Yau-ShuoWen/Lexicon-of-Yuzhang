@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
@@ -28,15 +29,15 @@ public enum Dialect
             NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize,
             "ncdict", 7, 2);
 //    ,
-//    LCS("ncs"); 未来的南昌话
+//    LCS("ncs"); 未来的南昌话 还是LAC
 
 
     private final String code;
     private final Class<? extends PinyinStyle> styleClass;
     private final Class<? extends UniPinyin<?>> pinyinClass;
-    private final Function<String, Maybe<?>> pinyinTryCreator;
+    private final Function<DPinyin, Maybe<?>> pinyinTryCreator;
     private final Function<PinyinParam, ? extends PinyinStyle> styleCreator;
-    private final Function<String, String> normalizer;
+    private final Function<DPinyin, DPinyin> normalizer;
     @Getter
     private final String defaultDict;
 
@@ -59,8 +60,8 @@ public enum Dialect
      */
     <U extends PinyinStyle, T extends UniPinyin<U>>
     Dialect(String code, Class<U> styleClass, Class<T> pinyinClass,
-            Function<String, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
-            Function<String, String> normalizer,
+            Function<DPinyin, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
+            Function<DPinyin, DPinyin> normalizer,
             String defaultDict, int toneAmount, int initialLength
     )
     {
@@ -98,7 +99,7 @@ public enum Dialect
      *
      * @return 需要解析最后是否成功
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(String py)
+    public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(DPinyin py)
     {
         return (Maybe<T>) pinyinTryCreator.apply(py);
     }
@@ -108,7 +109,7 @@ public enum Dialect
      *
      * @return 直接返回内容，不需要解析，但是如果是无效的，就直接报异常，说明流程的漏洞把缺陷的拼音存进去了
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(String py)
+    public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(DPinyin py)
     {
         var pinyin = tryCreatePinyin(py);
         if (pinyin.isEmpty()) throw new IllegalArgumentException("来自信任端的拼音无效。文本：" + py);
@@ -137,7 +138,7 @@ public enum Dialect
         }
     }
 
-    public String normalizePinyin(String s)
+    public DPinyin normalizePinyin(DPinyin s)
     {
         return normalizer.apply(s);
     }

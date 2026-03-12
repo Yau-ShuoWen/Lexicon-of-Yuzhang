@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
@@ -23,26 +24,21 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 @RequestMapping ("/api/pinyin/")
 public class PinyinController
 {
-    @GetMapping ("{dialect}/style-init")
-    public PinyinStyle pinyin(
-            @PathVariable String dialect,
-            @RequestParam Integer SchemeParam
-    )
+    @GetMapping ("{d}/style-init")
+    public PinyinStyle pinyin(@PathVariable Dialect d, @RequestParam Scheme SchemeParam)
     {
-        return Dialect.of(dialect).createStyle(PinyinParam.of(Scheme.of(SchemeParam)));
+        return d.createStyle(PinyinParam.of(SchemeParam));
     }
 
     /**
      * 传入拼音配置，预览效果
      */
-    @PostMapping ("{dialect}/preview")
-    public APIResponse<String> preview(
-            @PathVariable String dialect,
+    @PostMapping ("{d}/preview")
+    public APIResponse<String> preview(@PathVariable Dialect d,
             @RequestBody Map<String, Object> styleParam)
     {
         try
         {
-            Dialect d = Dialect.of(dialect);
             String text = KeyValueService.get("pinyin-style-display-text:" + d.toString());
             var style = d.createStyle(styleParam);
 
@@ -54,18 +50,17 @@ public class PinyinController
         }
     }
 
-    @GetMapping ("{dialect}/normalize")
-    public Triple<Integer, String, String> normalizeCheck(
-            @PathVariable String dialect,
-            @RequestParam String pinyin)
+    @GetMapping ("{d}/normalize")
+    public Triple<Integer, DPinyin, DPinyin> normalizeCheck(
+            @PathVariable Dialect d,
+            @RequestParam DPinyin pinyin)
     {
-        return PinyinChecker.suggestively(pinyin, Dialect.of(dialect));
+        return PinyinChecker.suggestively(pinyin, d);
     }
 
-    @GetMapping ("/{dialect}/table")
-    public PinyinTable getTable(@PathVariable String dialect)
+    @GetMapping ("/{d}/table")
+    public PinyinTable getTable(@PathVariable Dialect d)
     {
-        Dialect d = Dialect.of(dialect);
         String text = KeyValueService.get("pinyin-table-display-json:" + d.toString());
         List<Pair<Map<String, String>, List<Map<String, String>>>> data =
                 readJson(text, new TypeReference<>() {}, new ObjectMapper());

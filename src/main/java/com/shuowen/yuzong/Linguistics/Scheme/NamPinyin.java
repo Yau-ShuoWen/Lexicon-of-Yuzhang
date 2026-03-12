@@ -10,19 +10,17 @@ import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 
 import java.util.Objects;
 
-import static com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter.trySplit;
-
 /**
  * 南昌话拼音方案
  */
 public class NamPinyin extends UniPinyin<NamStyle>
 {
-    protected NamPinyin(String s)
+    protected NamPinyin(DPinyin s)
     {
         super(s);
     }
 
-    public static Maybe<NamPinyin> tryOf(String s)
+    public static Maybe<NamPinyin> tryOf(DPinyin s)
     {
         try
         {
@@ -273,7 +271,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
     @Override
-    public String toString(NamStyle p)
+    public DPinyin toString(NamStyle p)
     {
         NullTool.checkNotNull(p);
 
@@ -281,7 +279,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         builder = addMark(builder, p.getNum(), p.getIu());
         builder = setCapital(builder, p.getCapital());
 
-        return " [" + builder + "] ";
+        return DPinyin.read(this, builder);
     }
 
     public String setFormat(int yu, int gn, int ee, int oe, int ii, int ptk, int yw)
@@ -396,14 +394,12 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
 
-    public static String normalize(String text)
+    public static DPinyin normalize(DPinyin pinyin)
     {
+        String text = pinyin.getSyllable();
+
         // 《智能是一个巨大的if-else语句》
         text = text.toLowerCase();
-
-        var tmp = trySplit(text);
-        text = tmp.getLeft();
-        int tone = tmp.getRight();
 
         // 处理 i 在开头：
         // 匹配：y开头，但不是yu
@@ -459,6 +455,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (text.contains("yuan")) text = text.replace("yuan", "yuon");
         if (text.contains("uen")) text = text.replace("uen", "un");
 
-        return text + tone;
+        pinyin.setSyllable(text);
+        return pinyin;
     }
 }
