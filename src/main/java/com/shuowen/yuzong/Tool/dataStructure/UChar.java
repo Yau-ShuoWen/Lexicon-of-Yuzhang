@@ -2,6 +2,7 @@ package com.shuowen.yuzong.Tool.dataStructure;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.shuowen.yuzong.Tool.dataStructure.text.UElement;
 
 import java.util.Objects;
 
@@ -10,7 +11,7 @@ import static com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool.checkNotNull;
 /**
  * 单个Unicode字符（代码点）
  */
-public class UChar implements Comparable<UChar>
+public class UChar implements UElement<UChar>
 {
     private final int codePoint;
 
@@ -48,11 +49,23 @@ public class UChar implements Comparable<UChar>
         return codePoint;
     }
 
+    @Override
+    public int length()
+    {
+        return 1;
+    }
+
     @JsonValue
     @Override
     public String toString()
     {
         return new String(Character.toChars(codePoint));
+    }
+
+    @Override
+    public UString toUString()
+    {
+        return UString.of(this.toString());
     }
 
     @Override
@@ -69,16 +82,12 @@ public class UChar implements Comparable<UChar>
         return codePoint == uChar.codePoint;
     }
 
-    public boolean contentEquals(UChar c)
-    {
-        return c != null && codePoint == c.codePoint;
-    }
-
     public boolean contentEquals(char c)
     {
         return codePoint == c;
     }
 
+    @Override
     public boolean contentEquals(CharSequence s)
     {
         if (s == null) return false;
@@ -88,9 +97,15 @@ public class UChar implements Comparable<UChar>
         return codePoint == Character.codePointAt(s, 0);
     }
 
-    public boolean contentEquals(UString s)
+    @Override
+    public boolean contentEquals(UElement<?> other)
     {
-        return s != null && s.length() == 1 && codePoint == s.uCharAt(0).codePoint();
+        if (other == null) return false;
+        if (other instanceof UChar uc)
+            return codePoint == uc.codePoint();
+        else if (other instanceof UString us)
+            return us.length() == 1 && codePoint == us.uCharAt(0).codePoint();
+        return false;
     }
 
     @Override

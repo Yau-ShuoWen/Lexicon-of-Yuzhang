@@ -3,7 +3,6 @@ package com.shuowen.yuzong.Tool;
 import com.hankcs.hanlp.HanLP;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.UStringCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool;
-import com.shuowen.yuzong.Tool.TextTool.Punctuation;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
@@ -33,7 +32,7 @@ public class ProofreadTool
     /**
      * 使用HanLP库机翻
      */
-    public static String useHanlpTranslate(String text, Language from)
+    private static String useHanlpTranslate(String text, Language from)
     {
         return from.isSimplified() ? HanLP.s2t(text) : HanLP.t2s(text);
     }
@@ -63,9 +62,6 @@ public class ProofreadTool
     {
         // 长度相等才能共用索引
         if (oldTc.length() != oldSc.length()) throw new IllegalArgumentException("旧字符串长度不等");
-
-        // 在方言的基础上加上标点符号的规则
-        charset.addIgnores(Punctuation.getCharset());
 
         var newScTmp = escapeCharTraslate(newTc, Language.TC, charset);
         var changes = UStringCompareUtil.compare(oldTc, newTc);

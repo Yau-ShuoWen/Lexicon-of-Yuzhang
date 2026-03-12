@@ -3,18 +3,18 @@ package com.shuowen.yuzong.Tool.dataStructure;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
+import com.shuowen.yuzong.Tool.dataStructure.text.UElement;
 
 import java.util.*;
 
 import static com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool.checkNotNull;
 
 /**
- * 增强版基于代理对的字符串类，旨在封装掉所有和代码点有关的内容，专为字典应用设计，
- * 提供完整的Unicode支持和高性能操作
+ * 增强版基于代理对的字符串类，封装掉所有和代码点有关的内容，提供完整的Unicode支持
  *
  * @apiNote 在这里一个字符用String装，一个字符串用UString装
  */
-public class UString implements Iterable<String>, Comparable<UString>
+public class UString implements Iterable<UChar>, UElement<UString>
 {
     private final StringBuilder str;
     private int size;
@@ -81,6 +81,12 @@ public class UString implements Iterable<String>, Comparable<UString>
     public String toString()
     {
         return str.toString();
+    }
+
+    @Override
+    public UString toUString()
+    {
+        return this;
     }
 
     /**
@@ -192,22 +198,14 @@ public class UString implements Iterable<String>, Comparable<UString>
         return str.toString().contentEquals(that.str);
     }
 
-    public boolean contentEquals(UChar c)
-    {
-        return size == 1 && uCharAt(0).contentEquals(c);
-    }
 
+    @Override
     public boolean contentEquals(char c)
     {
         return size == 1 && uCharAt(0).contentEquals(c);
     }
 
-    public boolean contentEquals(UString s)
-    {
-        if (s == null) return false;
-        return this.str.toString().contentEquals(s.str);
-    }
-
+    @Override
     public boolean contentEquals(CharSequence s)
     {
         if (s == null) return false;
@@ -232,6 +230,17 @@ public class UString implements Iterable<String>, Comparable<UString>
     }
 
     @Override
+    public boolean contentEquals(UElement<?> other)
+    {
+        if (other == null) return false;
+        if (other instanceof UString us)
+            return this.str.toString().contentEquals(us.str);
+        else if (other instanceof UChar uc)
+            return this.length() == 1 && uCharAt(0).codePoint() == uc.codePoint();
+        return false;
+    }
+
+    @Override
     public int hashCode()
     {
         return Objects.hash(str, size);
@@ -239,9 +248,32 @@ public class UString implements Iterable<String>, Comparable<UString>
 
 
     @Override
-    public Iterator<String> iterator()
+    public Iterator<UChar> iterator()
     {
         return new Iterator<>()
+        {
+            private int index = 0;
+
+            @Override
+            public boolean hasNext()
+            {
+                return index < size;
+            }
+
+            @Override
+            public UChar next()
+            {
+                if (!hasNext()) throw new NoSuchElementException();
+                UChar ch = uCharAt(index);
+                index++;
+                return ch;
+            }
+        };
+    }
+
+    public Iterable<String> chars()
+    {
+        return () -> new Iterator<>()
         {
             private int index = 0;
 
@@ -262,75 +294,10 @@ public class UString implements Iterable<String>, Comparable<UString>
         };
     }
 
-    public Iterable<UChar> uchars()
-    {
-        return () -> new Iterator<>()
-        {
-            private int index = 0;
-
-            @Override
-            public boolean hasNext()
-            {
-                return index < size;
-            }
-
-            @Override
-            public UChar next()
-            {
-                if (!hasNext()) throw new NoSuchElementException();
-                UChar ch = UChar.of(at(index));
-                index++;
-                return ch;
-            }
-        };
-    }
-
     public static List<String> toUCharList(String str)
     {
         List<String> ans = new ArrayList<>();
-        for (var i : UString.of(str)) ans.add(i);
+        for (var i : UString.of(str).chars()) ans.add(i);
         return ans;
     }
-
-    public static int getULen(String str)
-    {
-        return str.codePointCount(0, str.length());
-    }
-
-    public static boolean isUChar(String str)
-    {
-        return getULen(str) == 1;
-    }
-
-    public static void checkUChar(ErrorInfo note, String... str)
-    {
-        List<String> log = new ArrayList<>();
-        for (String s : str) if (!isUChar(s)) log.add(s);
-
-        if (!log.isEmpty())
-            throw new IllegalStringException(String.format("""
-                    异常：字符串不是单个UTF-16字符。not a character.
-                    内容：%s
-                    上下文：%s
-                    """, log, note.info())
-            );
-    }
-
-    public static boolean isLenEqual(String str1, String str2)
-    {
-        return getULen(str1) == getULen(str2);
-    }
-
-    public static void checkLenEqual(ErrorInfo note, String str1, String str2)
-    {
-        if (!isLenEqual(str1, str2))
-            throw new IllegalStringException(String.format("""
-                    异常：两段文本UTF-16字符长度不相等。length not equal.
-                    （长度%s）:%s
-                    （长度%s）:%s
-                    上下文：%s
-                    """, str1.length(), str1, str2.length(), str2, note.info())
-            );
-    }
-
 }

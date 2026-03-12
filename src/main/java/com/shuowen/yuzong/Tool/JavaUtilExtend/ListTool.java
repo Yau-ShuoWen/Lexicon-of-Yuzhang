@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -34,5 +35,18 @@ public class ListTool
         NullTool.checkNotNull(list);
         if (list.size() == 1) return list.get(0);
         else throw new IllegalArgumentException(list.isEmpty() ? ifSmaller : ifLarger);
+    }
+
+    public static <T> boolean all(List<T> list, Predicate<T> fun)
+    {
+        NullTool.checkNotNull(list);
+        for (T i : list) if (!fun.test(i)) return false;
+        return true;
+    }
+
+    public static <T> void handle(List<T> list, Consumer<T> fun)
+    {
+        NullTool.checkNotNull(list);
+        for (T i : list) fun.accept(i);
     }
 }

@@ -2,6 +2,7 @@ package com.shuowen.yuzong.Tool;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shuowen.yuzong.Tool.TextTool.Punctuation;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.format.JsonTool;
@@ -20,6 +21,7 @@ public class OrthoCharset
 
     public OrthoCharset()
     {
+        addIgnores(Punctuation.getCharset()); // 在方言的基础上加上标点符号的规则
     }
 
     public OrthoCharset(Dialect d)
@@ -29,6 +31,8 @@ public class OrthoCharset
 
         for (var i : map.entrySet())
             handle.put(UChar.of(i.getKey()), UChar.of(i.getValue()));
+
+        addIgnores(Punctuation.getCharset()); // 在方言的基础上加上标点符号的规则
     }
 
     public void addIgnore(UChar ignore)

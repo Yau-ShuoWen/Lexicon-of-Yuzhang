@@ -101,4 +101,9 @@ public class ObjectTool
     {
         return existEqual(pattern, ListTool.mapping(values, f));
     }
+
+    public static void asserts(boolean b, String msg)
+    {
+        if (!b) throw new IllegalArgumentException(msg);
+    }
 }
