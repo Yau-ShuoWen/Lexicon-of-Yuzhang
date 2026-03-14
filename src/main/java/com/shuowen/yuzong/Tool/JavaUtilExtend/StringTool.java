@@ -1,10 +1,8 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
-import com.shuowen.yuzong.Tool.dataStructure.ErrorInfo;
 import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 字符串的扩展函数
@@ -28,7 +26,7 @@ public class StringTool
     /**
      * @throws IllegalStringException 如果存在{@code null} 或者 空字符串{@code ""}，抛出异常
      */
-    public static void checkValid(ErrorInfo note, String... str)
+    public static void checkValid(String... str)
     {
         List<String> log = new ArrayList<>();
         for (String s : str) if (!isValid(s)) log.add(s);
@@ -36,9 +34,8 @@ public class StringTool
         if (!log.isEmpty())
             throw new IllegalStringException(String.format("""
                     异常：字符串为null，或者字符串为空。String is null or empty.
-                    提示：%s
                     内容：%s
-                    """, note.info(), log)
+                    """, log)
             );
     }
 
@@ -65,24 +62,6 @@ public class StringTool
                     """, log)
             );
     }
-
-    /**
-     * @throws IllegalStringException 如果存在{@code null}、空字符串{@code ""}或者全空格串{@code "  "}，抛出异常
-     */
-    public static void checkTrimValid(ErrorInfo note, String... str)
-    {
-        List<String> log = new ArrayList<>();
-        for (String s : str) if (!isTrimValid(s)) log.add(s);
-
-        if (!log.isEmpty())
-            throw new IllegalStringException(String.format("""
-                    异常：字符串为null、为空或者只包含空格。String is null, empty or trimmed empty.
-                    提示：%s
-                    内容：%s
-                    """, note.info(), log)
-            );
-    }
-
 
     // 检查索引的合法性 -------------------------------------------------------------------------------------------------
 
