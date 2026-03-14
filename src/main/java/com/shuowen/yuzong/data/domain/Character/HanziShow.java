@@ -1,12 +1,16 @@
 package com.shuowen.yuzong.data.domain.Character;
 
+import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.UChar;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter;
 import lombok.Data;
@@ -20,21 +24,21 @@ import java.util.function.Function;
 @Data
 public class HanziShow
 {
-    protected String hanzi;
+    protected UChar hanzi;
     protected String language;
     protected Map<String, Info> infoMap = new TreeMap<>();
 
     @Data
     public static class Info
     {
-        String mainPy;
+        DPinyin mainPy;
         Set<Integer> special;
-        List<Pair<String, String>> variantPy;
-        Set<String> similar;
+        List<Pair<UString, DPinyin>> variantPy;
+        Set<UChar> similar;
         List<String> mdrInfo;
         List<Pair<String, String>> ipa;
-        List<String> mean;
-        List<Pair<String, String>> note;
+        List<UString> mean;
+        List<Twin<UString>> note;
         //TODO:refer!
     }
 
@@ -62,12 +66,12 @@ public class HanziShow
         {
             UniPinyin<?> mainPy;                                           // 标准拼音
             Set<Integer> special = new TreeSet<>();                       // 特殊性数字：默认顺序的集合
-            Set<Pair<String, UniPinyin<?>>> variantPy = new LinkedHashSet<>();// 读音变体：插入顺序的集合
-            Set<String> similar = new TreeSet<>();                        // 模糊识别汉字：默认顺序的集合
+            Set<Pair<UString, UniPinyin<?>>> variantPy = new LinkedHashSet<>();// 读音变体：插入顺序的集合
+            Set<UChar> similar = new TreeSet<>();                        // 模糊识别汉字：默认顺序的集合
             List<String> mdrInfo = new ArrayList<>();
             List<Pair<String, UniPinyin<?>>> ipa = new ArrayList<>();
-            List<String> mean = new ArrayList<>();
-            List<Pair<String, String>> note = new ArrayList<>();
+            List<UString> mean = new ArrayList<>();
+            List<Twin<UString>> note = new ArrayList<>();
         }
 
         // 初始化 ----------------------------------------------------------------------
@@ -78,7 +82,7 @@ public class HanziShow
         for (HanziItem h : hz)
         {
             // 拼音根据方言的信任初始化创建
-            var key = d.trustedCreatePinyin(h.getMainPy());
+            var key = d.trustedCreatePinyin(DPinyin.handle(h.getMainPy()));
             // 根据拼音分类：如果没有这个键，就加入，如果加入了这个键，就处理这个键
             tmpInfo info = tmpInfoMap.computeIfAbsent(key, k -> new tmpInfo());
 
@@ -94,9 +98,11 @@ public class HanziShow
 
             // 拼音根据方言的信任初始化创建
             info.variantPy.addAll(SetTool.mapping(h.getVariantPy(),
-                    i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(i.getRight()))));
+                    i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(DPinyin.handle(i.getRight())))
+            ));
             info.ipa.addAll(SetTool.mapping(h.getIpa(),
-                    i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(i.getRight()))));
+                    i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(DPinyin.handle(i.getRight())))
+            ));
         }
 
         // 格式化，两轮循环 ----------------------------------------------------------------------
@@ -118,7 +124,7 @@ public class HanziShow
         }
 
         // 函数：快速调用拼音格式化成字符串
-        Function<UniPinyin<?>, String> format = p -> PinyinFormatter.handle(p, d);
+        Function<UniPinyin<?>, DPinyin> format = p -> PinyinFormatter.handle(p, d);
         String dict = d.getDefaultDict();
 
 
@@ -144,10 +150,10 @@ public class HanziShow
                     ));
                     info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
                             data.getDictionaryName(pair.getLeft()),
-                            format.apply(pair.getRight())
+                            format.apply(pair.getRight()).toString()
                     ));
                 }
-                case PinyinIPA ->
+                case AllIPA, PinyinIPA ->
                 {
                     // mainPy 和 variantPy 和上面的一样
                     info.mainPy = format.apply(i.mainPy);
@@ -157,26 +163,27 @@ public class HanziShow
                     // ipa 和下面一样
                     info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
                             data.getDictionaryName(pair.getLeft()),
-                            data.submitAndGet(pair.getRight(), pair.getLeft()).getValueOrThrow("获取音标失败")
+                            data.submitAndGet(pair.getRight(), pair.getLeft()).getValueDirectly("获取音标失败")
                     ));
                 }
-                case AllIPA ->
-                {
-                    info.mainPy = data.submitAndGet(i.mainPy, dict).getValueOrThrow("获取音标失败");
-                    info.variantPy = ListTool.mapping(i.ipa, pair -> Pair.of(
-                            pair.getLeft(),
-                            data.submitAndGet(pair.getRight(), dict).getValueOrThrow("获取音标失败")
-                    ));
-                    info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
-                            data.getDictionaryName(pair.getLeft()),
-                            data.submitAndGet(pair.getRight(), pair.getLeft()).getValueOrThrow("获取音标失败")
-                    ));
-                }
+//                case AllIPA ->
+//                {
+//                    info.mainPy = DPinyin.read(
+//                            data.submitAndGet(i.mainPy, dict).getValueDirectly("获取音标失败");
+//                    info.variantPy = ListTool.mapping(i.ipa, pair -> Pair.of(
+//                            pair.getLeft(),
+//                            data.submitAndGet(pair.getRight(), dict).getValueDirectly("获取音标失败")
+//                    ));
+//                    info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
+//                            data.getDictionaryName(pair.getLeft()),
+//                            data.submitAndGet(pair.getRight(), pair.getLeft()).getValueDirectly("获取音标失败")
+//                    ));
+//                }
             }
 
             // 使用富文本的内容，放在最后，说不定可以用上前面获得的数据
             info.mean = ListTool.mapping(i.mean, s -> RichTextUtil.format(s, d, data));
-            info.note = ListTool.mapping(i.note, pair -> Pair.of(pair.getLeft(), RichTextUtil.format(pair.getRight(), d, data)));
+            info.note = ListTool.mapping(i.note, pair -> Twin.of(pair.getLeft(), RichTextUtil.format(pair.getRight(), d, data)));
 
             // 提交数据，顺序是权重
             infoMap.put(i.mainPy.getWeight(), info);

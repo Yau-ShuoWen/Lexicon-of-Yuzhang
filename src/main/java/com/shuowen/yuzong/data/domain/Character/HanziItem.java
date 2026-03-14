@@ -3,8 +3,13 @@ package com.shuowen.yuzong.data.domain.Character;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.dataStructure.UChar;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcChar;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import lombok.Data;
 
@@ -19,49 +24,52 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.*;
 @Data
 public class HanziItem
 {
+    // 基本信息
     private final Integer id;
-    private final String hanzi;
+    private final UChar hanzi;
     private final String mainPy;
     private final Integer special;
 
-    private final List<String> similar;
-    private final List<Pair<String, String>> variantPy;
+    // 连接表信息
+    private final List<UChar> similar;
+    private final List<Pair<UString, String>> variantPy;
     private final List<String> mdrInfo;
+
+    // 原表复杂结构
     private final List<Pair<String, String>> ipa;
-    private final List<String> mean;
-    private final List<Pair<String, String>> note;
+    private final List<UString> mean;
+    private final List<Twin<UString>> note;
     private final List<Map<String, String>> refer;
+
+    // 时间信息
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
 
-    protected HanziItem(HanziEntity ch, Language lang)
+    protected HanziItem(HanziEntity ch, Language l)
     {
         id = ch.getId();
-        hanzi = lang.isSimplified() ? ch.getSc() : ch.getTc();
+        hanzi = new ScTcChar(ch.getSc(), ch.getTc()).get(l);
         mainPy = ch.getMainPy();
         special = ch.getSpecial();
 
         ObjectMapper om = new ObjectMapper();
-        String l = lang.toString();
 
-        // 解析为 Map< 简繁标签 , List<String>>
-        // 使用 .get(l)选取对应语言
-        // 得到 List<String>
-        similar = readJson(ch.getSimilar(), new TypeReference<Map<String, List<String>>>() {}, om)
-                .get(l);
+        similar = ListTool.mapping(
+                readJson(ch.getSimilar(), new TypeReference<List<ScTcChar>>() {}, om),
+                i -> i.get(l)
+        );
 
-        // 解析为 List< 标签 ,Map<String,String>> 标签：简、繁标签，拼音内容
-        // 使用 .get(l)选取对应语言，使用content获取拼音内容
-        // 得到 List<Pair< 标签, 拼音 >>
+        // sc tc content 三个字段，sc tc创建Text之后选择语言，content直接获取
         variantPy = ListTool.mapping(
-                readJson(ch.getVariantPy(), new TypeReference<List<Map<String, String>>>() {}, om)
-                , i -> Pair.of(i.get(l), i.get("content")));
+                readJson(ch.getVariantPy(), new TypeReference<List<Map<String, String>>>() {}, om),
+                i -> Pair.of(new ScTcText(i.get("sc"), i.get("tc")).get(l), i.get("content"))
+        );
 
-        // 解析为 List<String>，并且筛选
-        // 筛选条件：「mdrInfo里汉字」==「目前的汉字」，为了筛选简繁体
+
+        // 解析为 List<String>，并且筛选，条件：「mdrInfo里汉字」==「目前的汉字」
         mdrInfo = ListTool.filter(
                 readJson(ch.getMdrInfo(), new TypeReference<>() {}, om),
-                i -> Objects.equals(i.split(" ")[0], hanzi)
+                i -> i.contains(hanzi.toString())
         );
 
         // TODO ：这个字段从来没有被更新过用法
@@ -71,29 +79,26 @@ public class HanziItem
 
         // 解析为 Map< 简繁 , List<String>>
         // 使用 .get(l)选取对应语言
-        mean = readJson(ch.getMean(), new TypeReference<Map<String, List<String>>>() {}, om)
-                .get(l);
+        mean = ListTool.mapping(
+                readJson(ch.getMean(), new TypeReference<List<ScTcText>>() {}, om),
+                i -> i.get(l)
+        );
 
         // 解析为 Map< 简繁 , List<Map< 标签 , 内容 >>>>
         // 使用 .get(l)选取对应语言
         // 使用tag获得题目，content获取内容
         // 变成List<Pair<String, String>>
+
         note = ListTool.mapping(
-                readJson(ch.getNote(), new TypeReference<Map<String, List<Map<String, String>>>>() {}, om)
-                        .get(l),
-                i -> Pair.of(i.get("tag"), i.get("content"))
+                readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}, om),
+                i -> Twin.of(i.get("tag").get(l), i.get("content").get(l))
         );
 
         // TODO ：这个字段从来没有被更新过用法
         refer = readJson(ch.getRefer(), new TypeReference<Map<String, List<Map<String, String>>>>() {}, om)
-                .get(l);
+                .get(l.toString());
 
         createdAt = ch.getCreatedAt();
         updatedAt = ch.getUpdatedAt();
-    }
-
-    public static HanziItem of(HanziEntity ch, Language lang)
-    {
-        return new HanziItem(ch, lang);
     }
 }

@@ -58,15 +58,15 @@ public class HanziService
     public List<SearchResult> getHanziSearchInfo(String query, Language l, Dialect d, boolean vague)
     {
         UniqueList<SearchResult, SearchResult> ans = UniqueList.of();
-        for (String hanzi : UString.of(query))
+        for (String hanzi : UString.of(query).chars())
         {
             for (var i : getHanziOrganize(hanzi, l, d, vague ? 3 : 2).getList())
             {
                 var tmp = new SearchResult();
-                tmp.setTitle(i.get(0).getHanzi());
+                tmp.setTitle(i.get(0).getHanzi().toString());
                 tmp.setExplain("");
                 tmp.setTag("hanzi");
-                tmp.setInfo(Map.of("query", ObfString.encode(i.get(0).getHanzi())));
+                tmp.setInfo(Map.of("query", ObfString.encode(i.get(0).getHanzi().toString())));
 
                 ans.add(tmp);
             }
@@ -90,7 +90,7 @@ public class HanziService
     public List<SearchResult> getHanziFilterInfo(String query, Dialect d)
     {
         UniqueList<SearchResult, SearchResult> ans = UniqueList.of();
-        for (String hanzi : UString.of(query))
+        for (String hanzi : UString.of(query).chars())
         {
             for (var i : hz.findHanziByVague(hanzi, d.toString()))
             {
@@ -114,7 +114,7 @@ public class HanziService
      */
     public HanziUpdate getHanziById(int id, Dialect d)
     {
-        return HanziUpdate.of(
+        return new HanziUpdate(
                 hz.findHanziByCharId(id, d.toString()),
                 hz.findHanziSimilarByCharId(id, d.toString()),
                 hz.findHanziPinyinByCharId(id, d.toString()),
@@ -126,9 +126,9 @@ public class HanziService
     @Transactional (rollbackFor = {Exception.class})
     public void editHanzi(HanziUpdate he, Dialect d)
     {
-        he.check(d);
+        var data = he.checkAndTransfer(d);
 
-        HanziEntity ch = he.transfer();
+        var ch = data.getAlpha();
 
         // 通过唯一键寻找数据库里是否也有
         HanziEntity maybe = hz.findByUniqueKey(ch, d.toString());
@@ -152,10 +152,11 @@ public class HanziService
          * 1. 统一设置id
          * 2. 比较并且处理
          * */
-        for (var i : he.getSimilar()) i.setCharId(id);
+        var sim=data.getBeta();
+        for (var i : sim) i.setCharId(id);
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziSimilarByCharId(id, d.toString())),
-                new HashSet<>(he.getSimilar())))
+                new HashSet<>(sim)))
         {
             switch (i.getChangeType())
             {
@@ -165,10 +166,11 @@ public class HanziService
             }
         }
 
-        for (var i : he.getVariantPy()) i.setCharId(id);
+        var py=data.getGamma();
+        for (var i : py) i.setCharId(id);
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziPinyinByCharId(id, d.toString())),
-                new HashSet<>(he.getVariantPy())))
+                new HashSet<>(py)))
         {
             switch (i.getChangeType())
             {
@@ -178,10 +180,11 @@ public class HanziService
             }
         }
 
-        for (var i : he.getMandarin()) i.setDialectId(id);
+        var mdrData=data.getDelta();
+        for (var i : mdrData) i.setDialectId(id);
 
         // 普通话对应字段，丢给专门的类处理
-        mdr.handleEdit(he.getMandarin(), d);
+        mdr.handleEdit(mdrData, d);
     }
 
     public Twin<Maybe<ObfInt>> getNearBy(int id, Dialect d)

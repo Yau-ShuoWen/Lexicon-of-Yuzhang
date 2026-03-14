@@ -77,12 +77,12 @@
 
     <!--  编辑内容  -->
     <delete id="clearMapByDialectId">
-        DELETE FROM ${dialect}_char_mdr WHERE dialect = #{dialectId}
+        DELETE FROM ${dialect}_char_mdr WHERE dialect_id = #{dialectId}
     </delete>
 
 
     <insert id="insertMap">
-        INSERT INTO ${dialect}_char_mdr (mdr, dialect)
+        INSERT INTO ${dialect}_char_mdr (mandarin_id, dialect_id)
         VALUES
         <foreach collection="data" item="i" separator=",">
             (#{i.left}, #{i.right})

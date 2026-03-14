@@ -6,16 +6,17 @@
 
     <!-- 查询的时候复杂字段的合成- - - - - - - - - - - - - - - - - - - - -->
     <sql id="fields">
-        <!-- 主表字段 -->
+        <![CDATA[
+        /* 主表字段 */
         main.*,
-        <!-- 模糊匹配汉字的字段 -->
-        CONCAT
-        ('{
-        "sc" : [', COALESCE(GROUP_CONCAT(DISTINCT '"', similar_field.sc, '"'), ''), '],
-        "tc" : [', COALESCE(GROUP_CONCAT(DISTINCT '"', similar_field.tc, '"'), ''), ']
-        }')
-        AS similar,
-        <!-- 拼音变体字段 -->
+        /* 模糊匹配汉字的字段 */
+        CONCAT('[',
+               COALESCE(GROUP_CONCAT(
+                   DISTINCT CONCAT('{"sc":"', similar_field.sc, '","tc":"', similar_field.tc, '"}')
+                   SEPARATOR ',' ), ''
+               ),
+        ']') AS similar,
+        /* 拼音变体字段 */
         CONCAT( '[',
         GROUP_CONCAT(DISTINCT
         '{"sc": "', pinyin.sc, '", "tc": "', pinyin.tc, '", "content": "', pinyin.pinyin, '"}'
@@ -23,7 +24,7 @@
         SEPARATOR ',' ), ']'
         )
         AS variant_py,
-        <!-- 普通话对应信息字段 -->
+        /* 普通话对应信息字段 */
         CONCAT( '[',
         COALESCE(GROUP_CONCAT(DISTINCT '"', mdr.info, '"' SEPARATOR ','), ''),
         ']')
@@ -31,16 +32,17 @@
 
         FROM
 
-        <!-- 主表 -->
+        /* 主表 */
         NC.${dialect}_char main
-        <!-- 相似字符表连接 -->
+        /* 相似字符表连接 */
         LEFT JOIN NC.${dialect}_char_similar similar ON main.id = similar.char_id
         LEFT JOIN NC.${dialect}_char_similar similar_field ON main.id = similar_field.char_id
-        <!-- 拼音表连接 -->
+        /* 拼音表连接 */
         LEFT JOIN NC.${dialect}_char_pinyin pinyin ON main.id = pinyin.char_id
-        <!-- 普通话信息表连接 -->
+        /* 普通话信息表连接 */
         LEFT JOIN NC.${dialect}_char_mdr char_mdr ON main.id = char_mdr.dialect_id
         LEFT JOIN NC.mdr_char mdr ON char_mdr.mandarin_id = mdr.id
+        ]]>
     </sql>
 
     <!--  下面的是为了展示而查询的方法，GROUP BY main.id实际上是上面连接的结果，但没有办法写在一起  -->

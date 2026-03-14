@@ -1,5 +1,7 @@
 package com.shuowen.yuzong.data.domain.Character;
 
+import com.shuowen.yuzong.Tool.dataStructure.UChar;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import lombok.Data;
@@ -16,13 +18,13 @@ public class HanziGroup
 
     public HanziGroup(List<HanziEntity> ch, Language language)
     {
-        Map<String, List<HanziItem>> ans = new HashMap<>();
+        Map<UChar, List<HanziItem>> ans = new HashMap<>();
         for (HanziEntity i : ch)
         {
-            HanziItem item = HanziItem.of(i, language);
+            HanziItem item = new HanziItem(i, language);
 
             // 根据汉字聚合结果
-            String key = item.getHanzi();
+            UChar key = item.getHanzi();
             ans.computeIfAbsent(key, k -> new ArrayList<>());
             ans.get(key).add(item);
         }
