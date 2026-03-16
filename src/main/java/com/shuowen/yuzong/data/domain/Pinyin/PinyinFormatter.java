@@ -2,7 +2,8 @@ package com.shuowen.yuzong.data.domain.Pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
@@ -18,26 +19,28 @@ public class PinyinFormatter
     /**
      * 拼音直接返回对应的内容
      */
-    public static DPinyin handle(UniPinyin<?> pinyin, Dialect d, PinyinParam param)
+    public static RPinyin handle(UniPinyin<?> pinyin, Dialect d, PinyinParam param)
     {
         return pinyin.toString(d.createStyle(param));
     }
 
     /**
-     * 默认的初始化方式就是两个并列的列出来
+     * 默认的初始化方式就是标准
      */
-    public static DPinyin handle(UniPinyin<?> pinyin, Dialect d)
+    public static RPinyin handle(UniPinyin<?> pinyin, Dialect d)
     {
-        var standard = handle(pinyin, d, PinyinParam.of(Scheme.STANDARD));
-        var keyboard = handle(pinyin, d, PinyinParam.of(Scheme.KEYBOARD));
+        return handle(pinyin, d, PinyinParam.of(Scheme.STANDARD));
+    }
 
-        return DPinyin.read(pinyin, standard + " / " + keyboard);
+    public static RPinyin handle(SPinyin pinyin, Dialect d)
+    {
+        return d.trustedCreatePinyin(pinyin).toString(d.createStyle(PinyinParam.of(Scheme.STANDARD)));
     }
 
     /**
      * 对于专业的版本，直接使用对应的style处理
      */
-    public static <U extends PinyinStyle> DPinyin handle(UniPinyin<U> pinyin, U style)
+    public static <U extends PinyinStyle> RPinyin handle(UniPinyin<U> pinyin, U style)
     {
         return pinyin.toString(style);
     }

@@ -22,7 +22,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
      *
      * @throws InvalidPinyinException 在子类静态工厂里捕获这个错误，说明构造错误，拼音建构失败，返回空集合
      */
-    protected UniPinyin(DPinyin s)
+    protected UniPinyin(SPinyin s)
     {
         pinyin = s.getSyllable();
         tone = s.getTone().getValueOrDefault(0);
@@ -64,5 +64,5 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     /**
      * 这才是真正的转字符串的函数
      */
-    abstract public DPinyin toString(T params);
+    abstract public RPinyin toString(T params);
 }

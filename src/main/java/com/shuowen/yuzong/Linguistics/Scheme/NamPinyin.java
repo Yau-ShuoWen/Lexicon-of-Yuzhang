@@ -15,12 +15,12 @@ import java.util.Objects;
  */
 public class NamPinyin extends UniPinyin<NamStyle>
 {
-    protected NamPinyin(DPinyin s)
+    protected NamPinyin(SPinyin s)
     {
         super(s);
     }
 
-    public static Maybe<NamPinyin> tryOf(DPinyin s)
+    public static Maybe<NamPinyin> tryOf(SPinyin s)
     {
         try
         {
@@ -271,7 +271,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
     @Override
-    public DPinyin toString(NamStyle p)
+    public RPinyin toString(NamStyle p)
     {
         NullTool.checkNotNull(p);
 
@@ -279,7 +279,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         builder = addMark(builder, p.getNum(), p.getIu());
         builder = setCapital(builder, p.getCapital());
 
-        return DPinyin.read(this, builder);
+        return RPinyin.of(builder);
     }
 
     public String setFormat(int yu, int gn, int ee, int oe, int ii, int ptk, int yw)
@@ -394,7 +394,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
 
-    public static DPinyin normalize(DPinyin pinyin)
+    public static SPinyin normalize(SPinyin pinyin)
     {
         String text = pinyin.getSyllable();
 

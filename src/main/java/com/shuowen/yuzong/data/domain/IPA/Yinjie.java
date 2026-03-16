@@ -2,7 +2,7 @@ package com.shuowen.yuzong.data.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
@@ -20,13 +20,13 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
 @Data
 public class Yinjie
 {
-    protected DPinyin pinyin;
+    protected SPinyin pinyin;
     protected Map<String, String> info;
     protected String code;
 
     private Yinjie(IPASyllableEntity ipa)
     {
-        pinyin = DPinyin.handle(ipa.getStandard());
+        pinyin = SPinyin.of(ipa.getStandard());
         code = ipa.getCode();
         info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
     }
@@ -55,7 +55,7 @@ public class Yinjie
      */
     private Yinjie(Shengyun initial, Shengyun last)
     {
-        pinyin = DPinyin.handle(initial.pinyin + last.pinyin);
+        pinyin = SPinyin.of(initial.pinyin + last.pinyin);
         code = (initial.code + last.code).replace("~", "");
         info = new HashMap<>();
         for (var i : initial.getInfo().keySet())

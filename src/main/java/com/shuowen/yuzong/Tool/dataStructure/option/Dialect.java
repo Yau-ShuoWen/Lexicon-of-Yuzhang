@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
@@ -35,9 +35,9 @@ public enum Dialect
     private final String code;
     private final Class<? extends PinyinStyle> styleClass;
     private final Class<? extends UniPinyin<?>> pinyinClass;
-    private final Function<DPinyin, Maybe<?>> pinyinTryCreator;
+    private final Function<SPinyin, Maybe<?>> pinyinTryCreator;
     private final Function<PinyinParam, ? extends PinyinStyle> styleCreator;
-    private final Function<DPinyin, DPinyin> normalizer;
+    private final Function<SPinyin, SPinyin> normalizer;
     @Getter
     private final String defaultDict;
 
@@ -60,8 +60,8 @@ public enum Dialect
      */
     <U extends PinyinStyle, T extends UniPinyin<U>>
     Dialect(String code, Class<U> styleClass, Class<T> pinyinClass,
-            Function<DPinyin, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
-            Function<DPinyin, DPinyin> normalizer,
+            Function<SPinyin, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
+            Function<SPinyin, SPinyin> normalizer,
             String defaultDict, int toneAmount, int initialLength
     )
     {
@@ -99,7 +99,7 @@ public enum Dialect
      *
      * @return 需要解析最后是否成功
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(DPinyin py)
+    public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(SPinyin py)
     {
         return (Maybe<T>) pinyinTryCreator.apply(py);
     }
@@ -109,7 +109,7 @@ public enum Dialect
      *
      * @return 直接返回内容，不需要解析，但是如果是无效的，就直接报异常，说明流程的漏洞把缺陷的拼音存进去了
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(DPinyin py)
+    public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(SPinyin py)
     {
         var pinyin = tryCreatePinyin(py);
         if (pinyin.isEmpty()) throw new IllegalArgumentException("来自信任端的拼音无效。文本：" + py);
@@ -138,7 +138,7 @@ public enum Dialect
         }
     }
 
-    public DPinyin normalizePinyin(DPinyin s)
+    public SPinyin normalizePinyin(SPinyin s)
     {
         return normalizer.apply(s);
     }
