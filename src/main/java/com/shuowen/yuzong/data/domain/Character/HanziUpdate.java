@@ -2,7 +2,7 @@ package com.shuowen.yuzong.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
@@ -17,6 +17,7 @@ import com.shuowen.yuzong.data.model.Character.HanziPinyin;
 import com.shuowen.yuzong.data.model.Character.HanziSimilar;
 import com.shuowen.yuzong.data.model.Character.MdrChar;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 
@@ -29,11 +30,12 @@ public class HanziUpdate
 {
     private Integer id;
     private ScTcChar hanzi;
-    private DPinyin mainPy;
+    private SPinyin mainPy;
     private Integer special;
 
     @Data
-    public class Similar
+    @NoArgsConstructor
+    public static class Similar
     {
         Integer id;     // 新增的内容id设置为0
         ScTcChar text;
@@ -55,18 +57,19 @@ public class HanziUpdate
     }
 
     @Data
-    public class PinyinData
+    @NoArgsConstructor
+    public static class PinyinData
     {
         Integer id;     // 新增的内容id设置为0
         ScTcText tag;   // 标签，简繁
-        DPinyin pinyin; // 读音变体
+        SPinyin pinyin; // 读音变体
         Integer sort;   // 优先等级
 
         public PinyinData(HanziPinyin py)
         {
             id = py.getId();
             tag = new ScTcText(py.getSc(), py.getTc());
-            pinyin = DPinyin.handle(py.getPinyin());
+            pinyin = SPinyin.of(py.getPinyin());
             sort = py.getSort();
         }
 
@@ -103,7 +106,7 @@ public class HanziUpdate
     {
         id = ch.getId();
         hanzi = new ScTcChar(ch.getSc(), ch.getTc());
-        mainPy = DPinyin.handle(ch.getMainPy());
+        mainPy = SPinyin.of(ch.getMainPy());
         special = ch.getSpecial();
 
         // 其他表的查询

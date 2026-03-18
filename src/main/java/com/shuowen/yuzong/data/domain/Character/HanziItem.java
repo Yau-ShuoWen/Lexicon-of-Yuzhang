@@ -2,6 +2,7 @@ package com.shuowen.yuzong.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
@@ -27,12 +28,12 @@ public class HanziItem
     // 基本信息
     private final Integer id;
     private final UChar hanzi;
-    private final String mainPy;
+    private final SPinyin mainPy;
     private final Integer special;
 
     // 连接表信息
     private final List<UChar> similar;
-    private final List<Pair<UString, String>> variantPy;
+    private final List<Pair<UString, SPinyin>> variantPy;
     private final List<String> mdrInfo;
 
     // 原表复杂结构
@@ -49,7 +50,7 @@ public class HanziItem
     {
         id = ch.getId();
         hanzi = new ScTcChar(ch.getSc(), ch.getTc()).get(l);
-        mainPy = ch.getMainPy();
+        mainPy = SPinyin.of(ch.getMainPy());
         special = ch.getSpecial();
 
         ObjectMapper om = new ObjectMapper();
@@ -62,7 +63,7 @@ public class HanziItem
         // sc tc content 三个字段，sc tc创建Text之后选择语言，content直接获取
         variantPy = ListTool.mapping(
                 readJson(ch.getVariantPy(), new TypeReference<List<Map<String, String>>>() {}, om),
-                i -> Pair.of(new ScTcText(i.get("sc"), i.get("tc")).get(l), i.get("content"))
+                i -> Pair.of(new ScTcText(i.get("sc"), i.get("tc")).get(l), SPinyin.of(i.get("content")))
         );
 
 
@@ -75,7 +76,8 @@ public class HanziItem
         // TODO ：这个字段从来没有被更新过用法
         ipa = ListTool.mapping(
                 readJson(ch.getIpa(), new TypeReference<List<Map<String, String>>>() {}, om)
-                , i -> Pair.of(i.get("tag"), i.get("content")));
+                , i -> Pair.of(i.get("tag"), i.get("content"))
+        );
 
         // 解析为 Map< 简繁 , List<String>>
         // 使用 .get(l)选取对应语言

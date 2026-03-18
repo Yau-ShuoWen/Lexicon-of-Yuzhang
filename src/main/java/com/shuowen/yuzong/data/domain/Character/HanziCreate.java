@@ -1,17 +1,6 @@
 package com.shuowen.yuzong.data.domain.Character;
 
-import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
-import com.shuowen.yuzong.data.model.Character.HanziEntity;
-import com.shuowen.yuzong.data.model.Character.HanziPinyin;
 import lombok.Data;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 批量初始化内容

@@ -1,11 +1,16 @@
 package com.shuowen.yuzong.service.impl.Character;
 
+import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.Tool.format.ObfString;
@@ -22,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class HanziService
@@ -40,7 +46,7 @@ public class HanziService
      *                <br>2：查询匹配简体或繁体
      *                <br>3：查询匹配简体、繁体、模糊汉字
      */
-    private HanziGroup getHanziOrganize(String hanzi, Language l, Dialect d, int grading)
+    private List<HanziGroup> getHanziOrganize(String hanzi, Language l, Dialect d, int grading)
     {
         var res = switch (grading)
         {
@@ -49,7 +55,7 @@ public class HanziService
             case 3 -> hz.findHanziByVague(hanzi, d.toString());
             default -> throw new RuntimeException("超范围");
         };
-        return HanziGroup.of(res, l);
+        return HanziGroup.listOf(res, l, d);
     }
 
     /**
@@ -58,15 +64,29 @@ public class HanziService
     public List<SearchResult> getHanziSearchInfo(String query, Language l, Dialect d, boolean vague)
     {
         UniqueList<SearchResult, SearchResult> ans = UniqueList.of();
-        for (String hanzi : UString.of(query).chars())
+        for (UChar hanzi : UString.of(query))
         {
-            for (var i : getHanziOrganize(hanzi, l, d, vague ? 3 : 2).getList())
+            for (var i : getHanziOrganize(hanzi.toString(), l, d, vague ? 3 : 2))
             {
                 var tmp = new SearchResult();
-                tmp.setTitle(i.get(0).getHanzi().toString());
-                tmp.setExplain("");
+
+                // 标题 = 字 + 拼音，如果不止一个主读音，使用" / "拼接
+                String title = i.getHanzi() + "  " +
+                        i.getPinyin().stream().map(RPinyin::toString).collect(Collectors.joining(" / "));
+
+                // 标签为加粗体【字】
+                // - 如果查询字不等于查询到的汉字，说明模糊识别，先转移，在拼接
+                // - 如果存在特殊的汉字，展示出来
+                String explain = "{b 【字】}  ";
+                if (!i.getHanzi().equals(hanzi)) explain += "根據{b 「%s」}模糊識別；";
+                if (i.isSpecial()) explain += "存在{b 特殊用法}；";
+                explain = StringTool.deleteBack(explain);
+                explain = String.format(ScTcText.get(explain, l).toString(), hanzi);
+
+                tmp.setTitle(title);
+                tmp.setExplain(explain);
                 tmp.setTag("hanzi");
-                tmp.setInfo(Map.of("query", ObfString.encode(i.get(0).getHanzi().toString())));
+                tmp.setInfo(Map.of("query", ObfString.encode(i.getHanzi().toString())));
 
                 ans.add(tmp);
             }
@@ -79,9 +99,11 @@ public class HanziService
      */
     public HanziShow getHanziDetailInfo(String hanzi, Language l, Dialect d, PinyinOption op)
     {
-        return HanziShow.tryOf(
-                getHanziOrganize(hanzi, l, d, 1), new IPAData(l, d, op)
-        ).getValueDirectly("");
+        return HanziShow.of(
+                ListTool.checkSizeOne(getHanziOrganize(hanzi, l, d, 1),
+                        "not found 未找到汉字", "not unique 汉字不唯一")
+                , new IPAData(l, d, op)
+        );
     }
 
     /**
@@ -152,7 +174,7 @@ public class HanziService
          * 1. 统一设置id
          * 2. 比较并且处理
          * */
-        var sim=data.getBeta();
+        var sim = data.getBeta();
         for (var i : sim) i.setCharId(id);
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziSimilarByCharId(id, d.toString())),
@@ -166,7 +188,7 @@ public class HanziService
             }
         }
 
-        var py=data.getGamma();
+        var py = data.getGamma();
         for (var i : py) i.setCharId(id);
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziPinyinByCharId(id, d.toString())),
@@ -180,7 +202,7 @@ public class HanziService
             }
         }
 
-        var mdrData=data.getDelta();
+        var mdrData = data.getDelta();
         for (var i : mdrData) i.setDialectId(id);
 
         // 普通话对应字段，丢给专门的类处理
