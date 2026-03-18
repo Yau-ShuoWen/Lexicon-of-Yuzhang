@@ -3,19 +3,23 @@ package com.shuowen.yuzong.Tool.format;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Function;
 
 /**
  * 对字符串做简单的62进制编码
  */
+@EqualsAndHashCode
 public class ObfString
 {
     private final char[] CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
     private final BigInteger BASE = BigInteger.valueOf(62);
 
+    @Getter
     private final String code;
 
     private ObfString(String input, boolean encode)
@@ -41,44 +45,67 @@ public class ObfString
         else this.code = input;
     }
 
+    /**
+     * Spring Boot框架、Jackson库和手动反序列化入口
+     */
+    @JsonCreator
     public static ObfString valueOf(String code)
     {
+        validate(code);
         return new ObfString(code, false);
     }
 
-    @JsonCreator
+    private static void validate(String code)
+    {
+        StringTool.checkValid(code);
+
+        for (char c : code.toCharArray())
+        {
+            if (NumberTool.closeBetween(c, '0', '9')) continue;
+            if (NumberTool.closeBetween(c, 'A', 'Z')) continue;
+            if (NumberTool.closeBetween(c, 'a', 'z')) continue;
+
+            throw new IllegalArgumentException("无效的62进制编码字符: " + c);
+        }
+    }
+
+    /**
+     * 后端的编码
+     */
     public static ObfString encode(String input)
     {
         return new ObfString(input, true);
     }
 
+    /**
+     * 序列化
+     */
     @JsonValue
-    public String getCode()
+    @Override
+    public String toString()
     {
         return code;
     }
 
     /**
-     * 将 Base62 字符串解码为字符串
+     * 解码为字符串
      */
     public String decode()
     {
         BigInteger num = BigInteger.ZERO;
 
-        Function<Character, Integer> fun = c ->
-        {
-            if (NumberTool.closeBetween(c, '0', '9')) return c - '0';
-            if (NumberTool.closeBetween(c, 'A', 'Z')) return c - 'A' + 10;
-            if (NumberTool.closeBetween(c, 'a', 'z')) return c - 'a' + 36;
-            throw new IllegalArgumentException("无效的62进制编码" + c);
-        };
-
         for (char c : this.code.toCharArray())
-            num = num.multiply(BASE).add(BigInteger.valueOf(fun.apply(c)));
+        {
+            int val = -1;
+            if (NumberTool.closeBetween(c, '0', '9')) val = c - '0';
+            if (NumberTool.closeBetween(c, 'A', 'Z')) val = c - 'A' + 10;
+            if (NumberTool.closeBetween(c, 'a', 'z')) val = c - 'a' + 36;
+
+            num = num.multiply(BASE).add(BigInteger.valueOf(val));
+        }
 
         byte[] bytes = num.toByteArray();
 
-        // BigInteger 可能多一个符号位 0x00
         if (bytes.length > 1 && bytes[0] == 0)
         {
             byte[] tmp = new byte[bytes.length - 1];

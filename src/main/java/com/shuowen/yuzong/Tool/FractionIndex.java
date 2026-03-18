@@ -160,14 +160,14 @@ public class FractionIndex implements Comparable<FractionIndex>
     }
 
     @JsonCreator
-    public static FractionIndex fromJson(ObfString code)
+    public static FractionIndex fromJson(String code)
     {
-        return FractionIndex.of(code.decode());
+        return FractionIndex.of(ObfString.valueOf(code).decode());
     }
 
     @JsonValue
-    public ObfString toJson()
+    public String toJson()
     {
-        return ObfString.encode(this.toString());
+        return ObfString.encode(this.toString()).toString();
     }
 }
