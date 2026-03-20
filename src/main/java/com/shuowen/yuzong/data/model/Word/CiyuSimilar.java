@@ -3,11 +3,11 @@ package com.shuowen.yuzong.data.model.Word;
 import lombok.Data;
 
 @Data
-public class WordSimilar
+public class CiyuSimilar
 {
     Integer id;
     Integer wordId;
-    String ciyu;
-    String tszyu;
-    String info;
+    String sc;
+    String tc;
+    Integer type;
 }

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.data.mapper.Word.CiyuMapper">
+
+
+    <sql id="allIn">
+    <![CDATA[
+        main.*,(
+            SELECT JSON_ARRAYAGG(
+            JSON_OBJECT('sc', s.sc, 'tc', s.tc, 'type', s.type)
+            ) FROM NC.${dialect}_word_similar s
+            WHERE s.word_id = main.id
+        ) AS similar
+
+        FROM NC.${dialect}_word main
+        LEFT JOIN NC.${dialect}_word_similar similar ON main.id = similar.word_id
+        LEFT JOIN NC.${dialect}_word_similar similar_field ON main.id = similar_field.word_id
+    ]]>
+    </sql>
+
+    <!-- 使用简繁体，查询包含该内容的词语 -->
+    <select id="findCiyuByScTcInRange" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE (
+        main.sc like concat('%', #{ciyu}, '%') OR
+        main.tc like concat('%', #{ciyu}, '%')
+        )
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+    <!-- 使用模糊识别，查询包含该内容的词语 -->
+    <select id="findCiyuByVagueInRange" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE (
+        main.sc    like concat('%', #{ciyu}, '%') OR
+        main.tc    like concat('%', #{ciyu}, '%') OR
+        similar.sc like concat('%', #{ciyu}, '%') OR
+        similar.tc like concat('%', #{ciyu}, '%')
+        )
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+    <!-- 通过主键寻找词语：精确查询 -->
+    <select id="findCiyuByWordId" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE
+        main.id = #{id}
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
+    <select id="getAllCiyu" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+        SELECT
+        <include refid="allIn"/>
+        GROUP BY main.id
+    </select>
+
+    <select id="findRowCountInCiyuTable" resultType="int">
+        SELECT COUNT(*) FROM NC.${dialect}_word
+    </select>
+
+</mapper>

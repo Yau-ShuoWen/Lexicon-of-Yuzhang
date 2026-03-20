@@ -5,20 +5,17 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class WordEntity
+public class CiyuEntity
 {
     private Integer id;
-    private Integer constrId;
-    private String ciyu;
-    private String tszyu;
+    private String sc;
+    private String tc;
+    private Integer special;
 
-    private String pinyin;
-    private String mulPy;
+    private String mainPy;
+    private String variantPy;
     private String similar;
-
     private String mean;
-    private String refer;
-    private String example;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
