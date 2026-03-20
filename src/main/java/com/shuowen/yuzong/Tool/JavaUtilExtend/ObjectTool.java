@@ -102,6 +102,14 @@ public class ObjectTool
         return existEqual(pattern, ListTool.mapping(values, f));
     }
 
+    @SafeVarargs
+    public static <T> T assertEqual(T... values)
+    {
+        if (values == null) return null;
+        if (allEqual(values)) return values[0];
+        else throw new IllegalStateException("不一样");
+    }
+
     public static void asserts(boolean b, String msg)
     {
         if (!b) throw new IllegalArgumentException(msg);

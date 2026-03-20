@@ -8,6 +8,7 @@ import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import lombok.Getter;
 
 import static com.shuowen.yuzong.Tool.ProofreadTool.escapeCharTraslate;
@@ -61,6 +62,11 @@ public class ScTcText
     public UString get(Language l)
     {
         return l.isSimplified() ? sc : tc;
+    }
+
+    public Twin<UString> getTwin()
+    {
+        return Twin.of(sc, tc);
     }
 
     /**

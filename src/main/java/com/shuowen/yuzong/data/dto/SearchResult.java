@@ -10,8 +10,8 @@ import java.util.*;
 @Data
 public class SearchResult
 {
-    private String title;     // 结果的主体
-    private String explain;   // 结果的简短说明
-    private String tag;       // 结果的标签
+    private Object title;     // 结果的主体
+    private Object explain;   // 结果的简短说明
+    private Object tag;       // 结果的标签
     private Map<String,Object> info;      // 反查的信息，因为内容复杂，不管格式
 }

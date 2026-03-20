@@ -1,5 +1,7 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -44,9 +46,29 @@ public class ListTool
         return true;
     }
 
+    public static <T> boolean exist(List<T> list, Predicate<T> fun)
+    {
+        NullTool.checkNotNull(list);
+        for (T i : list) if (fun.test(i)) return true;
+        return false;
+    }
+
     public static <T> void handle(List<T> list, Consumer<T> fun)
     {
         NullTool.checkNotNull(list);
         for (T i : list) fun.accept(i);
     }
+
+    @SafeVarargs
+    public static <T> List<T> nCopies(Pair<Integer, T>... pair)
+    {
+        NullTool.checkNotNull(pair);
+        List<T> result = new ArrayList<>();
+        for (var i:pair)
+        {
+            result.addAll(Collections.nCopies(i.getLeft(), i.getRight()));
+        }
+        return result;
+    }
+
 }
