@@ -7,6 +7,7 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.controller.APIResponse;
+import com.shuowen.yuzong.data.domain.Reference.Dictionary;
 import com.shuowen.yuzong.data.domain.Reference.RefPage;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.service.impl.Reference.RefService;
@@ -26,7 +27,7 @@ public class RefController
      * 获取词典列表
      */
     @GetMapping ("/get-dictionaries/{dialect}")
-    public List<Pair<String, String>> getDictionaries(
+    public List<Pair<String, Dictionary>> getDictionaries(
             @PathVariable String dialect)
     {
         return ck.getDictionaryMenu(Dialect.of(dialect));

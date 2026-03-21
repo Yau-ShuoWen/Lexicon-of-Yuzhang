@@ -8,11 +8,13 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.Tool.format.ObfString;
+import com.shuowen.yuzong.data.domain.Reference.Dictionary;
 import com.shuowen.yuzong.data.domain.Reference.Keyword;
 import com.shuowen.yuzong.data.domain.Reference.RefPage;
 import com.shuowen.yuzong.data.dto.SearchResult;
@@ -36,13 +38,13 @@ public class RefService
     /**
      * 获得由「词典代号」查询「名称」的查询表
      */
-    public Map<String, String> getDictionaryMap(Dialect d, Language l)
+    public Map<Dictionary, String> getDictionaryMap(Dialect d, Language l)
     {
-        Map<String, String> ans = new HashMap<>();
+        Map<Dictionary, String> ans = new HashMap<>();
         for (var i : cd.findByDialect(d.toString()))
         {
-            Map<String, String> tmp = JsonTool.readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
-            ans.put(i.getCode(), tmp.get(l.toString()));
+            ScTcText name = JsonTool.readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
+            ans.put(new Dictionary(i.getCode()), name.get(l).toString());
         }
         return ans;
     }
@@ -50,9 +52,9 @@ public class RefService
     /**
      * 把「词典代号」查询「名称」按照序列的方法排列，用于前端
      */
-    public List<Pair<String, String>> getDictionaryMenu(Dialect dialect)
+    public List<Pair<String, Dictionary>> getDictionaryMenu(Dialect dialect)
     {
-        List<Pair<String, String>> ans = new ArrayList<>();
+        List<Pair<String, Dictionary>> ans = new ArrayList<>();
         for (var i : getDictionaryMap(dialect, Language.TC).entrySet())
             ans.add(Pair.of(i.getValue(), i.getKey()));
         return ans;
@@ -66,7 +68,7 @@ public class RefService
         instance = this;
     }
 
-    public static Map<String, String> getDictionary(Dialect d, Language l)
+    public static Map<Dictionary, String> getDictionary(Dialect d, Language l)
     {
         return instance.getDictionaryMap(d, l);
     }
