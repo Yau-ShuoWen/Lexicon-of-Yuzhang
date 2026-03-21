@@ -5,7 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
+import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.model.IPA.IPASyllEntity;
 import lombok.Data;
 
 import java.util.*;
@@ -21,34 +22,37 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
 public class Yinjie
 {
     protected SPinyin pinyin;
-    protected Map<String, String> info;
+    protected Map<Dictionary, String> info;
     protected String code;
 
-    private Yinjie(IPASyllableEntity ipa)
+    private Yinjie(IPASyllEntity ipa)
     {
         pinyin = SPinyin.of(ipa.getStandard());
         code = ipa.getCode();
         info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
     }
 
-    public static Maybe<Yinjie> tryOf(IPASyllableEntity ipa)
-    {
-        if (ipa == null) return Maybe.nothing();
-        else return Maybe.exist(new Yinjie(ipa));
-    }
-
-    public static List<Yinjie> listOf(List<IPASyllableEntity> list)
+    public static List<Yinjie> listOf(List<IPASyllEntity> list)
     {
         return ListTool.mapping(list, Yinjie::new);
     }
 
-    public Maybe<String> getInfo(String dict)
+    public static Map<String, Yinjie> mapOf(Set<IPASyllEntity> set)
     {
-        // 如果等于"-"，改成null，因为Maybe可以处理null
-        var ans = "-".equals(info.get(dict)) ? null : info.get(dict);
-        return Maybe.uncertain(ans);
+        Map<String, Yinjie> map = new HashMap<>();
+        for (var i : set)
+        {
+            if (i == null) continue;
+            map.put(i.getStandard(), new Yinjie(i));
+        }
+        return map;
     }
 
+    public String getInfo(Dictionary dict)
+    {
+        // 如果等于"-"，改成null，这是数据库明示这里没有数据的方式
+        return "-".equals(info.get(dict)) ? null : info.get(dict);
+    }
 
     /**
      * 从声母和韵母拼接而成
@@ -74,9 +78,9 @@ public class Yinjie
     }
 
 
-    public IPASyllableEntity transfer()
+    public IPASyllEntity transfer()
     {
-        IPASyllableEntity ans = new IPASyllableEntity();
+        IPASyllEntity ans = new IPASyllEntity();
         ans.setStandard(pinyin.toString());
         ans.setCode(code);
         ans.setInfo(toJson(info, new ObjectMapper()));

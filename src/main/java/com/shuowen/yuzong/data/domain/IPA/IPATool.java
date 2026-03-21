@@ -1,46 +1,9 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
-import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-
-import java.util.*;
 
 public class IPATool
 {
-    public static Map<String, String> mergeAPI(
-            Maybe<Yinjie> yinjieData, Maybe<Shengdiao> shengdiaoData,
-            Pinyin p, PinyinOption op, Set<String> dict)
-    {
-        // 对于查询结果，如果音节和音调有一个是无效的，就查不出结果，直接返回
-        if (yinjieData.isEmpty() || shengdiaoData.isEmpty()) return Map.of();
-        var y = yinjieData.getValue();
-        var s = shengdiaoData.getValue();
-
-        Map<String, String> ans = new HashMap<>();
-        for (var i : dict)
-        {
-            // 就算上一次查询到了结果，对于字典也不一定有结果
-            // 如果查不到结果，那么对于这个字典的这个读音就是无效的，直接略过
-            var yjInfo = y.getInfo(i);
-            var sdInfo = s.getInfo(i);
-            if (yjInfo.isEmpty() || sdInfo.isEmpty()) continue;
-
-            var yj = yjInfo.getValue();
-            var sd = sdInfo.getValue();
-
-            var tmp = switch (op.getTone())
-            {
-                case FIVE_DEGREE_NUM -> mergeFiveDegree(yj, sd, true);
-                case FIVE_DEGREE_LINE -> mergeFiveDegree(yj, sd, false);
-                case FOUR_CORNER -> mergeFourCorner(yj, p.getCorner());
-            };
-            ans.put(i, formatSyllable(tmp, op.getSyllable()));
-        }
-        return ans;
-    }
-
-
     /**
      * 对着字符串，直接拼接就好了
      */
@@ -76,18 +39,23 @@ public class IPATool
 
 
     /**
-     * 传入音节，四角类声调和词典，返回 ꜁tsɨn 形似的国际音标
+     * 传入音节，四角类声调和词典，返回 ꜁tsɨn 形似的国际音标，四角标注圈法
      *
      * @param d 不是音调数字，而是数字调
      */
-    private static String mergeFourCorner(String y, int d)
+    public static String mergeFourCorner(String y, int d)
     {
-        String[] fourCornerMark = {"", "꜀", "꜁", "꜂", "꜃", "꜄", "꜅", "꜆", "꜇"};
-        boolean[] fourCornerPlace = {false, true, true, true, true, false, false, false, false};
-        // true：在左边，false在右边
-        if (NumberTool.closeBetween(d, 1, 8))
+        // 阴平 阳平 阴上 阳上 阴去 阳去 阴入 阳入 下阴入（广州话） 下阳入（南宁话）
+        char[] marks = {' ', '꜀', '꜁', '꜂', '꜃', '꜄', '꜅', '꜆', '꜇', '꜀', '꜁'};
+        char[] places = {' ', 'l', 'l', 'l', 'l', 'r', 'r', 'r', 'r', 'r', 'r'};
+
+        // l在左边，r在右边
+        if (NumberTool.closeBetween(d, 1, 10))
         {
-            return "[" + (fourCornerPlace[d] ? fourCornerMark[d] + y : y + fourCornerMark[d]) + "]";
+            char mark = marks[d], place = places[d];
+            return (place == 'l') ?
+                    String.format("[%s]", mark + y) :
+                    String.format("[%s]", y + mark);
         }
         else return y; // 轻声直接返回
     }
@@ -98,7 +66,7 @@ public class IPATool
      * <p>
      * 供复制测试字体用的{@code ɿ  ɹ̩  ʅ  ɻ̍  ʮ  ɹ̩ʷ  ʯ  ɻ̍ʷ  ȶ  t̠ʲ  ȡ  d̠ʲ  ȵ  ṉʲ  ᴀ  ä  ᴇ  e̞}
      */
-    private static String formatSyllable(String s, IPASyllableStyle ss)
+    public static String formatSyllable(String s, IPASyllableStyle ss)
     {
         if (s == null) return null; //这里的null表示的是无效的拼音，是空安全的
         return switch (ss)

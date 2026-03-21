@@ -2,7 +2,7 @@ package com.shuowen.yuzong.data.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.data.domain.Reference.Dictionary;
 import com.shuowen.yuzong.data.model.IPA.IPAToneEntity;
 import lombok.Getter;
 
@@ -17,7 +17,7 @@ public class Shengdiao
 {
     protected Integer tone;
     @Getter
-    protected Map<String, String> info;
+    protected Map<Dictionary, String> info;
 
     public Shengdiao(IPAToneEntity ipa)
     {
@@ -25,15 +25,20 @@ public class Shengdiao
         info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
     }
 
-    public static Maybe<Shengdiao> tryOf(IPAToneEntity ipa)
+    public static Map<Integer, Shengdiao> mapOf(Set<IPAToneEntity> set)
     {
-        if (ipa == null) return Maybe.nothing();
-        else return Maybe.exist(new Shengdiao(ipa));
+        Map<Integer, Shengdiao> map = new HashMap<>();
+        for (var i : set)
+        {
+            if (i == null) continue;
+            map.put(i.getStandard(), new Shengdiao(i));
+        }
+        return map;
     }
 
-    public Maybe<String> getInfo(String dict)
+    public String getInfo(Dictionary dict)
     {
-        var ans = "-".equals(info.get(dict)) ? null : info.get(dict);
-        return Maybe.uncertain(ans);
+        // 如果等于"-"，改成null，这是数据库明示这里没有数据的方式
+        return "-".equals(info.get(dict)) ? null : info.get(dict);
     }
 }

@@ -4,6 +4,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.data.domain.Reference.Dictionary;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
 import com.shuowen.yuzong.service.impl.Reference.RefService;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.util.*;
 /**
  * 国际音标查询结果集
  *
- * @apiNote 为了使得资源复用，把他当做参数传递的时候都要final标注，这样可以保证共用同一个实例，减少重复查询
+ * @apiNote 把他当做参数传递的时候都要final标注，这样可以保证共用同一个实例，减少重复查询
  */
 public class IPAData
 {
@@ -23,10 +24,10 @@ public class IPAData
     private final Dialect dialect;                         // 方言：预先存进不可变
     @Getter
     private final PinyinOption pinyinOption;               // 拼音格式：预先存进不可变
-    private final Map<String, String> dictionary;          // 字典代号-字典中文对照表
+    private final Map<Dictionary, String> dictionary;          // 字典代号-字典中文对照表
     private final Set<Pinyin> buffer = new HashSet<>();    // 没有查的内容的缓冲区
     private final Set<Pinyin> failCase = new HashSet<>();  // 失败用例
-    private final Map<Pinyin, Map<String, String>> data = new HashMap<>(); // 信息
+    private final Map<Pinyin, Map<Dictionary, String>> data = new HashMap<>(); // 信息
 
     public IPAData(Language l, Dialect d, PinyinOption op)
     {
@@ -37,7 +38,7 @@ public class IPAData
     }
 
     /**
-     * 检查是否有历史记录
+     * 检查拼音是否有历史记录
      */
     private boolean haveHistory(Pinyin pinyin)
     {
@@ -48,7 +49,7 @@ public class IPAData
     /**
      * 检查是否有对应书籍代号
      */
-    private boolean inDictionary(String dict)
+    private boolean inDictionary(Dictionary dict)
     {
         return dictionary.containsKey(dict);
     }
@@ -101,7 +102,7 @@ public class IPAData
      *
      * @apiNote 在这之前一定要用这个之前加入信息，这里才可以获得
      */
-    public Maybe<String> submitAndGet(Pinyin pinyin, String dict)
+    public Maybe<String> submitAndGet(Pinyin pinyin, Dictionary dict)
     {
         search(); // 性能仅限于批量查询、批量获取的第一个获取，后续只要不加内容就不会查询
 
@@ -109,26 +110,21 @@ public class IPAData
         if (failCase.contains(pinyin)) return Maybe.nothing();
         if (!data.get(pinyin).containsKey(dict)) return Maybe.nothing();
         return Maybe.exist(data.get(pinyin).get(dict));
-
-//        .fail(new IllegalArgumentException(dict + "找不到对应字典。dictionary not found."));
-//        return Result.fail(new InvalidPinyinException(pinyin + "这个拼音没有数据。"));
-//        return Result.fail(new InvalidPinyinException(String.format("%s字典没有拼音%s的数据", dict, pinyin)));
-//        Result.ok(data.get(pinyin).get(dict));
-
     }
 
     /**
      * 直接需要内容的时候
      */
-    public Maybe<String> getDirectly(Pinyin pinyin, String dict)
+    public Maybe<String> getDirectly(Pinyin pinyin, Dictionary dict)
     {
         if (!haveHistory(pinyin)) search(Set.of(pinyin));
         return submitAndGet(pinyin, dict);
     }
 
-    public String getDictionaryName(String dict)
+    public String getDictionaryName(Dictionary dict)
     {
-        return inDictionary(dict) ? dictionary.get(dict) :
+        return inDictionary(dict) ?
+                String.format("《%s》", dictionary.get(dict)) :
                 "找不到对应字典。dictionary not found.";
     }
 }

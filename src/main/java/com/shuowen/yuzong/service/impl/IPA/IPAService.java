@@ -1,15 +1,13 @@
 package com.shuowen.yuzong.service.impl.IPA;
 
 import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.data.domain.IPA.*;
+import com.shuowen.yuzong.data.domain.Reference.Dictionary;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
-import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
-import com.shuowen.yuzong.data.model.IPA.IPAToneEntity;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,31 +29,54 @@ public class IPAService
 
     /**
      * 传入多条拼音，把所有字典版本的IPA全部转换出来
-     *
-     * @apiNote 如果只有一条拼音要处理，请用 {@code Set.of()}包裹起来
      */
-    public Map<Pinyin, Map<String, String>> getIPA(Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<String> dictSet)
+    public Map<Pinyin, Map<Dictionary, String>> getIPA(
+            Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<Dictionary> dictSet)
     {
-        // 从数组里获取拼音/声调的set、查询之后获得的是对应数据条目的set
-        var syllableData = m.findSyllableListByStandard(SetTool.mapping(pinyinSet, Pinyin::getPinyin), d.toString());
-        var toneData = m.findToneListByTone(SetTool.mapping(pinyinSet, Pinyin::getTone), d.toString());
-
+        // 给出的是拼音的set，通过mapping获得对应拼音/音调的set
+        // 这个set查数据库，查询之后获得的是对应数据条目的set
         // 按照standard为关键字映射成map可以查询
-        var syllable = MapTool.fromSet(syllableData, IPASyllableEntity::getStandard);
-        var tone = MapTool.fromSet(toneData, IPAToneEntity::getStandard);
 
-        Map<Pinyin, Map<String, String>> map = new HashMap<>();
+        var syll = Yinjie.mapOf(
+                m.findSyllableListByStandard(
+                        SetTool.mapping(pinyinSet, Pinyin::getPinyin),
+                        d.toString())
+        );
+        var tone = Shengdiao.mapOf(
+                m.findToneInfoSet(
+                        SetTool.mapping(pinyinSet, Pinyin::getTone),
+                        d.toString())
+        );
+
+        Map<Pinyin, Map<Dictionary, String>> dataPerPinyin = new HashMap<>();
+
         for (var pinyin : pinyinSet)
         {
-            map.put(pinyin, IPATool.mergeAPI(
-                    Yinjie.tryOf(syllable.get(pinyin.getPinyin())),  // 音节的查询结果
-                    Shengdiao.tryOf(tone.get(pinyin.getTone())),     // 音调的查询结果
-                    pinyin, op, dictSet                              // 拼音本身 参数 字典
-            ));
-        }
-        return map;
-    }
+            var y = syll.get(pinyin.getPinyin());
+            var s = tone.get(pinyin.getTone());
+            if (y == null || s == null) continue;
 
+            Map<Dictionary, String> dataPerDict = new HashMap<>();
+            for (var dict : dictSet)
+            {
+                // 如果查不到结果，那么对于这个字典的这个读音就是无效的，直接略过
+                var yj = y.getInfo(dict);
+                var sd = s.getInfo(dict);
+                if (yj == null || sd == null) continue;
+
+                var tmp = switch (op.getTone())
+                {
+                    case FIVE_DEGREE_NUM -> IPATool.mergeFiveDegree(yj, sd, true);
+                    case FIVE_DEGREE_LINE -> IPATool.mergeFiveDegree(yj, sd, false);
+                    case FOUR_CORNER -> IPATool.mergeFourCorner(yj, pinyin.getCorner());
+                };
+                dataPerDict.put(dict, IPATool.formatSyllable(tmp, op.getSyllable()));
+            }
+
+            dataPerPinyin.put(pinyin, dataPerDict);
+        }
+        return dataPerPinyin;
+    }
 
     /**
      *
@@ -101,7 +122,7 @@ public class IPAService
     public void insertSyllable(Pinyin p, Dialect d)
     {
         if (m.findSyllableByStandard(p.getPinyin(), d.toString()) != null) return;
-        var merge = constructIPA(d, Maybe.exist(p), i -> Shengyun.tryOf(m.findSegmentByCode(i, d.toString())));
+        var merge = constructIPA(d, Maybe.exist(p), i -> Shengyun.tryOf(m.findSegmentInfo(i, d.toString())));
         if (merge.isValid()) m.insertSyllable(merge.getValue().transfer(), d.toString());
     }
 
@@ -134,7 +155,8 @@ public class IPAService
         instance = this;
     }
 
-    public static Map<Pinyin, Map<String, String>> getTheIPA(Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<String> dictSet)
+    public static Map<Pinyin, Map<Dictionary, String>> getTheIPA(
+            Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<Dictionary> dictSet)
     {
         return instance.getIPA(pinyinSet, op, d, dictSet);
     }

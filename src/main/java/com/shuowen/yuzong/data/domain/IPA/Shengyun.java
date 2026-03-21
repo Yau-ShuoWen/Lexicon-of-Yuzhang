@@ -3,7 +3,8 @@ package com.shuowen.yuzong.data.domain.IPA;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.data.model.IPA.IPASyllableEntity;
+import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.model.IPA.IPASyllEntity;
 import lombok.Getter;
 
 import java.util.*;
@@ -17,10 +18,10 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 public class Shengyun
 {
     protected String pinyin;
-    protected Map<String, String> info;
+    protected Map<Dictionary, String> info;
     protected String code;
 
-    private Shengyun(IPASyllableEntity ipa)
+    private Shengyun(IPASyllEntity ipa)
     {
         pinyin = ipa.getStandard();
         info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
@@ -30,7 +31,7 @@ public class Shengyun
     /**
      * 使用一个不确定是否有效的IPASyllableEntity初始化
      */
-    public static Maybe<Shengyun> tryOf(IPASyllableEntity ipa)
+    public static Maybe<Shengyun> tryOf(IPASyllEntity ipa)
     {
         if (ipa == null) return Maybe.nothing();
         else return Maybe.exist(new Shengyun(ipa));
@@ -39,7 +40,7 @@ public class Shengyun
     /**
      * 获得查询表
      */
-    public static Map<String, Shengyun> mapOf(List<IPASyllableEntity> list)
+    public static Map<String, Shengyun> mapOf(List<IPASyllEntity> list)
     {
         Map<String, Shengyun> map = new HashMap<>();
         for (var i : list) map.put(i.getCode(), new Shengyun(i));
