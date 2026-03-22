@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.data.mapper.IPA;
 
+import com.shuowen.yuzong.data.model.IPA.IPAItem;
 import com.shuowen.yuzong.data.model.IPA.IPASyllEntity;
 import com.shuowen.yuzong.data.model.IPA.IPAToneEntity;
 import org.apache.ibatis.annotations.Mapper;
@@ -40,7 +41,7 @@ public interface IPAMapper
 
     /**
      * 修改音节的具体音标信息
-     * */
+     */
     void changeSyllableInfo(@Param ("py") IPASyllEntity pinyin, String dialect);
 
     // 音段表 -------------------------------
@@ -76,4 +77,9 @@ public interface IPAMapper
      * 获取声调表的所有信息
      */
     List<IPAToneEntity> getAllToneInfo(String dialect);
+
+    /**
+     *
+     */
+    List<IPAItem> getTableItem(String key);
 }

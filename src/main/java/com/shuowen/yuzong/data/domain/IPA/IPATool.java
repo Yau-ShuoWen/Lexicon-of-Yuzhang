@@ -9,17 +9,7 @@ public class IPATool
      */
     public static String mergeFiveDegree(String syllable, String tone, boolean num)
     {
-        if (num)
-        {
-            return "[" + syllable + (tone
-                    .replaceAll("[꜈꜉꜊꜋꜌0]", "⁰")// 这里是因为允许直接存特殊轻声符号，所以这里要替换回来
-                    .replace('1', '¹')
-                    .replace('2', '²')
-                    .replace('3', '³')
-                    .replace('4', '⁴')
-                    .replace('5', '⁵')
-            ) + "]";
-        }
+        if (num) return String.format("[%s%s]", syllable, mergeFiveDegreeNum(tone, false));
         else
         {
             // 这个做法请查看文档：国际音标类的描述
@@ -37,6 +27,19 @@ public class IPATool
         }
     }
 
+    public static String mergeFiveDegreeNum(String tone, boolean capital)
+    {
+        if (capital) return tone.replaceAll("[꜈꜉꜊꜋꜌]", "0");
+        else
+        {
+            return tone.replaceAll("[꜈꜉꜊꜋꜌0]", "⁰")// 这里是因为允许直接存特殊轻声符号，所以这里要替换回来
+                    .replace('1', '¹')
+                    .replace('2', '²')
+                    .replace('3', '³')
+                    .replace('4', '⁴')
+                    .replace('5', '⁵');
+        }
+    }
 
     /**
      * 传入音节，四角类声调和词典，返回 ꜁tsɨn 形似的国际音标，四角标注圈法

@@ -80,4 +80,10 @@
         select * from NC.${dialect}_ipa_segment order by standard
     </select>
 
+    <select id="getTableItem" resultType="com.shuowen.yuzong.data.model.IPA.IPAItem">
+        SELECT self_key as url, notation, note, info
+        FROM NC.nam_ipa_segment
+        WHERE root_key = #{key}
+    </select>
+
 </mapper>

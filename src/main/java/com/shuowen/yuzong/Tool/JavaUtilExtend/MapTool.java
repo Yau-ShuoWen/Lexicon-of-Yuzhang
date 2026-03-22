@@ -67,11 +67,34 @@ public class MapTool
         return map;
     }
 
-    public static <V> Map<String, V> orderMapOf(Object... kv)
+    public static <V> LinkedHashMap<String, V> orderMapOf(Object... kv)
     {
-        Map<String, V> map = new LinkedHashMap<>();
-        for (int i = 0; i < kv.length; i += 2) map.put((String) kv[i], (V) kv[i + 1]);
+        LinkedHashMap<String, V> map = new LinkedHashMap<>();
+        for (int i = 0; i < kv.length; i += 2) map.put(String.valueOf(kv[i]), (V) kv[i + 1]);
         return map;
     }
 
+    public static <K, K1, V> Map<K1, V> mappingKey(Map<K, V> map, Function<K, K1> fun)
+    {
+        Map<K1, V> ans = new LinkedHashMap<>();
+        for (var i : map.entrySet())
+            ans.put(fun.apply(i.getKey()), i.getValue());
+        return ans;
+    }
+
+    public static <K, V, V1> Map<K, V1> mappingValue(Map<K, V> map, Function<V, V1> fun)
+    {
+        Map<K, V1> ans = new LinkedHashMap<>();
+        for (var i : map.entrySet())
+            ans.put(i.getKey(), fun.apply(i.getValue()));
+        return ans;
+    }
+
+    public static <K, V, K1, V1> Map<K1, V1> mapping(Map<K, V> map, Function<K, K1> fun1, Function<V, V1> fun2)
+    {
+        Map<K1, V1> ans = new LinkedHashMap<>();
+        for (var i : map.entrySet())
+            ans.put(fun1.apply(i.getKey()), fun2.apply(i.getValue()));
+        return ans;
+    }
 }

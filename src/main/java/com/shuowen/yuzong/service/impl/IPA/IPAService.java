@@ -6,8 +6,9 @@ import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.data.domain.IPA.*;
-import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
+import com.shuowen.yuzong.data.model.IPA.IPAItem;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,8 +31,8 @@ public class IPAService
     /**
      * 传入多条拼音，把所有字典版本的IPA全部转换出来
      */
-    public Map<Pinyin, Map<Dictionary, String>> getIPA(
-            Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<Dictionary> dictSet)
+    public Map<Pinyin, Map<DictCode, String>> getIPA(
+            Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<DictCode> dictSet)
     {
         // 给出的是拼音的set，通过mapping获得对应拼音/音调的set
         // 这个set查数据库，查询之后获得的是对应数据条目的set
@@ -48,7 +49,7 @@ public class IPAService
                         d.toString())
         );
 
-        Map<Pinyin, Map<Dictionary, String>> dataPerPinyin = new HashMap<>();
+        Map<Pinyin, Map<DictCode, String>> dataPerPinyin = new HashMap<>();
 
         for (var pinyin : pinyinSet)
         {
@@ -56,7 +57,7 @@ public class IPAService
             var s = tone.get(pinyin.getTone());
             if (y == null || s == null) continue;
 
-            Map<Dictionary, String> dataPerDict = new HashMap<>();
+            Map<DictCode, String> dataPerDict = new HashMap<>();
             for (var dict : dictSet)
             {
                 // 如果查不到结果，那么对于这个字典的这个读音就是无效的，直接略过
@@ -130,7 +131,7 @@ public class IPAService
      * @param pinyinMaybe 可能有效也可能无效的拼音，无效就直接返回安全空
      * @param data        查询可能找得到也可能找不到的函数，找不到会在Yinjie.merge()里返回安全空
      */
-    private static Maybe<Yinjie> constructIPA(
+    private Maybe<Yinjie> constructIPA(
             Dialect d, Maybe<? extends Pinyin> pinyinMaybe, Function<String, Maybe<Shengyun>> data)
     {
         if (pinyinMaybe.isEmpty()) return Maybe.nothing();
@@ -155,9 +156,14 @@ public class IPAService
         instance = this;
     }
 
-    public static Map<Pinyin, Map<Dictionary, String>> getTheIPA(
-            Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<Dictionary> dictSet)
+    public static Map<Pinyin, Map<DictCode, String>> getTheIPA(
+            Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<DictCode> dictSet)
     {
         return instance.getIPA(pinyinSet, op, d, dictSet);
+    }
+
+    public static List<IPAItem> getTableItem(String key)
+    {
+        return instance.m.getTableItem(key);
     }
 }
