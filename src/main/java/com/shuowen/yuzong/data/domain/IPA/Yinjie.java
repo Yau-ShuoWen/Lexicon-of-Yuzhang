@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.model.IPA.IPASyllEntity;
 import lombok.Data;
 
@@ -22,7 +22,7 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
 public class Yinjie
 {
     protected SPinyin pinyin;
-    protected Map<Dictionary, String> info;
+    protected Map<DictCode, String> info;
     protected String code;
 
     private Yinjie(IPASyllEntity ipa)
@@ -48,7 +48,7 @@ public class Yinjie
         return map;
     }
 
-    public String getInfo(Dictionary dict)
+    public String getInfo(DictCode dict)
     {
         // 如果等于"-"，改成null，这是数据库明示这里没有数据的方式
         return "-".equals(info.get(dict)) ? null : info.get(dict);

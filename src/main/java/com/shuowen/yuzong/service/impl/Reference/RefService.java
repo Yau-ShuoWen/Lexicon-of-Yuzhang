@@ -14,7 +14,8 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.Tool.format.ObfString;
-import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.data.domain.Reference.Keyword;
 import com.shuowen.yuzong.data.domain.Reference.RefPage;
 import com.shuowen.yuzong.data.dto.SearchResult;
@@ -38,24 +39,24 @@ public class RefService
     /**
      * 获得由「词典代号」查询「名称」的查询表
      */
-    public Map<Dictionary, String> getDictionaryMap(Dialect d, Language l)
+    public DictGroup getDictionaryMap(Dialect d, Language l)
     {
-        Map<Dictionary, String> ans = new HashMap<>();
+        Map<DictCode, String> ans = new HashMap<>();
         for (var i : cd.findByDialect(d.toString()))
         {
             ScTcText name = JsonTool.readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
-            ans.put(new Dictionary(i.getCode()), name.get(l).toString());
+            ans.put(new DictCode(i.getCode()), name.get(l).toString());
         }
-        return ans;
+        return new DictGroup(ans);
     }
 
     /**
      * 把「词典代号」查询「名称」按照序列的方法排列，用于前端
      */
-    public List<Pair<String, Dictionary>> getDictionaryMenu(Dialect dialect)
+    public List<Pair<String, DictCode>> getDictionaryMenu(Dialect dialect)
     {
-        List<Pair<String, Dictionary>> ans = new ArrayList<>();
-        for (var i : getDictionaryMap(dialect, Language.TC).entrySet())
+        List<Pair<String, DictCode>> ans = new ArrayList<>();
+        for (var i : getDictionaryMap(dialect, Language.TC).getDict().entrySet())
             ans.add(Pair.of(i.getValue(), i.getKey()));
         return ans;
     }
@@ -68,7 +69,7 @@ public class RefService
         instance = this;
     }
 
-    public static Map<Dictionary, String> getDictionary(Dialect d, Language l)
+    public static DictGroup getDictionary(Dialect d, Language l)
     {
         return instance.getDictionaryMap(d, l);
     }

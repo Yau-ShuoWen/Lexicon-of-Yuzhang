@@ -2,7 +2,7 @@ package com.shuowen.yuzong.data.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.model.IPA.IPAToneEntity;
 import lombok.Getter;
 
@@ -17,7 +17,7 @@ public class Shengdiao
 {
     protected Integer tone;
     @Getter
-    protected Map<Dictionary, String> info;
+    protected Map<DictCode, String> info;
 
     public Shengdiao(IPAToneEntity ipa)
     {
@@ -36,7 +36,7 @@ public class Shengdiao
         return map;
     }
 
-    public String getInfo(Dictionary dict)
+    public String getInfo(DictCode dict)
     {
         // 如果等于"-"，改成null，这是数据库明示这里没有数据的方式
         return "-".equals(info.get(dict)) ? null : info.get(dict);

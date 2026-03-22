@@ -15,7 +15,7 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter;
-import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import lombok.Data;
 
 import java.util.*;
@@ -63,7 +63,7 @@ public class HanziShow
             Set<Pair<UString, UniPinyin<?>>> variantPy = new LinkedHashSet<>();// 读音变体：插入顺序的集合
             Set<UChar> similar = new TreeSet<>();                        // 模糊识别汉字：默认顺序的集合
             List<String> mdrInfo = new ArrayList<>();
-            List<Pair<Dictionary, UniPinyin<?>>> ipa = new ArrayList<>();
+            List<Pair<DictCode, UniPinyin<?>>> ipa = new ArrayList<>();
             List<UString> mean = new ArrayList<>();
             List<Twin<UString>> note = new ArrayList<>();
         }
@@ -95,7 +95,7 @@ public class HanziShow
                     i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(i.getRight()))
             ));
             info.ipa.addAll(SetTool.mapping(h.getIpa(),
-                    i -> Pair.of(new Dictionary(i.getLeft()), d.trustedCreatePinyin(SPinyin.of(i.getRight())))
+                    i -> Pair.of(new DictCode(i.getLeft()), d.trustedCreatePinyin(SPinyin.of(i.getRight())))
             ));
         }
 

@@ -4,7 +4,8 @@ import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
 import com.shuowen.yuzong.service.impl.Reference.RefService;
 import lombok.Getter;
@@ -24,10 +25,10 @@ public class IPAData
     private final Dialect dialect;                         // 方言：预先存进不可变
     @Getter
     private final PinyinOption pinyinOption;               // 拼音格式：预先存进不可变
-    private final Map<Dictionary, String> dictionary;          // 字典代号-字典中文对照表
+    private final DictGroup dictionary;          // 字典代号-字典中文对照表
     private final Set<Pinyin> buffer = new HashSet<>();    // 没有查的内容的缓冲区
     private final Set<Pinyin> failCase = new HashSet<>();  // 失败用例
-    private final Map<Pinyin, Map<Dictionary, String>> data = new HashMap<>(); // 信息
+    private final Map<Pinyin, Map<DictCode, String>> data = new HashMap<>(); // 信息
 
     public IPAData(Language l, Dialect d, PinyinOption op)
     {
@@ -49,9 +50,9 @@ public class IPAData
     /**
      * 检查是否有对应书籍代号
      */
-    private boolean inDictionary(Dictionary dict)
+    private boolean inDictionary(DictCode dict)
     {
-        return dictionary.containsKey(dict);
+        return dictionary.containDict(dict);
     }
 
     /**
@@ -59,7 +60,7 @@ public class IPAData
      */
     private void search(Set<Pinyin> set)
     {
-        data.putAll(IPAService.getTheIPA(set, pinyinOption, dialect, dictionary.keySet()));
+        data.putAll(IPAService.getTheIPA(set, pinyinOption, dialect, dictionary.getKeySet()));
         for (var i : set) if (!data.containsKey(i)) failCase.add(i);
     }
 
@@ -102,7 +103,7 @@ public class IPAData
      *
      * @apiNote 在这之前一定要用这个之前加入信息，这里才可以获得
      */
-    public Maybe<String> submitAndGet(Pinyin pinyin, Dictionary dict)
+    public Maybe<String> submitAndGet(Pinyin pinyin, DictCode dict)
     {
         search(); // 性能仅限于批量查询、批量获取的第一个获取，后续只要不加内容就不会查询
 
@@ -115,16 +116,16 @@ public class IPAData
     /**
      * 直接需要内容的时候
      */
-    public Maybe<String> getDirectly(Pinyin pinyin, Dictionary dict)
+    public Maybe<String> getDirectly(Pinyin pinyin, DictCode dict)
     {
         if (!haveHistory(pinyin)) search(Set.of(pinyin));
         return submitAndGet(pinyin, dict);
     }
 
-    public String getDictionaryName(Dictionary dict)
+    public String getDictionaryName(DictCode dict)
     {
         return inDictionary(dict) ?
-                String.format("《%s》", dictionary.get(dict)) :
+                dictionary.getName(dict, language) :
                 "找不到对应字典。dictionary not found.";
     }
 }

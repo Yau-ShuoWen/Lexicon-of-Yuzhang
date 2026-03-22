@@ -3,7 +3,7 @@ package com.shuowen.yuzong.data.domain.IPA;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.model.IPA.IPASyllEntity;
 import lombok.Getter;
 
@@ -18,7 +18,7 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 public class Shengyun
 {
     protected String pinyin;
-    protected Map<Dictionary, String> info;
+    protected Map<DictCode, String> info;
     protected String code;
 
     private Shengyun(IPASyllEntity ipa)

@@ -11,7 +11,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.data.domain.Reference.Dictionary;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import lombok.Getter;
 
 import java.util.*;
@@ -28,7 +28,7 @@ public enum Dialect
 {
     NAM("nam", NamStyle.class, NamPinyin.class,
             NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize,
-            new Dictionary("ncdict"), 7, 2);
+            new DictCode("ncdict"), 7, 2);
 //    ,
 //    LCS("ncs"); 未来的南昌话 还是LAC
 
@@ -40,7 +40,7 @@ public enum Dialect
     private final Function<PinyinParam, ? extends PinyinStyle> styleCreator;
     private final Function<SPinyin, SPinyin> normalizer;
     @Getter
-    private final Dictionary defaultDict;
+    private final DictCode defaultDict;
 
     /**
      * 返回声调的数量<br>
@@ -63,7 +63,7 @@ public enum Dialect
     Dialect(String code, Class<U> styleClass, Class<T> pinyinClass,
             Function<SPinyin, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
             Function<SPinyin, SPinyin> normalizer,
-            Dictionary defaultDict, int toneAmount, int initialLength
+            DictCode defaultDict, int toneAmount, int initialLength
     )
     {
         this.code = code;
