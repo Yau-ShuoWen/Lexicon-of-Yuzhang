@@ -109,6 +109,10 @@ public class PinyinDetail
 
         var ipaData = new IPAData(l, d, null);
         info = ListTool.mapping(IPAService.getTableItem(key), i -> new Info(i, ipaData));
+
+        // 编码的历史原因，iung在ung前面，iuk在uk前面，所以需要手动重新调整顺序
+        if ("last-iung".equals(info.get(0).key) || "last-iuk".equals(info.get(0).key))
+            ListTool.swap(info, 0, 1);
     }
 
     public static Maybe<PinyinDetail> of(String key, Dialect d, Language l)
