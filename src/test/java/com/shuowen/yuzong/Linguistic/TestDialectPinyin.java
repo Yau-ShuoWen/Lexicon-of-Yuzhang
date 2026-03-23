@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Linguistic;
 
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.TestTool.Counter;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -29,7 +30,7 @@ public class TestDialectPinyin
             Counter ans = new Counter();
             for (var i : m.getAllSyllable(d.toString()))
             {
-                var maybe = d.tryCreatePinyin(i.getStandard());
+                var maybe = d.tryCreatePinyin(SPinyin.of(i.getStandard()));
 
                 String a = maybe.isValid() ? maybe.getValue().getCode() : null;
                 if (ans.check(i.getCode().equals(a)))
