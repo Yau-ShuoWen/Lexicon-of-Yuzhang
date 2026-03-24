@@ -64,11 +64,26 @@ public class ListTool
     {
         NullTool.checkNotNull(pair);
         List<T> result = new ArrayList<>();
-        for (var i:pair)
+        for (var i : pair)
         {
             result.addAll(Collections.nCopies(i.getLeft(), i.getRight()));
         }
         return result;
+    }
+
+    public static <T> boolean isIndexValid(List<T> l, int... index)
+    {
+        for (int i : index) if (!NumberTool.arrayBetween(i, 0, l.size())) return false;
+        return true;
+    }
+
+    public static <T> void swap(List<T> l, int i, int j)
+    {
+        if (!isIndexValid(l, i, j)) return;
+
+        var tmp = l.get(i);
+        l.set(i, l.get(j));
+        l.set(j, tmp);
     }
 
 }

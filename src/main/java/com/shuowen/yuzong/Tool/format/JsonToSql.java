@@ -88,18 +88,18 @@ public class JsonToSql
                 {
                     for (var configItem : config)
                     {
-                        String key = configItem.getAlpha();
-                        String type = configItem.getBeta();
-                        boolean required = configItem.getGamma();
+                        String key = configItem.getFirst();
+                        String type = configItem.getSecond();
+                        boolean required = configItem.getThird();
 
                         Object rawValue = item.get(key);
 
                         if (required)
                         {
                             if (rawValue == null)
-                                throw new NoSuchElementException("第" + (i + 1) + "条记录: " + configItem.getAlpha() + "字段为空或null - " + item + "\n");
+                                throw new NoSuchElementException("第" + (i + 1) + "条记录: " + configItem.getFirst() + "字段为空或null - " + item + "\n");
                             if (rawValue instanceof String && ((String) rawValue).trim().isEmpty())
-                                throw new NoSuchElementException("第" + (i + 1) + "条记录: " + configItem.getAlpha() + "字段为空或null - " + item + "\n");
+                                throw new NoSuchElementException("第" + (i + 1) + "条记录: " + configItem.getFirst() + "字段为空或null - " + item + "\n");
                         }
 
                         String value;
@@ -121,7 +121,7 @@ public class JsonToSql
                         batchBuilder.append("INSERT INTO ").append(table).append(" (");
                         for (var col : config)
                         {
-                            batchBuilder.append(col.getDelta()).append(", ");
+                            batchBuilder.append(col.getFourth()).append(", ");
                         }
                         batchBuilder.setLength(batchBuilder.length() - 2);
                         batchBuilder.append(") VALUES\n");

@@ -85,4 +85,9 @@ public class ScTcText
                 escapeCharTraslate(UString.of(tc), Language.TC, new OrthoCharset(d)) :
                 UString.of(tc);
     }
+
+    public int length()
+    {
+        return sc.length();
+    }
 }
