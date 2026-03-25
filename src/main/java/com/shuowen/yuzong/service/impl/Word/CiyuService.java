@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.service.impl.Word;
 
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
@@ -13,11 +14,14 @@ import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.domain.Word.CiyuItem;
+import com.shuowen.yuzong.data.domain.Word.CiyuUpdate;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.domain.Word.CiyuShow;
 import com.shuowen.yuzong.data.mapper.Word.CiyuMapper;
+import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -87,5 +91,86 @@ public class CiyuService
                 CiyuItem.of(cy.findCiyuByWordId(id, d.toString()), l),
                 new IPAData(l, d, op)
         );
+    }
+
+    /**
+     * 在编辑界面的时候，给一个非常宽松的筛选
+     */
+    public List<SearchResult> getCiyuFilterInfo(String query, Dialect d)
+    {
+        // 唯一键是（编了码的id）
+        UniqueList<SearchResult, String> ans =
+                UniqueList.of(i -> i.getInfo().get("query").toString());
+
+        for (String hanzi : UString.of(query).chars())
+        {
+            for (var i : cy.findCiyuByVagueInRange(hanzi, d.toString()))
+            {
+                var tmp = new SearchResult();
+
+                // 相同显示一个："文" ，不同显示两个："车 / 車"
+                tmp.setTitle(Objects.equals(i.getSc(), i.getTc()) ?
+                        i.getSc() : i.getSc() + " / " + i.getTc());
+                tmp.setExplain("");
+                tmp.setTag("");
+                tmp.setInfo(Map.of("query", ObfInt.encode(i.getId())));
+
+                ans.add(tmp);
+            }
+        }
+        return ans.getList();
+    }
+
+    /**
+     * 编辑词条的时候的明确的词条
+     */
+    public CiyuUpdate getCiyuById(int id, Dialect d)
+    {
+        return new CiyuUpdate(
+                cy.findCiyuByWordId(id, d.toString()),
+                cy.findCiyuSimilarByWordId(id, d.toString())
+        );
+    }
+
+    /**
+     * 提交
+     */
+    @Transactional (rollbackFor = {Exception.class})
+    public void editCiyu(CiyuUpdate ce, Dialect d)
+    {
+        var data = ce.checkAndTransfer(d);
+
+        var wd = data.getLeft();
+
+        // 通过唯一键寻找数据库里是否也有
+        CiyuEntity maybe = cy.findByUniqueKey(wd, d.toString());
+
+        // 如果没找到（maybe == null），说明是新增，可以插入
+        // 如果id是同一个（id == id），那么说明是原地更新
+        // 其他情况为新增但是唯一键冲突，那么说明是冲突，抛出异常
+        if (maybe != null && !maybe.getId().equals(wd.getId()))
+            throw new IllegalArgumentException("数据 简体：" + wd.getSc() + " 繁体：" + wd.getTc() + "重复");
+
+
+        // 处理主表插入
+        if ((wd.getId() == null || wd.getId() <= 0))
+            cy.insertWord(wd, d.toString());
+        else cy.updateWordById(wd, d.toString());
+
+        int id=wd.getId();
+
+        var sim=data.getRight();
+        for (var i:sim) i.setWordId(id);
+        for (var i:SetCompareUtil.compare(
+                new HashSet<>(cy.findCiyuSimilarByWordId(id, d.toString())),
+                new HashSet<>(sim)))
+        {
+            switch (i.getChangeType())
+            {
+                case ADDED -> cy.insertWordSimilar(i.getNewItem(), d.toString());
+                case MODIFIED -> cy.updateWordSimilarById(i.getNewItem(), d.toString());
+                case DELETED -> cy.deleteWordSimilarById(i.getOldItem().getId(), d.toString());
+            }
+        }
     }
 }

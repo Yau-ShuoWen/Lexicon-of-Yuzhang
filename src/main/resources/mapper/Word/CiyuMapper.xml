@@ -6,7 +6,7 @@
 
 
     <sql id="allIn">
-    <![CDATA[
+        <![CDATA[
         main.*,(
             SELECT JSON_ARRAYAGG(
             JSON_OBJECT('sc', s.sc, 'tc', s.tc, 'type', s.type)
@@ -37,8 +37,8 @@
         SELECT
         <include refid="allIn"/>
         WHERE (
-        main.sc    like concat('%', #{ciyu}, '%') OR
-        main.tc    like concat('%', #{ciyu}, '%') OR
+        main.sc like concat('%', #{ciyu}, '%') OR
+        main.tc like concat('%', #{ciyu}, '%') OR
         similar.sc like concat('%', #{ciyu}, '%') OR
         similar.tc like concat('%', #{ciyu}, '%')
         )
@@ -61,6 +61,63 @@
         <include refid="allIn"/>
         GROUP BY main.id
     </select>
+
+    <!-- 下面这一段是和编辑有关的内容，这里不需要复杂的聚合了 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+    <!-- 通过外键寻找：附表里的模糊识别汉字 -->
+    <select id="findCiyuSimilarByWordId" resultType="com.shuowen.yuzong.data.model.Word.CiyuSimilar">
+        SELECT * FROM NC.${dialect}_word_similar
+        WHERE word_id = #{id}
+    </select>
+
+    <select id="findByUniqueKey"
+            parameterType="com.shuowen.yuzong.data.model.Word.CiyuEntity"
+            resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity"
+    >
+        SELECT * FROM NC.${dialect}_word
+        WHERE sc = #{wd.sc} AND tc = #{wd.tc}
+    </select>
+
+    <!-- 编辑时候插入的模块：（用于「如果之前没有这个id」，插入新的数据）-->
+
+    <insert id="insertWord" parameterType="com.shuowen.yuzong.data.model.Word.CiyuEntity"
+            useGeneratedKeys="true" keyProperty="wd.id">
+        INSERT INTO ${dialect}_word
+        (sc, tc, special, main_py, variant_py, mean)
+        VALUES
+        (#{wd.sc}, #{wd.tc}, #{wd.special}, #{wd.main_py}, #{wd.variant_py}, #{wd.mean})
+    </insert>
+
+    <!--  插入新的内容（相似汉字表）  -->
+    <insert id="insertWordSimilar" parameterType="com.shuowen.yuzong.data.model.Word.CiyuSimilar">
+        INSERT into NC.${dialect}_word_similar
+        (word_id, sc, tc)
+        VALUES (#{wd.wordId}, #{wd.sc}, #{wd.tc})
+    </insert>
+
+    <!--  更新内容（主表）  -->
+    <update id="updateWordById" parameterType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+        UPDATE NC.${dialect}_word
+        SET
+        special = #{wd.special},
+        main_py = #{wd.mainPy},
+        variant_py = #{wd.variantPy},
+        mean = #{wd.mean}
+        WHERE id = #{wd.id}
+    </update>
+
+    <!--  更新内容（相似汉字表）  -->
+    <update id="updateWordSimilarById" parameterType="com.shuowen.yuzong.data.model.Word.CiyuSimilar">
+        UPDATE NC.${dialect}_word_similar
+        SET
+        word_id = #{wd.wordId}, sc = #{wd.sc}, tc = #{wd.tc}, type = #{wd.type}
+        WHERE id = #{wd.id}
+    </update>
+
+
+    <delete id="deleteWordSimilarById">
+        DELETE FROM NC.${dialect}_word_similar WHERE id = #{id}
+    </delete>
 
     <select id="findRowCountInCiyuTable" resultType="int">
         SELECT COUNT(*) FROM NC.${dialect}_word

@@ -14,7 +14,7 @@ public class CiyuEntity
 
     private String mainPy;
     private String variantPy;
-    private String similar;
+    private String similar;   // 只读
     private String mean;
 
     private LocalDateTime createdAt;
