@@ -62,7 +62,9 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     }
 
     /**
-     * 这才是真正的转字符串的函数
+     * 这才是真正的转字符串的函数，但是
+     * <br>1. 是protected的，也就是只給{@code PinyinFormatter}
+     * <br>2. 结果并不是简单的字符串，而是包装类
      */
-    abstract public RPinyin toString(T params);
+    abstract protected RPinyin format(T params);
 }

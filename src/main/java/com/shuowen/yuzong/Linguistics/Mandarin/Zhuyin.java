@@ -7,7 +7,7 @@ import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import lombok.Getter;
 
-import static com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter.trySplit;
+import static com.shuowen.yuzong.Linguistics.Scheme.SPinyin.trySplit;
 
 /**
  * 不可变汉语注音对象

@@ -271,7 +271,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
     @Override
-    public RPinyin toString(NamStyle p)
+    protected RPinyin format(NamStyle p)
     {
         NullTool.checkNotNull(p);
 

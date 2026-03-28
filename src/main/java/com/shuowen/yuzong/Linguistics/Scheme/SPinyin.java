@@ -2,11 +2,11 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import lombok.Data;
-
-import static com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter.trySplit;
 
 /**
  * {@code Splitted Pinyin}，分割了的拼音。音节和音调拆开，容易做处理。类型安全
@@ -53,5 +53,19 @@ public class SPinyin
     public String toString()
     {
         return syllable + tone.getValueOrDefault(0);
+    }
+
+    /**
+     * 尝试将一个字符串拆成声母和声调，如果没有音调补0，所有拼音都可以通用
+     */
+    //TODO 南宁话：谁说汉语音调小于十个的？回答我！
+    public static Pair<String, Integer> trySplit(String text)
+    {
+        StringTool.checkTrimValid(text); // 如果是空的，取最后一个会报错
+
+        char ch = StringTool.back(text);
+        return NumberTool.closeBetween(ch, '0', '9') ?
+                Pair.of(StringTool.deleteBack(text), ch - '0') :
+                Pair.of(text, null);
     }
 }

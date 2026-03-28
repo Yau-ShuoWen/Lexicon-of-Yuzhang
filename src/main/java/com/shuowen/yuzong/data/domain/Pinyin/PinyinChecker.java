@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.data.domain.Pinyin;
 
+import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
@@ -23,7 +24,7 @@ public class PinyinChecker
      */
     public static Triple<Integer, RPinyin, SPinyin> suggestively(SPinyin text, Dialect d)
     {
-        if(text.getTone().isEmpty()) return Triple.of(4, null, null);
+        if (text.getTone().isEmpty()) return Triple.of(4, null, null);
 
         var rawPinyinAnswer = d.tryCreatePinyin(text);
         var newPinyinAnswer = d.tryCreatePinyin(d.normalizePinyin(text));
@@ -51,6 +52,8 @@ public class PinyinChecker
      */
     public static void strictly(SPinyin text, Dialect d)
     {
-        if (suggestively(text, d).getLeft() != 1) throw new InvalidPinyinException(text + "拼音不符合格式");
+        if (d.tryCreatePinyin(text).isEmpty()) throw new InvalidPinyinException(
+                String.format("%s拼音%s无效", d.getName().getSc(), text)
+        );
     }
 }
