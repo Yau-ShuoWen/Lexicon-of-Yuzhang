@@ -2,7 +2,6 @@ package com.shuowen.yuzong.Tool.dataStructure;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 import com.shuowen.yuzong.Tool.dataStructure.text.UElement;
 
 import java.util.*;
@@ -294,10 +293,10 @@ public class UString implements Iterable<UChar>, UElement<UString>
         };
     }
 
-    public static List<String> toUCharList(String str)
+    public List<String> toCharsList()
     {
         List<String> ans = new ArrayList<>();
-        for (var i : UString.of(str).chars()) ans.add(i);
+        for (var i : chars()) ans.add(i);
         return ans;
     }
 }

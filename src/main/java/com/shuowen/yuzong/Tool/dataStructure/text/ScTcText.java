@@ -1,7 +1,9 @@
 package com.shuowen.yuzong.Tool.dataStructure.text;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.OrthoCharset;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
@@ -34,11 +36,20 @@ public class ScTcText
     public ScTcText(@JsonProperty ("sc") String sc,
                     @JsonProperty ("tc") String tc)
     {
-        StringTool.checkTrimValid(sc, tc);
+        NullTool.checkNotNull(sc, tc);
         this.sc = UString.of(sc);
         this.tc = UString.of(tc);
-        if (sc.length() != tc.length())
-            throw new IllegalStringException("简体繁体字符串长度不等");
+        if (sc.length() != tc.length()) throw new IllegalStringException(String.format("""
+                        文本框錯誤：
+                        繁體：%s
+                        簡體：%s
+                        简体、繁体體文本長度不等
+                        提交的之前請保證每一個簡繁框都是✅
+                        使用Ctrl+Enter提交
+                        """,
+                StringTool.limitLength(tc, 15, "……"),
+                StringTool.limitLength(sc, 15, "……")
+        ));
     }
 
     /**
@@ -64,6 +75,7 @@ public class ScTcText
         return l.isSimplified() ? sc : tc;
     }
 
+    @JsonIgnore
     public Twin<UString> getTwin()
     {
         return Twin.of(sc, tc);

@@ -13,10 +13,7 @@ public class UStringCompareUtil
 {
     public static List<ChangeResult<Twin<Integer>>> compare(UString oldStr, UString newStr)
     {
-        Patch<String> patch = DiffUtils.diff(
-                UString.toUCharList(oldStr.toString()),
-                UString.toUCharList(newStr.toString())
-        );
+        Patch<String> patch = DiffUtils.diff(oldStr.toCharsList(), newStr.toCharsList());
         List<ChangeResult<Twin<Integer>>> list = new ArrayList<>();
 
         for (AbstractDelta<String> d : patch.getDeltas())

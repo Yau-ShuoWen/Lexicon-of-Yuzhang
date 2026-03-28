@@ -11,6 +11,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import lombok.Getter;
 
@@ -26,13 +27,14 @@ import java.util.function.Function;
 @SuppressWarnings ({"unchecked", "rawtypes", "unused"})
 public enum Dialect
 {
-    NAM("nam", NamStyle.class, NamPinyin.class,
+    NAM("南昌話","nam", NamStyle.class, NamPinyin.class,
             NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize,
             new DictCode("ncdict"), 7, 2);
 //    ,
 //    LCS("ncs"); 未来的南昌话 还是LAC
 
-
+    @Getter
+    private final ScTcText name;
     private final String code;
     private final Class<? extends PinyinStyle> styleClass;
     private final Class<? extends UniPinyin<?>> pinyinClass;
@@ -60,12 +62,13 @@ public enum Dialect
      * 构造函数
      */
     <U extends PinyinStyle, T extends UniPinyin<U>>
-    Dialect(String code, Class<U> styleClass, Class<T> pinyinClass,
+    Dialect(String name, String code, Class<U> styleClass, Class<T> pinyinClass,
             Function<SPinyin, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
             Function<SPinyin, SPinyin> normalizer,
             DictCode defaultDict, int toneAmount, int initialLength
     )
     {
+        this.name = new ScTcText(name);
         this.code = code;
         this.styleClass = styleClass;
         this.pinyinClass = pinyinClass;

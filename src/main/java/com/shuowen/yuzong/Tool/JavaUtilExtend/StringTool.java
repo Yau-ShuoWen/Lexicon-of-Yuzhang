@@ -159,7 +159,7 @@ public class StringTool
 
     public static String limitLength(String str, int num, String surplus)
     {
-        checkTrimValid(str);
+        NullTool.checkNotNull(str);
         return str.length() > num ? str.substring(0, num) + surplus : str;
     }
 
