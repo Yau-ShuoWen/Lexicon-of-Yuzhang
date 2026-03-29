@@ -25,7 +25,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     protected UniPinyin(SPinyin s)
     {
         pinyin = s.getSyllable();
-        tone = s.getTone().getValueOrDefault(0);
+        tone = s.getTone();
 
         code = initCode(); // 1. 编码的过程是否顺利？ initCode()，如果正常，把结果赋值code，否则抛出异常
         checkEncodable();  // 2. 获得的编码是否可逆？ encodeable()，不可逆在函数里会抛出异常

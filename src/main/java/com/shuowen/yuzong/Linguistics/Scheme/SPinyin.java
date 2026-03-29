@@ -15,18 +15,18 @@ import lombok.Data;
 public class SPinyin
 {
     private String syllable;
-    private Maybe<Integer> tone;
+    private Integer tone;
 
     private SPinyin(String syllable, Integer tone)
     {
         this.syllable = syllable;
-        this.tone = Maybe.uncertain(tone);
+        this.tone = tone;
     }
 
     private SPinyin(UniPinyin<?> py)
     {
         syllable = py.getPinyin();
-        tone = Maybe.exist(py.getTone());
+        tone = py.getTone();
     }
 
     public static SPinyin valueOf(String s)
@@ -52,7 +52,7 @@ public class SPinyin
     @Override
     public String toString()
     {
-        return syllable + tone.getValueOrDefault(0);
+        return syllable + tone;
     }
 
     /**
@@ -66,6 +66,6 @@ public class SPinyin
         char ch = StringTool.back(text);
         return NumberTool.closeBetween(ch, '0', '9') ?
                 Pair.of(StringTool.deleteBack(text), ch - '0') :
-                Pair.of(text, null);
+                Pair.of(text, 0);
     }
 }

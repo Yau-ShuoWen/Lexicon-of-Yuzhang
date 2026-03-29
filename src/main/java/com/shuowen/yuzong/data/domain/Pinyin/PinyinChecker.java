@@ -20,12 +20,9 @@ public class PinyinChecker
      * <br>1. 正确  {@code (1, 拼音预览, 空)}
      * <br>2. 错了，但是被模糊识别了 {@code (2, 正确拼音预览 , 正确写法)}
      * <br>3. 完全识别不了 {@code (3, 空, 空)}
-     * <br>4. 需要补充音调 {@code (4, 空, 空)}
      */
     public static Triple<Integer, RPinyin, SPinyin> suggestively(SPinyin text, Dialect d)
     {
-        if (text.getTone().isEmpty()) return Triple.of(4, null, null);
-
         var rawPinyinAnswer = d.tryCreatePinyin(text);
         var newPinyinAnswer = d.tryCreatePinyin(d.normalizePinyin(text));
 

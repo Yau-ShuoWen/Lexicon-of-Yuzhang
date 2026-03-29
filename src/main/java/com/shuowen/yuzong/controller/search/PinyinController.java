@@ -23,7 +23,7 @@ import java.util.*;
 @RequestMapping ("/api/pinyin/")
 public class PinyinController
 {
-    @GetMapping ("{d}/style-init")
+    @GetMapping ("/style-init/{d}")
     public PinyinStyle pinyin(@PathVariable Dialect d, @RequestParam Scheme SchemeParam)
     {
         return d.createStyle(PinyinParam.of(SchemeParam));
@@ -32,7 +32,7 @@ public class PinyinController
     /**
      * 传入拼音配置，预览效果
      */
-    @PostMapping ("{d}/preview")
+    @PostMapping ("/preview/{d}")
     public APIResponse<String> preview(@PathVariable Dialect d,
                                        @RequestBody Map<String, Object> styleParam)
     {
@@ -49,7 +49,7 @@ public class PinyinController
         }
     }
 
-    @GetMapping ("{d}/normalize")
+    @GetMapping ("/normalize/{d}")
     public Triple<Integer, RPinyin, SPinyin> normalizeCheck(
             @PathVariable Dialect d,
             @RequestParam SPinyin pinyin)
@@ -57,7 +57,7 @@ public class PinyinController
         return PinyinChecker.suggestively(pinyin, d);
     }
 
-    @GetMapping ("/{d}/table")
+    @GetMapping ("/table/{d}")
     public PinyinTable getTable(@PathVariable Dialect d)
     {
         return new PinyinTable(d);
