@@ -27,6 +27,9 @@ public class IPATool
         }
     }
 
+    /**
+     * 区分大字小字
+     */
     public static String mergeFiveDegreeNum(String tone, boolean capital)
     {
         if (capital) return tone.replaceAll("[꜈꜉꜊꜋꜌]", "0");
@@ -81,15 +84,20 @@ public class IPATool
                     replace("ʅ", "ɻ̍").
                     replace("ʮ", "ɹ̩ʷ").
                     replace("ʯ", "ɻ̍ʷ").
-                    replace("ȶ", "t̠ʲ").
-                    replace("ȡ", "d̠ʲ").
+                    replace("ȶ", "tʲ").
+                    replace("ȡ", "dʲ").
                     replace("ȵ", "ṉʲ").
                     replace("ᴀ", "ä").
-                    replace("ᴇ", "e̞");
+                    replace("ᴇ", "e̞").
+                    replace("ts", "t͡s").
+                    replace("tɕ", "t͡ɕ").
+                    replace("tʂ", "t͡ʂ").
+                    replace("tʃ", "t͡ʃ").
+                    replace("dz", "d͡z").
+                    replace("dʑ", "d͡ʑ").
+                    replace("dʐ", "d͡ʐ").
+                    replace("dʒ", "d͡ʒ")
+            ;
         };
-        // TODO：这里理论上要加这个东西，但是这是严式音标的内容而不是音标转换的内容
-        //  replace("ts","t͡s").
-        //  replace("tɕ","t͡ɕ").
-        //  replace("tʂ","t͡ʂ").
     }
 }
