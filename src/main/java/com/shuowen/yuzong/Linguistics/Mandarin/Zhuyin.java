@@ -7,18 +7,18 @@ import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import lombok.Getter;
 
-import static com.shuowen.yuzong.Linguistics.Scheme.SPinyin.trySplit;
-
 /**
  * 不可变汉语注音对象
  */
 @Getter
 public class Zhuyin
 {
-    final private String initial, middle, last;
-    final private int tone;
-    final private String code;
-    final private String pinyin;
+    final private String initial; // 声母
+    final private String middle;  // 介母
+    final private String last;    // 韵母
+    final private Integer tone;   // 音调
+    final private String code;    // 代码
+    final private HanPinyin han;  // 汉语拼音
 
     public String toString()
     {
@@ -43,7 +43,8 @@ public class Zhuyin
     {
         try
         {
-            return Maybe.exist(new Zhuyin(pinyin));
+            var hanPY= HanPinyin.of(pinyin);
+            return Maybe.exist(new Zhuyin(hanPY));
         } catch (InvalidPinyinException e)
         {
             return Maybe.nothing();
@@ -57,24 +58,27 @@ public class Zhuyin
         return maybe.getValue();
     }
 
-    private Zhuyin(String text)
+    public static Maybe<Zhuyin> tryOf(HanPinyin hanPY)
     {
-        var tmp = trySplit(text);
-        var syllablePinyin = tmp.getLeft();  // 拼音的音节
-        var lastPinyin = tmp.getRight();     // 拼音的音调
+        try
+        {
+            return Maybe.exist(new Zhuyin(hanPY));
+        } catch (InvalidPinyinException e)
+        {
+            return Maybe.nothing();
+        }
+    }
 
-        var syllable = initSyllable(syllablePinyin);
+    private Zhuyin(HanPinyin py)
+    {
+        var syllable = initSyll(py.getSyll());
         initial = syllable.getLeft();
         middle = syllable.getMiddle();
         last = syllable.getRight();
 
-        tone = initTone(lastPinyin);
+        tone = initTone(py.getTone());
         code = initCode();
-        pinyin = toPinyin();
-
-        // 这里比较的是按照解析后数据重新构造的拼音是否正确
-        if (!pinyin.equals(syllablePinyin + lastPinyin))
-            throw new InvalidPinyinException("校验失败，拼音无效");
+        han = trasnfer(py);
     }
 
 
@@ -85,7 +89,7 @@ public class Zhuyin
         return tone;
     }
 
-    private Triple<String, String, String> initSyllable(String str)
+    private Triple<String, String, String> initSyll(String str)
     {
         var ans = Triple.of("", "", "");
 
@@ -294,7 +298,7 @@ public class Zhuyin
         };
     }
 
-    private String toPinyin()
+    private HanPinyin trasnfer(HanPinyin hanPinyin)
     {
         boolean zero = false;  //零声母
         String sheng = switch (initial)
@@ -373,6 +377,11 @@ public class Zhuyin
             default -> "";
         };
         String ans = (sheng + yun);
-        return ans.replace("ü", (ans.matches("[jqx]ü[a-z]*")) ? "u" : "v") + tone;
+        ans = ans.replace("ü", (ans.matches("[jqx]ü[a-z]*")) ? "u" : "v") + tone;
+
+        // 这里比较的是按照解析后数据重新构造的拼音是否正确
+        if (!hanPinyin.equals(HanPinyin.of(ans))) throw new InvalidPinyinException("校验失败，拼音无效");
+
+        return hanPinyin;
     }
 }

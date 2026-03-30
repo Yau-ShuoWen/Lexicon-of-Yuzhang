@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Linguistic;
 
+import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
 import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 
@@ -43,7 +44,7 @@ public class TestTransferPinyinAndZhuyin
 
             for (int j = 0; j < 5; j++)
             {
-                cnt.check(tmp[1] + j,Zhuyin.tryOf(tmp[0] + j),Zhuyin::toStringWithNumTone);
+                cnt.check(tmp[1] + j, Zhuyin.tryOf(tmp[0] + j), Zhuyin::toStringWithNumTone);
             }
         }
         cnt.report();
@@ -51,16 +52,16 @@ public class TestTransferPinyinAndZhuyin
 
     private static void tryPinyinEqual()
     {
-        EqualChecker<String> cnt = new EqualChecker<>();
+        EqualChecker<HanPinyin> cnt = new EqualChecker<>();
         for (String s : str)
         {
             String[] tmp = s.split(" ");
 
             for (int j = 0; j < 5; j++)
             {
-                String std = tmp[0] + j;
+                var std = HanPinyin.of(tmp[0] + j);
 
-                cnt.check(std, Zhuyin.tryOf(std),Zhuyin::getPinyin);
+                cnt.check(std, Zhuyin.tryOf(std), Zhuyin::getHan);
             }
         }
         cnt.report();

@@ -36,7 +36,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         try
         {
             String ans = "";
-            String py = pinyin;
+            String py = syll;
             int idx;
 
 
@@ -61,7 +61,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
                 case "n" ->
                 {
                     // 区分是n还是ng，就是安全检测下一位是不是g
-                    if (StringTool.charEquals(pinyin, 1, 'g'))
+                    if (StringTool.charEquals(syll, 1, 'g'))
                     {
                         idx = 2;
                         yield "10";
@@ -234,7 +234,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
             default -> "";
         };
 
-        if (!Objects.equals(pinyin, reverse))
+        if (!Objects.equals(syll, reverse))
             throw new InvalidPinyinException("没有正确逆推");
     }
 
@@ -242,7 +242,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
     {
         if (!NumberTool.closeBetween(tone, 0, 7)) throw new InvalidPinyinException("音调范围超出");
 
-        boolean end = ObjectTool.existEqual(StringTool.back(pinyin), 't', 'k');
+        boolean end = ObjectTool.existEqual(StringTool.back(syll), 't', 'k');
         if (NumberTool.closeBetween(tone, 1, 5)) if (end) throw new InvalidPinyinException("非入声音调配对入声韵尾");
         if (NumberTool.closeBetween(tone, 6, 7)) if (!end) throw new InvalidPinyinException("入声音调配对非入声韵尾");
     }
@@ -267,7 +267,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
     @Override
     public String toString()
     {
-        return "默认的南昌话拼音：" + pinyin + tone + "（未知格式）";
+        return "默认的南昌话拼音：" + syll + tone + "（未知格式）";
     }
 
     @Override
@@ -284,7 +284,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     public String setFormat(int yu, int gn, int ee, int oe, int ii, int ptk, int yw)
     {
-        String s = pinyin;
+        String s = syll;
         if (gn > 0)
         {
             s = s.replace("ni", "gni");
@@ -396,7 +396,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     public static SPinyin normalize(SPinyin pinyin)
     {
-        String text = pinyin.getSyllable();
+        String text = pinyin.getSyll();
 
         // 《智能是一个巨大的if-else语句》
         text = text.toLowerCase();
@@ -455,7 +455,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (text.contains("yuan")) text = text.replace("yuan", "yuon");
         if (text.contains("uen")) text = text.replace("uen", "un");
 
-        pinyin.setSyllable(text);
+        pinyin.setSyll(text);
         return pinyin;
     }
 }

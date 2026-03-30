@@ -3,7 +3,6 @@ package com.shuowen.yuzong.data.domain.Pinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
@@ -41,16 +40,5 @@ public class PinyinChecker
             }
         }
         else return Triple.of(3, null, null);
-    }
-
-    /**
-     * 用于前端传送到后端的拼音检查
-     * <br>使用场景：有了校对工具，如果再出现不正确的，那就报错回前端
-     */
-    public static void strictly(SPinyin text, Dialect d)
-    {
-        if (d.tryCreatePinyin(text).isEmpty()) throw new InvalidPinyinException(
-                String.format("%s拼音%s无效", d.getName().getSc(), text)
-        );
     }
 }

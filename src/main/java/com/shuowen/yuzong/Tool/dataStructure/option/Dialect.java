@@ -11,6 +11,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import lombok.Getter;
@@ -117,6 +118,17 @@ public enum Dialect
     {
         var pinyin = tryCreatePinyin(py);
         if (pinyin.isEmpty()) throw new IllegalArgumentException("来自信任端的拼音无效。文本：" + py);
+        return (T) pinyin.getValue();
+    }
+
+    /**
+     * 用于前端传送到后端的拼音检查，如果通过检查，返回拼音，如果没有通过，报错
+     * @throws InvalidPinyinException 碰见这个错误不用打印栈
+     */
+    public <U extends PinyinStyle, T extends UniPinyin<U>> T checkAndCreatePinyin(SPinyin py)
+    {
+        var pinyin = tryCreatePinyin(py);
+        if (pinyin.isEmpty()) throw new InvalidPinyinException(String.format("%s拼音%s无效", getName().getSc(), py));
         return (T) pinyin.getValue();
     }
 

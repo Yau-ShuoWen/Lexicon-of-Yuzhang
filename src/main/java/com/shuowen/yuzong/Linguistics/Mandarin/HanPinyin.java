@@ -1,9 +1,17 @@
 package com.shuowen.yuzong.Linguistics.Mandarin;
 
-import com.hankcs.hanlp.*;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
+import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 
 import java.util.*;
 
@@ -12,37 +20,83 @@ import java.util.*;
  * 改掉了一些不想要的形式，比如 {@code none5} 的写法和  {@code 5} 作为轻声，
  * 顺便为两个常用字补丁一个读音。
  */
+@Getter
+@EqualsAndHashCode
 public class HanPinyin
 {
-    public static String INVALID = "-";
+    private final SPinyin split;
+    @JsonValue
+    private final RPinyin read;
+
+    private HanPinyin(String syll, Integer tone)
+    {
+        split = SPinyin.of(syll, tone);
+        read = topMark();
+    }
+
+    public String getSyll()
+    {
+        return split.getSyll();
+    }
+
+    public int getTone()
+    {
+        return split.getTone();
+    }
+
+    @Override
+    public String toString()
+    {
+        return split.toString();
+    }
 
     /**
-     * Hanlp使用5表示轻声，这里还是把他改成0。
+     * 根据Hanlp的拼音，私有函数，因为外部拿不到hanlp的拼音
      */
-    private static String HanlpPinyinToString(Pinyin py)
+    private static Maybe<HanPinyin> tryOf(Pinyin p)
     {
-        String ans = py.toString();
-        if ("none5".equals(ans)) return INVALID;
-        if (ans.endsWith("5")) ans = ans.substring(0, ans.length() - 1) + "0";
-        return ans;
+        try
+        {
+            var syll = p.getPinyinWithoutTone();
+            if ("none".equals(syll)) return Maybe.nothing();
+
+            var tone = p.getTone();
+            if (tone == 5) tone = 0;
+
+            return Maybe.exist(new HanPinyin(syll, tone));
+        } catch (InvalidPinyinException e)
+        {
+            return Maybe.nothing();
+        }
+    }
+
+    /**
+     * 搞半天还要自己拆
+     */
+    @JsonCreator
+    public static HanPinyin of(String p)
+    {
+        var pinyin = SPinyin.of(p);
+        return new HanPinyin(pinyin.getSyll(), pinyin.getTone());
     }
 
     /**
      * 字转拼音数组：一段这样的文字，自動判斷多音字 -> [yi1, duan4, zhe4, yang4, de5, wen2, zi4]
      */
-    public static List<String> textPinyin(String text)
+    public static List<Maybe<HanPinyin>> textPinyin(String text)
     {
         List<Pinyin> pinyin = HanLP.convertToPinyinList(text);
-        List<String> ans = new ArrayList<>();
+        List<Maybe<HanPinyin>> ans = new ArrayList<>();
         if (pinyin.size() != text.length()) throw new RuntimeException("数量不对应");
         for (int i = 0; i < pinyin.size(); i++)
         {
             ans.add(switch (text.charAt(i))
-            {
-                case '兀' -> "wu4";
-                case '嗀' -> "hu4";
-                default -> HanlpPinyinToString(pinyin.get(i));
-            });
+                    {
+                        case '兀' -> Maybe.exist(of("wu4"));
+                        case '嗀' -> Maybe.exist(of("hu4"));
+                        default -> tryOf(pinyin.get(i));
+                    }
+            );
         }
         return ans;
     }
@@ -50,44 +104,18 @@ public class HanPinyin
     /**
      * 字转拼音数组：行 ->[xing2, hang2]
      */
-    public static List<String> toPinyinList(String c)//看上去是字符串，但只调用一个字
+    public static List<HanPinyin> toPinyinList(String c)//看上去是字符串，但只调用一个字
     {
         // hanlp的小bug，读音标不出来
-        if ("兀".equals(c)) return List.of("wu4");  //组词没有问题
-        if ("嗀".equals(c)) return List.of("hu4", "gu3");
+        if ("兀".equals(c)) return new ArrayList<>(List.of(of("wu4")));
+        if ("嗀".equals(c)) return new ArrayList<>(List.of(of("hu4"), of("gu3")));
 
         Pinyin[] py = PinyinDictionary.get(c);
-        if (py == null) return List.of();
-        else
-        {
-            List<Pinyin> pinyin = new ArrayList<>(List.of(PinyinDictionary.get(c)));
-            return ListTool.mapping(pinyin, HanPinyin::HanlpPinyinToString);
-        }
+
+        return (py == null) ? new ArrayList<>() :
+                ListTool.mapping(Arrays.asList(py), i -> HanPinyin.tryOf(i).getValue());
     }
 
-    /**
-     * 标准的拼音去除标号（没有安全检查）
-     *
-     * @return 传入无效拼音"-"返回""
-     */
-    public static String toSyllable(String string)
-    {
-        if (INVALID.equals(string)) return "";
-        return string.substring(0, string.length() - 1);
-    }
-
-    /**
-     * 拼音提取音调（没有安全检查）
-     *
-     * @return 字符串长度小于等于1，或者返回超过[0,4]，返回-1
-     */
-    public static int toTone(String string)
-    {
-        if (string.length() <= 1) return -1;  //无效的字符串正好也是长度小于1的
-
-        int ans = string.charAt(string.length() - 1) - '0';
-        return (ans >= 0 && ans <= 4) ? ans : -1;
-    }
 
     /**
      * 把使用数字标注音调的读音，把{@code pin1} 转换成{@code pīn}，没有安全检查，
@@ -105,13 +133,10 @@ public class HanPinyin
      *
      * @return 无效的时候使用空字符串做返回值
      **/
-    public static String topMark(String pinyin)
+    private RPinyin topMark()
     {
-        if (INVALID.equals(pinyin)) return "";
-
-        int tongue = toTone(pinyin);
-        if (tongue == -1) return "";
-        pinyin = toSyllable(pinyin).replace("v", "ü");
+        var syll = getSyll().replace("v", "ü");
+        var tone = getTone();
 
         // 二维查找：map.get(元音)[声调]
         Map<String, String[]> map = Map.of(
@@ -124,11 +149,11 @@ public class HanPinyin
         );
 
         // iu是特殊规则的例外，改变后直接返回
-        if (pinyin.contains("iu")) return pinyin.replace("u", map.get("u")[tongue]);
+        if (syll.contains("iu")) return RPinyin.of(syll.replace("u", map.get("u")[tone]));
         // 通常情况按照顺序识别
         for (String i : "aoeiuü".split(""))
-            if (pinyin.contains(i)) return pinyin.replace(i, map.get(i)[tongue]);
-        // 例外直接返回（应该没有例外）
-        return pinyin;
+            if (syll.contains(i)) return RPinyin.of(syll.replace(i, map.get(i)[tone]));
+        // 例外抛出异常，有限的校验
+        throw new InvalidPinyinException("无效拼音：" + split);
     }
 }

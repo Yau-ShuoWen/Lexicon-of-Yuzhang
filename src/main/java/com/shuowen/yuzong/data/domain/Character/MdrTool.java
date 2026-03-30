@@ -9,40 +9,32 @@ import java.util.*;
 public class MdrTool
 {
     /**
-     * 直接转换
+     * 转换汉语拼音，直接转换
      */
     public static String initWithPinyin(String ch)
     {
         String[] tmp = ch.split(" ");
-        return tmp[0] + " " + HanPinyin.topMark(tmp[1]);
+        return String.format("%s  %s", tmp[0], HanPinyin.of(tmp[1]).getSplit());
     }
 
     /**
-     * 直接转换
-     */
-    public static String initWithZhuyin(String ch)
-    {
-        String[] tmp = ch.split(" ");
-        return tmp[0] + " " + Zhuyin.of(tmp[1]).toString();
-    }
-
-    /**
-     * 富文本格式
+     * 转换汉语拼音，富文本格式
      */
     public static String showWithPinyin(String ch)
     {
+        // Read已经有括号了
         String[] tmp = ch.split(" ");
-        return tmp[0] + " [" + HanPinyin.topMark(tmp[1]) + "]";
+        return String.format("%s %s", tmp[0], HanPinyin.of(tmp[1]).getRead());
     }
 
-
     /**
-     * 富文本格式
+     * 对于注音符号没区别
      */
     public static String showWithZhuyin(String ch)
     {
         // 注音是不需要括号，所以直接返回
-        return initWithZhuyin(ch);
+        String[] tmp = ch.split(" ");
+        return tmp[0] + " " + Zhuyin.of(tmp[1]).toString();
     }
 
     /**

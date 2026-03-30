@@ -6,10 +6,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Getter
-@EqualsAndHashCode // 因为其他字段只由这 pinyin tone 两个决定，所以实际上也只是比较这两个的区别
+@EqualsAndHashCode // 因为其他字段只由这 syll tone 两个决定，所以实际上也只是比较这两个的区别
 abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
 {
-    protected final String pinyin;      // 不包括声调的标准拼音
+    protected final String syll;        // 不包括声调的标准拼音
     protected final Integer tone;       // 数字音调，0表示轻声或没有声调
 
     protected final String code;        // 拼音编码
@@ -24,7 +24,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
      */
     protected UniPinyin(SPinyin s)
     {
-        pinyin = s.getSyllable();
+        syll = s.getSyll();
         tone = s.getTone();
 
         code = initCode(); // 1. 编码的过程是否顺利？ initCode()，如果正常，把结果赋值code，否则抛出异常
@@ -58,7 +58,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     @Override
     public String toString()
     {
-        return "默认的未知方言拼音：" + pinyin + tone;
+        return "默认的未知方言拼音：" + syll + tone;
     }
 
     /**

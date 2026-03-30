@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import lombok.Data;
 
@@ -14,18 +14,18 @@ import lombok.Data;
 @Data
 public class SPinyin
 {
-    private String syllable;
-    private Integer tone;
+    private String syll;
+    private int tone;
 
-    private SPinyin(String syllable, Integer tone)
+    private SPinyin(String syll, int tone)
     {
-        this.syllable = syllable;
+        this.syll = syll;
         this.tone = tone;
     }
 
     private SPinyin(UniPinyin<?> py)
     {
-        syllable = py.getPinyin();
+        syll = py.getSyll();
         tone = py.getTone();
     }
 
@@ -37,10 +37,18 @@ public class SPinyin
     @JsonCreator
     public static SPinyin of(String text)
     {
-        StringTool.checkTrimValid(text);
+        StringTool.checkValid(text);// 检查
+        if (text.contains(" ")) throw new InvalidPinyinException(
+                String.format("%s拼音里不能包含空格", text)
+        );
 
         var tmp = trySplit(text);
         return new SPinyin(tmp.getLeft(), tmp.getRight());
+    }
+
+    public static SPinyin of(String syll, int tone)
+    {
+        return new SPinyin(syll, tone);
     }
 
     public static SPinyin of(UniPinyin<?> py)
@@ -52,7 +60,7 @@ public class SPinyin
     @Override
     public String toString()
     {
-        return syllable + tone;
+        return syll + tone;
     }
 
     /**
