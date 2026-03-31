@@ -3,8 +3,7 @@ package com.shuowen.yuzong.data.mapper.Character;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import com.shuowen.yuzong.data.model.Character.HanziPinyin;
 import com.shuowen.yuzong.data.model.Character.HanziSimilar;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 

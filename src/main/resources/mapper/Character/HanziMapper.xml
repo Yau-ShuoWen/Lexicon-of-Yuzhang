@@ -34,14 +34,18 @@
 
         /* 主表 */
         NC.${dialect}_char main
+
         /* 相似字符表连接 */
         LEFT JOIN NC.${dialect}_char_similar similar ON main.id = similar.char_id
         LEFT JOIN NC.${dialect}_char_similar similar_field ON main.id = similar_field.char_id
+
         /* 拼音表连接 */
         LEFT JOIN NC.${dialect}_char_pinyin pinyin ON main.id = pinyin.char_id
+
         /* 普通话信息表连接 */
         LEFT JOIN NC.${dialect}_char_mdr char_mdr ON main.id = char_mdr.dialect_id
         LEFT JOIN NC.mdr_char mdr ON char_mdr.mandarin_id = mdr.id
+
         ]]>
     </sql>
 
@@ -128,9 +132,9 @@
     <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity" useGeneratedKeys="true"
             keyProperty="ch.id">
         INSERT INTO ${dialect}_char
-        (sc, tc, main_py, special, ipa, mean, note, refer)
+        (sc, tc, main_py, py_code, special, ipa, note, refer)
         VALUES
-        (#{ch.sc}, #{ch.tc}, #{ch.mainPy}, #{ch.special}, #{ch.ipa}, #{ch.mean}, #{ch.note}, #{ch.refer})
+        (#{ch.sc}, #{ch.tc}, #{ch.mainPy},  #{ch.pyCode},#{ch.special}, #{ch.ipa}, #{ch.note}, #{ch.refer})
     </insert>
 
     <!--  插入新的内容（相似汉字表）  -->
@@ -155,9 +159,9 @@
         UPDATE NC.${dialect}_char
         SET
         main_py = #{ch.mainPy},
+        py_code = #{ch.pyCode},
         special = #{ch.special},
         ipa = #{ch.ipa},
-        mean = #{ch.mean},
         note = #{ch.note},
         refer = #{ch.refer}
         WHERE id = #{ch.id}
@@ -200,17 +204,32 @@
     </select>
 
     <select id="findPrevId" parameterType="Integer" resultType="Integer">
-        SELECT * FROM NC.${dialect}_char
-        WHERE id &lt; #{id}
-        ORDER BY id DESC
+        <![CDATA[
+
+        SELECT id
+        FROM NC.${dialect}_char
+        WHERE (py_code, id) < (
+            SELECT py_code, id FROM NC.${dialect}_char WHERE id = #{id}
+        )
+        ORDER BY py_code DESC, id DESC
         LIMIT 1;
+
+        ]]>
     </select>
 
     <select id="findNextId" parameterType="Integer" resultType="Integer">
-        SELECT * FROM NC.${dialect}_char
-        WHERE id > #{id}
-        ORDER BY id ASC
+        <![CDATA[
+
+        SELECT id
+        FROM NC.${dialect}_char
+        WHERE (py_code, id) > (
+            SELECT py_code, id FROM NC.${dialect}_char WHERE id = #{id}
+        )
+        ORDER BY py_code ASC, id ASC
         LIMIT 1;
+
+        ]]>
+
     </select>
 
 

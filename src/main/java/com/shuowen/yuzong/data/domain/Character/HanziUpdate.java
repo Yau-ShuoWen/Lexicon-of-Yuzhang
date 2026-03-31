@@ -23,7 +23,6 @@ import java.util.*;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
-import static com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker.strictly;
 
 @Data
 public class HanziUpdate
@@ -75,7 +74,7 @@ public class HanziUpdate
 
         public void checkPinyin(Dialect d)
         {
-            strictly(pinyin, d);
+            d.checkAndCreatePinyin(pinyin); // 只检查不用
         }
 
         public HanziPinyin transfer()
@@ -95,7 +94,6 @@ public class HanziUpdate
     private List<MdrChar> mandarin;
 
     private List<Pair<String, String>> ipa = new ArrayList<>();
-    private List<ScTcText> mean;
     private List<Twin<ScTcText>> note;
 
     public HanziUpdate()
@@ -125,8 +123,6 @@ public class HanziUpdate
                 ipa.add(Pair.of(i.get("tag"), i.get("content")));
         }
 
-        mean = readJson(ch.getMean(), new TypeReference<>() {}, om);
-
         note = ListTool.mapping(
                 readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}, om),
                 i -> Twin.of(i.get("tag"), i.get("content")));
@@ -142,8 +138,9 @@ public class HanziUpdate
         ch.setSc(hanzi.getSc().toString());
         ch.setTc(hanzi.getTc().toString());
 
-        strictly(mainPy, d);
+        var dPinyin = d.checkAndCreatePinyin(mainPy);
         ch.setMainPy(mainPy.toString());
+        ch.setPyCode(dPinyin.getWeight());
 
         ObjectTool.asserts(NumberTool.closeBetween(special, 0, 3),
                 "");
@@ -169,8 +166,6 @@ public class HanziUpdate
             }
             ch.setIpa(toJson(tmp, om, "[]"));
         }
-
-        ch.setMean(toJson(mean, om, "[]"));
 
         ch.setNote(toJson(
                 ListTool.mapping(note, i -> Map.of("tag", i.getLeft(), "content", i.getRight())),

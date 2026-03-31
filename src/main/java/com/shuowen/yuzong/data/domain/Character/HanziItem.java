@@ -38,7 +38,6 @@ public class HanziItem
 
     // 原表复杂结构
     private final List<Pair<String, String>> ipa;
-    private final List<UString> mean;
     private final List<Twin<UString>> note;
     private final List<Map<String, String>> refer;
 
@@ -77,13 +76,6 @@ public class HanziItem
         ipa = ListTool.mapping(
                 readJson(ch.getIpa(), new TypeReference<List<Map<String, String>>>() {}, om)
                 , i -> Pair.of(i.get("tag"), i.get("content"))
-        );
-
-        // 解析为 Map< 简繁 , List<String>>
-        // 使用 .get(l)选取对应语言
-        mean = ListTool.mapping(
-                readJson(ch.getMean(), new TypeReference<List<ScTcText>>() {}, om),
-                i -> i.get(l)
         );
 
         // 解析为 Map< 简繁 , List<Map< 标签 , 内容 >>>>

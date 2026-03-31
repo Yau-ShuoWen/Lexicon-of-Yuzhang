@@ -11,15 +11,15 @@ public class HanziEntity
     private String sc;
     private String tc;
     private String mainPy;
+    private String pyCode;
     private Integer special;
 
-    private String similar;    // Map<String,List<String>>
-    private String variantPy;  // List<Map<String, String>>
-    private String mdrInfo;    // List<String>
-    private String ipa;        // Map<String,String>
-    private String mean;       // Map<String,List<String>>
-    private String note;       // Map<String,List<Map<String,String>>>
-    private String refer;      // Map<String,List<String>>
+    private String similar;
+    private String variantPy;
+    private String mdrInfo;
+    private String ipa;
+    private String note;
+    private String refer;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
