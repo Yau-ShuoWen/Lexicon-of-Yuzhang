@@ -37,7 +37,7 @@ public class HanziShow
         UString special;
         List<Pair<UString, RPinyin>> variantPy;
         Set<UChar> similar;
-        List<String> mdrInfo;
+        List<Pair<String, String>> mdrInfo;
         List<Pair<String, String>> ipa;
         List<Twin<UString>> note;
         //TODO:refer!
@@ -117,16 +117,18 @@ public class HanziShow
             {
                 String tmp = "用法和普通話基本相同。";
                 if (i.special.contains(1)) tmp = "方言里有特殊用法。";
-                else if (i.special.contains(2)) tmp = "這個漢字沒有考證出本字。";
-                else if (i.special.contains(3)) tmp = "方言里不會使用.";
+                else if (i.special.contains(2)) tmp = "這個漢字的本字沒有考證出。";
+                else if (i.special.contains(3)) tmp = "方言里不會使用。";
+                else if (i.special.contains(4)) tmp = "方言里幾乎不會使用。";
 
-                info.special = ScTcText.get("基本信息概覽：" + tmp, l);
+                info.special = ScTcText.get("概覽：" + tmp, l);
             }
 
             info.similar = i.similar;
-            info.mdrInfo = l.isSimplified() ?
-                    ListTool.mapping(i.mdrInfo, MdrTool::showWithPinyin) :
-                    ListTool.mapping(i.mdrInfo, MdrTool::showWithZhuyin);
+            info.mdrInfo = ListTool.mapping(i.mdrInfo, j -> Pair.of(
+                    MdrTool.showWithPinyin(j),
+                    MdrTool.showWithZhuyin(j))
+            );
 
             // 这是三个明确要初始化的内容，已经在上一轮获取了信息
             // 函数：快速调用拼音格式化成字符串
@@ -160,7 +162,9 @@ public class HanziShow
             }
 
             // 使用富文本的内容，放在最后，说不定可以用上前面获得的数据
-            info.note = ListTool.mapping(i.note, pair -> Twin.of(pair.getLeft(), RichTextUtil.format(pair.getRight(),  data,false)));
+            info.note = ListTool.mapping(i.note, pair -> Twin.of(pair.getLeft(),
+                    RichTextUtil.format(pair.getRight(), data, false)
+            ));
 
             // 提交数据，顺序是权重
             infoMap.put(i.mainPy.getWeight(), info);

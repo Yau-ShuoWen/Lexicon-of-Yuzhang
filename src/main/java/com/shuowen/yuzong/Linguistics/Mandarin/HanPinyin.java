@@ -12,6 +12,7 @@ import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.*;
 
@@ -21,6 +22,7 @@ import java.util.*;
  * 顺便为两个常用字补丁一个读音。
  */
 @Getter
+@ToString
 @EqualsAndHashCode
 public class HanPinyin
 {
@@ -42,12 +44,6 @@ public class HanPinyin
     public int getTone()
     {
         return split.getTone();
-    }
-
-    @Override
-    public String toString()
-    {
-        return split.toString();
     }
 
     /**

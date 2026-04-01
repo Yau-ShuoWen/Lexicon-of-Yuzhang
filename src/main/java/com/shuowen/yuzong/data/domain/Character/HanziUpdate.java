@@ -142,8 +142,7 @@ public class HanziUpdate
         ch.setMainPy(mainPy.toString());
         ch.setPyCode(dPinyin.getWeight());
 
-        ObjectTool.asserts(NumberTool.closeBetween(special, 0, 3),
-                "");
+        ObjectTool.asserts(NumberTool.closeBetween(special, 0, 4), "");
         ch.setSpecial(special);
 
         var sim = ListTool.mapping(similar, Similar::transfer);

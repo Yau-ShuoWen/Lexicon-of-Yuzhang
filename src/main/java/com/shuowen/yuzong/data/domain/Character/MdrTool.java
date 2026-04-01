@@ -23,8 +23,7 @@ public class MdrTool
     public static String showWithPinyin(String ch)
     {
         // Read已经有括号了
-        String[] tmp = ch.split(" ");
-        return String.format("%s %s", tmp[0], HanPinyin.of(tmp[1]).getRead());
+        return HanPinyin.of(ch.split(" ")[1]).getRead().toString();
     }
 
     /**
@@ -33,8 +32,7 @@ public class MdrTool
     public static String showWithZhuyin(String ch)
     {
         // 注音是不需要括号，所以直接返回
-        String[] tmp = ch.split(" ");
-        return tmp[0] + " " + Zhuyin.of(tmp[1]).toString();
+        return Zhuyin.of(ch.split(" ")[1]).toString();
     }
 
     /**
