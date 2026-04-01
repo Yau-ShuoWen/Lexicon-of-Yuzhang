@@ -40,7 +40,7 @@ public class IPAService
 
         var syll = Yinjie.mapOf(
                 m.findSyllableListByStandard(
-                        SetTool.mapping(pinyinSet, Pinyin::getPinyin),
+                        SetTool.mapping(pinyinSet, Pinyin::getSyll),
                         d.toString())
         );
         var tone = Shengdiao.mapOf(
@@ -53,7 +53,7 @@ public class IPAService
 
         for (var pinyin : pinyinSet)
         {
-            var y = syll.get(pinyin.getPinyin());
+            var y = syll.get(pinyin.getSyll());
             var s = tone.get(pinyin.getTone());
             if (y == null || s == null) continue;
 
@@ -90,7 +90,7 @@ public class IPAService
 
         for (var i : Yinjie.listOf(m.getAllSyllable(d.toString())))
         {
-            var pinyinAnswer = d.tryCreatePinyin(i.getPinyin());
+            var pinyinAnswer = d.trustedCreatePinyin(i.getPinyin());
             var merge = constructIPA(d, pinyinAnswer, a -> Maybe.uncertain(map.get(a)));
             checker.check(i, merge);
         }
@@ -122,21 +122,17 @@ public class IPAService
      */
     public void insertSyllable(Pinyin p, Dialect d)
     {
-        if (m.findSyllableByStandard(p.getPinyin(), d.toString()) != null) return;
-        var merge = constructIPA(d, Maybe.exist(p), i -> Shengyun.tryOf(m.findSegmentInfo(i, d.toString())));
+        if (m.findSyllableByStandard(p.getSyll(), d.toString()) != null) return;
+        var merge = constructIPA(d, p, i -> Shengyun.tryOf(m.findSegmentInfo(i, d.toString())));
         if (merge.isValid()) m.insertSyllable(merge.getValue().transfer(), d.toString());
     }
 
     /**
-     * @param pinyinMaybe 可能有效也可能无效的拼音，无效就直接返回安全空
-     * @param data        查询可能找得到也可能找不到的函数，找不到会在Yinjie.merge()里返回安全空
+     * @param data 查询可能找得到也可能找不到的函数，找不到会在Yinjie.merge()里返回安全空
      */
     private Maybe<Yinjie> constructIPA(
-            Dialect d, Maybe<? extends Pinyin> pinyinMaybe, Function<String, Maybe<Shengyun>> data)
+            Dialect d, Pinyin pinyin, Function<String, Maybe<Shengyun>> data)
     {
-        if (pinyinMaybe.isEmpty()) return Maybe.nothing();
-        var pinyin = pinyinMaybe.getValue();
-
         String code = pinyin.getCode();
 
         int left = d.getInitialLength();
@@ -162,8 +158,8 @@ public class IPAService
         return instance.getIPA(pinyinSet, op, d, dictSet);
     }
 
-    public static List<IPAItem> getTableItem(String key)
+    public static List<IPAItem> getTableItem(Dialect d, String key)
     {
-        return instance.m.getTableItem(key);
+        return instance.m.getTableItem(d.toString(),key);
     }
 }

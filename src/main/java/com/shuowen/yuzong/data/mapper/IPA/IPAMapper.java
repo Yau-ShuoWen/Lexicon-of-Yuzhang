@@ -81,5 +81,5 @@ public interface IPAMapper
     /**
      *
      */
-    List<IPAItem> getTableItem(String key);
+    List<IPAItem> getTableItem(String dialect, String key);
 }
