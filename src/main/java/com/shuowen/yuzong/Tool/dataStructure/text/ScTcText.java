@@ -12,6 +12,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import lombok.Getter;
+import lombok.ToString;
 
 import static com.shuowen.yuzong.Tool.ProofreadTool.escapeCharTraslate;
 
@@ -20,6 +21,7 @@ import static com.shuowen.yuzong.Tool.ProofreadTool.escapeCharTraslate;
  * 有的时候没有别的事情，单纯校验一下，并且少写一个三元表达式
  */
 @Getter
+@ToString
 public class ScTcText
 {
     private UString sc;

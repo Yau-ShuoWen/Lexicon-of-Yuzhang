@@ -1,10 +1,12 @@
 package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.controller.APIResponse;
+import com.shuowen.yuzong.data.domain.Character.HanziCreate;
 import com.shuowen.yuzong.data.domain.Character.HanziUpdate;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.model.Character.MdrChar;
@@ -16,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping ("/api/edit/")
+@RequestMapping ("/api/edit/hanzi")
 public class EditHanziController
 {
     @Autowired
@@ -28,11 +30,8 @@ public class EditHanziController
     /**
      * 在编辑之前筛选内容
      */
-    @GetMapping ("{d}/by-hanzi")
-    public List<SearchResult> filter(
-            @PathVariable Dialect d,
-            @RequestParam String hanzi
-    )
+    @GetMapping ("/filter/{d}")
+    public List<SearchResult> filter(@PathVariable Dialect d, @RequestParam String hanzi)
     {
         return hz.getHanziFilterInfo(hanzi, d);
     }
@@ -41,10 +40,8 @@ public class EditHanziController
     /**
      * 获得精确的某一个字的信息
      */
-    @GetMapping ("{d}/hanzi/by-id")
-    public APIResponse<Maybe<HanziUpdate>> hanzifind(
-            @PathVariable Dialect d,
-            @RequestParam ObfInt id
+    @GetMapping ("/get-info/{d}")
+    public APIResponse<Maybe<HanziUpdate>> hanzifind(@PathVariable Dialect d, @RequestParam ObfInt id
     )
     {
         try
@@ -61,11 +58,8 @@ public class EditHanziController
     /**
      * 提交编辑
      */
-    @PostMapping ("{d}/edit")
-    public APIResponse<Void> edit(
-            @PathVariable Dialect d,
-            @RequestBody HanziUpdate he
-    )
+    @PostMapping ("/submit/{d}")
+    public APIResponse<Void> edit(@PathVariable Dialect d, @RequestBody HanziUpdate he)
     {
         try
         {
@@ -73,7 +67,11 @@ public class EditHanziController
             return APIResponse.success();
         } catch (Exception e)
         {
-            e.printStackTrace();
+            if (e instanceof InvalidPinyinException)
+            {
+
+            }
+            else e.printStackTrace();
             return APIResponse.failure(e.getMessage());
         }
     }
@@ -82,12 +80,8 @@ public class EditHanziController
     /**
      * 获得普通话汉字信息
      */
-    @GetMapping ("{d}/get-hanzi")
-    public List<MdrChar> getHanzi(
-            @PathVariable Dialect d,
-            @RequestParam String sc,
-            @RequestParam String tc
-    )
+    @GetMapping ("/get-mandarin/{d}")
+    public List<MdrChar> getMandarin(@PathVariable Dialect d, @RequestParam String sc, @RequestParam String tc)
     {
         return p.getHanziMenu(sc, tc, d);
     }
@@ -96,9 +90,8 @@ public class EditHanziController
     /**
      * 获得上一号和下一号的号码给跳转
      */
-    @GetMapping ("{d}/get-nearby")
-    public APIResponse<Twin<Maybe<ObfInt>>>
-    getNearBy(@PathVariable Dialect d, @RequestParam ObfInt id)
+    @GetMapping ("/get-nearby/{d}")
+    public APIResponse<Twin<Maybe<ObfInt>>> getNearBy(@PathVariable Dialect d, @RequestParam ObfInt id)
     {
         try
         {
@@ -109,21 +102,25 @@ public class EditHanziController
             return APIResponse.failure(e.getMessage());
         }
     }
-//
-//    @PostMapping ("{d}/quick-initialize")
-//    public APIResponse<Void> quickInitialize(
-//            @PathVariable Dialect d,
-//            @RequestParam HanziCreate he
-//    )
-//    {
-//        try
-//        {
-//            hz.initHanzi(he, d);
-//            return APIResponse.success();
-//        } catch (Exception e)
-//        {
-//            e.printStackTrace();
-//            return APIResponse.failure(e.getMessage());
-//        }
-//    }
+
+    @PostMapping ("/create/{d}")
+    public APIResponse<Void> createHanzi(@PathVariable Dialect d, @RequestBody HanziCreate he
+    )
+    {
+        try
+        {
+            hz.createHanzi(he, d);
+            return APIResponse.success();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
+    @GetMapping ("/get-character/{d}")
+    public List<String> getCharacter(@RequestParam String pinyin, @PathVariable Dialect d)
+    {
+        return hz.getHanziMenu(pinyin, d);
+    }
 }

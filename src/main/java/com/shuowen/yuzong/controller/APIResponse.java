@@ -37,6 +37,6 @@ public class APIResponse<T>
      */
     public static <T> APIResponse<T> failure(String msg)
     {
-        return new APIResponse<>(false, "后端发生错误：" + msg, null);
+        return new APIResponse<>(false, "错误：" + msg, null);
     }
 }
