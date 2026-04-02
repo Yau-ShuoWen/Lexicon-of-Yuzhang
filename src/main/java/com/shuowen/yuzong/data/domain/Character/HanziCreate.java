@@ -1,66 +1,59 @@
 package com.shuowen.yuzong.data.domain.Character;
 
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.data.model.Character.HanziEntity;
+import com.shuowen.yuzong.data.model.Character.HanziPinyin;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.*;
 
 /**
  * 批量初始化内容
  */
-//TODO
 @Data
+@NoArgsConstructor
 public class HanziCreate
 {
-//    ScTcText text;
-//    DPinyin pinyin;
-//
-//    public HanziCreate()
-//    {
-//    }
-//
-//    public void check(Dialect d)
-//    {
-////        final var empty = ErrorInfo.of("内容不能为空。Can't be empty");
-////        final var sizeOne = ErrorInfo.of("汉字栏，只能填入一个字。Only can have one character.");
-////        final var ScTcLen = ErrorInfo.of("简体繁体长度不相等。The lengths of SCTC are not equal.");
-////
-////        if (!StringTool.isTrimValid(sc, tc, pinyin))
-////            throw new IllegalArgumentException("簡體字、繁體字、主拼音不可以缺少");
-////
-////        if (!UString.isLenEqual(sc, tc))
-////            throw new IllegalArgumentException("簡體字、繁體字数目不对应");
-////
-////        PinyinChecker.strictly(pinyin, d);
-//    }
-//
-//    public Pair<List<HanziEntity>, HanziPinyin> transfer()
-//    {
-//        String emptyScTc = "{\"sc\": [], \"tc\": []}";
-//
-//        List<HanziEntity> left = new ArrayList<>();
-//        UString sc = new UString(this.sc);
-//        UString tc = new UString(this.tc);
-//        for (var i = 0; i < sc.length(); i++)
-//        {
-//            var tmp = new HanziEntity();
-//            tmp.setSc(sc.at(i));
-//            tmp.setTc(tc.at(i));
-//            tmp.setMainPy(pinyin);
-//            // 非关键内容使用默认值代替
-//            tmp.setSpecial(0);
-//            tmp.setIpa("[]");
-//            tmp.setMean(emptyScTc);
-//            tmp.setNote(emptyScTc);
-//            tmp.setRefer(emptyScTc);
-//
-//            left.add(tmp);
-//        }
-//
-//        HanziPinyin right = new HanziPinyin();
-//        {
-//            right.setSc("文读");
-//            right.setTc("文讀");
-//            right.setPinyin(pinyin);
-//            right.setSort(1);
-//        }
-//        return Pair.of(left, right);
-//    }
+    ScTcText text;
+    SPinyin pinyin;
+
+    public Pair<List<HanziEntity>, HanziPinyin> checkAndTransfer(Dialect d)
+    {
+        if (text.length() == 0) return Pair.of(List.of(), null); // 只要保证了列表为空，就不会循环
+
+        var dPinyin = d.checkAndCreatePinyin(pinyin);
+
+        List<HanziEntity> left = new ArrayList<>();
+        var sc = text.getSc();
+        var tc = text.getTc();
+        for (int i = 0; i < sc.length(); i++)
+        {
+            var tmp = new HanziEntity();
+            tmp.setSc(sc.at(i));
+            tmp.setTc(tc.at(i));
+            tmp.setMainPy(pinyin.toString());
+            tmp.setPyCode(dPinyin.getWeight());
+            // 非关键内容使用默认值代替
+            tmp.setSpecial(0);
+            tmp.setIpa("[]");
+            tmp.setNote("[]");
+            tmp.setRefer("[]");
+            tmp.setStatus(1);
+
+            left.add(tmp);
+        }
+
+        HanziPinyin right = new HanziPinyin();
+        {
+            right.setSc("待定");
+            right.setTc("待定");
+            right.setPinyin(pinyin.toString());
+            right.setSort(1);
+        }
+        return Pair.of(left, right);
+    }
 }

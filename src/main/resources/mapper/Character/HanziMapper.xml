@@ -82,6 +82,20 @@
         GROUP BY main.id
     </select>
 
+    <select id="findHanziByScTcBatch" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+        SELECT
+        <include refid="fields"/>
+        WHERE
+        (
+        main.sc IN
+        <foreach collection="hanzi" item="item" open="(" separator="," close=")">#{item}</foreach>
+        OR
+        main.tc IN
+        <foreach collection="hanzi" item="item" open="(" separator="," close=")">#{item}</foreach>
+        )
+        GROUP BY main.id
+    </select>
+
     <!--  查询所有内容  -->
     <select id="getAllHanzi" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
         SELECT
@@ -132,9 +146,9 @@
     <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity" useGeneratedKeys="true"
             keyProperty="ch.id">
         INSERT INTO ${dialect}_char
-        (sc, tc, main_py, py_code, special, ipa, note, refer)
+        (sc, tc, main_py, py_code, special, ipa, note, refer, status)
         VALUES
-        (#{ch.sc}, #{ch.tc}, #{ch.mainPy},  #{ch.pyCode},#{ch.special}, #{ch.ipa}, #{ch.note}, #{ch.refer})
+        (#{ch.sc}, #{ch.tc}, #{ch.mainPy}, #{ch.pyCode},#{ch.special}, #{ch.ipa}, #{ch.note}, #{ch.refer}, #{ch.status})
     </insert>
 
     <!--  插入新的内容（相似汉字表）  -->
@@ -163,7 +177,8 @@
         special = #{ch.special},
         ipa = #{ch.ipa},
         note = #{ch.note},
-        refer = #{ch.refer}
+        refer = #{ch.refer},
+        status = #{ch.status}
         WHERE id = #{ch.id}
     </update>
 

@@ -45,10 +45,11 @@ public class HanziUpdate
             text = new ScTcChar(sim.getSc(), sim.getTc());
         }
 
-        public HanziSimilar transfer()
+        public HanziSimilar transfer(int charId)
         {
             var ans = new HanziSimilar();
             ans.setId(id);
+            ans.setCharId(charId);
             ans.setSc(text.getSc().toString());
             ans.setTc(text.getTc().toString());
             return ans;
@@ -77,10 +78,11 @@ public class HanziUpdate
             d.checkAndCreatePinyin(pinyin); // 只检查不用
         }
 
-        public HanziPinyin transfer()
+        public HanziPinyin transfer(int charId)
         {
             var ans = new HanziPinyin();
             ans.setId(id);
+            ans.setCharId(charId);
             ans.setSc(tag.getSc().toString());
             ans.setTc(tag.getTc().toString());
             ans.setPinyin(pinyin.toString());
@@ -95,6 +97,8 @@ public class HanziUpdate
 
     private List<Pair<String, String>> ipa = new ArrayList<>();
     private List<Twin<ScTcText>> note;
+
+    private Integer status;
 
     public HanziUpdate()
     {
@@ -126,6 +130,8 @@ public class HanziUpdate
         note = ListTool.mapping(
                 readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}, om),
                 i -> Twin.of(i.get("tag"), i.get("content")));
+
+        status = ch.getStatus();
     }
 
     public Quadruple<HanziEntity, List<HanziSimilar>, List<HanziPinyin>, List<MdrChar>>
@@ -145,12 +151,13 @@ public class HanziUpdate
         ObjectTool.asserts(NumberTool.closeBetween(special, 0, 4), "");
         ch.setSpecial(special);
 
-        var sim = ListTool.mapping(similar, Similar::transfer);
+        var sim = ListTool.mapping(similar, i -> i.transfer(id));
 
         ListTool.handle(variantPy, i -> i.checkPinyin(d));
-        var py = ListTool.mapping(variantPy, PinyinData::transfer);
+        var py = ListTool.mapping(variantPy, i -> i.transfer(id));
 
         var mdr = mandarin;
+        ListTool.handle(mdr, i -> i.setDialectId(id));
 
         // @desprate，之后新功能上之后需要完全删掉，所以不重构
         ObjectMapper om = new ObjectMapper();
@@ -169,6 +176,8 @@ public class HanziUpdate
         ch.setNote(toJson(
                 ListTool.mapping(note, i -> Map.of("tag", i.getLeft(), "content", i.getRight())),
                 om, "[]"));
+
+        ch.setStatus(status);
 
         return Quadruple.of(ch, sim, py, mdr);
     }

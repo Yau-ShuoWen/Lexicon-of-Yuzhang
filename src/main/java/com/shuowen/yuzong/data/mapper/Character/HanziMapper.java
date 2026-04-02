@@ -6,6 +6,7 @@ import com.shuowen.yuzong.data.model.Character.HanziSimilar;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Mapper
 public interface HanziMapper
@@ -24,6 +25,8 @@ public interface HanziMapper
      * 使用确定的简体或者繁体寻找汉字
      */
     List<HanziEntity> findHanziByScOrTc(String hanzi, String lang, String dialect);
+
+    Set<HanziEntity> findHanziByScTcBatch(Set<String> hanzi, String dialect);
 
     /**
      * 获得所有数据

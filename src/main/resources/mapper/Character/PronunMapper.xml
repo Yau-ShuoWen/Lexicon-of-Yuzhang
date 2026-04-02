@@ -37,6 +37,17 @@
         SELECT info FROM NC.mdr_char
     </select>
 
+    <select id="getAllHanziFreq" resultType="String">
+        SELECT info FROM NC.mdr_char
+    </select>
+
+    <select id="findHanziFreqByPinyin" resultType="String">
+        SELECT hanzi FROM mdr_char
+        WHERE
+        (pinyin = #{syll} and tone = #{tone}) and
+        (in_3500 = 1 or in_4800 = 1)
+    </select>
+
     <!--  语言的作用是检查是否出现在常用字表里  -->
     <select id="getHanziCommonByPinyin" resultType="Integer">
         SELECT id FROM NC.mdr_char

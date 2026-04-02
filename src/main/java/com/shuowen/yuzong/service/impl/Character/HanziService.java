@@ -14,6 +14,7 @@ import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.Tool.format.ObfString;
+import com.shuowen.yuzong.data.domain.Character.HanziCreate;
 import com.shuowen.yuzong.data.domain.Character.HanziUpdate;
 import com.shuowen.yuzong.data.domain.Character.HanziGroup;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
@@ -23,6 +24,7 @@ import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,25 +40,7 @@ public class HanziService
     @Autowired
     private PronunService mdr;
 
-    /**
-     * 获得结果的集根据分类结果合并内容
-     *
-     * @param grading 模糊识别粒度
-     *                <br>1：查询匹配确定的简体或繁体
-     *                <br>2：查询匹配简体或繁体
-     *                <br>3：查询匹配简体、繁体、模糊汉字
-     */
-    private List<HanziGroup> getHanziOrganize(String hanzi, Language l, Dialect d, int grading)
-    {
-        var res = switch (grading)
-        {
-            case 1 -> hz.findHanziByScOrTc(hanzi, l.toString(), d.toString());
-            case 2 -> hz.findHanziByScTc(hanzi, d.toString());
-            case 3 -> hz.findHanziByVague(hanzi, d.toString());
-            default -> throw new RuntimeException("超范围");
-        };
-        return HanziGroup.listOf(res, l, d);
-    }
+    // 查询界面 ---------------------------------------------------------------------------------------------------------
 
     /**
      * 通过关键词，搜索出一系列搜索结果，但只保留基本信息
@@ -66,10 +50,14 @@ public class HanziService
         UniqueList<SearchResult, SearchResult> ans = UniqueList.of();
         for (UChar hanzi : UString.of(query))
         {
-            for (var i : getHanziOrganize(hanzi.toString(), l, d, vague ? 3 : 2))
-            {
-                var tmp = new SearchResult();
+            var item = HanziGroup.listOf(
+                    vague ? hz.findHanziByVague(hanzi.toString(), d.toString()) :
+                            hz.findHanziByScTc(hanzi.toString(), d.toString())
+                    , l, d
+            );
 
+            for (var i : item)
+            {
                 // 标题 = 字 + 拼音，如果不止一个主读音，使用" / "拼接
                 String title = i.getHanzi() + "  " +
                         i.getPinyin().stream().map(RPinyin::toString).collect(Collectors.joining(" / "));
@@ -83,11 +71,12 @@ public class HanziService
                 explain = StringTool.deleteBack(explain);
                 explain = String.format(ScTcText.get(explain, l).toString(), hanzi);
 
+
+                var tmp = new SearchResult();
                 tmp.setTitle(title);
                 tmp.setExplain(explain);
                 tmp.setTag("hanzi");
                 tmp.setInfo(Map.of("query", ObfString.encode(i.getHanzi().toString())));
-
                 ans.add(tmp);
             }
         }
@@ -99,12 +88,15 @@ public class HanziService
      */
     public HanziShow getHanziDetailInfo(String hanzi, Language l, Dialect d, PinyinOption op)
     {
-        return HanziShow.of(
-                ListTool.checkSizeOne(getHanziOrganize(hanzi, l, d, 1),
-                        "not found 未找到汉字", "not unique 汉字不唯一")
-                , new IPAData(l, d, op)
+        var item = ListTool.checkSizeOne(
+                HanziGroup.listOf(hz.findHanziByScOrTc(hanzi, l.toString(), d.toString()), l, d),
+                "not found 未找到汉字", "not unique 汉字不唯一"
         );
+        return HanziShow.of(item, new IPAData(l, d, op));
     }
+
+
+    // 编辑界面 ---------------------------------------------------------------------------------------------------------
 
     /**
      * 在编辑界面的时候，给一个非常宽松的筛选
@@ -150,32 +142,35 @@ public class HanziService
     {
         var data = he.checkAndTransfer(d);
 
-        var ch = data.getAlpha();
+        var ch = data.getFirst();
+        int id = ch.getId();
 
         // 通过唯一键寻找数据库里是否也有
         HanziEntity maybe = hz.findByUniqueKey(ch, d.toString());
 
-        // 如果没找到（maybe == null），说明是新增，可以插入
-        // 如果id是同一个（id == id），那么说明是原地更新
-        // 其他情况为新增但是唯一键冲突，那么说明是冲突，抛出异常
-        if (maybe != null && !maybe.getId().equals(ch.getId()))
-            throw new IllegalArgumentException("数据 简体：" + ch.getSc() + " 繁体：" + ch.getTc() + " 拼音：" + ch.getMainPy() + " 重复");
+        // 如果没找到（maybe == null），说明是新增，但是这里是编辑
+        if (maybe == null) throw new IllegalArgumentException("没有对应数据，请新增后在修改");
 
+        // 如果id不相等，那说明两条数据唯一键冲突
+        if (id != maybe.getId())
+            throw new IllegalArgumentException(String.format("""
+                    数据重复：
+                    简体：%s
+                    繁体：%s
+                    拼音：%s
+                    已经有另外一条数据，这三段内容和这个完全相同了。
+                    请在那一条数据里修改。
+                    """, ch.getSc(), ch.getTc(), ch.getMainPy()
+            ));
 
-        // 处理主表插入
-        if ((ch.getId() == null || ch.getId() <= 0))
-            hz.insertChar(ch, d.toString());
-        else hz.updateCharById(ch, d.toString());
-
-
-        int id = ch.getId();
+        // 主表更新
+        hz.updateCharById(ch, d.toString());
 
         /* 对于similar和mulpy字段的流程：
          * 1. 统一设置id
          * 2. 比较并且处理
          * */
-        var sim = data.getBeta();
-        for (var i : sim) i.setCharId(id);
+        var sim = data.getSecond();
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziSimilarByCharId(id, d.toString())),
                 new HashSet<>(sim)))
@@ -188,8 +183,7 @@ public class HanziService
             }
         }
 
-        var py = data.getGamma();
-        for (var i : py) i.setCharId(id);
+        var py = data.getThird();
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziPinyinByCharId(id, d.toString())),
                 new HashSet<>(py)))
@@ -202,11 +196,8 @@ public class HanziService
             }
         }
 
-        var mdrData = data.getDelta();
-        for (var i : mdrData) i.setDialectId(id);
-
-        // 普通话对应字段，丢给专门的类处理
-        mdr.handleEdit(mdrData, d);
+        // 普通话对应字段，给专门的类处理
+        mdr.handleEdit(data.getFourth(), d);
     }
 
     public Twin<Maybe<ObfInt>> getNearBy(int id, Dialect d)
@@ -219,25 +210,61 @@ public class HanziService
                 nextId.handleIfExist(ObfInt::encode)
         );
     }
-//
-//    @Transactional (rollbackFor = {Exception.class})
-//    public void initHanzi(HanziCreate he, Dialect d)
-//    {
-//        he.check(d);
-//
-//        var model = he.transfer();
-//        var pyModel = model.getRight();
-//
-//        for (var i : model.getLeft())
-//        {
-//            if (Maybe.uncertain(hz.findByUniqueKey(i, d.toString())).isEmpty())
-//            {
-//                hz.insertChar(i, d.toString());
-//                int id = i.getId();
-//
-//                pyModel.setCharId(id);
-//                hz.insertCharPinyin(pyModel, d.toString());
-//            }
-//        }
-//    }
+
+    @Transactional (rollbackFor = {Exception.class})
+    public void createHanzi(HanziCreate he, Dialect d)
+    {
+        var model = he.checkAndTransfer(d);
+
+        var pyModel = model.getRight();
+
+        for (var i : model.getLeft())
+        {
+            if (Maybe.uncertain(hz.findByUniqueKey(i, d.toString())).isEmpty())
+            {
+                try
+                {
+                    hz.insertChar(i, d.toString());
+                    int id = i.getId();
+
+                    pyModel.setCharId(id);
+                    hz.insertCharPinyin(pyModel, d.toString());
+
+                } catch (DuplicateKeyException ignored)//幂等
+                {
+                }
+            }
+        }
+    }
+
+    public List<String> getHanziMenu(String text, Dialect d)
+    {
+        var list = mdr.getHanzisByPinyin(text);
+        if(list==null) return List.of("拼音无效");
+        List<String> ans = new ArrayList<>();
+
+        // 获得所有汉字
+        Set<String> set = new HashSet<>();
+        for (var i : list) for (var j : i.getRight()) set.add(j.toString());
+        if(set.isEmpty()) return List.of("没有找到");
+        // 获得
+        Set<UChar> existChars = new HashSet<>();
+        for (var i : hz.findHanziByScTcBatch(set, d.toString()))
+        {
+            existChars.add(UChar.of(i.getSc()));
+            existChars.add(UChar.of(i.getTc()));
+        }
+
+        for (var i : list)
+        {
+            String ok = "", no = "";
+            for (var j : i.getRight())
+            {
+                if (existChars.contains(j)) ok+=j.toString();
+                else no+=j.toString();
+            }
+            ans.add(String.format("%s %s（%s）", i.getLeft().getRead(), no, ok));
+        }
+        return ans;
+    }
 }

@@ -119,7 +119,7 @@ public class HanziShow
                 if (i.special.contains(1)) tmp = "方言里有特殊用法。";
                 else if (i.special.contains(2)) tmp = "這個漢字的本字沒有考證出。";
                 else if (i.special.contains(3)) tmp = "方言里不會使用。";
-                else if (i.special.contains(4)) tmp = "方言里幾乎不會使用。";
+                else if (i.special.contains(4)) tmp = "方言里使用的地方很少。";
 
                 info.special = ScTcText.get("概覽：" + tmp, l);
             }
@@ -133,14 +133,14 @@ public class HanziShow
             // 这是三个明确要初始化的内容，已经在上一轮获取了信息
             // 函数：快速调用拼音格式化成字符串
             Function<UniPinyin<?>, RPinyin> format = p -> PinyinFormatter.handle(p, d);
+
+            info.mainPy = format.apply(i.mainPy);
+            info.variantPy = ListTool.mapping(i.variantPy, pair -> Pair.of(pair.getLeft(), format.apply(pair.getRight())));
+
             switch (data.getPinyinOption().getPhonogram())
             {
                 case AllPinyin ->
                 {
-                    info.mainPy = format.apply(i.mainPy);
-                    info.variantPy = ListTool.mapping(i.variantPy, pair -> Pair.of(
-                            pair.getLeft(), format.apply(pair.getRight())
-                    ));
                     info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
                             data.getDictionaryName(pair.getLeft()),
                             format.apply(pair.getRight()).toString()
@@ -148,11 +148,6 @@ public class HanziShow
                 }
                 case PinyinIPA ->
                 {
-                    // mainPy 和 variantPy 和上面的一样
-                    info.mainPy = format.apply(i.mainPy);
-                    info.variantPy = ListTool.mapping(i.variantPy, pair -> Pair.of(
-                            pair.getLeft(), format.apply(pair.getRight())
-                    ));
                     // ipa 查询
                     info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
                             data.getDictionaryName(pair.getLeft()),

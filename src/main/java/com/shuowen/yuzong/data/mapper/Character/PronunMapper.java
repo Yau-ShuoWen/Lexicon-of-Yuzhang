@@ -10,9 +10,19 @@ import java.util.*;
 public interface PronunMapper
 {
     /**
-     * 获得所有GBK字符的简单信息
+     * 获得所有GBK字符的简单信息（全表查询）
      */
     List<String> getAllHanziInGBK();
+
+    /**
+     * 获得常用字的简单信息（3500 4800存在一个就可以）
+     */
+    List<String> getAllHanziFreq();
+
+    /**
+     * 根据拼音获得常用字的简单信息
+     */
+    List<String> findHanziFreqByPinyin(String syll, Integer tone);
 
     /**
      * 使用拼音筛选常用汉字

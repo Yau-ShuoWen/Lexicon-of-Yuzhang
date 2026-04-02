@@ -1,6 +1,9 @@
 package com.shuowen.yuzong.service.impl.Character;
 
+import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.dataStructure.UChar;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.Character.MdrTool;
@@ -71,11 +74,30 @@ public class PronunService
         var conflict = m.getInfoByMandarinId(ListTool.mapping(ch, MdrChar::getMandarinId), false, d.toString());
         if (!conflict.isEmpty())
         {
-            var info = ListTool.mapping(conflict, i -> MdrTool.initWithPinyin(i.getInfo()));
+            var info = String.join("、", ListTool.mapping(conflict, i -> MdrTool.showWithPinyin(i.getInfo())));
             throw new IllegalArgumentException("普通话信息" + info + "和已有的重复了");
         }
 
         var data = ListTool.mapping(ch, i -> Pair.of(i.getMandarinId(), i.getDialectId()));
         m.insertMap(data, d.toString());
+    }
+
+    public List<Pair<HanPinyin, List<UChar>>> getHanzisByPinyin(String text)
+    {
+
+        List<Pair<HanPinyin, List<UChar>>> ans = new ArrayList<>();
+        for (int i = 0; i <= 4; i++)
+        {
+            try
+            {
+                var py = HanPinyin.of(text + i);
+                var list = ListTool.mapping(m.findHanziFreqByPinyin(py.getSyll(), py.getTone()), UChar::of);
+                ans.add(Pair.of(py, list));
+            } catch (InvalidPinyinException e)
+            {
+                return null;
+            }
+        }
+        return ans;
     }
 }

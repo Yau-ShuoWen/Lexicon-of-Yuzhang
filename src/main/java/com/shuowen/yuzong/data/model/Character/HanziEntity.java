@@ -23,4 +23,6 @@ public class HanziEntity
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Integer status;
 }
