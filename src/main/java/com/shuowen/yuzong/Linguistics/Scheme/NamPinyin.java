@@ -455,7 +455,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (text.contains("yuan")) text = text.replace("yuan", "yuon");
         if (text.contains("uen")) text = text.replace("uen", "un");
 
-        pinyin.setSyll(text);
-        return pinyin;
+        return SPinyin.of(text,pinyin.getTone());
     }
 }

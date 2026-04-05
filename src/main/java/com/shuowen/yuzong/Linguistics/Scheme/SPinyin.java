@@ -14,8 +14,8 @@ import lombok.Data;
 @Data
 public class SPinyin
 {
-    private String syll;
-    private int tone;
+    private final String syll;
+    private final int tone;
 
     private SPinyin(String syll, int tone)
     {
@@ -37,7 +37,8 @@ public class SPinyin
     @JsonCreator
     public static SPinyin of(String text)
     {
-        StringTool.checkValid(text);// 检查
+        if (!StringTool.isTrimValid(text))
+            throw new InvalidPinyinException("缺少拼音");
         if (text.contains(" ")) throw new InvalidPinyinException(
                 String.format("%s拼音里不能包含空格", text)
         );
