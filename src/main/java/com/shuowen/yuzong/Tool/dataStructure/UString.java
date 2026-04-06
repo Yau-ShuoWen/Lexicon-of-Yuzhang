@@ -48,6 +48,11 @@ public class UString implements Iterable<UChar>, UElement<UString>
         return new UString(s);
     }
 
+    public static UString valueOf(String s)
+    {
+        return new UString(s);
+    }
+
     public int length()
     {
         return size;
@@ -242,7 +247,7 @@ public class UString implements Iterable<UChar>, UElement<UString>
     @Override
     public int hashCode()
     {
-        return Objects.hash(str, size);
+        return str.toString().hashCode();
     }
 
 
