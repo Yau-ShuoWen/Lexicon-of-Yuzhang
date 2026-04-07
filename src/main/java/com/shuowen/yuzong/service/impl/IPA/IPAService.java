@@ -45,7 +45,7 @@ public class IPAService
         );
         var tone = Shengdiao.mapOf(
                 m.findToneInfoSet(
-                        SetTool.mapping(pinyinSet, Pinyin::getTone),
+                        SetTool.mapping(pinyinSet, i->i.getTone().toString()),
                         d.toString())
         );
 

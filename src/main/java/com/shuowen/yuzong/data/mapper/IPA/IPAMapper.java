@@ -71,7 +71,7 @@ public interface IPAMapper
     /**
      * 按照声调为关键字，查询声调表多行信息
      */
-    Set<IPAToneEntity> findToneInfoSet(Set<Integer> list, String dialect);
+    Set<IPAToneEntity> findToneInfoSet(Set<String> list, String dialect);
 
     /**
      * 获取声调表的所有信息
