@@ -13,6 +13,7 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.IPATool;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.data.domain.IPA.Phonogram;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 
 import java.util.regex.Matcher;
@@ -53,9 +54,13 @@ public class RichTextUtil
         String s = text.toString();
 
         // 处理拼音类内容：[]
-        Matcher m = Pattern.compile("\\[[^]]+]").matcher(s);
+        var pattern = Pattern.compile("\\[[^]]+]");
+        Matcher m = pattern.matcher(s);
         StringBuilder sb = new StringBuilder();
 
+
+        while (m.find()) collectIPAShouldTransfer(m.group(), data);
+        m = pattern.matcher(s);
         while (m.find()) m.appendReplacement(sb, Matcher.quoteReplacement(handlePinyinIPA(m.group(), data, developer)));
         m.appendTail(sb);
         s = sb.toString();
@@ -68,6 +73,45 @@ public class RichTextUtil
         // 关键词绑定（包括隐藏绑定）
         // 链接：转换为<a>标签
         // 同音字表：特殊处理，关联多个汉字条目
+    }
+
+    private static void collectIPAShouldTransfer(String token, final IPAData data)
+    {
+        String content = token.substring(1, token.length() - 1);
+
+        if (content.contains(" "))
+        {
+            if (content.startsWith("/") || content.startsWith("+") || content.startsWith("*"))
+            {
+                char prefix = content.charAt(0);
+                content = content.substring(1);
+
+                for (String part : content.trim().split("\\s+"))
+                {
+                    collectIPAShouldTransfer("[" + prefix + part + "]", data);
+                }
+            }
+            else
+            {
+                for (String part : content.trim().split("\\s+"))
+                {
+                    collectIPAShouldTransfer("[" + part + "]", data);
+                }
+            }
+            return;
+        }
+
+        if (content.startsWith("*"))
+        {
+            SPinyin pyText = SPinyin.of(content.substring(1));
+            try
+            {
+                var py = data.getDialect().checkAndCreatePinyin(pyText);
+                data.add(py);
+            } catch (InvalidPinyinException ignored)
+            {
+            }
+        }
     }
 
     /**
@@ -133,7 +177,7 @@ public class RichTextUtil
                 var py = d.checkAndCreatePinyin(pyText);
 
                 // 创建音标，如果失败，返回警告
-                var ipa = data.getDirectly(py, d.getDefaultDict());
+                var ipa = data.submitAndGet(py, d.getDefaultDict());
                 if (ipa.isEmpty()) return " {b 无效国际音标} ";
 
                 // 如果是开发者，应该看到两种内容
@@ -148,7 +192,7 @@ public class RichTextUtil
                 }
                 else
                 {
-                    return String.format(" [%s] ", ipa.getValue());
+                    return String.format(" %s ", ipa.getValue());
                 }
 
             } catch (InvalidPinyinException e)
@@ -305,7 +349,7 @@ public class RichTextUtil
         return Twin.of(prefix, snippet);
     }
 
-    public static UString handleRefTitle(UString text)
+    public static UString handleRefTitle(UString text, Phonogram pho)
     {
         var content = text.toString();
 
@@ -313,8 +357,12 @@ public class RichTextUtil
         content = content.replaceAll("\\{-(\\S+?)}", "{b $1}"); // 1. 處理 {-xxx} 和 {xxx} → {b xxx}
         content = content.replaceAll("\\{(?!b\\s)(\\S+?)}", "{b $1}");// {xxx}（避免重複處理已經是 {b xxx} 的情況）
 
+        if (pho == Phonogram.PinyinIPA) content = content.replaceAll("\\[(?![+\\-*/])(.*?)]", "[*$1]");
+
+
         content = content.trim().replaceAll("\\s{2,}", " ");// 去掉多餘空格（可選）
 
+        //  System.out.println(content);
         return UString.of(content);
     }
 }

@@ -1,82 +1,32 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
-import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.Tool.format.ObfString;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
-import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.data.domain.Reference.Keyword;
 import com.shuowen.yuzong.data.domain.Reference.RefPage;
 import com.shuowen.yuzong.data.dto.SearchResult;
-import com.shuowen.yuzong.data.mapper.Reference.DictMapper;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
 public class RefService
 {
     @Autowired
-    private DictMapper cd;
-
-    /**
-     * 获得由「词典代号」查询「名称」的查询表
-     */
-    public DictGroup getDictionaryMap(Dialect d, Language l)
-    {
-        Map<DictCode, String> ans = new HashMap<>();
-        for (var i : cd.findByDialect(d.toString()))
-        {
-            ScTcText name = JsonTool.readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
-            ans.put(new DictCode(i.getCode()), name.get(l).toString());
-        }
-        return new DictGroup(ans);
-    }
-
-    /**
-     * 把「词典代号」查询「名称」按照序列的方法排列，用于前端
-     */
-    public List<Pair<String, DictCode>> getDictionaryMenu(Dialect dialect)
-    {
-        List<Pair<String, DictCode>> ans = new ArrayList<>();
-        for (var i : getDictionaryMap(dialect, Language.TC).getDict().entrySet())
-            ans.add(Pair.of(i.getValue(), i.getKey()));
-        return ans;
-    }
-
-    private static RefService instance;
-
-    @PostConstruct
-    public void init()
-    {
-        instance = this;
-    }
-
-    public static DictGroup getDictionary(Dialect d, Language l)
-    {
-        return instance.getDictionaryMap(d, l);
-    }
-
-    @Autowired
     private RefMapper ck;
-
 
     /**
      * 初始化词典
@@ -107,6 +57,10 @@ public class RefService
      */
     public List<SearchResult> findContent(String dictionary, String query)
     {
+        if(!StringTool.isTrimValid(query)) return List.of();
+        if(query.equals("{")||query.equals("}")) return List.of();
+        if(query.equals("[")||query.equals("]")) return List.of();
+
         List<SearchResult> ans = new ArrayList<>();
         for (var i : ck.getItemsByQuery(dictionary, query))
         {
@@ -114,14 +68,16 @@ public class RefService
             if (Keyword.isPageEdge(i.getContent())) continue; // 不能找页面开头结尾关键词，因为每一页都有，没有参考价值
 
             var tmp = new SearchResult();
-            tmp.setTitle(StringTool.limitLength(i.getContent(), 30, "  ……"));
-            tmp.setExplain("");  // 暂时不需要这个字段
+
+            // 以 {} 開頭，後面接 []，中間可有空白，最後還要有一個空白」的字串
+            var a = RichTextUtil.buildSnippet(i.getContent(), query, 20,
+                    Pattern.compile("^\\{[^}]*}\\s*\\[[^]]*]\\s"));
+            tmp.setTitle(a.getLeft());
+            tmp.setExplain(a.getRight());
             tmp.setTag(i.getThePageInfo().getRight().toString());
 
             var sort = RefPage.of(getPage(dictionary, i.getSort())).getFrontSort();
-            tmp.setInfo(Map.of("dict", i.getDictionary(), "sort",
-                    ObfString.encode(sort.toString()))
-            );
+            tmp.setInfo(Map.of("dict", i.getDictionary(), "sort", ObfString.encode(sort.toString())));
 
             ans.add(tmp);
         }
@@ -190,8 +146,8 @@ public class RefService
         ck.deleteInside(dictionary, page.getFrontSort().toString(), page.getEndSort().toString());
 
         var entity = page.transfer();
-        ck.updateEdge(entity.getLeft().get(0));
-        ck.updateEdge(entity.getLeft().get(1));
+        ck.updateEdge(entity.getLeft().getLeft());
+        ck.updateEdge(entity.getLeft().getRight());
         ck.insert(entity.getRight());
     }
 
@@ -242,10 +198,26 @@ public class RefService
     /**
      * 获得书的页码目录
      */
-    public List<Triple<FractionIndex, String, Integer>> getCatalog(String dictionary)
+    public List<Pair<FractionIndex, String>> getCatalog(String dictionary)
     {
-        return ListTool.mapping(ck.findPageinfo(dictionary), i -> Triple.of(
-                i.getTheSort(), i.getThePageInfo().getLeft(), i.getThePageInfo().getRight())
+        return ListTool.mapping(ck.findPageinfo(dictionary), i -> Pair.of(
+                i.getTheSort(),
+                String.format("%s 第%s頁", i.getThePageInfo().getLeft(), i.getThePageInfo().getRight()))
         );
     }
+
+    @Transactional (rollbackFor = {Exception.class})
+    public void rebuildSort(DictCode dict)
+    {
+        var ids = ck.getAllItemId(dict.getCode());
+        var sorts = FractionIndex.rebuild(ids.size());
+        List<Pair<Integer, String>> update = new ArrayList<>();
+        for (int i = 0; i < sorts.size(); i++)
+        {
+            update.add(Pair.of(ids.get(i), "#" + sorts.get(i).toString()));
+        }
+        ck.updateAllSort(dict.getCode(), update);
+        ck.recoverSort(dict.getCode());
+    }
+
 }

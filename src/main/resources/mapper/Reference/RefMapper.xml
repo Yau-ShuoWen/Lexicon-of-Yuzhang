@@ -34,12 +34,40 @@
     <select id="getItemByRandom" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         SELECT *
         FROM NC.reference
-        WHERE dictionary = 'ncdict'
+        WHERE dictionary = #{dictionary}
         AND content NOT LIKE '//%//'
         ORDER BY RAND()
         LIMIT 1;
     </select>
 
+    <select id="getAllItemId" resultType="int">
+        SELECT id
+        FROM NC.reference
+        WHERE dictionary = #{dictionary}
+    </select>
+
+    <!--  更新排序顺序  -->
+    <update id="updateAllSort" parameterType="com.shuowen.yuzong.Tool.dataStructure.tuple.Pair">
+        UPDATE NC.reference
+        SET sort = CASE id
+        <foreach collection="items" item="item">
+            WHEN #{item.left} THEN #{item.right}
+        </foreach>
+        END
+        WHERE id IN
+        <foreach collection="items" item="item" open="(" close=")" separator=",">
+            #{item.left}
+        </foreach>
+    </update>
+
+    <!--  因为如果原地修改的话会导致主键冲突，所以这里使用的是每一条数据加一个#，再全部在这里恢复  -->
+    <update id="recoverSort" parameterType="String">
+        UPDATE NC.reference
+        SET sort = SUBSTRING(sort, 2)
+        WHERE dictionary= #{dictionary};
+    </update>
+
+    <!--  传入随便哪一条数据的排序号码，找到整页的全部数据  -->
     <select id="getPageBySort" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         <![CDATA[
             SELECT *
@@ -75,6 +103,7 @@
         ]]>
     </select>
 
+    <!--  寻找上一页和下一页  -->
     <select id="findNearby" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
         WHERE dictionary = #{dictionary}
@@ -83,7 +112,7 @@
         LIMIT 1
     </select>
 
-    <!--  插入  -->
+    <!--  插入数据  -->
     <insert id="insert" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         INSERT INTO NC.reference(dictionary, sort, content, page_info)
         VALUES
@@ -92,7 +121,7 @@
         </foreach>
     </insert>
 
-    <!-- 页面边缘的标记符号，除了序号是可以更改的，其他的都是要稳定的 -->
+    <!-- 更新页面边缘的标记符号，除了序号是可以更改的，其他的都是要稳定的 -->
     <update id="updateEdge" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         UPDATE NC.reference
         SET page_info = #{pageInfo}
@@ -100,13 +129,14 @@
         AND sort = #{sort}
     </update>
 
+    <!--  清除控制数据，因为清空内容需要根据控制数据做区间，所以单独拿出来  -->
     <update id="deleteEdge" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         DELETE FROM NC.reference
         WHERE dictionary = #{dictionary}
         AND sort = #{sort}
     </update>
 
-    <!-- 清空 -->
+    <!-- 清空内容数据，但是保留页开头结尾的控制数据 -->
     <delete id="deleteInside" parameterType="String">
         DELETE FROM NC.reference WHERE
         (sort > #{frontSort} AND #{endSort} > sort )
@@ -114,6 +144,7 @@
     </delete>
 
 
+    <!--  获取每一页开头（/FRONT/）的对应信息  -->
     <select id="findPageinfo" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
         WHERE dictionary = #{dictionary}
@@ -121,7 +152,21 @@
         ORDER BY sort
     </select>
 
+    <!--  條件  -->
+    <!--  必須存在 {query} 或 {+query}（不允許空格 → 避開富文本）  -->
+    <!--  排除 {-query}  -->
+    <select id="findByQuery" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        SELECT * FROM NC.reference
+        WHERE dictionary = #{dictionary}
+        AND content LIKE CONCAT('%', #{query}, '%')-- 粗篩：至少包含關鍵字（減少數據量）
+        AND content REGEXP CONCAT('\\{[+]?', '', #{query}, '', '\\}')
+        AND NOT content REGEXP CONCAT('\\{-', #{query}, '\\}')
+        ORDER BY LOCATE(CONCAT('{', #{query}, '}'), content);
+    </select>
+
+
     <!--  获取统计数据  -->
+    <!--  内层查询这个方言的词典，外层查询这些词典的词条数目，包括控制数据  -->
     <select id="findRowCountInReferTable" resultType="int">
         <![CDATA[
         SELECT COUNT(*) FROM NC.reference

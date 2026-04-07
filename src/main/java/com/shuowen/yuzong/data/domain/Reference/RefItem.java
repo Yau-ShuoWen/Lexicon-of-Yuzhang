@@ -1,10 +1,11 @@
 package com.shuowen.yuzong.data.domain.Reference;
 
-import com.shuowen.yuzong.Tool.FractionIndex;
+import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import lombok.Data;
-
-import java.time.LocalDateTime;
 
 /**
  * 参考资料条目
@@ -12,46 +13,24 @@ import java.time.LocalDateTime;
 @Data
 public class RefItem
 {
-    private String dictionary;
-    private FractionIndex sort;
-    private String content;
-    private Integer page;
+    private final UString content;
+    private final UString source;
 
-    private Integer id;
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
-
-    /**
-     * 内部构造使用的
-     */
-    private RefItem(String dictionary, String sort, String content, Integer page)
+    public RefItem(RefEntity ck, final IPAData data)
     {
-        this.dictionary = dictionary;
-        this.sort = FractionIndex.of(sort);
-        this.content = content;
-        this.page = page;
-    }
+        var l = data.getLanguage();
+        var d = data.getDialect();
 
-    public RefItem(RefEntity ck)
-    {
-        dictionary = ck.getDictionary();
-        sort = FractionIndex.of(ck.getSort());
-        content = ck.getContent();
-        page = ck.getPage();
+        {
+            var tmp = RichTextUtil.handleRefTitle(new ScTcText(ck.getContent(), d).get(l),
+                    data.getPinyinOption().getPhonogram());
+            content = RichTextUtil.format(tmp, data, false);
+        }
 
-        id = ck.getId();
-        createAt = ck.getCreatedAt();
-        updateAt = ck.getUpdatedAt();
-    }
-
-    public RefEntity transfer()
-    {
-        var ans = new RefEntity();
-        ans.setDictionary(dictionary);
-        ans.setSort(sort.toString());
-        ans.setContent(content);
-        ans.setPage(page);
-
-        return ans;
+        source = new ScTcText(String.format("%s%s第%s頁",
+                data.getDictionaryName(DictCode.of(ck.getDictionary())),
+                ck.getThePageInfo().getLeft(),
+                ck.getThePageInfo().getRight())
+        ).get(l);
     }
 }

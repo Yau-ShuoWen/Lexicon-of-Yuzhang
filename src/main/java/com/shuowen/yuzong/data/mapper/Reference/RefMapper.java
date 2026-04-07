@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.data.mapper.Reference;
 
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -27,6 +28,12 @@ public interface RefMapper
      * 随机选取一个词条
      */
     RefEntity getItemByRandom(String dictionary);
+
+    List<Integer> getAllItemId(String dictionary);
+
+    void updateAllSort(String dictionary,List<Pair<Integer,String>> items);
+
+    void recoverSort(String dictionary);
 
     /**
      * 根据词条寻找页面
@@ -59,7 +66,12 @@ public interface RefMapper
      */
     void deleteInside(String dictionary, String frontSort, String endSort);
 
+    /**
+     * 找到每一页开头的信息，用于生成跳转连接
+     * */
     List<RefEntity> findPageinfo(String dictionary);
+
+    List<RefEntity> findByQuery(String dictionary, String query);
 
     Integer findRowCountInReferTable(String dialect);
 }
