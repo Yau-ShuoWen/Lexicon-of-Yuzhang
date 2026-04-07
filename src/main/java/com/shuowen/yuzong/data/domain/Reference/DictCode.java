@@ -24,6 +24,11 @@ public class DictCode
         this.strict = strict;
     }
 
+    public static DictCode of(String text)
+    {
+        return new DictCode(text);
+    }
+
     @Override
     @JsonValue
     public String toString()

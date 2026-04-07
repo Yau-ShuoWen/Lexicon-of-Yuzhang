@@ -35,7 +35,7 @@ public class RefEntity
         this.sort = sort;
         this.content = content;
         this.pageInfo = """
-                {"page": -1, "title": "正文"}
+                {"page": 0, "title": "其他"}
                 """;
     }
 

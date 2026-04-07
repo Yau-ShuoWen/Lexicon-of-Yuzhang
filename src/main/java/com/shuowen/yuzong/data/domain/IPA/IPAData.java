@@ -7,7 +7,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
-import com.shuowen.yuzong.service.impl.Reference.RefService;
+import com.shuowen.yuzong.service.impl.Reference.DictService;
 import lombok.Getter;
 
 import java.util.*;
@@ -35,7 +35,7 @@ public class IPAData
         language = l;
         dialect = d;
         pinyinOption = op;
-        dictionary = RefService.getDictionary(dialect, language);
+        dictionary = DictService.getDictionary(dialect, language);
     }
 
     /**

@@ -4,12 +4,12 @@ import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.RefPage;
 import com.shuowen.yuzong.data.dto.SearchResult;
+import com.shuowen.yuzong.service.impl.Reference.DictService;
 import com.shuowen.yuzong.service.impl.Reference.RefService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +23,9 @@ public class RefController
     @Autowired
     private RefService ck;
 
+    @Autowired
+    private DictService dict;
+
     /**
      * 获取词典列表
      */
@@ -30,7 +33,7 @@ public class RefController
     public List<Pair<String, DictCode>> getDictionaries(
             @PathVariable String dialect)
     {
-        return ck.getDictionaryMenu(Dialect.of(dialect));
+        return dict.getDictionaryMenu(Dialect.of(dialect));
     }
 
     /**
@@ -159,9 +162,7 @@ public class RefController
     }
 
     @GetMapping ("/get-catalog/{dictionary}")
-    public APIResponse<List<Triple<FractionIndex, String, Integer>>> getCatalog(
-            @PathVariable String dictionary
-    )
+    public APIResponse<List<Pair<FractionIndex, String>>> getCatalog(@PathVariable String dictionary)
     {
         try
         {

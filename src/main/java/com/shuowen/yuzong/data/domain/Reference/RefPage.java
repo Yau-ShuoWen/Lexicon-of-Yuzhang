@@ -4,12 +4,18 @@ import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 
+/**
+ *
+ * */
 @Data
+@NoArgsConstructor
 public class RefPage
 {
     private String dictionary;
@@ -18,10 +24,6 @@ public class RefPage
 
     private String content;
     private Pair<String, Integer> pageInfo;
-
-    public RefPage()
-    {
-    }
 
     private RefPage(List<RefEntity> list)
     {
@@ -78,10 +80,10 @@ public class RefPage
      * @return <br> left：列表，页面边界标记，0为开始 1为结束
      * <br> right：列表，页面内容部分
      */
-    public Pair<List<RefEntity>, List<RefEntity>> transfer()
+    public Pair<Twin<RefEntity>, List<RefEntity>> transfer()
     {
         // 页面开始和结束部分，页数的边界部分
-        var edge = List.of(
+        var edge = Twin.of(
                 new RefEntity(dictionary, frontSort, Keyword.FRONT_OF_PAGE, pageInfo),
                 new RefEntity(dictionary, endSort, Keyword.END_OF_PAGE, pageInfo)
         );
