@@ -2,7 +2,7 @@ package com.shuowen.yuzong.data.domain.IPA;
 
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 
-public class IPATool
+public class IPAFormatter
 {
     /**
      * 对着字符串，直接拼接就好了
@@ -63,7 +63,7 @@ public class IPATool
                     String.format("[%s]", mark + y) :
                     String.format("[%s]", y + mark);
         }
-        else return y; // 轻声直接返回
+        else return String.format("[%s]", y); // 轻声直接返回
     }
 
 

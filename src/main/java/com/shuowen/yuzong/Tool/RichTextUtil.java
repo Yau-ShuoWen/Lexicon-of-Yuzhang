@@ -11,7 +11,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.IPATool;
+import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.data.domain.IPA.Phonogram;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
@@ -211,7 +211,7 @@ public class RichTextUtil
         else if (content.contains("-"))
         {
             int idx = content.indexOf('-');
-            var ipa = IPATool.mergeFiveDegree(
+            var ipa = IPAFormatter.mergeFiveDegree(
                     content.substring(0, idx), content.substring(idx + 1), true);
             return String.format(" %s ", ipa); // ipa已经是 "[内容]"的格式了，加上空格就可以了
         }
@@ -353,8 +353,8 @@ public class RichTextUtil
     {
         var content = text.toString();
 
-        content = content.replaceAll("\\s?\\{\\+\\S+?}\\s?", " ");// 2. 處理 {+xxx} → 刪除，並處理最多一個空格
-        content = content.replaceAll("\\{-(\\S+?)}", "{b $1}"); // 1. 處理 {-xxx} 和 {xxx} → {b xxx}
+        content = content.replaceAll("\\s?\\{\\+\\S+?}\\s?", " ");// 處理 {+xxx} → 刪除，並處理最多一個空格
+        content = content.replaceAll("\\{-(\\S+?)}", "{b $1}"); // 處理 {-xxx} 和 {xxx} → {b xxx}
         content = content.replaceAll("\\{(?!b\\s)(\\S+?)}", "{b $1}");// {xxx}（避免重複處理已經是 {b xxx} 的情況）
 
         if (pho == Phonogram.PinyinIPA) content = content.replaceAll("\\[(?![+\\-*/])(.*?)]", "[*$1]");

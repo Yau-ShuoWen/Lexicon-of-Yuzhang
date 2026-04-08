@@ -67,11 +67,11 @@ public class IPAService
 
                 var tmp = switch (op.getTone())
                 {
-                    case FIVE_DEGREE_NUM -> IPATool.mergeFiveDegree(yj, sd, true);
-                    case FIVE_DEGREE_LINE -> IPATool.mergeFiveDegree(yj, sd, false);
-                    case FOUR_CORNER -> IPATool.mergeFourCorner(yj, pinyin.getCorner());
+                    case FIVE_DEGREE_NUM -> IPAFormatter.mergeFiveDegree(yj, sd, true);
+                    case FIVE_DEGREE_LINE -> IPAFormatter.mergeFiveDegree(yj, sd, false);
+                    case FOUR_CORNER -> IPAFormatter.mergeFourCorner(yj, pinyin.getCorner());
                 };
-                dataPerDict.put(dict, IPATool.formatSyllable(tmp, op.getSyllable()));
+                dataPerDict.put(dict, IPAFormatter.formatSyllable(tmp, op.getSyllable()));
             }
 
             dataPerPinyin.put(pinyin, dataPerDict);

@@ -11,7 +11,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.IPATool;
+import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.model.IPA.IPAItem;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
@@ -77,8 +77,8 @@ public class PinyinDetail
                     ipa.put(data.getDictionaryName(i.getKey()), String.format("[ /%s/ ]", i.getValue()));
                 else
                 {
-                    String num = IPATool.mergeFiveDegreeNum(i.getValue(), true);
-                    String line = IPATool.mergeFiveDegree("", i.getValue(), false);
+                    String num = IPAFormatter.mergeFiveDegreeNum(i.getValue(), true);
+                    String line = IPAFormatter.mergeFiveDegree("", i.getValue(), false);
                     ipa.put(data.getDictionaryName(i.getKey()), String.format("[%-4s]%s", num, line));
                 }
             }
