@@ -3,6 +3,7 @@ package com.shuowen.yuzong.Tool.dataStructure.tuple;
 import lombok.Data;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -40,6 +41,12 @@ public class Twin<T>
     public <U> Twin<U> map(Function<T, U> fun)
     {
         return Twin.of(fun.apply(left), fun.apply(right));
+    }
+
+    public void handle(Consumer<T> fun)
+    {
+        fun.accept(left);
+        fun.accept(right);
     }
 
     public boolean both(Predicate<T> fun)

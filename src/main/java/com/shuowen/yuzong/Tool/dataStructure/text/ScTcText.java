@@ -104,4 +104,11 @@ public class ScTcText
     {
         return sc.length();
     }
+
+    public static String emptyJson()
+    {
+        return """
+                {"sc": "", "tc": ""}
+                """;
+    }
 }

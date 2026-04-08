@@ -24,4 +24,11 @@ public class ScTcChar
     {
         return l.isSimplified() ? sc : tc;
     }
+
+    public static String emptyJson()
+    {
+        return """
+                {"sc": "", "tc": ""}
+                """;
+    }
 }
