@@ -10,6 +10,8 @@ import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.data.mapper.Reference.DictMapper;
+import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
+import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,4 +67,22 @@ public class DictService
         return instance.getDictionaryMap(d, l);
     }
 
+
+    @Autowired
+    private RefMapper ck;
+
+    // 初始化词典
+
+    public void initBook(DictCode d, int page)
+    {
+        if (ck.isDictionaryExist(d.toString()))
+        {
+            System.out.println("词典" + d + "已经初始化了");
+        }
+        else
+        {
+            ck.batchInsert(RefEntity.initBook(d, page));
+            System.out.println("词典" + d + "加入成功");
+        }
+    }
 }

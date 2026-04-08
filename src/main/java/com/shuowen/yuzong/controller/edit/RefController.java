@@ -7,7 +7,9 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
-import com.shuowen.yuzong.data.domain.Reference.RefPage;
+import com.shuowen.yuzong.data.domain.Reference.Page;
+import com.shuowen.yuzong.data.domain.Reference.RefDraft;
+import com.shuowen.yuzong.data.domain.Reference.RefProof;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.service.impl.Reference.DictService;
 import com.shuowen.yuzong.service.impl.Reference.RefService;
@@ -29,36 +31,23 @@ public class RefController
     /**
      * 获取词典列表
      */
-    @GetMapping ("/get-dictionaries/{dialect}")
-    public List<Pair<String, DictCode>> getDictionaries(
-            @PathVariable String dialect)
+    @GetMapping ("/get-dictionaries/{d}")
+    public List<Pair<String, DictCode>> getDictionaries(@PathVariable Dialect d)
     {
-        return dict.getDictionaryMenu(Dialect.of(dialect));
-    }
-
-    /**
-     * 富文本格式预览
-     */
-    @GetMapping ("/preview/{dialect}/{dictionary}")
-    public APIResponse<String> preview(
-            @PathVariable String dictionary, @PathVariable String dialect,
-            @RequestParam String text)
-    {
-
-        return APIResponse.success(text);
+        return dict.getDictionaryMenu(d);
     }
 
     /**
      * 查询包括搜索信息的句子<br>
      * 目前只做一个最简单的关键词查询
      */
-    @GetMapping ("/find-content/{dictionary}")
+    @GetMapping ("/find-content/{dict}")
     public APIResponse<List<SearchResult>> findContent(
-            @PathVariable String dictionary, @RequestParam String query)
+            @PathVariable DictCode dict, @RequestParam String query)
     {
         try
         {
-            var ans = ck.findContent(dictionary, query);
+            var ans = ck.findContent(dict, query);
             return APIResponse.success(ans);
         } catch (Exception e)
         {
@@ -67,16 +56,13 @@ public class RefController
         }
     }
 
-    @GetMapping ("/get-page/{dictionary}")
-    public APIResponse<RefPage> getPage(
-            @PathVariable String dictionary, @RequestParam FractionIndex sort)
+    @GetMapping ("/get-page/{dict}")
+    public APIResponse<Page> getPage(
+            @PathVariable DictCode dict, @RequestParam FractionIndex sort)
     {
         try
         {
-            var ans = RefPage.tryOf(ck.getPage(dictionary, sort.toString()));
-            return (ans.isValid()) ?
-                    APIResponse.success(ans.getValue()) :
-                    APIResponse.failure("未找到数据。not found");
+            return APIResponse.success(ck.getRefPage(dict, sort));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -84,48 +70,48 @@ public class RefController
         }
     }
 
-    @GetMapping ("/get-page-special/{dictionary}")
-    public APIResponse<RefPage> getPageRandom(
-            @PathVariable String dictionary, @RequestParam String query)
-    {
-        try
-        {
-            return APIResponse.success(ck.getPageSpecial(dictionary, query));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
-    }
-
-    @PostMapping ("/update-page/{dictionary}")
+    @PostMapping ("/update-page/{dict}")
     public APIResponse<Void> updatePage(
-            @PathVariable String dictionary, @RequestBody RefPage page)
+            @PathVariable DictCode dict, @RequestBody RefDraft page)
     {
         try
         {
-            ck.updatePage(dictionary, page);
+            ck.overwritePage(dict, page);
             return APIResponse.success();
         } catch (Exception e)
         {
             e.printStackTrace();
             return APIResponse.failure(e.getMessage());
         }
+    }
 
+    /**
+     * 锁定页面，因为不可以随便触发，所以用post
+     */
+    @PostMapping ("/lock-page/{dict}")
+    public APIResponse<RefProof> lockPage(@PathVariable DictCode dict, @RequestParam FractionIndex sort)
+    {
+        try
+        {
+            return APIResponse.success(ck.lockPage(dict, sort));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
     }
 
     /**
      * 给出插入页数的位置，插入页数并且返回这个空的页数数据
      */
-    @PostMapping ("/create-page/{dictionary}")
-    public APIResponse<RefPage> createPage(
-            @PathVariable String dictionary,
-            @RequestParam FractionIndex sort, @RequestParam boolean before
-    )
+    @PostMapping ("/create-page/{dict}")
+    public APIResponse<RefDraft> createPage(
+            @PathVariable DictCode dict, @RequestParam FractionIndex sort,
+            @RequestParam boolean before)
     {
         try
         {
-            return APIResponse.success(ck.insertPage(dictionary, sort, before));
+            return APIResponse.success(ck.insertPage(dict, sort, before));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -133,13 +119,27 @@ public class RefController
         }
     }
 
-    @PostMapping ("/get-nearby/{dictionary}")
+    @PostMapping ("/edit-page/{dict}")
+    public APIResponse<Void> editPage(@PathVariable DictCode dict, @RequestBody RefProof page)
+    {
+        try
+        {
+            ck.editPage(dict, page);
+            return APIResponse.success();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
+    @PostMapping ("/get-nearby/{dict}")
     public APIResponse<Twin<Maybe<FractionIndex>>> getNearBy(
-            @PathVariable String dictionary, @RequestBody Twin<FractionIndex> sorts)
+            @PathVariable DictCode dict, @RequestBody Twin<FractionIndex> sorts)
     {
         try
         {
-            return APIResponse.success(ck.getNearBy(dictionary, sorts));
+            return APIResponse.success(ck.getNearBy(dict, sorts));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -147,13 +147,13 @@ public class RefController
         }
     }
 
-    @PostMapping ("/delete-page/{dictionary}")
-    public APIResponse<RefPage> deletePage(
-            @PathVariable String dictionary, @RequestParam FractionIndex frontSort)
+    @PostMapping ("/delete-page/{dict}")
+    public APIResponse<Page> deletePage(
+            @PathVariable DictCode dict, @RequestParam FractionIndex frontSort)
     {
         try
         {
-            return APIResponse.success(ck.deletePage(dictionary, frontSort));
+            return APIResponse.success(ck.deletePage(dict, frontSort));
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -161,12 +161,12 @@ public class RefController
         }
     }
 
-    @GetMapping ("/get-catalog/{dictionary}")
-    public APIResponse<List<Pair<FractionIndex, String>>> getCatalog(@PathVariable String dictionary)
+    @GetMapping ("/get-catalog/{dict}")
+    public APIResponse<List<Pair<FractionIndex, String>>> getCatalog(@PathVariable DictCode dict)
     {
         try
         {
-            return APIResponse.success(ck.getCatalog(dictionary));
+            return APIResponse.success(ck.getCatalog(dict));
         } catch (Exception e)
         {
             e.printStackTrace();

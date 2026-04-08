@@ -3,6 +3,7 @@ package com.shuowen.yuzong.data.mapper.Reference;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -31,7 +32,7 @@ public interface RefMapper
 
     List<Integer> getAllItemId(String dictionary);
 
-    void updateAllSort(String dictionary,List<Pair<Integer,String>> items);
+    void updateAllSort(String dictionary, List<Pair<Integer, String>> items);
 
     void recoverSort(String dictionary);
 
@@ -43,7 +44,7 @@ public interface RefMapper
     /**
      * 插入数据
      */
-    void insert(List<RefEntity> list);
+    void batchInsert(List<RefEntity> list);
 
     /**
      * 寻找对应界面旁边的界面的一条数据
@@ -59,6 +60,8 @@ public interface RefMapper
 
     void updateEdge(RefEntity ref);
 
+    void batchDelete(String dictionary, List<Integer> list);
+
     void deleteEdge(String dictionary, String sort);
 
     /**
@@ -66,9 +69,13 @@ public interface RefMapper
      */
     void deleteInside(String dictionary, String frontSort, String endSort);
 
+    void update(RefEntity ref);
+
+    void lockPage(@Param ("dictionary") String dictionary, @Param ("list") List<Integer> list);
+
     /**
      * 找到每一页开头的信息，用于生成跳转连接
-     * */
+     */
     List<RefEntity> findPageinfo(String dictionary);
 
     List<RefEntity> findByQuery(String dictionary, String query);

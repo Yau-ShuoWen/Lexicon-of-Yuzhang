@@ -113,11 +113,12 @@
     </select>
 
     <!--  插入数据  -->
-    <insert id="insert" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
-        INSERT INTO NC.reference(dictionary, sort, content, page_info)
+    <insert id="batchInsert" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        INSERT INTO NC.reference(dictionary, sort, content, page_info, text, note, locked)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (#{item.dictionary}, #{item.sort}, #{item.content}, #{item.pageInfo})
+            (#{item.dictionary}, #{item.sort}, #{item.content}, #{item.pageInfo},
+            #{item.text}, #{item.note}, #{item.locked})
         </foreach>
     </insert>
 
@@ -128,6 +129,15 @@
         WHERE dictionary = #{dictionary}
         AND sort = #{sort}
     </update>
+
+    <delete id="batchDelete">
+        DELETE FROM NC.reference
+        WHERE dictionary = #{dictionary}
+        AND id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 
     <!--  清除控制数据，因为清空内容需要根据控制数据做区间，所以单独拿出来  -->
     <update id="deleteEdge" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
@@ -143,6 +153,25 @@
         AND dictionary = #{dictionary}
     </delete>
 
+    <update id="update" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        UPDATE NC.reference
+        SET
+        content = #{content},
+        text = #{text},
+        note = #{note},
+        page_info = #{pageInfo}
+        WHERE id = #{id}
+    </update>
+
+    <update id="lockPage" parameterType="int">
+        UPDATE NC.reference
+        SET locked = 1
+        WHERE dictionary = #{dictionary}
+        AND id IN
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 
     <!--  获取每一页开头（/FRONT/）的对应信息  -->
     <select id="findPageinfo" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
