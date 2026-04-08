@@ -1,8 +1,7 @@
 package com.shuowen.yuzong.data.domain.Reference;
 
 import com.shuowen.yuzong.Tool.FractionIndex;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
@@ -13,36 +12,34 @@ import java.util.*;
 
 /**
  *
- * */
+ */
 @Data
 @NoArgsConstructor
-public class RefPage
+public class RefDraft extends Page
 {
-    private String dictionary;
+    private DictCode dictionary;
     private FractionIndex frontSort;
     private FractionIndex endSort;
 
     private String content;
     private Pair<String, Integer> pageInfo;
 
-    private RefPage(List<RefEntity> list)
+    private RefDraft(List<RefEntity> list)
     {
-        if (list.size() < 2) throw new IllegalStateException("页面结构异常，记录数量少于2（至少需要开头结尾的两个标记）");
-        if (!ObjectTool.allEqual(list, RefEntity::getDictionary) || !ObjectTool.allEqual(list, RefEntity::getPageInfo))
-            throw new IllegalStateException("页面结构异常，页码或者字典不一致");
+        type = "draft";
 
-        var l = new ArrayList<>(list); // 创建新的对象是因为其他地方可能是不可变的数组
-        l.sort(Comparator.comparing(RefEntity::getSort));
-
+        var l = readList(list);
         var front = l.get(0);
         var end = l.get(l.size() - 1);
-        if (!front.getContent().equals(Keyword.FRONT_OF_PAGE) || !end.getContent().equals(Keyword.END_OF_PAGE))
-            throw new IllegalStateException("页面结构异常，开头和结尾的标记不正确");
 
-        frontSort = FractionIndex.of(front.getSort());
-        endSort = FractionIndex.of(end.getSort());
-        dictionary = front.getDictionary();  // 已经被证明全部相等，直接获取即可
+        // 标记只有sort字段重要
+        frontSort = front.getTheSort();
+        endSort = end.getTheSort();
+        // 已经被证明全部相等，直接获取第一个即可
+        dictionary = front.getTheDict();
         pageInfo = front.getThePageInfo();
+
+        // 拼接内容
         content = "";
         for (int i = 1; i < l.size() - 1; i++)
         {
@@ -51,27 +48,9 @@ public class RefPage
         }
     }
 
-    public static RefPage of(List<RefEntity> list)
+    public static RefDraft of(List<RefEntity> list)
     {
-        try
-        {
-            return new RefPage(list);
-        } catch (IllegalStateException e)
-        {
-            throw new RuntimeException("数据不一致错误：" + e.getMessage());
-        }
-
-    }
-
-    public static Maybe<RefPage> tryOf(List<RefEntity> list)
-    {
-        try
-        {
-            return Maybe.exist(new RefPage(list));
-        } catch (IllegalStateException e)
-        {
-            return Maybe.nothing();
-        }
+        return new RefDraft(list);
     }
 
     /**
@@ -87,6 +66,7 @@ public class RefPage
                 new RefEntity(dictionary, frontSort, Keyword.FRONT_OF_PAGE, pageInfo),
                 new RefEntity(dictionary, endSort, Keyword.END_OF_PAGE, pageInfo)
         );
+        edge.handle(i -> i.setLocked(false));
 
         // 中段，内容部分
         var mid = new ArrayList<RefEntity>();
@@ -94,6 +74,8 @@ public class RefPage
         var sorts = FractionIndex.between(frontSort, endSort, texts.length);
         for (int i = 0; i < sorts.size(); i++)
             mid.add(new RefEntity(dictionary, sorts.get(i), texts[i], pageInfo));
+
+        ListTool.handle(mid, i -> i.setLocked(false));
 
         return Pair.of(edge, mid);
     }
