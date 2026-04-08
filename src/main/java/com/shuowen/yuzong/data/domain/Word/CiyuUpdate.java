@@ -3,6 +3,7 @@ package com.shuowen.yuzong.data.domain.Word;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
@@ -19,7 +20,6 @@ import java.util.List;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
-import static com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker.strictly;
 
 @Data
 @NoArgsConstructor
@@ -29,8 +29,8 @@ public class CiyuUpdate
     private ScTcText ciyu;
     private Integer special;
 
-    private List<SPinyin> mainPy;
-    private List<List<Pair<SPinyin, ScTcText>>> variantPy;
+    private SPinyins mainPy;
+    private List<ScTcText> variantPy;
 
     @Data
     @NoArgsConstructor
@@ -72,7 +72,7 @@ public class CiyuUpdate
 
         ObjectMapper om = new ObjectMapper();
 
-        mainPy = readJson(cy.getMainPy(), new TypeReference<>() {}, om);
+        mainPy = SPinyins.of(readJson(cy.getMainPy(), new TypeReference<List<SPinyin>>() {}, om));
         variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {}, om);
 
         similar = ListTool.mapping(sim, Similar::new);
@@ -83,9 +83,7 @@ public class CiyuUpdate
 
     public Pair<CiyuEntity, List<CiyuSimilar>> checkAndTransfer(Dialect d)
     {
-        ObjectTool.asserts(
-                ObjectTool.allEqual(ciyu.length(), mainPy.size(), variantPy.size()), ""
-        );
+        ObjectTool.asserts(ciyu.length() == mainPy.getPinyin().size(), "");
 
         var cy = new CiyuEntity();
         cy.setId(id);
@@ -97,12 +95,9 @@ public class CiyuUpdate
 
         ObjectMapper om = new ObjectMapper();
 
-        ListTool.handle(mainPy, i -> strictly(i, d));
-        cy.setMainPy(toJson(mainPy, om));
+        ListTool.handle(mainPy.getPinyin(), d::checkAndCreatePinyin);
+        cy.setMainPy(toJson(mainPy.getPinyin(), om));
 
-        ListTool.handle(variantPy, i ->
-                ListTool.handle(i, j -> strictly(j.getLeft(), d))
-        );
         cy.setVariantPy(toJson(variantPy, om));
 
         var sim = ListTool.mapping(similar, Similar::transfer);

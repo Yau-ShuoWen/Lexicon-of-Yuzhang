@@ -11,7 +11,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter;
+import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.data.model.Word.CiyuSimilar;
 import lombok.Data;
@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
-
 
 /**
  * 词语的词条类，从数据库取出来之后直接转换而成
@@ -31,11 +30,12 @@ public class CiyuItem
     // 基本数据
     private final Integer id;
     private final UString ciyu;
+    private final ScTcText ciyus;
     private final Integer special;
 
     // 结构组数据
     private final List<SPinyin> mainPy;
-    private final List<List<SPinyin>> variantPy;
+    private final List<UString> variantPy;
     private final List<Pair<UString, Integer>> similar;
     private final List<UString> mean;
 
@@ -50,7 +50,8 @@ public class CiyuItem
     private CiyuItem(CiyuEntity cy, Language l)
     {
         id = cy.getId();
-        ciyu = new ScTcText(cy.getSc(), cy.getTc()).get(l);
+        ciyus = new ScTcText(cy.getSc(), cy.getTc());
+        ciyu = ciyus.get(l);
         special = cy.getSpecial();
 
         ObjectMapper om = new ObjectMapper();
@@ -73,9 +74,7 @@ public class CiyuItem
         updatedAt = cy.getUpdatedAt();
 
         // 通过DAO创建简繁文本，然后一起插入
-        matchItem.addAll(new ScTcText(cy.getSc(), cy.getTc())
-                .getTwin().toList()
-        );
+        matchItem.addAll(ciyus.getTwin().toList());
         for (var i : readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}, om))
         {
             matchItem.addAll(new ScTcText(i.getSc(), i.getTc())

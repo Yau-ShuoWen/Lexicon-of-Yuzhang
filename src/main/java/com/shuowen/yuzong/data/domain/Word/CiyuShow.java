@@ -1,17 +1,20 @@
 package com.shuowen.yuzong.data.domain.Word;
 
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
+import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinFormatter;
+import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.data.domain.Reference.RefItem;
+import com.shuowen.yuzong.service.impl.Reference.RefReadService;
 import lombok.Data;
 
 import java.util.*;
-import java.util.function.Function;
 
 /**
  * 词语的展示类，传输之后用作内容展示界面使用
@@ -20,11 +23,12 @@ import java.util.function.Function;
 public class CiyuShow
 {
     private final UString ciyu;
-    private final Integer special;
-    private final List<RPinyin> mainPy;
-    private final List<List<RPinyin>> variantPy;
+    private final UString special;
+    private final RPinyins mainPy;
+    private final List<UString> variantPy;
     private final List<Pair<UString, Integer>> similar;
     private final List<UString> mean;
+    private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
 
     public static CiyuShow of(CiyuItem cy, final IPAData data)
     {
@@ -33,34 +37,34 @@ public class CiyuShow
 
     private CiyuShow(CiyuItem cy, final IPAData data)
     {
-        Dialect d = data.getDialect();
+        var l = data.getLanguage();
+        var d = data.getDialect();
 
-        ciyu = cy.getCiyu();
-        special = cy.getSpecial();
+        ciyu = cy.getCiyus().get(l);
+
+        {
+            String tmp = "用法和普通話基本相同。";
+            if (cy.getSpecial() == 2) tmp = "";
+            special = ScTcText.get("概覽：" + tmp, l);
+        }
+
+        {
+
+        }
         similar = cy.getSimilar();
         mean = cy.getMean();
 
-        @Data
-        class tmpInfo
-        {
-            List<UniPinyin<?>> mainPy;
-            List<List<UniPinyin<?>>> variantPy;
-        }
+        mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->
+                PinyinFormatter.handle(d.trustedCreatePinyin(i), d)
+        ));
 
-        tmpInfo tmp = new tmpInfo();
-        tmp.mainPy = ListTool.mapping(cy.getMainPy(), d::trustedCreatePinyin);
-        tmp.variantPy = ListTool.mapping(cy.getVariantPy(), i -> ListTool.mapping(i, d::trustedCreatePinyin));
+        variantPy = ListTool.mapping(cy.getVariantPy(),
+                i -> RichTextUtil.format(i, data, false)
+        );
 
-        Function<UniPinyin<?>, RPinyin> format = p -> PinyinFormatter.handle(p, d);
-        
-        switch (data.getPinyinOption().getPhonogram())
         {
-            case AllPinyin, PinyinIPA ->
-            {
-                mainPy = ListTool.mapping(tmp.mainPy, format);
-                variantPy = ListTool.mapping(tmp.variantPy, i -> ListTool.mapping(i, format));
-            }
-            default -> throw new RuntimeException();
+            ref.addAll(RefReadService.getRef(cy.getCiyus().getSc().toString(), DictCode.of("ncdict"), data));
+            ref.addAll(RefReadService.getRef(cy.getCiyus().getTc().toString(), DictCode.of("ncdict"), data));
         }
     }
 }

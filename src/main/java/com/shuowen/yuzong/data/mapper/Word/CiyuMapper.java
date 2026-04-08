@@ -18,7 +18,7 @@ public interface CiyuMapper
     /**
      * 通过主键寻找词语
      */
-    CiyuEntity findCiyuByWordId(Integer id, String dialect);
+    List<CiyuEntity> findCiyuByWordId(Integer id, String dialect);
 
     /**
      * 使用简繁体句子寻找词语

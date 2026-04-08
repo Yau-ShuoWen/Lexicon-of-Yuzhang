@@ -25,8 +25,7 @@ public class CiyuSimilar implements ChangeDetectable<CiyuSimilar>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CiyuSimilar ct = (CiyuSimilar) o;
-        return Objects.equals(sc, ct.sc) &&
-                Objects.equals(tc, ct.tc);
+        return Objects.equals(sc, ct.sc) && Objects.equals(tc, ct.tc);
     }
 
     @JsonIgnore
@@ -42,6 +41,7 @@ public class CiyuSimilar implements ChangeDetectable<CiyuSimilar>
         List<String> res = new ArrayList<>();
         if (!Objects.equals(sc, other.sc)) res.add("sc");
         if (!Objects.equals(tc, other.tc)) res.add("tc");
+        if (!Objects.equals(type, other.type)) res.add("type");
         return res;
     }
 

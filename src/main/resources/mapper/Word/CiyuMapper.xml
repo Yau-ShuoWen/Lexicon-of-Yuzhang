@@ -91,8 +91,8 @@
     <!--  插入新的内容（相似汉字表）  -->
     <insert id="insertWordSimilar" parameterType="com.shuowen.yuzong.data.model.Word.CiyuSimilar">
         INSERT into NC.${dialect}_word_similar
-        (word_id, sc, tc)
-        VALUES (#{wd.wordId}, #{wd.sc}, #{wd.tc})
+        (word_id, sc, tc, type)
+        VALUES (#{wd.wordId}, #{wd.sc}, #{wd.tc}, #{wd.type})
     </insert>
 
     <!--  更新内容（主表）  -->
