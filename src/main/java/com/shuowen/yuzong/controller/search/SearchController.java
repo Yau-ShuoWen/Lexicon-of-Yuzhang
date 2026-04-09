@@ -2,6 +2,7 @@ package com.shuowen.yuzong.controller.search;
 
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.Tool.format.ObfString;
 import com.shuowen.yuzong.controller.APIResponse;
@@ -64,7 +65,8 @@ public class SearchController
                     PinyinOption.of(phonogram, syllableStyle, toneStyle)));
         } catch (Exception e)
         {
-            return APIResponse.failure(e.toString());
+            e.printStackTrace();
+            return APIResponse.failure(ScTcText.get("查找漢字失敗",l).toString());
         }
     }
 
@@ -85,7 +87,7 @@ public class SearchController
         } catch (Exception e)
         {
             e.printStackTrace();
-            return APIResponse.failure(e.toString());
+            return APIResponse.failure(ScTcText.get("查找詞語失敗",l).toString());
         }
     }
 }

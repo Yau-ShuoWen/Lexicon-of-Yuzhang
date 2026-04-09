@@ -9,7 +9,7 @@ import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
-import com.shuowen.yuzong.data.mapper.Word.WordMapper;
+import com.shuowen.yuzong.data.mapper.Word.CiyuMapper;
 import com.shuowen.yuzong.service.impl.KeyValueService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ public class GetInfoController
     private HanziMapper hz;
 
     @Autowired
-    private WordMapper cy;
+    private CiyuMapper cy;
 
     @Autowired
     private RefMapper ck;
@@ -50,10 +50,12 @@ public class GetInfoController
     public UString welcome(@PathVariable Dialect d, @PathVariable Language l,
                            @PathVariable String code)
     {
+
         if (code.equals("welcome")) return ScTcText.get(KeyValueService.get("website-greeting:" + d), d, l);
 
-        if (code.contains("search")) return ScTcText.get(KeyValueService.get(code), l);
+        if (code.contains("explain")) return ScTcText.get(KeyValueService.get(code), l);
 
+        if (code.contains("about")) return ScTcText.get(KeyValueService.get("website-about"), l);
 
         return UString.of("-");
     }
