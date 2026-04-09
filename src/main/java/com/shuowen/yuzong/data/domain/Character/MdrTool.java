@@ -2,23 +2,21 @@ package com.shuowen.yuzong.data.domain.Character;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
-import com.shuowen.yuzong.data.model.Character.MdrChar;
-
-import java.util.*;
 
 public class MdrTool
 {
     /**
-     * 转换汉语拼音，直接转换
+     * 转换汉语拼音，带上汉字
      */
     public static String initWithPinyin(String ch)
     {
+        // Read已经有括号了
         String[] tmp = ch.split(" ");
-        return String.format("%s  %s", tmp[0], HanPinyin.of(tmp[1]).getSplit());
+        return String.format("%s %s", tmp[0], HanPinyin.of(tmp[1]).getRead().toString());
     }
 
     /**
-     * 转换汉语拼音，富文本格式
+     * 转换汉语拼音，纯拼音
      */
     public static String showWithPinyin(String ch)
     {
@@ -33,14 +31,5 @@ public class MdrTool
     {
         // 注音是不需要括号，所以直接返回
         return Zhuyin.of(ch.split(" ")[1]).toString();
-    }
-
-    /**
-     *
-     */
-    public static List<MdrChar> initWithPinyin(List<MdrChar> ch)
-    {
-        for (var i : ch) i.setInfo(initWithPinyin(i.getInfo()));
-        return ch;
     }
 }

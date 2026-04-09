@@ -16,6 +16,8 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.data.domain.Reference.RefItem;
+import com.shuowen.yuzong.service.impl.Reference.RefReadService;
 import lombok.Data;
 
 import java.util.*;
@@ -40,8 +42,9 @@ public class HanziShow
         List<Pair<String, String>> mdrInfo;
         List<Pair<String, String>> ipa;
         List<Twin<UString>> note;
-        //TODO:refer!
     }
+
+    private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
 
     public static HanziShow of(HanziGroup hz, final IPAData ipa)
     {
@@ -117,9 +120,8 @@ public class HanziShow
             {
                 String tmp = "用法和普通話基本相同。";
                 if (i.special.contains(1)) tmp = "方言里有特殊用法。";
-                else if (i.special.contains(2)) tmp = "這個漢字的本字沒有考證出。";
-                else if (i.special.contains(3)) tmp = "方言里不會使用。";
-                else if (i.special.contains(4)) tmp = "方言里使用的地方很少。";
+                if (i.special.contains(2)) tmp = "方言里使用的地方很少。";
+                if (i.special.contains(3)) tmp = "方言里不會使用。";
 
                 info.special = ScTcText.get("概覽：" + tmp, l);
             }
@@ -165,5 +167,8 @@ public class HanziShow
             infoMap.put(i.mainPy.getWeight(), info);
         }
         info = new ArrayList<>(infoMap.values());
+
+        ref.addAll(RefReadService.getRef(hz.get(0).getHanzis().getSc().toString(), DictCode.of("ncdict"), data));
+        ref.addAll(RefReadService.getRef(hz.get(0).getHanzis().getTc().toString(), DictCode.of("ncdict"), data));
     }
 }

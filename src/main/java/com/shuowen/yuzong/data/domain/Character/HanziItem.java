@@ -28,6 +28,7 @@ public class HanziItem
     // 基本信息
     private final Integer id;
     private final UChar hanzi;
+    private final ScTcChar hanzis;
     private final SPinyin mainPy;
     private final Integer special;
 
@@ -48,7 +49,8 @@ public class HanziItem
     protected HanziItem(HanziEntity ch, Language l)
     {
         id = ch.getId();
-        hanzi = new ScTcChar(ch.getSc(), ch.getTc()).get(l);
+        hanzis = new ScTcChar(ch.getSc(), ch.getTc());
+        hanzi = hanzis.get(l);
         mainPy = SPinyin.of(ch.getMainPy());
         special = ch.getSpecial();
 

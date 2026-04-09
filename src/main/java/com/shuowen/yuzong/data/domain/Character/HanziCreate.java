@@ -49,8 +49,8 @@ public class HanziCreate
 
         HanziPinyin right = new HanziPinyin();
         {
-            right.setSc("待定");
-            right.setTc("待定");
+            right.setSc("文读");
+            right.setTc("文讀");
             right.setPinyin(pinyin.toString());
             right.setSort(1);
         }

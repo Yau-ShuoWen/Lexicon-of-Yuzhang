@@ -51,7 +51,9 @@ public class PronunService
      */
     public List<MdrChar> getHanziMenu(String sc, String tc, Dialect d)
     {
-        return MdrTool.initWithPinyin(m.getInfoByScTc(sc, tc, d.toString()));
+        var list = m.getInfoByScTc(sc, tc, d.toString());
+        ListTool.handle(list, i -> i.setInfo(MdrTool.initWithPinyin(i.getInfo())));
+        return list;
     }
 
     /**
@@ -59,7 +61,9 @@ public class PronunService
      */
     public List<MdrChar> getHanziSelected(int id, Dialect d)
     {
-        return MdrTool.initWithPinyin(m.getInfoByDialectId(id, d.toString()));
+        var list = m.getInfoByDialectId(id, d.toString());
+        ListTool.handle(list, i -> i.setInfo(MdrTool.initWithPinyin(i.getInfo())));
+        return list;
     }
 
     /**
