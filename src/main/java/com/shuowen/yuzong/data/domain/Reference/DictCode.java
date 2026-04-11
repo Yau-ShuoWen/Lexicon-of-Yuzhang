@@ -29,6 +29,11 @@ public class DictCode
         return new DictCode(text);
     }
 
+    public static DictCode valueOf(String text)
+    {
+        return new DictCode(text);
+    }
+
     @Override
     @JsonValue
     public String toString()

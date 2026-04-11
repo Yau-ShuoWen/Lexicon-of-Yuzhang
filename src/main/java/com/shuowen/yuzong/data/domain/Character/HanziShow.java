@@ -6,6 +6,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -160,7 +161,7 @@ public class HanziShow
 
             // 使用富文本的内容，放在最后，说不定可以用上前面获得的数据
             info.note = ListTool.mapping(i.note, pair -> Twin.of(pair.getLeft(),
-                    RichTextUtil.format(pair.getRight(), data, false)
+                    RichTextUtil.format(pair.getRight(), data, false, Maybe.nothing())
             ));
 
             // 提交数据，顺序是权重

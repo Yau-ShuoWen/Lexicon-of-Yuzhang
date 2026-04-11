@@ -1,20 +1,17 @@
 package com.shuowen.yuzong.Tool;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
-import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.data.domain.IPA.Phonogram;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,192 +46,19 @@ public class RichTextUtil
         return sb.toString();
     }
 
-    public static UString format(UString text, final IPAData data, boolean developer)
+    public static UString format(UString text, final IPAData data, boolean developer, Maybe<DictCode> dict)
     {
         String s = text.toString();
 
-        // 处理拼音类内容：[]
-        var pattern = Pattern.compile("\\[[^]]+]");
-        Matcher m = pattern.matcher(s);
-        StringBuilder sb = new StringBuilder();
-
-
-        while (m.find()) collectIPAShouldTransfer(m.group(), data);
-        m = pattern.matcher(s);
-        while (m.find()) m.appendReplacement(sb, Matcher.quoteReplacement(handlePinyinIPA(m.group(), data, developer)));
-        m.appendTail(sb);
-        s = sb.toString();
+        s = TextPinyinIPA.format(s, data, developer, dict);
 
         s = handleAnnotation(s, true);
 
-        s = s.replace("]  [", "] [");
         return UString.of(s);
         //TODO
         // 关键词绑定（包括隐藏绑定）
         // 链接：转换为<a>标签
         // 同音字表：特殊处理，关联多个汉字条目
-    }
-
-    private static void collectIPAShouldTransfer(String token, final IPAData data)
-    {
-        String content = token.substring(1, token.length() - 1);
-
-        if (content.contains(" "))
-        {
-            if (content.startsWith("/") || content.startsWith("+") || content.startsWith("*"))
-            {
-                char prefix = content.charAt(0);
-                content = content.substring(1);
-
-                for (String part : content.trim().split("\\s+"))
-                {
-                    collectIPAShouldTransfer("[" + prefix + part + "]", data);
-                }
-            }
-            else
-            {
-                for (String part : content.trim().split("\\s+"))
-                {
-                    collectIPAShouldTransfer("[" + part + "]", data);
-                }
-            }
-            return;
-        }
-
-        if (content.startsWith("*"))
-        {
-            SPinyin pyText = SPinyin.of(content.substring(1));
-            try
-            {
-                var py = data.getDialect().checkAndCreatePinyin(pyText);
-                data.add(py);
-            } catch (InvalidPinyinException ignored)
-            {
-            }
-        }
-    }
-
-    /**
-     * 处理所有和拼音有关的内容
-     */
-    private static String handlePinyinIPA(String token, final IPAData data, boolean developer)
-    {
-        // 去掉 [ ]
-        String content = token.substring(1, token.length() - 1);
-
-        // 支持空格分词，如 [lan4 cong1] / [+nan2 chang1]
-        if (content.contains(" "))
-        {
-            StringBuilder result = new StringBuilder();
-            if (content.startsWith("/") || content.startsWith("+") || content.startsWith("*"))
-            {
-                char prefix = content.charAt(0);
-                content = content.substring(1);
-                for (String part : content.trim().split("\\s+"))
-                    result.append(handlePinyinIPA("[" + prefix + part + "]", data, developer));
-            }
-            else
-            {
-                for (String part : content.trim().split("\\s+"))
-                    result.append(handlePinyinIPA("[" + part + "]", data, developer));
-            }
-
-            return result.toString();
-        }
-
-        Dialect d = data.getDialect();
-
-
-        /* 包含"/"   "[/s]"      -> " [s] "
-         * 包含"+"   "[+yi1]"    -> " [yī] "
-         * 包含"*"   "[*cong1]"  -> " [ts'ɔŋ-˦˨] "
-         * 包含"-"   ”[tsaŋ-42]“ -> " [tsaŋ-˦˨] "
-         * 默认情况   "[ieu]"     -> " [iēu] "
-         */
-        if (content.startsWith("/"))
-        {
-            var latin = content.substring(1);
-            return String.format(" [%s] ", latin);
-        }
-        else if (content.startsWith("+"))
-        {
-            var pyText = content.substring(1);
-            try
-            {
-                // 以RPinyin为返回值的拼音已经拥有" [] "了
-                return HanPinyin.of(pyText).getRead().toString();
-            } catch (InvalidPinyinException e)
-            {
-                return String.format(" {b 无效汉语拼音：%b} ", pyText);
-            }
-        }
-        else if (content.startsWith("*"))
-        {
-            SPinyin pyText = SPinyin.of(content.substring(1));
-            try
-            {
-                // 创建拼音，如果失败，返回警告
-                var py = d.checkAndCreatePinyin(pyText);
-
-                // 创建音标，如果失败，返回警告
-                var ipa = data.submitAndGet(py, d.getDefaultDict());
-                if (ipa.isEmpty()) return " {b 无效国际音标} ";
-
-                // 如果是开发者，应该看到两种内容
-                if (developer)
-                {
-                    // RPinyin已经是 " [%s] "的格式了
-                    // ipa已经是 "[内容]"的格式了，加上空格就可以了
-                    return String.format(" %s （%s）",
-                            ipa.getValue(),
-                            PinyinFormatter.handle(py, d, PinyinParam.of(Scheme.STANDARD)).toString()
-                    );
-                }
-                else
-                {
-                    return String.format(" %s ", ipa.getValue());
-                }
-
-            } catch (InvalidPinyinException e)
-            {
-                // 拼音异常，如果是编辑者模式下，提示文本长一些。如果是查看模式，直接报错即可。
-                if (developer)
-                {
-                    var checkRes = PinyinChecker.suggestively(pyText, d);
-                    return (checkRes.getLeft() == 2) ?
-                            String.format(" {b 无效方言拼音：[%s]，是否应为：[%s]？}", pyText, checkRes.getRight()) :
-                            String.format(" {b 无效方言拼音：[%s]} ", pyText);
-                }
-                else return " {b 无效方言拼音} ";
-            }
-        }
-        else if (content.contains("-"))
-        {
-            int idx = content.indexOf('-');
-            var ipa = IPAFormatter.mergeFiveDegree(
-                    content.substring(0, idx), content.substring(idx + 1), true);
-            return String.format(" %s ", ipa); // ipa已经是 "[内容]"的格式了，加上空格就可以了
-        }
-        else
-        {
-            SPinyin pyText = SPinyin.of(content);
-            try
-            {
-                var py = d.checkAndCreatePinyin(pyText);
-                // RPinyin已经是 " [%s] "的格式了
-                return PinyinFormatter.handle(py, d, PinyinParam.of(Scheme.STANDARD)).toString();
-            } catch (InvalidPinyinException e)
-            {
-                if (developer)
-                {
-                    var checkRes = PinyinChecker.suggestively(pyText, d);
-                    return (checkRes.getLeft() == 2) ?
-                            String.format(" {b 无效方言拼音：[%s]，是否应为：[%s]？}", pyText, checkRes.getRight()) :
-                            String.format(" {b 无效方言拼音：[%s]} ", pyText);
-                }
-                else return " {b 无效方言拼音} ";
-            }
-        }
     }
 
     /**
@@ -279,7 +103,8 @@ public class RichTextUtil
     }
 
     /**
-     * 检查是否有无效拼音之类的内容
+     * 检查是否有无效拼音之类的内容<br>
+     * 目前的简化方法就是检测句子中是否有{@code " {b 无效"}
      */
     public static boolean checkWarning(UString text)
     {
@@ -356,9 +181,6 @@ public class RichTextUtil
         content = content.replaceAll("\\s?\\{\\+\\S+?}\\s?", " ");// 處理 {+xxx} → 刪除，並處理最多一個空格
         content = content.replaceAll("\\{-(\\S+?)}", "{b $1}"); // 處理 {-xxx} 和 {xxx} → {b xxx}
         content = content.replaceAll("\\{(?!b\\s)(\\S+?)}", "{b $1}");// {xxx}（避免重複處理已經是 {b xxx} 的情況）
-
-        if (pho == Phonogram.PinyinIPA) content = content.replaceAll("\\[(?![+\\-*/])(.*?)]", "[*$1]");
-
 
         content = content.trim().replaceAll("\\s{2,}", " ");// 去掉多餘空格（可選）
 

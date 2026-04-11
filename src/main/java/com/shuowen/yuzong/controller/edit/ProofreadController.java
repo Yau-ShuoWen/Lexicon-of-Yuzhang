@@ -3,6 +3,7 @@ package com.shuowen.yuzong.controller.edit;
 import com.shuowen.yuzong.Tool.OrthoCharset;
 import com.shuowen.yuzong.Tool.ProofreadTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
@@ -11,6 +12,7 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Trio;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
@@ -42,10 +44,11 @@ public class ProofreadController
 
     @GetMapping ("/check/{l}/{d}")
     public Pair<Boolean, UString> check(@PathVariable Dialect d, @PathVariable Language l,
-                                        @RequestParam UString text)
+                                        @RequestParam UString text,
+                                        @RequestParam (required = false) DictCode dict)
     {
-        var str = RichTextUtil.format(text, new IPAData(l, d, PinyinOption.defaultOf()), true);
+        var str = RichTextUtil.format(text, new IPAData(
+                l, d, PinyinOption.defaultOf()), true, Maybe.uncertain(dict));
         return Pair.of(RichTextUtil.checkWarning(str), str);
     }
-
 }

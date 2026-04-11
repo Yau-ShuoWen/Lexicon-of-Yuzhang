@@ -4,6 +4,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
@@ -59,7 +60,7 @@ public class CiyuShow
         ));
 
         variantPy = ListTool.mapping(cy.getVariantPy(),
-                i -> RichTextUtil.format(i, data, false)
+                i -> RichTextUtil.format(i, data, false, Maybe.nothing())
         );
 
         {
