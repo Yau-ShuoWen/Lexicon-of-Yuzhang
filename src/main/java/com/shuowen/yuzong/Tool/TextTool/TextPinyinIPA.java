@@ -12,6 +12,7 @@ import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,9 +23,16 @@ public class TextPinyinIPA
 
     }
 
+    // 汉语拼音
     private enum PinyinType
     {
-        HAN, IGNORE, DIALECT, IPA, OUT_IPA, NOTHING
+        HAN,      // 汉语拼音
+        IGNORE,   // 拉丁字母，只包装不修改
+        DIALECT,  // 方言拼音
+        IPA,      // 音系内部国际音标
+        OUT_IPA,  // 音系外部国际音标
+        CUSTOM,   // 自定义国际音标
+        NOTHING   // 空拼音保护，只删除不修改
     }
 
     private static class PinyinToken
@@ -46,7 +54,7 @@ public class TextPinyinIPA
     {
         content = content.substring(1, content.length() - 1);
 
-        if (content.isEmpty()) return new PinyinToken(PinyinType.NOTHING, "");
+        if (content.trim().isEmpty()) return new PinyinToken(PinyinType.NOTHING, "");
 
         // [/s]
         if (content.startsWith("/")) return new PinyinToken(PinyinType.IGNORE, content.substring(1));
@@ -57,8 +65,11 @@ public class TextPinyinIPA
         // [*gon1]
         if (content.startsWith("*")) return new PinyinToken(PinyinType.IPA, content.substring(1));
 
-        // [kɔŋ-42]
-        if (content.contains("-")) return new PinyinToken(PinyinType.OUT_IPA, content);
+        // [-kɔŋ_42]
+        if (content.startsWith("-")) return new PinyinToken(PinyinType.OUT_IPA, content);
+
+        //
+        if (content.startsWith("#")) return new PinyinToken(PinyinType.CUSTOM, content);
 
         // 默认：[gon1]
         return new PinyinToken(PinyinType.DIALECT, content);
@@ -88,7 +99,7 @@ public class TextPinyinIPA
         }
         m.appendTail(sb);
 
-        return sb.toString().replace("]  [", "] [");
+        return sb.toString();//.replace("]  [", "] [");
     }
 
     /**
@@ -97,7 +108,7 @@ public class TextPinyinIPA
      * @param pinyin    拼音片段
      * @param data      查询国际音标，附带上下文
      * @param developer 如果是开发者，可以看到
-     * @param dict    字典的拼音要特殊处理
+     * @param dict      字典的拼音要特殊处理
      */
     private static String handle(
             PinyinToken pinyin, final IPAData data,
@@ -105,13 +116,13 @@ public class TextPinyinIPA
     {
         if (pinyin.body.contains(" "))
         {
-            var result = new StringBuilder();
+            List<String> list = new ArrayList<>();
             for (String s : pinyin.body.split("\\s+"))
             {
                 var smaller = new PinyinToken(pinyin.type, s);
-                result.append(handle(smaller, data, developer, dict));
+                list.add(handle(smaller, data, developer, dict));
             }
-            return result.toString();
+            return concatPinyin(list);
         }
 
         var d = data.getDialect();
@@ -141,10 +152,15 @@ public class TextPinyinIPA
                     var py = d.checkAndCreatePinyin(pyText);
 
                     // 创建音标，如果失败，返回警告
-                    var ipa = data.submitAndGet(py, dict.getValueOrDefault(d.getDefaultDict()));
-                    if (ipa.isEmpty()) return " {b 无效国际音标} ";
-
-                    return String.format(" %s ", ipa.getValue());
+                    try
+                    {
+                        return String.format(" %s ",
+                                data.submitAndGet(py, dict.getValueOrDefault(d.getDefaultDict())).getValue()
+                        );
+                    } catch (Exception e)
+                    {
+                        return " {b 无效国际音标} ";
+                    }
 
                 } catch (InvalidPinyinException e)
                 {
@@ -161,10 +177,10 @@ public class TextPinyinIPA
             }
             case OUT_IPA ->
             {
-                int idx = pinyin.body.indexOf('-');
+                int idx = pinyin.body.indexOf('_');
                 var ipa = IPAFormatter.mergeFiveDegree(
-                        pinyin.body.substring(0, idx), pinyin.body.substring(idx + 1), true);
-                return String.format(" %s ", ipa); // ipa已经是 "[内容]"的格式了，加上空格就可以了
+                        pinyin.body.substring(0, idx), pinyin.body.substring(idx + 1), false);
+                return String.format(" [%s] ", ipa); // ipa不是是 "[内容]"的格式
             }
             case DIALECT ->
             {
@@ -175,8 +191,9 @@ public class TextPinyinIPA
                     if (developer)
                     {
                         // developer 为 true 是因为这个分支里都是如此；dict 为空是因为拆分了之后就不用了
-                        return String.format("%s/%s", handle(pinyin, data, true, Maybe.nothing()),
-                                handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, true, Maybe.nothing())
+                        return String.format("%s/%s",
+                                handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, true, dict),
+                                handle(pinyin, data, true, Maybe.nothing())
                         );
                     }
                     else
@@ -184,7 +201,8 @@ public class TextPinyinIPA
                         return switch (data.getPinyinOption().getPhonogram())
                         {
                             case AllPinyin -> handle(pinyin, data, false, Maybe.nothing());
-                            case PinyinIPA -> handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, false, Maybe.nothing());
+                            case PinyinIPA ->
+                                    handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, false, Maybe.nothing());
                         };
                     }
 
@@ -210,6 +228,35 @@ public class TextPinyinIPA
                     }
                 }
             }
+            case CUSTOM ->
+            {
+                try
+                {
+
+
+                    int idx = pinyin.body.indexOf('=');
+                    var ipa = pinyin.body.substring(0, idx);
+                    var py = pinyin.body.substring(idx + 1);
+                    if (developer)
+                    {
+                        return String.format("%s/%s",
+                                handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, true, dict),
+                                handle(new PinyinToken(PinyinType.IGNORE, py), data, true, dict)
+                        );
+                    }
+                    else
+                    {
+                        return switch (data.getPinyinOption().getPhonogram())
+                        {
+                            case AllPinyin -> handle(new PinyinToken(PinyinType.IGNORE, py), data, false, dict);
+                            case PinyinIPA -> handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, false, dict);
+                        };
+                    }
+                } catch (StringIndexOutOfBoundsException e)
+                {
+                    return "{b 井號拼音格式錯誤}";
+                }
+            }
             case NOTHING ->
             {
                 if (developer) return "{b 这里有一个空的拼音标记}";
@@ -231,13 +278,41 @@ public class TextPinyinIPA
             return;
         }
 
-        SPinyin pyText = SPinyin.of(pinyin.body);
-        try
+        if (pinyin.type == PinyinType.IPA || pinyin.type == PinyinType.DIALECT)
         {
-            var py = data.getDialect().checkAndCreatePinyin(pyText);
-            data.add(py);
-        } catch (InvalidPinyinException ignored)
+            try
+            {
+                SPinyin pyText = SPinyin.of(pinyin.body);
+                var py = data.getDialect().checkAndCreatePinyin(pyText);
+                data.add(py);
+            } catch (InvalidPinyinException ignored)
+            {
+            }
+        }
+    }
+
+    private static String concatPinyin(List<String> list)
+    {
+        if (list.isEmpty())
+            throw new RuntimeException("此处不应该有空字符串");
+
+        if (list.get(0).contains("/"))
         {
+            var t1 = new StringBuilder();
+            var t2 = new StringBuilder();
+            for (String s : list)
+            {
+                var idx = s.indexOf('/');
+                t1.append(s, 0, idx);
+                t2.append(s.substring(idx + 1));
+            }
+            return String.format(t1 + " / " + t2);
+        }
+        else
+        {
+            var res = new StringBuilder();
+            for (String s : list) res.append(s);
+            return res.toString();
         }
     }
 }

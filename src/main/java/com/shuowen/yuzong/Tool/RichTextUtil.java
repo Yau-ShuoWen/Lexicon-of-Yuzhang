@@ -10,7 +10,6 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.data.domain.IPA.Phonogram;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 
 import java.util.regex.Matcher;
@@ -30,7 +29,7 @@ public class RichTextUtil
      */
     public static <U extends PinyinStyle> String format(String s, U style, Dialect d)
     {
-        Matcher m = Pattern.compile("\\[[^\\]]+]").matcher(s);
+        Matcher m = Pattern.compile("\\[[^]]+]").matcher(s);
         StringBuilder sb = new StringBuilder();
 
         while (m.find())
@@ -51,8 +50,7 @@ public class RichTextUtil
         String s = text.toString();
 
         s = TextPinyinIPA.format(s, data, developer, dict);
-
-        s = handleAnnotation(s, true);
+        s = handleAnnotation(s);
 
         return UString.of(s);
         //TODO
@@ -64,10 +62,8 @@ public class RichTextUtil
     /**
      * 当需要隐藏注释的时候，把那一部分替换成空字符串
      */
-    private static String handleAnnotation(String text, boolean handle)
+    private static String handleAnnotation(String text)
     {
-        if (!handle) return text;
-
         StringBuilder result = new StringBuilder();
         String[] lines = text.split("\n", -1); // 保留空行
 
@@ -174,7 +170,7 @@ public class RichTextUtil
         return Twin.of(prefix, snippet);
     }
 
-    public static UString handleRefTitle(UString text, Phonogram pho)
+    public static UString handleRefTitle(UString text)
     {
         var content = text.toString();
 
@@ -182,9 +178,7 @@ public class RichTextUtil
         content = content.replaceAll("\\{-(\\S+?)}", "{b $1}"); // 處理 {-xxx} 和 {xxx} → {b xxx}
         content = content.replaceAll("\\{(?!b\\s)(\\S+?)}", "{b $1}");// {xxx}（避免重複處理已經是 {b xxx} 的情況）
 
-        content = content.trim().replaceAll("\\s{2,}", " ");// 去掉多餘空格（可選）
-
-        //  System.out.println(content);
+        content = content.trim().replaceAll("[ \\t]{2,}", " ");// 去掉多餘空格（可選）
         return UString.of(content);
     }
 }

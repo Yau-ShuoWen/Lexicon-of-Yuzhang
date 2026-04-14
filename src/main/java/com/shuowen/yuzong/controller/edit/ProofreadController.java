@@ -42,10 +42,11 @@ public class ProofreadController
         }
     }
 
-    @GetMapping ("/check/{l}/{d}")
+    @PostMapping ("/check/{l}/{d}")
     public Pair<Boolean, UString> check(@PathVariable Dialect d, @PathVariable Language l,
-                                        @RequestParam UString text,
-                                        @RequestParam (required = false) DictCode dict)
+                                        @RequestParam (required = false) DictCode dict,
+                                        @RequestParam UString text
+    )
     {
         var str = RichTextUtil.format(text, new IPAData(
                 l, d, PinyinOption.defaultOf()), true, Maybe.uncertain(dict));
