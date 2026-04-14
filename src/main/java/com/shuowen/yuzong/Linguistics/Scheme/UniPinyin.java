@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,12 +11,22 @@ import lombok.Getter;
 abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
 {
     protected final String syll;        // 不包括声调的标准拼音
-    protected final Integer tone;       // 数字音调，0表示轻声或没有声调
+    protected final Maybe<Integer> tone;// 数字音调，0表示轻声
 
     protected final String code;        // 拼音编码
     protected final Character mark;     // 音调字符
     protected final Integer corner;     // 四角调类的数字序号
     protected final String weight;      // 排序用的权重
+
+    public Boolean haveTone()
+    {
+        return tone.isValid();
+    }
+
+    public Integer getToneDirectly()
+    {
+        return tone.getValue();
+    }
 
     /**
      * 私有的构造函数，子类构造函数也应该是私有的

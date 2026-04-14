@@ -30,7 +30,7 @@ public class HanPinyin
     @JsonValue
     private final RPinyin read;
 
-    private HanPinyin(String syll, Integer tone)
+    private HanPinyin(String syll, Maybe<Integer> tone)
     {
         split = SPinyin.of(syll, tone);
         read = topMark();
@@ -41,9 +41,10 @@ public class HanPinyin
         return split.getSyll();
     }
 
+    // 直接返回，因为没有音调和轻声的表现形式是一样的。
     public int getTone()
     {
-        return split.getTone();
+        return split.getTone().getValueOrDefault(0);
     }
 
     /**
@@ -57,9 +58,9 @@ public class HanPinyin
             if ("none".equals(syll)) return Maybe.nothing();
 
             var tone = p.getTone();
-            if (tone == 5) tone = 0;
+            if (tone == 5) tone = 0;  //HanLP使用5表示轻声
 
-            return Maybe.exist(new HanPinyin(syll, tone));
+            return Maybe.exist(new HanPinyin(syll, Maybe.exist(tone)));
         } catch (InvalidPinyinException e)
         {
             return Maybe.nothing();
@@ -115,13 +116,6 @@ public class HanPinyin
 
     /**
      * 把使用数字标注音调的读音，把{@code pin1} 转换成{@code pīn}，没有安全检查，
-     * 因为默认是和{@code textPinyin} {@code toPinyinList} 的结果一起使用：
-     *
-     * <blockquote><pre>
-     * ListTool.mapping(HanPinyin.textPinyin("一段这样的文字"), HanPinyin::topMark)
-     * ListTool.mapping(HanPinyin.toPinyinList("行"), HanPinyin::topMark)
-     * </pre></blockquote>
-     *
      * <p>
      * 使用的算法是基于简化描述：<br>
      * 1. 依照 {@code a > o > e > i > u > ü} 的顺序标记在最先出现的字母上<br>

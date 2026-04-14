@@ -43,38 +43,61 @@ public class IPAService
                         SetTool.mapping(pinyinSet, Pinyin::getSyll),
                         d.toString())
         );
-        var tone = Shengdiao.mapOf(
-                m.findToneInfoSet(
-                        SetTool.mapping(pinyinSet, i->i.getTone().toString()),
-                        d.toString())
+        var tone = Shengdiao.mapOf(m.findToneInfoSet(
+                SetTool.mapping(
+                        SetTool.filter(pinyinSet, Pinyin::haveTone), // 筛选掉空音调
+                        i -> i.getToneDirectly().toString()),
+                d.toString())
         );
 
         Map<Pinyin, Map<DictCode, String>> dataPerPinyin = new HashMap<>();
 
         for (var pinyin : pinyinSet)
         {
-            var y = syll.get(pinyin.getSyll());
-            var s = tone.get(pinyin.getTone());
-            if (y == null || s == null) continue;
-
-            Map<DictCode, String> dataPerDict = new HashMap<>();
-            for (var dict : dictSet)
+            if (pinyin.haveTone())
             {
-                // 如果查不到结果，那么对于这个字典的这个读音就是无效的，直接略过
-                var yj = y.getInfo(dict);
-                var sd = s.getInfo(dict);
-                if (yj == null || sd == null) continue;
+                var y = syll.get(pinyin.getSyll());
+                var s = tone.get(pinyin.getToneDirectly());
+                if (y == null || s == null) continue;
 
-                var tmp = switch (op.getTone())
+                Map<DictCode, String> dataPerDict = new HashMap<>();
+                for (var dict : dictSet)
                 {
-                    case FIVE_DEGREE_NUM -> IPAFormatter.mergeFiveDegree(yj, sd, true);
-                    case FIVE_DEGREE_LINE -> IPAFormatter.mergeFiveDegree(yj, sd, false);
-                    case FOUR_CORNER -> IPAFormatter.mergeFourCorner(yj, pinyin.getCorner());
-                };
-                dataPerDict.put(dict, IPAFormatter.formatSyllable(tmp, op.getSyllable()));
-            }
+                    // 如果查不到结果，那么对于这个字典的这个读音就是无效的，直接略过
+                    var yj = y.getInfo(dict);
+                    var sd = s.getInfo(dict);
+                    if (yj == null || sd == null) continue;
 
-            dataPerPinyin.put(pinyin, dataPerDict);
+                    var tmp = switch (op.getTone())
+                    {
+                        case FIVE_DEGREE_NUM -> IPAFormatter.mergeFiveDegree(yj, sd, true);
+                        case FIVE_DEGREE_LINE -> IPAFormatter.mergeFiveDegree(yj, sd, false);
+                        case FOUR_CORNER -> IPAFormatter.mergeFourCorner(yj, pinyin.getCorner());
+                    };
+                    tmp = IPAFormatter.formatSyllable(tmp, op.getSyllable());
+
+                    dataPerDict.put(dict, String.format("[%s]", tmp));
+                }
+                dataPerPinyin.put(pinyin, dataPerDict);
+            }
+            else
+            {
+                var y = syll.get(pinyin.getSyll());
+                if (y == null) continue;
+
+                Map<DictCode, String> dataPerDict = new HashMap<>();
+                for (var dict : dictSet)
+                {
+                    // 如果查不到结果，那么对于这个字典的这个读音就是无效的，直接略过
+                    var yj = y.getInfo(dict);
+                    if (yj == null) continue;
+
+                    var tmp = IPAFormatter.formatSyllable(yj, op.getSyllable());
+
+                    dataPerDict.put(dict, String.format("[%s]", tmp));
+                }
+                dataPerPinyin.put(pinyin, dataPerDict);
+            }
         }
         return dataPerPinyin;
     }
@@ -160,6 +183,6 @@ public class IPAService
 
     public static List<IPAItem> getTableItem(Dialect d, String key)
     {
-        return instance.m.getTableItem(d.toString(),key);
+        return instance.m.getTableItem(d.toString(), key);
     }
 }

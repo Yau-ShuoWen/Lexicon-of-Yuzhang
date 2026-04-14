@@ -37,7 +37,7 @@ public interface IPAMapper
     /**
      * 插入新的音节
      */
-    void insertSyllable(IPASyllEntity pinyin, String dialect);
+    void insertSyllable(@Param ("py") IPASyllEntity pinyin, String dialect);
 
     /**
      * 修改音节的具体音标信息

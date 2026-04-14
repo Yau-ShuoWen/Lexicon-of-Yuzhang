@@ -30,8 +30,8 @@
     </select>
 
     <select id="insertSyllable" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
-        insert into NC.${dialect}_ipa_syllable (standard, Code, info)
-        values (#{standard}, #{code}, #{info})
+        insert into NC.${dialect}_ipa_syllable (standard, code, info)
+        values (#{py.standard}, #{py.code}, #{py.info})
     </select>
 
     <select id="changeSyllableInfo" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import lombok.Data;
@@ -15,9 +16,9 @@ import lombok.Data;
 public class SPinyin
 {
     private final String syll;
-    private final int tone;
+    private final Maybe<Integer> tone;
 
-    private SPinyin(String syll, int tone)
+    private SPinyin(String syll, Maybe<Integer> tone)
     {
         this.syll = syll;
         this.tone = tone;
@@ -47,7 +48,7 @@ public class SPinyin
         return new SPinyin(tmp.getLeft(), tmp.getRight());
     }
 
-    public static SPinyin of(String syll, int tone)
+    public static SPinyin of(String syll, Maybe<Integer> tone)
     {
         return new SPinyin(syll, tone);
     }
@@ -61,20 +62,21 @@ public class SPinyin
     @Override
     public String toString()
     {
-        return syll + tone;
+        if (tone.isEmpty()) return syll;
+        else return syll + tone.getValue();
     }
 
     /**
      * 尝试将一个字符串拆成声母和声调，如果没有音调补0，所有拼音都可以通用
      */
     //TODO 南宁话：谁说汉语音调小于十个的？回答我！
-    public static Pair<String, Integer> trySplit(String text)
+    private static Pair<String, Maybe<Integer>> trySplit(String text)
     {
         StringTool.checkTrimValid(text); // 如果是空的，取最后一个会报错
 
         char ch = StringTool.back(text);
         return NumberTool.closeBetween(ch, '0', '9') ?
-                Pair.of(StringTool.deleteBack(text), ch - '0') :
-                Pair.of(text, 0);
+                Pair.of(StringTool.deleteBack(text), Maybe.exist(ch - '0')) :
+                Pair.of(text, Maybe.nothing());
     }
 }

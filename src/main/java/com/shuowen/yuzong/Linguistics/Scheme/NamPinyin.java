@@ -240,23 +240,25 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     protected void checkToneValid()
     {
-        if (!NumberTool.closeBetween(tone, 0, 7)) throw new InvalidPinyinException("音调范围超出");
+        var t = tone.getValueOrDefault(0); // 轻声不会影响无声调的判断
+
+        if (!NumberTool.closeBetween(t, 0, 7)) throw new InvalidPinyinException("音调范围超出");
 
         boolean end = ObjectTool.existEqual(StringTool.back(syll), 't', 'k');
-        if (NumberTool.closeBetween(tone, 1, 5)) if (end) throw new InvalidPinyinException("非入声音调配对入声韵尾");
-        if (NumberTool.closeBetween(tone, 6, 7)) if (!end) throw new InvalidPinyinException("入声音调配对非入声韵尾");
+        if (NumberTool.closeBetween(t, 1, 5)) if (end) throw new InvalidPinyinException("非入声音调配对入声韵尾");
+        if (NumberTool.closeBetween(t, 6, 7)) if (!end) throw new InvalidPinyinException("入声音调配对非入声韵尾");
     }
 
     protected char initMark()
     {
         char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
-        return mark[tone];
+        return mark[tone.getValueOrDefault(0)];
     }
 
     protected int initCorner()
     {
         int[] fourCorner = {0, 1, 2, 3, 5, 6, 7, 8}; // 没有写错，没有4是因为南昌话没有「阳上」音
-        return fourCorner[tone];
+        return fourCorner[tone.getValueOrDefault(0)];
     }
 
     protected String initWeight()
@@ -360,11 +362,14 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     protected String addMark(String builder, int num, int iu)
     {
+        if (tone.isEmpty()) return builder;
+        var t = tone.getValue();
+
         return switch (num)
         {
             case 1 ->
             {
-                if (tone == 0) yield builder; //不用加任何符号
+                if (t == 0) yield builder; //不用加任何符号
 
                 // 标在后的情况下iu是例外，都是本来应该标在i上，根据这个规则标在u上反之亦然
                 if (iu == 1 && builder.contains("iu")) yield builder.replace("u", "u" + mark);
@@ -455,6 +460,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (text.contains("yuan")) text = text.replace("yuan", "yuon");
         if (text.contains("uen")) text = text.replace("uen", "un");
 
-        return SPinyin.of(text,pinyin.getTone());
+        return SPinyin.of(text, pinyin.getTone());
     }
 }

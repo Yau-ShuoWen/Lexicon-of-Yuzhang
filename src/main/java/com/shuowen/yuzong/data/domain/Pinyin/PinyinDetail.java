@@ -79,7 +79,7 @@ public class PinyinDetail
                 {
                     String num = IPAFormatter.mergeFiveDegreeNum(i.getValue(), true);
                     String line = IPAFormatter.mergeFiveDegree("", i.getValue(), false);
-                    ipa.put(data.getDictionaryName(i.getKey()), String.format("[%-4s]%s", num, line));
+                    ipa.put(data.getDictionaryName(i.getKey()), String.format("[%-4s][%s]", num, line));
                 }
             }
 

@@ -9,21 +9,20 @@ public class IPAFormatter
      */
     public static String mergeFiveDegree(String syllable, String tone, boolean num)
     {
-        if (num) return String.format("[%s%s]", syllable, mergeFiveDegreeNum(tone, false));
+        if (num) return String.format("%s%s", syllable, mergeFiveDegreeNum(tone, false));
         else
         {
             // 这个做法请查看文档：国际音标类的描述
             if (tone.length() == 2 && tone.charAt(0) == tone.charAt(1))
                 tone = tone + tone.charAt(1);
 
-            if (tone.equals("0")) return "[·" + syllable + "]";
-            else return "[" + syllable + "-" + (tone
+            if (tone.equals("0")) return "·" + syllable;
+            else return syllable + "_" + (tone
                     .replace('1', '˩')
                     .replace('2', '˨')
                     .replace('3', '˧')
                     .replace('4', '˦')
-                    .replace('5', '˥'))
-                    + "]";
+                    .replace('5', '˥'));
         }
     }
 
@@ -60,10 +59,10 @@ public class IPAFormatter
         {
             char mark = marks[d], place = places[d];
             return (place == 'l') ?
-                    String.format("[%s]", mark + y) :
-                    String.format("[%s]", y + mark);
+                    String.format("%s", mark + y) :
+                    String.format("%s", y + mark);
         }
-        else return String.format("[%s]", y); // 轻声直接返回
+        else return String.format("%s", y); // 轻声直接返回
     }
 
 
