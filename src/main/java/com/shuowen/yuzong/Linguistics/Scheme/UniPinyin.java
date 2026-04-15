@@ -69,7 +69,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     @Override
     public String toString()
     {
-        return "默认的未知方言拼音：" + syll + tone;
+        return "默认的未知方言拼音：" + syll + (tone.isValid() ? tone.getValue() : "");
     }
 
     /**

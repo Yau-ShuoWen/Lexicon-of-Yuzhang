@@ -69,10 +69,18 @@
 
     <!-- 多行信息 -->
     <select id="findToneInfoSet" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
-        SELECT * FROM NC.${dialect}_ipa_segment WHERE standard IN
-        <foreach collection="list" item="item" open="(" separator="," close=")">
-            #{item}
-        </foreach>
+        SELECT * FROM NC.${dialect}_ipa_segment
+        <where>
+            <if test="list != null and list.size() > 0">
+                standard IN
+                <foreach collection="list" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="list == null or list.size() == 0">
+                1 = 0
+            </if>
+        </where>
     </select>
 
     <!-- 所有信息 -->

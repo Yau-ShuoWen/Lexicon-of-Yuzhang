@@ -9,8 +9,9 @@ import lombok.Getter;
 
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-@EqualsAndHashCode
+@EqualsAndHashCode (doNotUseGetters = true)
 public class Maybe<T>
 {
     @Getter
@@ -110,6 +111,18 @@ public class Maybe<T>
     public <U> Maybe<U> handleIfExist(Function<T, U> fun)
     {
         return isValid() ? Maybe.exist(fun.apply(value)) : Maybe.nothing();
+    }
+
+    public static <U> Maybe<U> create(Supplier<U> fun)
+    {
+        try
+        {
+            return Maybe.uncertain(fun.get());
+        }
+        catch (Exception e)
+        {
+            return Maybe.nothing();
+        }
     }
 
     @Override

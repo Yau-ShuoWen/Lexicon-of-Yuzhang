@@ -185,7 +185,7 @@ public class TextPinyinIPA
             case DIALECT ->
             {
                 // 如果是在辞书里，这里的方言拼音不是简单的方言拼音。是辞典的特殊流程
-                if (dict.isValid())
+                if (!dict.isEmpty())
                 {
                     // 如果是开发者模式，就显示两个
                     if (developer)

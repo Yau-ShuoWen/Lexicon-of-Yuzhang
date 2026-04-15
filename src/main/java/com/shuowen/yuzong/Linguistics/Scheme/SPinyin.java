@@ -62,8 +62,7 @@ public class SPinyin
     @Override
     public String toString()
     {
-        if (tone.isEmpty()) return syll;
-        else return syll + tone.getValue();
+        return syll + (tone.isValid() ? tone.getValue() : "");
     }
 
     /**

@@ -269,7 +269,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
     @Override
     public String toString()
     {
-        return "默认的南昌话拼音：" + syll + tone + "（未知格式）";
+        return "默认的南昌话拼音：" + syll + (tone.isValid() ? tone.getValue() : "") + "（未知格式）";
     }
 
     @Override
