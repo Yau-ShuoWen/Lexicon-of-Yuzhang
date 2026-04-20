@@ -7,6 +7,7 @@ import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
@@ -57,6 +58,11 @@ public class RichTextUtil
         // 关键词绑定（包括隐藏绑定）
         // 链接：转换为<a>标签
         // 同音字表：特殊处理，关联多个汉字条目
+    }
+
+    public static UString easyFormatFromTc(String text, final IPAData data)
+    {
+        return RichTextUtil.format(ScTcText.get(text, data.getDialect(), data.getLanguage()), data, false, Maybe.nothing());
     }
 
     /**

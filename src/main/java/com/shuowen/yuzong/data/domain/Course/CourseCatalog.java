@@ -9,6 +9,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
+import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.model.Course.CourseEntity;
 import lombok.Data;
 
@@ -91,7 +92,7 @@ public class CourseCatalog
 
     public CourseCatalog(List<CourseEntity> list, Dialect d, Language l)
     {
-        var ipaData = new IPAData(l, d);
+        var ipaData = new IPAData(l, d, PinyinOption.defaultOf());
         Collections.sort(list);
         catalog = Chapter.listOf(list, ipaData);
     }
