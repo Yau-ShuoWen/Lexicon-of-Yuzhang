@@ -60,7 +60,7 @@ public class ScTcText
     public ScTcText(String tc)
     {
         this.tc = UString.of(tc);
-        this.sc = escapeCharTraslate(this.tc, Language.TC, new OrthoCharset());
+        this.sc = escapeCharTraslate(this.tc, Language.TC, OrthoCharset.of());
     }
 
     /**
@@ -69,7 +69,7 @@ public class ScTcText
     public ScTcText(String tc, Dialect d)
     {
         this.tc = UString.of(tc);
-        this.sc = escapeCharTraslate(this.tc, Language.TC, new OrthoCharset(d));
+        this.sc = escapeCharTraslate(this.tc, Language.TC, OrthoCharset.of(d));
     }
 
     public UString get(Language l)
@@ -89,14 +89,14 @@ public class ScTcText
     public static UString get(String tc, Language l)
     {
         return l.isSimplified() ?
-                escapeCharTraslate(UString.of(tc), Language.TC, new OrthoCharset()) :
+                escapeCharTraslate(UString.of(tc), Language.TC, OrthoCharset.of()) :
                 UString.of(tc);
     }
 
     public static UString get(String tc, Dialect d, Language l)
     {
         return l.isSimplified() ?
-                escapeCharTraslate(UString.of(tc), Language.TC, new OrthoCharset(d)) :
+                escapeCharTraslate(UString.of(tc), Language.TC, OrthoCharset.of(d)) :
                 UString.of(tc);
     }
 

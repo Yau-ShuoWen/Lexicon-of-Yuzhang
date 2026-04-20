@@ -33,7 +33,7 @@ public class ProofreadController
 
             return APIResponse.success(ProofreadTool.retainContextTranslate(
                     UText.getLeft(), UText.getMiddle(), UText.getRight(),
-                    new OrthoCharset(d))
+                    OrthoCharset.of(d))
             );
         } catch (Exception e)
         {

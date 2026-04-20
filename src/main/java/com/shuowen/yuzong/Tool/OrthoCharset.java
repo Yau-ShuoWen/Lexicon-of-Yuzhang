@@ -7,24 +7,37 @@ import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.service.impl.KeyValueService;
-import lombok.Data;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 正字法规则
  */
-@Data
 public class OrthoCharset
 {
+    private static final Map<Dialect, OrthoCharset> CACHE = new ConcurrentHashMap<>();
+
+    private static final OrthoCharset DEFAULT = new OrthoCharset();
+
+    public static OrthoCharset of()
+    {
+        return DEFAULT;
+    }
+
+    public static OrthoCharset of(Dialect d)
+    {
+        return CACHE.computeIfAbsent(d, OrthoCharset::new);
+    }
+
     Map<UChar, UChar> handle = new HashMap<>();
 
-    public OrthoCharset()
+    private OrthoCharset()
     {
         addIgnores(Punctuation.getCharset()); // 在方言的基础上加上标点符号的规则
     }
 
-    public OrthoCharset(Dialect d)
+    private OrthoCharset(Dialect d)
     {
         var map = JsonTool.readJson(KeyValueService.get("ortho-charset:" + d),
                 new TypeReference<Map<String, String>>() {}, new ObjectMapper());
