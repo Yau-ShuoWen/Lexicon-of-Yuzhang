@@ -13,6 +13,7 @@ import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Word.CiyuCreate;
 import com.shuowen.yuzong.data.domain.Word.CiyuItem;
 import com.shuowen.yuzong.data.domain.Word.CiyuUpdate;
 import com.shuowen.yuzong.data.dto.SearchResult;
@@ -27,6 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional (rollbackFor = {Exception.class})
 public class CiyuService
 {
     @Autowired
@@ -59,7 +61,7 @@ public class CiyuService
             ulist.addAll(getCiyu(hanzi, l, d, vague ? 2 : 1));
         List<CiyuItem> list = ulist.getList();
 
-        var priority = ListTool.mapping(list, (CiyuItem i) -> i.getSortKey(query).equals(i.getCiyu()) ? 1.0 : 0.0);
+        var priority = ListTool.mapping(list, i -> Objects.equals(i.getSortKey(query), i.getCiyu()) ? 1.0 : 0.0);
         WeightSort.sort(list, priority, (CiyuItem i) -> i.getSortKey(query).toString(), query, null);
 
         List<SearchResult> res = new ArrayList<>();
@@ -78,19 +80,18 @@ public class CiyuService
 
             ans.setExplain(explain);
             ans.setTag("ciyu");
-            ans.setInfo(Map.of("query", ObfInt.encode(i.getId())));
+            ans.setInfo(Map.of("query", i.getCiyu()));
 
             res.add(ans);
         }
         return res;
     }
 
-    public CiyuShow getCiyuDetailInfo(Integer id, Language l, Dialect d, PinyinOption op)
+    public CiyuShow getCiyuDetailInfo(UString query, Language l, Dialect d, PinyinOption op)
     {
-        return CiyuShow.of(
-                CiyuItem.of(cy.findCiyuByWordId(id, d.toString()), l),
-                new IPAData(l, d, op)
-        );
+        var entity = ListTool.checkSizeOne(cy.findCiyuByScOrTc(query.toString(), d.toString(), l.toString()),
+                "没有找到词语", "查到了过多的数据");
+        return CiyuShow.of(CiyuItem.of(entity, l), new IPAData(l, d, op));
     }
 
     /**
@@ -127,7 +128,7 @@ public class CiyuService
     public CiyuUpdate getCiyuById(int id, Dialect d)
     {
         return new CiyuUpdate(
-                cy.findCiyuByWordId(id, d.toString()),
+                cy.findCiyuByWordId(id, d.toString()).get(0),//TODO
                 cy.findCiyuSimilarByWordId(id, d.toString())
         );
     }
@@ -157,11 +158,11 @@ public class CiyuService
             cy.insertWord(wd, d.toString());
         else cy.updateWordById(wd, d.toString());
 
-        int id=wd.getId();
+        int id = wd.getId();
 
-        var sim=data.getRight();
-        for (var i:sim) i.setWordId(id);
-        for (var i:SetCompareUtil.compare(
+        var sim = data.getRight();
+        for (var i : sim) i.setWordId(id);
+        for (var i : SetCompareUtil.compare(
                 new HashSet<>(cy.findCiyuSimilarByWordId(id, d.toString())),
                 new HashSet<>(sim)))
         {
@@ -172,5 +173,10 @@ public class CiyuService
                 case DELETED -> cy.deleteWordSimilarById(i.getOldItem().getId(), d.toString());
             }
         }
+    }
+
+    public void createCiyu(CiyuCreate ci, Dialect d)
+    {
+        cy.insertWord(ci.checkAndTransfer(d), d.toString());
     }
 }

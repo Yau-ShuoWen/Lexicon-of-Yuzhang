@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.controller.search;
 
+import com.shuowen.yuzong.Tool.dataStructure.UChar;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.Tool.format.ObfInt;
-import com.shuowen.yuzong.Tool.format.ObfString;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
 import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
@@ -52,7 +52,7 @@ public class SearchController
      */
     @GetMapping ("{l}/{d}/hanzi")
     public APIResponse<HanziShow> hanziSearch(
-            @PathVariable Dialect d, @PathVariable Language l, @RequestParam ObfString query,
+            @PathVariable Dialect d, @PathVariable Language l, @RequestParam UChar query,
             @RequestParam Phonogram phonogram,
             @RequestParam IPASyllableStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
@@ -61,18 +61,20 @@ public class SearchController
         try
         {
             return APIResponse.success(h.getHanziDetailInfo(
-                    query.decode(), l, d,
-                    PinyinOption.of(phonogram, syllableStyle, toneStyle)));
+                    query, l, d, PinyinOption.of(phonogram, syllableStyle, toneStyle)));
         } catch (Exception e)
         {
+            if (e instanceof NoSuchElementException)
+                return APIResponse.failure(ScTcText.get("沒有查到漢字", l).toString());
+
             e.printStackTrace();
-            return APIResponse.failure(ScTcText.get("查找漢字失敗",l).toString());
+            return APIResponse.failure(ScTcText.get("查找漢字失敗", l).toString());
         }
     }
 
     @GetMapping ("{l}/{d}/ciyu")
     public APIResponse<CiyuShow> ciyuSearch(
-            @PathVariable Dialect d, @PathVariable Language l, @RequestParam ObfInt query,
+            @PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query,
             @RequestParam Phonogram phonogram,
             @RequestParam IPASyllableStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
@@ -81,13 +83,16 @@ public class SearchController
         try
         {
             return APIResponse.success(c.getCiyuDetailInfo(
-                    query.decode(), l, d,
+                    query, l, d,
                     PinyinOption.of(phonogram, syllableStyle, toneStyle)
             ));
         } catch (Exception e)
         {
+            if (e instanceof NoSuchElementException)
+                return APIResponse.failure(ScTcText.get("沒有查到詞語", l).toString());
+
             e.printStackTrace();
-            return APIResponse.failure(ScTcText.get("查找詞語失敗",l).toString());
+            return APIResponse.failure(ScTcText.get("查找詞語失敗", l).toString());
         }
     }
 }

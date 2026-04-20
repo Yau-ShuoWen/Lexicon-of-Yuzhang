@@ -56,6 +56,15 @@
         GROUP BY main.id
     </select>
 
+    <select id="findCiyuByScOrTc" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE
+        main.${language} = #{ciyu}
+        AND special &lt; 2
+        GROUP BY main.id
+    </select>
+
     <select id="getAllCiyu" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
         SELECT
         <include refid="allIn"/>
@@ -85,7 +94,7 @@
         INSERT INTO ${dialect}_word
         (sc, tc, special, main_py, variant_py, mean)
         VALUES
-        (#{wd.sc}, #{wd.tc}, #{wd.special}, #{wd.main_py}, #{wd.variant_py}, #{wd.mean})
+        (#{wd.sc}, #{wd.tc}, #{wd.special}, #{wd.mainPy}, #{wd.variantPy}, #{wd.mean})
     </insert>
 
     <!--  插入新的内容（相似汉字表）  -->

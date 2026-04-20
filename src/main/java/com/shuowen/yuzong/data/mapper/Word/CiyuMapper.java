@@ -20,6 +20,8 @@ public interface CiyuMapper
      */
     List<CiyuEntity> findCiyuByWordId(Integer id, String dialect);
 
+    List<CiyuEntity> findCiyuByScOrTc(String ciyu, String dialect, String language);
+
     /**
      * 使用简繁体句子寻找词语
      */

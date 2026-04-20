@@ -2,6 +2,7 @@ package com.shuowen.yuzong.Tool.dataStructure;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 import com.shuowen.yuzong.Tool.dataStructure.text.UElement;
 
 import java.util.Objects;
@@ -28,7 +29,7 @@ public class UChar implements UElement<UChar>
     {
         checkNotNull(s);
         if (s.codePointCount(0, s.length()) != 1)
-            throw new IllegalArgumentException("字符数量不是一个：" + s);
+            throw new IllegalStringException("字符数量不是一个：" + s);
 
         return new UChar(s.codePointAt(0));
     }
@@ -39,7 +40,7 @@ public class UChar implements UElement<UChar>
     public static UChar of(int codePoint)
     {
         if (!Character.isValidCodePoint(codePoint))
-            throw new IllegalArgumentException("代码点不是正确字符" + codePoint);
+            throw new IllegalStringException("代码点不是正确字符" + codePoint);
 
         return new UChar(codePoint);
     }

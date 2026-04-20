@@ -13,7 +13,6 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.ObfInt;
-import com.shuowen.yuzong.Tool.format.ObfString;
 import com.shuowen.yuzong.data.domain.Character.HanziCreate;
 import com.shuowen.yuzong.data.domain.Character.HanziUpdate;
 import com.shuowen.yuzong.data.domain.Character.HanziGroup;
@@ -76,7 +75,7 @@ public class HanziService
                 tmp.setTitle(title);
                 tmp.setExplain(explain);
                 tmp.setTag("hanzi");
-                tmp.setInfo(Map.of("query", ObfString.encode(i.getHanzi().toString())));
+                tmp.setInfo(Map.of("query", i.getHanzi()));
                 ans.add(tmp);
             }
         }
@@ -86,10 +85,10 @@ public class HanziService
     /**
      * 精确的给出找的信息，获得汉字详细信息
      */
-    public HanziShow getHanziDetailInfo(String hanzi, Language l, Dialect d, PinyinOption op)
+    public HanziShow getHanziDetailInfo(UChar hanzi, Language l, Dialect d, PinyinOption op)
     {
         var item = ListTool.checkSizeOne(
-                HanziGroup.listOf(hz.findHanziByScOrTc(hanzi, l.toString(), d.toString()), l, d),
+                HanziGroup.listOf(hz.findHanziByScOrTc(hanzi.toString(), l.toString(), d.toString()), l, d),
                 "not found 未找到汉字", "not unique 汉字不唯一"
         );
         return HanziShow.of(item, new IPAData(l, d, op));
