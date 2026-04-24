@@ -11,8 +11,12 @@ import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
+import lombok.Data;
 import lombok.Getter;
 import lombok.ToString;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static com.shuowen.yuzong.Tool.ProofreadTool.escapeCharTraslate;
 
@@ -20,16 +24,11 @@ import static com.shuowen.yuzong.Tool.ProofreadTool.escapeCharTraslate;
  * 简体繁体对<br>
  * 有的时候没有别的事情，单纯校验一下，并且少写一个三元表达式
  */
-@Getter
-@ToString
+@Data
 public class ScTcText
 {
-    private UString sc;
-    private UString tc;
-
-    public ScTcText()
-    {
-    }
+    private final UString sc;
+    private final UString tc;
 
     /**
      * 标准构造方法，由json对象构造而来
@@ -110,5 +109,10 @@ public class ScTcText
         return """
                 {"sc": "", "tc": ""}
                 """;
+    }
+
+    public ScTcText map(Function<String, String> fun)
+    {
+        return new ScTcText(fun.apply(sc.toString()), fun.apply(tc.toString()));
     }
 }

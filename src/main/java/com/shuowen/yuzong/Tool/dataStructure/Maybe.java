@@ -97,6 +97,11 @@ public class Maybe<T>
         return value;
     }
 
+    public <U> U handleIfExistAndGet(Function<T, U> fun, U defaultValue)
+    {
+        return isValid() ? fun.apply(value) : defaultValue;
+    }
+
     /**
      * 比较两个是否都有值并且值相等
      */
@@ -118,8 +123,7 @@ public class Maybe<T>
         try
         {
             return Maybe.uncertain(fun.get());
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             return Maybe.nothing();
         }
