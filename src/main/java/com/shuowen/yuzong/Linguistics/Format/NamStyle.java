@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.Linguistics.Format;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -9,47 +10,26 @@ import lombok.EqualsAndHashCode;
 @Data
 public class NamStyle extends PinyinStyle
 {
-    public NamStyle()
+    //↓ DOTO 之后需要把他给成protect，放进同一个包里
+    public enum Style
     {
+        DISPALY, KEYBOAD, DEBUG
     }
 
-    public NamStyle(int yu, int gn, int ee, int oe, int ii, int ptk, int yw, int capital, int num, int iu)
+    private Style style;
+
+    private NamStyle(Style style)
     {
-        this.yu = yu;
-        this.gn = gn;
-        this.ee = ee;
-        this.oe = oe;
-        this.ii = ii;
-        this.ptk = ptk;
-        this.yw = yw;
-        this.capital = capital;
-        this.num = num;
-        this.iu = iu;
+        this.style = style;
     }
 
-    protected int yu;
-    protected int gn;
-    protected int ee;
-    protected int oe;
-    protected int ii;
-    protected int ptk;
-    protected int yw;
-    protected int capital;
-    protected int num;
-    protected int iu;
-
-    public static NamStyle createStyle(PinyinParam p)
+    public static NamStyle createStyle(Scheme scheme)
     {
-        int capital = switch (p.capital)
+        return switch (scheme)
         {
-            case LOWER -> 0;
-            case UPPER -> 1;
-            case FIRST -> 2;
-        };
-        return switch (p.scheme)
-        {
-            case KEYBOARD -> new NamStyle(0, 0, 0, 0, 0, 0, 0, capital, 2, 0);
-            case STANDARD -> new NamStyle(1, 0, 1, 1, 1, 0, 0, capital, 1, 0);
+            case DISPLAY -> new NamStyle(Style.DISPALY);
+            case KEYBOARD -> new NamStyle(Style.KEYBOAD);
+            case DEBUG -> new NamStyle(Style.DEBUG);
         };
     }
 }

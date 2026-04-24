@@ -77,5 +77,9 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
      * <br>1. 是protected的，也就是只給{@code PinyinFormatter}
      * <br>2. 结果并不是简单的字符串，而是包装类
      */
-    abstract protected RPinyin format(T params);
+    abstract protected RPinyin toRPinyin(T params);
+
+    abstract protected SPinyin toSPinyin(T params);
+
+    abstract protected DPinyin toDPinyin(T params);
 }

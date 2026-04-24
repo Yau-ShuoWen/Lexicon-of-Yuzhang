@@ -24,12 +24,6 @@ public class SPinyin
         this.tone = tone;
     }
 
-    private SPinyin(UniPinyin<?> py)
-    {
-        syll = py.getSyll();
-        tone = py.getTone();
-    }
-
     public static SPinyin valueOf(String s)
     {
         return SPinyin.of(s);
@@ -51,11 +45,6 @@ public class SPinyin
     public static SPinyin of(String syll, Maybe<Integer> tone)
     {
         return new SPinyin(syll, tone);
-    }
-
-    public static SPinyin of(UniPinyin<?> py)
-    {
-        return new SPinyin(py);
     }
 
     @JsonValue

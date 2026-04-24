@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
@@ -20,11 +19,12 @@ public class NamPinyin extends UniPinyin<NamStyle>
         super(s);
     }
 
-    public static Maybe<NamPinyin> tryOf(SPinyin s)
+    public static Maybe<NamPinyin> tryOf(SPinyin s, boolean fromDatabase)
     {
         try
         {
-            return Maybe.exist(new NamPinyin(s));
+            var p = fromDatabase ? s : LacKeyboard.normalize(s);
+            return Maybe.exist(new NamPinyin(p));
         } catch (InvalidPinyinException e)
         {
             return Maybe.nothing();
@@ -263,139 +263,107 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
     protected String initWeight()
     {
-        return code + tone;
+        return code + (tone.isValid() ? tone.getValue() : "");
     }
 
     @Override
+    @Deprecated
     public String toString()
     {
-        return "默认的南昌话拼音：" + syll + (tone.isValid() ? tone.getValue() : "") + "（未知格式）";
+        return String.format("默认的南昌话拼音：%s%s", syll,
+                tone.handleIfExistAndGet(Object::toString, "")
+        );
     }
 
     @Override
-    protected RPinyin format(NamStyle p)
+    protected RPinyin toRPinyin(NamStyle p)
     {
-        NullTool.checkNotNull(p);
-
-        String builder = setFormat(p.getYu(), p.getGn(), p.getEe(), p.getOe(), p.getIi(), p.getPtk(), p.getYw());
-        builder = addMark(builder, p.getNum(), p.getIu());
-        builder = setCapital(builder, p.getCapital());
-
-        return RPinyin.of(builder);
+        String pinyin = switch (p.getStyle())
+        {
+            case DISPALY -> LacDisplay.format(this);
+            case KEYBOAD -> LacKeyboard.format(this);
+            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
+        };
+        return RPinyin.of(pinyin);
     }
 
-    public String setFormat(int yu, int gn, int ee, int oe, int ii, int ptk, int yw)
+    @Override
+    protected SPinyin toSPinyin(NamStyle p)
     {
-        String s = syll;
-        if (gn > 0)
+        String pinyin = switch (p.getStyle())
         {
-            s = s.replace("ni", "gni");
-            s = s.replace("nyu", "gnyu");
-        }
-        if (yu > 0)
-        {
-            if (yu == 1) s = s.replace("yu", "ü");
-            if (yu == 2) s = s.replace("yu", "v");
-            if (yu == 3) s = s.replace("yu", "ụ");
-        }
-        if (ee > 0)
-        {
-            if (ee == 1) s = s.replace("ee", "ẹ");
-            if (ee == 2) s = s.replace("ee", "ё");
-        }
-        if (oe > 0)
-        {
-            if (oe == 1) s = s.replace("oe", "ọ");
-            if (oe == 2) s = s.replace("oe", "ö");
-            if (oe == 3) s = s.replace("oe", "o");
-        }
-        if (ii > 0)
-        {
-            if (ii == 1) s = s.replace("ii", "i");
-            if (ii == 2) s = s.replace("ii", "");
-            if (ii == 3) s = s.replace("ii", "ị");
-        }
-        if (ptk > 0)
-        {
-            char c = StringTool.back(s);
-            if (c == 't' || c == 'k')
-            {
-                s = StringTool.deleteBack(s);
-                if (ptk == 1) s += "";
-                if (ptk == 2) s += 'h';
-                if (ptk == 3) s += 'q';
-                if (ptk == 4)
-                {
-                    if (c == 'k') s += 'h';
-                    else s += 't';
-                }
-            }
-
-        }
-        if (yw > 0)
-        {
-            char c = s.charAt(0);
-            if (yw == 1)//符合普通话规律
-            {
-                if (c == 'i')
-                {
-                    // i ->yi it->yit iu->yiu in->yin
-                    if (ObjectTool.existEqual(s, "i", "it", "iu", "in"))
-                        s = "y" + s;
-                    else s = "y" + s.substring(1);
-                }
-                if (c == 'u')
-                {
-                    if (s.length() >= 2 && ObjectTool.existEqual(s.charAt(1), 'a', 'o'))
-                        s = "w" + s.substring(1);
-                    else s = "w" + s;
-                }
-            }
-            if (yw == 2)//硬加
-            {
-                if (c == 'i') s = "y" + s;
-                if (c == 'u') s = "w" + s;
-            }
-        }
-        return s;
+            case DISPALY -> throw new IllegalArgumentException();
+            case KEYBOAD -> LacKeyboard.format(this);
+            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
+        };
+        return SPinyin.of(pinyin);
     }
 
-    protected String addMark(String builder, int num, int iu)
+    protected DPinyin toDPinyin(NamStyle p)
     {
-        if (tone.isEmpty()) return builder;
-        var t = tone.getValue();
-
-        return switch (num)
+        String pinyin = switch (p.getStyle())
         {
-            case 1 ->
-            {
-                if (t == 0) yield builder; //不用加任何符号
+            case DISPALY, KEYBOAD -> throw new IllegalArgumentException();
+            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
+        };
+        return DPinyin.of(pinyin);
+    }
 
-                // 标在后的情况下iu是例外，都是本来应该标在i上，根据这个规则标在u上反之亦然
-                if (iu == 1 && builder.contains("iu")) yield builder.replace("u", "u" + mark);
-                if (iu == 2 && builder.contains("ui")) yield builder.replace("u", "u" + mark);
-                // 通常情况按照顺序识别
+    /**
+     * 展示格式工具类，单向
+     */
+    private static class LacDisplay
+    {
+        public static String format(NamPinyin p)
+        {
+            String s = p.syll;
+            char t = p.mark;
+
+            // 非常标准，三个双字母，一个双变单
+            s = s.replace("yu", "ü");
+            s = s.replace("ee", "ẹ");
+            s = s.replace("oe", "ọ");
+            s = s.replace("ii", "i");
+
+            // 表音调
+            if (p.tone.isEmpty() || p.tone.getValue() == 0) return s;
+            else
+            {
+                if (s.contains("iu")) return s.replace("u", "u" + t);
+
                 for (String i : "aoöọeẹёiịuvüụ".split(""))
-                    if (builder.contains(i)) yield builder.replace(i, i + mark);
+                    if (s.contains(i)) return s.replace(i, i + t);
 
                 // 例外：没有主元音m n ng，只有ng要特殊处理
-                if ("ng".equals(builder)) yield StringTool.insert(builder, 1, mark);
-                else yield builder + mark;
+                if ("ng".equals(s)) return StringTool.insert(s, 1, t);
+                else return s + t;
             }
-            case 2 -> builder + tone;
-            case 3 -> builder + " " + mark;
-            default -> builder; // 0 也就是不加的意思，和异常参数的静默处理是重合的
-        };
+        }
     }
 
-    protected String setCapital(String builder, int capital)
+    /**
+     * 输入格式工具类，双向
+     */
+    private static class LacKeyboard
     {
-        if (capital > 0)
+        public static String format(NamPinyin p)
         {
-            if (capital == 1) return builder.toUpperCase();
-            if (capital == 2) return builder.substring(0, 1).toUpperCase() + builder.substring(1);
+            String s = p.syll;
+            var t = p.tone;
+
+            s = s.replace("ii", "i");
+            return s + (t.isValid() ? t.getValue() : "");
         }
-        return builder;
+
+        public static SPinyin normalize(SPinyin p)
+        {
+            String s = p.getSyll();
+
+            if (s.matches("^[zcs]ii$")) s = s.charAt(0) + "";
+            if (s.matches("^[zcs]i$")) s = s.charAt(0) + "ii";
+
+            return SPinyin.of(s, p.getTone());
+        }
     }
 
 
@@ -432,11 +400,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
         // 处理 ẹ
         if (text.contains("ẹ")) text = text.replace("ẹ", "ee");
         if (text.contains("ọ")) text = text.replace("ọ", "oe");
-
-        // 处理 zii cii sii 后面i不足量的问题：
-        // 匹配：第一个字母是zcs，没有或有一个i，然后立刻结束字符串
-        // 写法处理：z->zii   ci->cii   s->sii
-        if (text.matches("^[zcs]i?$")) text = text.charAt(0) + "ii";
 
         // 双韵母的模糊处理
         // 匹配：普通话常见但是不符合的： ao iao ou iou uei
