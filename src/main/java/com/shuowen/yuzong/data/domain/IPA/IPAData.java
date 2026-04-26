@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
-import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
+import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
@@ -26,9 +26,9 @@ public class IPAData
     @Getter
     private final PinyinOption pinyinOption;               // 拼音格式：预先存进不可变
     private final DictGroup dictionary;          // 字典代号-字典中文对照表
-    private final Set<Pinyin> buffer = new HashSet<>();    // 没有查的内容的缓冲区
-    private final Set<Pinyin> failCase = new HashSet<>();  // 失败用例
-    private final Map<Pinyin, Map<DictCode, String>> data = new HashMap<>(); // 信息
+    private final Set<IPinyin> buffer = new HashSet<>();    // 没有查的内容的缓冲区
+    private final Set<IPinyin> failCase = new HashSet<>();  // 失败用例
+    private final Map<IPinyin, Map<DictCode, String>> data = new HashMap<>(); // 信息
 
     public IPAData(Language l, Dialect d, PinyinOption op)
     {
@@ -41,7 +41,7 @@ public class IPAData
     /**
      * 检查拼音是否有历史记录
      */
-    private boolean haveHistory(Pinyin pinyin)
+    private boolean haveHistory(IPinyin pinyin)
     {
         // 被data放进去的是查询成功，被failCase放进去是查询失败
         return data.containsKey(pinyin) || failCase.contains(pinyin);
@@ -58,7 +58,7 @@ public class IPAData
     /**
      * 查询函数
      */
-    private void search(Set<Pinyin> set)
+    private void search(Set<IPinyin> set)
     {
         data.putAll(IPAService.getTheIPA(set, pinyinOption, dialect, dictionary.getKeySet()));
         for (var i : set) if (!data.containsKey(i)) failCase.add(i);
@@ -77,7 +77,7 @@ public class IPAData
     /**
      * 加入缓冲区
      */
-    private void addBuffer(Pinyin pinyin)
+    private void addBuffer(IPinyin pinyin)
     {
         if (!haveHistory(pinyin)) buffer.add(pinyin);
     }
@@ -85,7 +85,7 @@ public class IPAData
     /**
      * 单个拼音的增加
      */
-    public void add(Pinyin input)
+    public void add(IPinyin input)
     {
         addBuffer(input);
     }
@@ -93,7 +93,7 @@ public class IPAData
     /**
      * 数组或者集合拼音的增加
      */
-    public void add(Collection<Pinyin> inputs)
+    public void add(Collection<IPinyin> inputs)
     {
         for (var i : inputs) add(i);
     }
@@ -103,7 +103,7 @@ public class IPAData
      *
      * @apiNote 在这之前一定要用这个之前加入信息，这里才可以获得
      */
-    public Maybe<String> submitAndGet(Pinyin pinyin, DictCode dict)
+    public Maybe<String> submitAndGet(IPinyin pinyin, DictCode dict)
     {
         search(); // 性能仅限于批量查询、批量获取的第一个获取，后续只要不加内容就不会查询
 
@@ -116,7 +116,7 @@ public class IPAData
     /**
      * 直接需要内容的时候
      */
-    public Maybe<String> getDirectly(Pinyin pinyin, DictCode dict)
+    public Maybe<String> getDirectly(IPinyin pinyin, DictCode dict)
     {
         if (!haveHistory(pinyin)) search(Set.of(pinyin));
         return submitAndGet(pinyin, dict);
