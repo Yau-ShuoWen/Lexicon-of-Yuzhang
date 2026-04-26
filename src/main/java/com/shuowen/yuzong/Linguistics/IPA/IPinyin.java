@@ -1,8 +1,8 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
+package com.shuowen.yuzong.Linguistics.IPA;
 
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 
-public interface Pinyin
+public interface IPinyin
 {
     String getSyll();
 

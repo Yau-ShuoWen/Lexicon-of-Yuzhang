@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import lombok.EqualsAndHashCode;
@@ -8,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode // 因为其他字段只由这 syll tone 两个决定，所以实际上也只是比较这两个的区别
-abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
+abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
 {
     protected final String syll;        // 不包括声调的标准拼音
     protected final Maybe<Integer> tone;// 数字音调，0表示轻声

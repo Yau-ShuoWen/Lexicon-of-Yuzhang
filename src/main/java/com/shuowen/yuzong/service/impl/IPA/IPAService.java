@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.service.impl.IPA;
 
-import com.shuowen.yuzong.Linguistics.Scheme.Pinyin;
+import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
@@ -31,8 +31,8 @@ public class IPAService
     /**
      * 传入多条拼音，把所有字典版本的IPA全部转换出来
      */
-    public Map<Pinyin, Map<DictCode, String>> getIPA(
-            Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<DictCode> dictSet)
+    public Map<IPinyin, Map<DictCode, String>> getIPA(
+            Set<IPinyin> pinyinSet, PinyinOption op, Dialect d, Set<DictCode> dictSet)
     {
         // 给出的是拼音的set，通过mapping获得对应拼音/音调的set
         // 这个set查数据库，查询之后获得的是对应数据条目的set
@@ -40,17 +40,17 @@ public class IPAService
 
         var syll = Yinjie.mapOf(
                 m.findSyllableListByStandard(
-                        SetTool.mapping(pinyinSet, Pinyin::getSyll),
+                        SetTool.mapping(pinyinSet, IPinyin::getSyll),
                         d.toString())
         );
         var tone = Shengdiao.mapOf(m.findToneInfoSet(
                 SetTool.mapping(
-                        SetTool.filter(pinyinSet, Pinyin::haveTone), // 筛选掉空音调
+                        SetTool.filter(pinyinSet, IPinyin::haveTone), // 筛选掉空音调
                         i -> i.getToneDirectly().toString()),
                 d.toString())
         );
 
-        Map<Pinyin, Map<DictCode, String>> dataPerPinyin = new HashMap<>();
+        Map<IPinyin, Map<DictCode, String>> dataPerPinyin = new HashMap<>();
 
         for (var pinyin : pinyinSet)
         {
@@ -143,7 +143,7 @@ public class IPAService
     /**
      *
      */
-    public void insertSyllable(Pinyin p, Dialect d)
+    public void insertSyllable(IPinyin p, Dialect d)
     {
         if (m.findSyllableByStandard(p.getSyll(), d.toString()) != null) return;
         var merge = constructIPA(d, p, i -> Shengyun.tryOf(m.findSegmentInfo(i, d.toString())));
@@ -154,7 +154,7 @@ public class IPAService
      * @param data 查询可能找得到也可能找不到的函数，找不到会在Yinjie.merge()里返回安全空
      */
     private Maybe<Yinjie> constructIPA(
-            Dialect d, Pinyin pinyin, Function<String, Maybe<Shengyun>> data)
+            Dialect d, IPinyin pinyin, Function<String, Maybe<Shengyun>> data)
     {
         String code = pinyin.getCode();
 
@@ -175,8 +175,8 @@ public class IPAService
         instance = this;
     }
 
-    public static Map<Pinyin, Map<DictCode, String>> getTheIPA(
-            Set<Pinyin> pinyinSet, PinyinOption op, Dialect d, Set<DictCode> dictSet)
+    public static Map<IPinyin, Map<DictCode, String>> getTheIPA(
+            Set<IPinyin> pinyinSet, PinyinOption op, Dialect d, Set<DictCode> dictSet)
     {
         return instance.getIPA(pinyinSet, op, d, dictSet);
     }
