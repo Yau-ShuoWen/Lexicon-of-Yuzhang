@@ -46,11 +46,19 @@ public class RichTextUtil
         return sb.toString();
     }
 
-    public static UString format(UString text, final IPAData data, boolean developer, Maybe<DictCode> dict)
+    /**
+     * @param text      需要处理的字段
+     * @param data      国际音标查询类
+     * @param developer 开发者模式
+     * @param dict      可能有也可能没有的字典代号
+     * @param isfromDB  是否是从数据库的来的数据
+     */
+    public static UString format
+    (UString text, final IPAData data, boolean developer, Maybe<DictCode> dict, boolean isfromDB)
     {
         String s = text.toString();
 
-        s = TextPinyinIPA.format(s, data, developer, dict);
+        s = TextPinyinIPA.format(s, data, developer, dict, isfromDB);
         s = handleAnnotation(s);
 
         return UString.of(s);
@@ -62,7 +70,9 @@ public class RichTextUtil
 
     public static UString easyFormatFromTc(String text, final IPAData data)
     {
-        return RichTextUtil.format(ScTcText.get(text, data.getDialect(), data.getLanguage()), data, false, Maybe.nothing());
+        return RichTextUtil.format(ScTcText.get(
+                text, data.getDialect(), data.getLanguage()
+        ), data, false, Maybe.nothing(), true);
     }
 
     /**
@@ -110,7 +120,7 @@ public class RichTextUtil
      */
     public static boolean checkWarning(UString text)
     {
-        return !text.toString().contains(" {b 无效");
+        return !text.toString().contains("【无效");
     }
 
     /**

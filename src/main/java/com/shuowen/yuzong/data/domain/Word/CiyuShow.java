@@ -2,7 +2,6 @@ package com.shuowen.yuzong.data.domain.Word;
 
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
@@ -60,7 +59,7 @@ public class CiyuShow
         ));
 
         variantPy = ListTool.mapping(cy.getVariantPy(),
-                i -> RichTextUtil.format(i, data, false, Maybe.nothing())
+                i -> RichTextUtil.format(i, data, false, Maybe.nothing(),true)
         );
 
         {

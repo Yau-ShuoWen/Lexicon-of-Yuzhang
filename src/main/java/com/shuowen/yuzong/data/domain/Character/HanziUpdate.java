@@ -2,10 +2,12 @@ package com.shuowen.yuzong.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcChar;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
@@ -65,27 +67,22 @@ public class HanziUpdate
         SPinyin pinyin; // 读音变体
         Integer sort;   // 优先等级
 
-        public PinyinData(HanziPinyin py)
+        public PinyinData(HanziPinyin py, Dialect d)
         {
             id = py.getId();
             tag = new ScTcText(py.getSc(), py.getTc());
-            pinyin = SPinyin.of(py.getPinyin());
+            pinyin = PinyinFormatter.toSPinyin(py.getPinyin(), d);
             sort = py.getSort();
         }
 
-        public void checkPinyin(Dialect d)
-        {
-            d.checkAndCreatePinyin(pinyin); // 只检查不用
-        }
-
-        public HanziPinyin transfer(int charId)
+        public HanziPinyin checkPinyinAndTransfer(Dialect d, int charId)
         {
             var ans = new HanziPinyin();
             ans.setId(id);
             ans.setCharId(charId);
             ans.setSc(tag.getSc().toString());
             ans.setTc(tag.getTc().toString());
-            ans.setPinyin(pinyin.toString());
+            ans.setPinyin(PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(pinyin), d).toString(true));
             ans.setSort(sort);
             return ans;
         }
@@ -104,32 +101,25 @@ public class HanziUpdate
     {
     }
 
-    public HanziUpdate(HanziEntity ch, List<HanziSimilar> sim, List<HanziPinyin> py, List<MdrChar> mdr)
+    public HanziUpdate(Dialect d, HanziEntity ch, List<HanziSimilar> sim, List<HanziPinyin> py, List<MdrChar> mdr)
     {
         id = ch.getId();
         hanzi = new ScTcChar(ch.getSc(), ch.getTc());
-        mainPy = SPinyin.of(ch.getMainPy());
+        mainPy = PinyinFormatter.toSPinyin(ch.getMainPy(), d);
         special = ch.getSpecial();
 
         // 其他表的查询
         similar = ListTool.mapping(sim, Similar::new);
-        variantPy = ListTool.mapping(py, PinyinData::new);
+        variantPy = ListTool.mapping(py, i -> new PinyinData(i, d));
         mandarin = mdr;
 
         // 表的复杂字段
 
         ObjectMapper om = new ObjectMapper();
 
-        // @desprate，之后新功能上之后需要完全删掉，所以不重构
-        {
-            List<Map<String, String>> tmp = readJson(ch.getIpa(), new TypeReference<>() {}, om);
-            for (var i : tmp)
-                ipa.add(Pair.of(i.get("tag"), i.get("content")));
-        }
-
         note = ListTool.mapping(
                 readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}, om),
-                i -> Twin.of(i.get("tag"), i.get("content")));
+                i -> Twin.of(i.get("tag"), i.get("content").map(str -> TextPinyinIPA.transferPinyin(str, d, true))));
 
         status = ch.getStatus();
     }
@@ -139,13 +129,12 @@ public class HanziUpdate
     {
         HanziEntity ch = new HanziEntity();
 
-
         ch.setId(id);
         ch.setSc(hanzi.getSc().toString());
         ch.setTc(hanzi.getTc().toString());
 
         var dPinyin = d.checkAndCreatePinyin(mainPy);
-        ch.setMainPy(mainPy.toString());
+        ch.setMainPy(PinyinFormatter.toDPinyin(dPinyin, d).toString(true));
         ch.setPyCode(dPinyin.getWeight());
 
         ObjectTool.asserts(NumberTool.closeBetween(special, 0, 4), "");
@@ -153,8 +142,7 @@ public class HanziUpdate
 
         var sim = ListTool.mapping(similar, i -> i.transfer(id));
 
-        ListTool.handle(variantPy, i -> i.checkPinyin(d));
-        var py = ListTool.mapping(variantPy, i -> i.transfer(id));
+        var py = ListTool.mapping(variantPy, i -> i.checkPinyinAndTransfer(d, id));
 
         var mdr = mandarin;
         ListTool.handle(mdr, i -> i.setDialectId(id));
@@ -173,12 +161,19 @@ public class HanziUpdate
             ch.setIpa(toJson(tmp, om, "[]"));
         }
 
-        ch.setNote(toJson(
-                ListTool.mapping(note, i -> Map.of("tag", i.getLeft(), "content", i.getRight())),
-                om, "[]"));
+        ch.setNote(
+                toJson(
+                        ListTool.mapping(note, i -> Map.of(
+                                        "tag", i.getLeft(),
+                                        "content", i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, d, false))
+                                )
+                        ), om, "[]"
+                )
+        );
 
         ch.setStatus(status);
 
+        System.out.println(Quadruple.of(ch, sim, py, mdr));
         return Quadruple.of(ch, sim, py, mdr);
     }
 }

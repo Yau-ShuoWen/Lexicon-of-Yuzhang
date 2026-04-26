@@ -127,7 +127,7 @@ public class HanziService
      */
     public HanziUpdate getHanziById(int id, Dialect d)
     {
-        return new HanziUpdate(
+        return new HanziUpdate(d,
                 hz.findHanziByCharId(id, d.toString()),
                 hz.findHanziSimilarByCharId(id, d.toString()),
                 hz.findHanziPinyinByCharId(id, d.toString()),
@@ -239,13 +239,13 @@ public class HanziService
     public List<String> getHanziMenu(String text, Dialect d)
     {
         var list = mdr.getHanzisByPinyin(text);
-        if(list==null) return List.of("拼音无效");
+        if (list == null) return List.of("拼音无效");
         List<String> ans = new ArrayList<>();
 
         // 获得所有汉字
         Set<String> set = new HashSet<>();
         for (var i : list) for (var j : i.getRight()) set.add(j.toString());
-        if(set.isEmpty()) return List.of("没有找到");
+        if (set.isEmpty()) return List.of("没有找到");
         // 获得
         Set<UChar> existChars = new HashSet<>();
         for (var i : hz.findHanziByScTcBatch(set, d.toString()))
@@ -259,8 +259,8 @@ public class HanziService
             String ok = "", no = "";
             for (var j : i.getRight())
             {
-                if (existChars.contains(j)) ok+=j.toString();
-                else no+=j.toString();
+                if (existChars.contains(j)) ok += j.toString();
+                else no += j.toString();
             }
             ans.add(String.format("%s %s（%s）", i.getLeft().getRead(), no, ok));
         }

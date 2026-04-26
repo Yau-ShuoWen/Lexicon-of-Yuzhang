@@ -1,11 +1,11 @@
 package com.shuowen.yuzong.Tool.TextTool;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
@@ -48,7 +48,7 @@ public class TextPinyinIPA
     }
 
     /**
-     * 正規化
+     * 正则化
      */
     private static PinyinToken normalize(String content)
     {
@@ -66,34 +66,34 @@ public class TextPinyinIPA
         if (content.startsWith("*")) return new PinyinToken(PinyinType.IPA, content.substring(1));
 
         // [-kɔŋ_42]
-        if (content.startsWith("-")) return new PinyinToken(PinyinType.OUT_IPA, content);
+        if (content.startsWith("-")) return new PinyinToken(PinyinType.OUT_IPA, content.substring(1));
 
         //
-        if (content.startsWith("#")) return new PinyinToken(PinyinType.CUSTOM, content);
+        if (content.startsWith("#")) return new PinyinToken(PinyinType.CUSTOM, content.substring(1));
 
         // 默认：[gon1]
         return new PinyinToken(PinyinType.DIALECT, content);
     }
 
-    /**
-     * 工具类入口
-     */
-    public static String format(String text, final IPAData data, boolean developer, Maybe<DictCode> dict)
-    {
-        var pattern = Pattern.compile("\\[[^]]+]");
+    private static final Pattern pattern = Pattern.compile("\\[[^]]+]");
 
+    /**
+     * 工具类入口：格式化内容
+     */
+    public static String format(String text, final IPAData data, boolean developer, Maybe<DictCode> dict, boolean isfromDB)
+    {
         // 预处理所有和拼音有关的内容插入，不一定会查询，但是：
         // 1. 只要不查询就没有性能消耗
         // 2. 只要查询就能把所有都找出来
         Matcher m = pattern.matcher(text);
-        while (m.find()) collectPinyin(normalize(m.group()), data);
+        while (m.find()) collectPinyin(normalize(m.group()), data, isfromDB);
 
         // 构建
         StringBuilder sb = new StringBuilder();
         m = pattern.matcher(text);
         while (m.find())
         {
-            var handleAns = handle(normalize(m.group()), data, developer, dict);
+            var handleAns = handle(normalize(m.group()), data, developer, dict, isfromDB);
             var replace = Matcher.quoteReplacement(handleAns);
             m.appendReplacement(sb, replace);
         }
@@ -112,7 +112,7 @@ public class TextPinyinIPA
      */
     private static String handle(
             PinyinToken pinyin, final IPAData data,
-            boolean developer, Maybe<DictCode> dict)
+            boolean developer, Maybe<DictCode> dict, boolean isfromDB)
     {
         if (pinyin.body.contains(" "))
         {
@@ -120,7 +120,7 @@ public class TextPinyinIPA
             for (String s : pinyin.body.split("\\s+"))
             {
                 var smaller = new PinyinToken(pinyin.type, s);
-                list.add(handle(smaller, data, developer, dict));
+                list.add(handle(smaller, data, developer, dict, isfromDB));
             }
             return concatPinyin(list);
         }
@@ -140,7 +140,7 @@ public class TextPinyinIPA
                     return HanPinyin.of(pinyin.body).getRead().toString();
                 } catch (InvalidPinyinException e)
                 {
-                    return String.format(" {b 无效汉语拼音：%b} ", pinyin.body);
+                    return String.format(" 【无效汉语拼音：%b】 ", pinyin.body);
                 }
             }
             case IPA ->
@@ -149,7 +149,9 @@ public class TextPinyinIPA
                 try
                 {
                     // 创建拼音，如果失败，返回警告
-                    var py = d.checkAndCreatePinyin(pyText);
+                    var py = isfromDB ?
+                            d.trustedCreatePinyin(pyText) :
+                            d.checkAndCreatePinyin(pyText);
 
                     // 创建音标，如果失败，返回警告
                     try
@@ -159,7 +161,7 @@ public class TextPinyinIPA
                         );
                     } catch (Exception e)
                     {
-                        return " {b 无效国际音标} ";
+                        return " 【无效国际音标】 ";
                     }
 
                 } catch (InvalidPinyinException e)
@@ -169,10 +171,10 @@ public class TextPinyinIPA
                     {
                         var checkRes = PinyinChecker.suggestively(pyText, d);
                         return (checkRes.getLeft() == 2) ?
-                                String.format(" {b 无效方言拼音：[%s]，是否应为：[%s]？}", pyText, checkRes.getRight()) :
-                                String.format(" {b 无效方言拼音：[%s]} ", pyText);
+                                String.format(" 【无效方言拼音：[%s]，是否应为：[%s]】", pyText, checkRes.getRight()) :
+                                String.format(" 【无效方言拼音：[%s]】 ", pyText);
                     }
-                    else return " {b 无效方言拼音} ";
+                    else return " 【无效方言拼音】 ";
                 }
             }
             case OUT_IPA ->
@@ -192,17 +194,17 @@ public class TextPinyinIPA
                     {
                         // developer 为 true 是因为这个分支里都是如此；dict 为空是因为拆分了之后就不用了
                         return String.format("%s/%s",
-                                handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, true, dict),
-                                handle(pinyin, data, true, Maybe.nothing())
+                                handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, true, dict, isfromDB),
+                                handle(pinyin, data, true, Maybe.nothing(), isfromDB)
                         );
                     }
                     else
                     {
                         return switch (data.getPinyinOption().getPhonogram())
                         {
-                            case AllPinyin -> handle(pinyin, data, false, Maybe.nothing());
+                            case AllPinyin -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);
                             case PinyinIPA ->
-                                    handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, false, Maybe.nothing());
+                                    handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, false, Maybe.nothing(), isfromDB);
                         };
                     }
 
@@ -212,19 +214,21 @@ public class TextPinyinIPA
                     var pyText = SPinyin.of(pinyin.body);
                     try
                     {
-                        var py = d.checkAndCreatePinyin(pyText);
+                        var py = isfromDB ?
+                                d.trustedCreatePinyin(pyText) :
+                                d.checkAndCreatePinyin(pyText);
                         // RPinyin已经是 " [%s] "的格式了
-                        return PinyinFormatter.handle(py, d, PinyinParam.of(Scheme.STANDARD)).toString();
+                        return PinyinFormatter.handle(py, d, Scheme.DISPLAY).toString();
                     } catch (InvalidPinyinException e)
                     {
                         if (developer)
                         {
                             var checkRes = PinyinChecker.suggestively(pyText, d);
                             return (checkRes.getLeft() == 2) ?
-                                    String.format(" {b 无效方言拼音：[%s]，是否应为：[%s]？}", pyText, checkRes.getRight()) :
-                                    String.format(" {b 无效方言拼音：[%s]} ", pyText);
+                                    String.format(" 【无效方言拼音：[%s]，是否应为：[%s]？】", pyText, checkRes.getRight()) :
+                                    String.format(" 【无效方言拼音：[%s]】 ", pyText);
                         }
-                        else return " {b 无效方言拼音} ";
+                        else return " 【无效方言拼音】 ";
                     }
                 }
             }
@@ -240,16 +244,18 @@ public class TextPinyinIPA
                     if (developer)
                     {
                         return String.format("%s/%s",
-                                handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, true, dict),
-                                handle(new PinyinToken(PinyinType.IGNORE, py), data, true, dict)
+                                handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, true, dict, isfromDB),
+                                handle(new PinyinToken(PinyinType.IGNORE, py), data, true, dict, isfromDB)
                         );
                     }
                     else
                     {
                         return switch (data.getPinyinOption().getPhonogram())
                         {
-                            case AllPinyin -> handle(new PinyinToken(PinyinType.IGNORE, py), data, false, dict);
-                            case PinyinIPA -> handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, false, dict);
+                            case AllPinyin ->
+                                    handle(new PinyinToken(PinyinType.IGNORE, py), data, false, dict, isfromDB);
+                            case PinyinIPA ->
+                                    handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, false, dict, isfromDB);
                         };
                     }
                 } catch (StringIndexOutOfBoundsException e)
@@ -266,14 +272,14 @@ public class TextPinyinIPA
         }
     }
 
-    private static void collectPinyin(PinyinToken pinyin, final IPAData data)
+    private static void collectPinyin(PinyinToken pinyin, final IPAData data, boolean isfromDB)
     {
         if (pinyin.body.contains(" "))
         {
             for (String s : pinyin.body.split("\\s+"))
             {
                 var smaller = new PinyinToken(pinyin.type, s);
-                collectPinyin(smaller, data);
+                collectPinyin(smaller, data, isfromDB);
             }
             return;
         }
@@ -282,8 +288,11 @@ public class TextPinyinIPA
         {
             try
             {
+                var d = data.getDialect();
                 SPinyin pyText = SPinyin.of(pinyin.body);
-                var py = data.getDialect().checkAndCreatePinyin(pyText);
+                var py = isfromDB ?
+                        d.trustedCreatePinyin(pyText) :
+                        d.checkAndCreatePinyin(pyText);
                 data.add(py);
             } catch (InvalidPinyinException ignored)
             {
@@ -315,4 +324,50 @@ public class TextPinyinIPA
             return res.toString();
         }
     }
+
+    /**
+     * 工具类入口：把展示和存储的内容相互转化
+     */
+    public static String transferPinyin(String text, Dialect d, boolean isfromDB)
+    {
+        StringBuilder sb = new StringBuilder();
+        Matcher m = pattern.matcher(text);
+        while (m.find())
+        {
+            var handleAns = pinyinToDB(normalize(m.group()), d, isfromDB);
+            var replace = Matcher.quoteReplacement(handleAns);
+            m.appendReplacement(sb, replace);
+        }
+        m.appendTail(sb);
+
+        return sb.toString();
+    }
+
+    private static String pinyinToDB(PinyinToken pinyin, Dialect d, boolean isfromDB)
+    {
+        if (pinyin.body.contains(" "))
+        {
+            List<String> list = new ArrayList<>();
+            for (String s : pinyin.body.split("\\s+"))
+            {
+                var smaller = new PinyinToken(pinyin.type, s);
+                list.add(pinyinToDB(smaller, d, isfromDB));
+            }
+            return concatPinyin(list).replace("][", " ");
+        }
+
+        if (pinyin.type == PinyinType.DIALECT)
+        {
+            if (isfromDB)
+            {
+                return String.format("[%s]",PinyinFormatter.toSPinyin(pinyin.body, d).toString());
+            }
+            else
+            {
+                return PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(SPinyin.of(pinyin.body)), d).toString(false);
+            }
+        }
+        else return pinyin.body;
+    }
+
 }

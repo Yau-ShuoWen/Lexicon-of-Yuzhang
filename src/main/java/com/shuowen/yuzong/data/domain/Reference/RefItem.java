@@ -23,9 +23,8 @@ public class RefItem
         var d = data.getDialect();
 
         {
-            var tmp = RichTextUtil.handleRefTitle(new ScTcText(ck.getContent(), d).get(l),
-                    data.getPinyinOption().getPhonogram());
-            content = RichTextUtil.format(tmp, data, false, Maybe.exist(dict));
+            var tmp = RichTextUtil.handleRefTitle(new ScTcText(ck.getContent(), d).get(l));
+            content = RichTextUtil.format(tmp, data, false, Maybe.exist(dict), true);
         }
 
         source = new ScTcText(String.format("%s%s第%s頁",

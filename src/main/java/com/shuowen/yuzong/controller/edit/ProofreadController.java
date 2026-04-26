@@ -49,7 +49,7 @@ public class ProofreadController
     )
     {
         var str = RichTextUtil.format(text, new IPAData(
-                l, d, PinyinOption.defaultOf()), true, Maybe.uncertain(dict));
+                l, d, PinyinOption.defaultOf()), true, Maybe.uncertain(dict),false);
         return Pair.of(RichTextUtil.checkWarning(str), str);
     }
 }

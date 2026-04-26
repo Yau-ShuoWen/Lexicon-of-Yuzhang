@@ -159,9 +159,9 @@ public class HanziShow
                 }
             }
 
-            // 使用富文本的内容，放在最后，说不定可以用上前面获得的数据
+            // 使用富文本的内 容，放在最后，说不定可以用上前面获得的数据
             info.note = ListTool.mapping(i.note, pair -> Twin.of(pair.getLeft(),
-                    RichTextUtil.format(pair.getRight(), data, false, Maybe.nothing())
+                    RichTextUtil.format(pair.getRight(), data, false, Maybe.nothing(), true)
             ));
 
             // 提交数据，顺序是权重
