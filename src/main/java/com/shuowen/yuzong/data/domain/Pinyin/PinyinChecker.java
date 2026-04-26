@@ -36,7 +36,7 @@ public class PinyinChecker
             }
             else
             {
-                return Triple.of(2, PinyinFormatter.handle(newPinyin, d), SPinyin.of(newPinyin));
+                return Triple.of(2, PinyinFormatter.handle(newPinyin, d), PinyinFormatter.toSPinyin(newPinyin, d));
             }
         }
         else return Triple.of(3, null, null);

@@ -2,9 +2,7 @@ package com.shuowen.yuzong.Tool.dataStructure.option;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
-import com.shuowen.yuzong.Linguistics.Format.PinyinParam;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
@@ -17,30 +15,36 @@ import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import lombok.Getter;
 
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
  * 方言代码，提供未来的扩展
  * <ul>
  * <li> {@code NAM} 南昌话 </li>
+ * <li> {@code CED} 成都话 </li>
  * </ul>
  */
 @SuppressWarnings ({"unchecked", "rawtypes", "unused"})
 public enum Dialect
 {
-    NAM("南昌話","nam", NamStyle.class, NamPinyin.class,
+    NAM("南昌話", "nam", NamStyle.class, NamPinyin.class,
             NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize,
             new DictCode("ncdict"), 7, 2);
-//    ,
-//    LCS("ncs"); 未来的南昌话 还是LAC
+
+//   南昌话LAC
+//    CED("成都话","ced", CEDStyle.class, CEDPinyin.class,
+//            CEDPinyin::tryOf,CEDStyle::createStyle,CEDPinyin::normalize,
+//            new DictCode("cddict"),4,2);
+
 
     @Getter
     private final ScTcText name;
     private final String code;
     private final Class<? extends PinyinStyle> styleClass;
     private final Class<? extends UniPinyin<?>> pinyinClass;
-    private final Function<SPinyin, Maybe<?>> pinyinTryCreator;
-    private final Function<PinyinParam, ? extends PinyinStyle> styleCreator;
+    private final BiFunction<SPinyin, Boolean, Maybe<?>> pinyinTryCreator;
+    private final Function<Scheme, ? extends PinyinStyle> styleCreator;
     private final Function<SPinyin, SPinyin> normalizer;
     @Getter
     private final DictCode defaultDict;
@@ -64,7 +68,7 @@ public enum Dialect
      */
     <U extends PinyinStyle, T extends UniPinyin<U>>
     Dialect(String name, String code, Class<U> styleClass, Class<T> pinyinClass,
-            Function<SPinyin, Maybe<T>> pinyinTryCreator, Function<PinyinParam, U> styleCreator,
+            BiFunction<SPinyin,Boolean, Maybe<T>> pinyinTryCreator, Function<Scheme, U> styleCreator,
             Function<SPinyin, SPinyin> normalizer,
             DictCode defaultDict, int toneAmount, int initialLength
     )
@@ -73,7 +77,7 @@ public enum Dialect
         this.code = code;
         this.styleClass = styleClass;
         this.pinyinClass = pinyinClass;
-        this.pinyinTryCreator = (Function) pinyinTryCreator;
+        this.pinyinTryCreator = (BiFunction) pinyinTryCreator;
         this.styleCreator = styleCreator;
         this.normalizer = normalizer;
         this.defaultDict = defaultDict;
@@ -106,7 +110,7 @@ public enum Dialect
      */
     public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(SPinyin py)
     {
-        return (Maybe<T>) pinyinTryCreator.apply(py);
+        return (Maybe<T>) pinyinTryCreator.apply(py,false);
     }
 
     /**
@@ -116,13 +120,14 @@ public enum Dialect
      */
     public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(SPinyin py)
     {
-        var pinyin = tryCreatePinyin(py);
+        var pinyin = pinyinTryCreator.apply(py,true);
         if (pinyin.isEmpty()) throw new IllegalArgumentException("来自信任端的拼音无效。文本：" + py);
         return (T) pinyin.getValue();
     }
 
     /**
      * 用于前端传送到后端的拼音检查，如果通过检查，返回拼音，如果没有通过，报错
+     *
      * @throws InvalidPinyinException 碰见这个错误不用打印栈
      */
     public <U extends PinyinStyle, T extends UniPinyin<U>> T checkAndCreatePinyin(SPinyin py)
@@ -135,23 +140,9 @@ public enum Dialect
     /**
      * 根据通用的拼音参数创建方言拼音格式
      */
-    public <U extends PinyinStyle> U createStyle(PinyinParam param)
+    public <U extends PinyinStyle> U createStyle(Scheme param)
     {
         return (U) styleCreator.apply(param);
-    }
-
-    /**
-     * 根据键值对参数创建拼音格式
-     */
-    public <U extends PinyinStyle> U createStyle(Map<String, Object> styleMap)
-    {
-        try
-        {
-            return (U) new ObjectMapper().convertValue(styleMap, styleClass);
-        } catch (Exception e)
-        {
-            throw new IllegalArgumentException("没有正确转换参数");
-        }
     }
 
     public SPinyin normalizePinyin(SPinyin s)
