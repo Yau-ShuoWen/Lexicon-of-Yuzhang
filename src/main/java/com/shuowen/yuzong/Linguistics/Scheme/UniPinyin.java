@@ -14,7 +14,6 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     protected final Maybe<Integer> tone;// 数字音调，0表示轻声
 
     protected final String code;        // 拼音编码
-    protected final Character mark;     // 音调字符
     protected final Integer corner;     // 四角调类的数字序号
     protected final String weight;      // 排序用的权重
 
@@ -42,7 +41,6 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
         checkEncodable();  // 2. 获得的编码是否可逆？ encodeable()，不可逆在函数里会抛出异常
         checkToneValid();  // 3. 音调的范围和搭配是否合理？ isToneValid()函数，不合理在函数里会抛出异常
 
-        mark = initMark();
         corner = initCorner();
         weight = initWeight();
     }
@@ -54,8 +52,6 @@ abstract public class UniPinyin<T extends PinyinStyle> implements Pinyin
     protected abstract void checkToneValid();
 
     protected abstract void checkEncodable();
-
-    protected abstract char initMark();
 
     protected abstract int initCorner();
 

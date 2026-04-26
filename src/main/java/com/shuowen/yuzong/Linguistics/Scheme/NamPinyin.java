@@ -249,12 +249,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
         if (NumberTool.closeBetween(t, 6, 7)) if (!end) throw new InvalidPinyinException("入声音调配对非入声韵尾");
     }
 
-    protected char initMark()
-    {
-        char[] mark = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
-        return mark[tone.getValueOrDefault(0)];
-    }
-
     protected int initCorner()
     {
         int[] fourCorner = {0, 1, 2, 3, 5, 6, 7, 8}; // 没有写错，没有4是因为南昌话没有「阳上」音
@@ -267,7 +261,6 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
     @Override
-    @Deprecated
     public String toString()
     {
         return String.format("默认的南昌话拼音：%s%s", syll,
@@ -317,21 +310,23 @@ public class NamPinyin extends UniPinyin<NamStyle>
         public static String format(NamPinyin p)
         {
             String s = p.syll;
-            char t = p.mark;
 
-            // 非常标准，三个双字母，一个双变单
+            // 非常标准，三个双字母，一个ii
             s = s.replace("yu", "ü");
             s = s.replace("ee", "ẹ");
             s = s.replace("oe", "ọ");
-            s = s.replace("ii", "i");
+            s = PinyinCommon.decodeZiiCiiSii(s);
 
-            // 表音调
+            // 标音调
             if (p.tone.isEmpty() || p.tone.getValue() == 0) return s;
             else
             {
+                char[] marks = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
+                char t = marks[p.tone.getValue()]; // 前面检查过了
+
                 if (s.contains("iu")) return s.replace("u", "u" + t);
 
-                for (String i : "aoöọeẹёiịuvüụ".split(""))
+                for (String i : "aoọeẹiuü".split(""))
                     if (s.contains(i)) return s.replace(i, i + t);
 
                 // 例外：没有主元音m n ng，只有ng要特殊处理
@@ -346,12 +341,15 @@ public class NamPinyin extends UniPinyin<NamStyle>
      */
     private static class LacKeyboard
     {
+        // 实现：只要处理ii的问题就可以了，其他不动
+
         public static String format(NamPinyin p)
         {
             String s = p.syll;
             var t = p.tone;
 
-            s = s.replace("ii", "i");
+            s = PinyinCommon.decodeZiiCiiSii(s);
+
             return s + (t.isValid() ? t.getValue() : "");
         }
 
@@ -359,8 +357,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
         {
             String s = p.getSyll();
 
-            if (s.matches("^[zcs]ii$")) s = s.charAt(0) + "";
-            if (s.matches("^[zcs]i$")) s = s.charAt(0) + "ii";
+            s = PinyinCommon.encodeZiCiSi(s);
 
             return SPinyin.of(s, p.getTone());
         }
@@ -370,36 +367,12 @@ public class NamPinyin extends UniPinyin<NamStyle>
     public static SPinyin normalize(SPinyin pinyin)
     {
         String text = pinyin.getSyll();
-
-        // 《智能是一个巨大的if-else语句》
         text = text.toLowerCase();
 
-        // 处理 i 在开头：
-        // 匹配：y开头，但不是yu
-        // 写法处理：yi->i  yit->it  ya->ia
-        if (text.matches("^y[^u].*")) text = text.replace("yi", "i").replace("y", "i");
-
-        // 处理 u 在开头：
-        // 匹配：w开头
-        // 写法处理：wu->u  wut->ut  wa->ua
-        if (text.matches("^w.*")) text = text.replace("wu", "u").replace("w", "u");
-
-        // 处理 ü 在字符串中：
-        // 匹配：字符串包含v或者ü
-        // 写法处理：lve-> lyue  ün->yun
-        if (text.matches(".*[vü].*")) text = text.replace("v", "yu").replace("ü", "yu");
-
-        // 处理 ju qu xu：
-        // 匹配，第一个字符是jqx，第二个字母是u
-        // 写法处理：ju->jyu   que->qyue   xuen->xyuen
-        if (text.matches("^([jqx])u.*")) text = text.replace("u", "yu");
-
-        // 单独处理 feei
-        if (text.equals("fi")) text = text.replace("fi", "feei");
-
-        // 处理 ẹ
-        if (text.contains("ẹ")) text = text.replace("ẹ", "ee");
-        if (text.contains("ọ")) text = text.replace("ọ", "oe");
+        text = PinyinCommon.encodeYiFront(text, false);
+        text = PinyinCommon.encodeWuFront(text, false);
+        text = PinyinCommon.encodeYuNotFront(text, true, false);
+        text = PinyinCommon.encodeJuQuXu(text, false);// yu是正确写法，所以直接写不惩罚。
 
         // 双韵母的模糊处理
         // 匹配：普通话常见但是不符合的： ao iao ou iou uei
