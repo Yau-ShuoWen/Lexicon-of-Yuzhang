@@ -244,7 +244,7 @@ public class NamPinyin extends UniPinyin<NamStyle>
 
         if (!NumberTool.closeBetween(t, 0, 7)) throw new InvalidPinyinException("音调范围超出");
 
-        boolean end = ObjectTool.existEqual(StringTool.back(syll), 't', 'k');
+        boolean end = ObjectTool.existEqual(StringTool.back(syll), 't', 'k', 'l');
         if (NumberTool.closeBetween(t, 1, 5)) if (end) throw new InvalidPinyinException("非入声音调配对入声韵尾");
         if (NumberTool.closeBetween(t, 6, 7)) if (!end) throw new InvalidPinyinException("入声音调配对非入声韵尾");
     }
@@ -356,10 +356,20 @@ public class NamPinyin extends UniPinyin<NamStyle>
         public static SPinyin normalize(SPinyin p)
         {
             String s = p.getSyll();
+            var t = p.getTone();
 
             s = PinyinCommon.encodeZiCiSi(s);
 
-            return SPinyin.of(s, p.getTone());
+            if (!t.isEmpty())
+            {
+                t = switch (t.getValue())
+                {
+                    case "0", "1", "2", "3", "4", "5", "6", "7" -> Maybe.exist(t.getValue());
+                    default -> throw new InvalidPinyinException("");
+                };
+            }
+
+            return SPinyin.of(s, t);
         }
     }
 

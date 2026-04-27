@@ -36,7 +36,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
     protected UniPinyin(SPinyin s)
     {
         syll = s.getSyll();
-        tone = s.getTone();
+        tone = initTone(s.getTone());
 
         code = initCode(); // 1. 编码的过程是否顺利？ initCode()，如果正常，把结果赋值code，否则抛出异常
         checkEncodable();  // 2. 获得的编码是否可逆？ encodeable()，不可逆在函数里会抛出异常
@@ -47,6 +47,21 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
     }
 
     // 下面六个函数会且仅会在构造函数里用到一次
+
+    protected Maybe<Integer> initTone(Maybe<String> t)
+    {
+        if (t.isEmpty()) return Maybe.nothing();
+        else
+        {
+            try
+            {
+                return Maybe.exist(Integer.parseInt(t.getValue()));
+            } catch (NumberFormatException e)
+            {
+                throw new InvalidPinyinException(String.format("%s不是一个正确的声调", t.getValue()));
+            }
+        }
+    }
 
     protected abstract String initCode();
 
