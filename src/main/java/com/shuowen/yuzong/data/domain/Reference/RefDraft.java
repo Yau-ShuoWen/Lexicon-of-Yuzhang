@@ -2,6 +2,8 @@ package com.shuowen.yuzong.data.domain.Reference;
 
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
@@ -46,6 +48,7 @@ public class RefDraft extends Page
             if (i != 1) content += "\n\n";
             content += l.get(i).getContent();
         }
+        content = TextPinyinIPA.transferPinyin(content, Dialect.NAM, true);
     }
 
     public static RefDraft of(List<RefEntity> list)
@@ -70,7 +73,7 @@ public class RefDraft extends Page
 
         // 中段，内容部分
         var mid = new ArrayList<RefEntity>();
-        var texts = content.split("\n\n");
+        var texts = TextPinyinIPA.transferPinyin(content, Dialect.NAM, false).split("\n\n");
         var sorts = FractionIndex.between(frontSort, endSort, texts.length);
         for (int i = 0; i < sorts.size(); i++)
             mid.add(new RefEntity(dictionary, sorts.get(i), texts[i], pageInfo));

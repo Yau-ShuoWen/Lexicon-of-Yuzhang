@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.data.domain.Character;
 
+import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
@@ -35,7 +36,7 @@ public class HanziCreate
             var tmp = new HanziEntity();
             tmp.setSc(sc.at(i));
             tmp.setTc(tc.at(i));
-            tmp.setMainPy(pinyin.toString());
+            tmp.setMainPy(PinyinFormatter.toDPinyin(dPinyin, d).toString(true));
             tmp.setPyCode(dPinyin.getWeight());
             // 非关键内容使用默认值代替
             tmp.setSpecial(0);

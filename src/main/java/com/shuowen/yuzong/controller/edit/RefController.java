@@ -2,6 +2,7 @@ package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
@@ -80,7 +81,14 @@ public class RefController
             return APIResponse.success();
         } catch (Exception e)
         {
-            e.printStackTrace();
+            if (e instanceof InvalidPinyinException ignore)
+            {
+
+            }
+            else
+            {
+                e.printStackTrace();
+            }
             return APIResponse.failure(e.getMessage());
         }
     }
@@ -128,7 +136,14 @@ public class RefController
             return APIResponse.success();
         } catch (Exception e)
         {
-            e.printStackTrace();
+            if (e instanceof InvalidPinyinException ignore)
+            {
+
+            }
+            else
+            {
+                e.printStackTrace();
+            }
             return APIResponse.failure(e.getMessage());
         }
     }

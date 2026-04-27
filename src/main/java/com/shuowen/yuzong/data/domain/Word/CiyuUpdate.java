@@ -2,7 +2,7 @@ package com.shuowen.yuzong.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
@@ -30,7 +30,7 @@ public class CiyuUpdate
     private Integer special;
 
     private SPinyins mainPy;
-    private List<ScTcText> variantPy;
+    private List<ScTcText> variantPy;  //？？
 
     @Data
     @NoArgsConstructor
@@ -64,7 +64,7 @@ public class CiyuUpdate
 
     // 数据库→后端→前端 ----------------------------------------------------
 
-    public CiyuUpdate(CiyuEntity cy, List<CiyuSimilar> sim)
+    public CiyuUpdate(Dialect d, CiyuEntity cy, List<CiyuSimilar> sim)
     {
         id = cy.getId();
         ciyu = new ScTcText(cy.getSc(), cy.getTc());
@@ -72,8 +72,14 @@ public class CiyuUpdate
 
         ObjectMapper om = new ObjectMapper();
 
-        mainPy = SPinyins.of(readJson(cy.getMainPy(), new TypeReference<List<SPinyin>>() {}, om));
-        variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {}, om);
+        mainPy = SPinyins.of(
+                ListTool.mapping(readJson(cy.getMainPy(), new TypeReference<List<String>>() {}, om),
+                        i -> PinyinFormatter.toSPinyin(i, d)
+                )
+        );
+
+
+        variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {}, om); //？？
 
         similar = ListTool.mapping(sim, Similar::new);
         mean = readJson(cy.getMean(), new TypeReference<>() {}, om);
@@ -95,8 +101,16 @@ public class CiyuUpdate
 
         ObjectMapper om = new ObjectMapper();
 
-        ListTool.handle(mainPy.getPinyin(), d::checkAndCreatePinyin);
-        cy.setMainPy(toJson(mainPy.getPinyin(), om));
+
+        cy.setMainPy(
+                toJson(
+                        ListTool.mapping(
+                                mainPy.getPinyin(),
+                                i -> PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(i), d).toString(true)
+                        )
+                        , om
+                )
+        );
 
         cy.setVariantPy(toJson(variantPy, om));
 

@@ -334,7 +334,10 @@ public class TextPinyinIPA
         Matcher m = pattern.matcher(text);
         while (m.find())
         {
-            var handleAns = pinyinToDB(normalize(m.group()), d, isfromDB);
+            var token = normalize(m.group());
+            var handleAns = token.type == PinyinType.DIALECT ?
+                    pinyinToDB(token, d, isfromDB) :
+                    m.group();
             var replace = Matcher.quoteReplacement(handleAns);
             m.appendReplacement(sb, replace);
         }
@@ -345,6 +348,8 @@ public class TextPinyinIPA
 
     private static String pinyinToDB(PinyinToken pinyin, Dialect d, boolean isfromDB)
     {
+        // 保证是PinyinType.DIALECT
+
         if (pinyin.body.contains(" "))
         {
             List<String> list = new ArrayList<>();
@@ -356,18 +361,14 @@ public class TextPinyinIPA
             return concatPinyin(list).replace("][", " ");
         }
 
-        if (pinyin.type == PinyinType.DIALECT)
+        if (isfromDB)
         {
-            if (isfromDB)
-            {
-                return String.format("[%s]",PinyinFormatter.toSPinyin(pinyin.body, d).toString());
-            }
-            else
-            {
-                return PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(SPinyin.of(pinyin.body)), d).toString(false);
-            }
+            return String.format("[%s]", PinyinFormatter.toSPinyin(pinyin.body, d).toString());
         }
-        else return pinyin.body;
+        else
+        {
+            return PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(SPinyin.of(pinyin.body)), d).toString(false);
+        }
     }
 
 }

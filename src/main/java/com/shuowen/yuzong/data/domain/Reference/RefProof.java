@@ -1,10 +1,13 @@
 package com.shuowen.yuzong.data.domain.Reference;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
@@ -13,6 +16,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
+import java.util.function.Function;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
@@ -35,14 +39,19 @@ public class RefProof extends Page
         ScTcText text;   // 简体和繁体版本
         ScTcText note;   // 注释
 
+        @JsonIgnore
+        private static Function<String, String> decode = i -> TextPinyinIPA.transferPinyin(i, Dialect.NAM, true);
+        @JsonIgnore
+        private static Function<String, String> encode = i -> TextPinyinIPA.transferPinyin(i, Dialect.NAM, false);
+
         public Info(RefEntity ck)
         {
             var om = new ObjectMapper();
 
             this.id = ck.getId();
-            source = UString.of(ck.getContent());
-            text = readJson(ck.getText(), new TypeReference<>() {}, om);
-            note = readJson(ck.getNote(), new TypeReference<>() {}, om);
+            source = UString.of(decode.apply(ck.getContent()));
+            text = readJson(decode.apply(ck.getText()), new TypeReference<>() {}, om);
+            note = readJson(decode.apply(ck.getNote()), new TypeReference<>() {}, om);
         }
 
         public RefEntity transfer(DictCode dict, FractionIndex sort, Pair<String, Integer> pageInfo)
@@ -52,10 +61,10 @@ public class RefProof extends Page
             ans.setId(this.id);
             ans.setTheDict(dict);
             ans.setTheSort(sort);
-            ans.setContent(source.toString());
+            ans.setContent(encode.apply(source.toString()));
             ans.setThePageInfo(pageInfo);
-            ans.setText(toJson(text, om));
-            ans.setNote(toJson(note, om));
+            ans.setText(encode.apply(toJson(text, om)));
+            ans.setNote(encode.apply(toJson(note, om)));
 
             return ans;
         }
@@ -108,6 +117,6 @@ public class RefProof extends Page
 
         ListTool.handle(mid, i -> i.setLocked(true));
 
-        return Pair.of(edge,mid);
+        return Pair.of(edge, mid);
     }
 }
