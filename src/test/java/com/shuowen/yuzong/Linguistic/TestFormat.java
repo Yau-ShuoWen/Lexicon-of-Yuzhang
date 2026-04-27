@@ -2,11 +2,13 @@ package com.shuowen.yuzong.Linguistic;
 
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -16,7 +18,7 @@ public class TestFormat
     @Test
     void test()
     {
-        //if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
+        if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
 
         var s = UString.of("""
                 我是一个南昌人, 南昌！
@@ -43,6 +45,21 @@ public class TestFormat
 
         var data = new IPAData(Language.SC, Dialect.NAM, PinyinOption.defaultOf());
 
-        System.out.println(RichTextUtil.format(s, data, true));
+       // System.out.println(RichTextUtil.format(s, data, true, Maybe.nothing()));
+    }
+
+    @Test
+    void testIPAInDict()
+    {
+        if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
+        var s= UString.of(
+                """
+                二的拼音是[oe5]
+                周的拼音是[zeeu1]
+                """
+        );
+
+        var data = new IPAData(Language.SC, Dialect.NAM, PinyinOption.defaultOf());
+        //System.out.println(RichTextUtil.format(s, data, true, Maybe.exist(new DictCode("ncphon_y"))));
     }
 }

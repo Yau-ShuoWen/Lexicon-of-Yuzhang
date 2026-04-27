@@ -1,8 +1,6 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
-import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
@@ -23,7 +21,7 @@ public class RefReadService
 
     public List<RefItem> getAllRef(String query, DictCode dict, final IPAData data)
     {
-        return ListTool.mapping(ck.findByQuery(dict.getCode(), query), i -> new RefItem(i, data));
+        return ListTool.mapping(ck.findByQuery(dict.getCode(), query), i -> new RefItem(i, data, dict));
     }
 
     private static RefReadService instance;

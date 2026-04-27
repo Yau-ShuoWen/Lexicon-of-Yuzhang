@@ -187,10 +187,10 @@
     <select id="findByQuery" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
         WHERE dictionary = #{dictionary}
-        AND content LIKE CONCAT('%', #{query}, '%')-- 粗篩：至少包含關鍵字（減少數據量）
-        AND content REGEXP CONCAT('\\{[+]?', '', #{query}, '', '\\}')
-        AND NOT content REGEXP CONCAT('\\{-', #{query}, '\\}')
-        ORDER BY LOCATE(CONCAT('{', #{query}, '}'), content);
+        AND indexes LIKE CONCAT('%', #{query}, '%')-- 粗篩：至少包含關鍵字（減少數據量）
+        AND indexes REGEXP CONCAT('\\{[+]?', '', #{query}, '', '\\}')
+        AND NOT indexes REGEXP CONCAT('\\{-', #{query}, '\\}')
+        ORDER BY LOCATE(CONCAT('{', #{query}, '}'), indexes);
     </select>
 
 

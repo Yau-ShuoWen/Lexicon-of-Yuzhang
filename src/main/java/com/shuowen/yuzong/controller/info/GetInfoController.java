@@ -6,6 +6,7 @@ import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
@@ -55,15 +56,22 @@ public class GetInfoController
 
         if (code.contains("explain")) return ScTcText.get(KeyValueService.get(code), l);
 
-        if (code.contains("about")) return ScTcText.get(KeyValueService.get("website-about"), l);
-
         return UString.of("-");
+    }
+
+    @GetMapping ("/about-page-text/{d}")
+    public Twin<ScTcText> about(@PathVariable Dialect d)
+    {
+        return Twin.of(
+                new ScTcText(KeyValueService.get("website-about")),
+                new ScTcText(KeyValueService.get("website-acknowledgement:" + d))
+        );
     }
 
     @GetMapping ("/get-menu/{code}")
     public List<ScTcText> pronunTagList(@PathVariable String code)
     {
         return JsonTool.readJson(KeyValueService.get("types-of-pronunciation"),
-                new TypeReference<>() {},new ObjectMapper());
+                new TypeReference<>() {}, new ObjectMapper());
     }
 }

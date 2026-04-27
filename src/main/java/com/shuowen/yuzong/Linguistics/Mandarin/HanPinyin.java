@@ -30,7 +30,7 @@ public class HanPinyin
     @JsonValue
     private final RPinyin read;
 
-    private HanPinyin(String syll, Maybe<Integer> tone)
+    private HanPinyin(String syll, Maybe<String> tone)
     {
         split = SPinyin.of(syll, tone);
         read = topMark();
@@ -44,7 +44,7 @@ public class HanPinyin
     // 直接返回，因为没有音调和轻声的表现形式是一样的。
     public int getTone()
     {
-        return split.getTone().getValueOrDefault(0);
+        return split.getTone().handleIfExist(Integer::valueOf).getValueOrDefault(0);
     }
 
     /**
@@ -60,7 +60,7 @@ public class HanPinyin
             var tone = p.getTone();
             if (tone == 5) tone = 0;  //HanLP使用5表示轻声
 
-            return Maybe.exist(new HanPinyin(syll, Maybe.exist(tone)));
+            return Maybe.exist(new HanPinyin(syll, Maybe.exist(String.valueOf(tone))));
         } catch (InvalidPinyinException e)
         {
             return Maybe.nothing();
