@@ -2,8 +2,10 @@ package com.shuowen.yuzong.Tool.dataStructure.option;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
+import com.shuowen.yuzong.Linguistics.Scheme.CEDPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
@@ -30,12 +32,12 @@ public enum Dialect
 {
     NAM("南昌話", "nam", NamStyle.class, NamPinyin.class,
             NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize,
-            new DictCode("ncdict"), 7, 2);
+            new DictCode("ncdict"), 7, 2),
 
-//   南昌话LAC
-//    CED("成都话","ced", CEDStyle.class, CEDPinyin.class,
-//            CEDPinyin::tryOf,CEDStyle::createStyle,CEDPinyin::normalize,
-//            new DictCode("cddict"),4,2);
+    //   南昌话LAC
+    CED("成都话", "ced", CEDStyle.class, CEDPinyin.class,
+            CEDPinyin::tryOf, CEDStyle::createStyle, CEDPinyin::normalize,
+            new DictCode("cddict"), 4, 2);
 
 
     @Getter
@@ -68,7 +70,7 @@ public enum Dialect
      */
     <U extends PinyinStyle, T extends UniPinyin<U>>
     Dialect(String name, String code, Class<U> styleClass, Class<T> pinyinClass,
-            BiFunction<SPinyin,Boolean, Maybe<T>> pinyinTryCreator, Function<Scheme, U> styleCreator,
+            BiFunction<SPinyin, Boolean, Maybe<T>> pinyinTryCreator, Function<Scheme, U> styleCreator,
             Function<SPinyin, SPinyin> normalizer,
             DictCode defaultDict, int toneAmount, int initialLength
     )
@@ -92,6 +94,7 @@ public enum Dialect
         return switch (s.toLowerCase().trim())
         {
             case "nam" -> NAM;
+            case "ced" -> CED;
             default -> throw new IllegalArgumentException("方言代号无效：" + s);
         };
     }
@@ -110,7 +113,7 @@ public enum Dialect
      */
     public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(SPinyin py)
     {
-        return (Maybe<T>) pinyinTryCreator.apply(py,false);
+        return (Maybe<T>) pinyinTryCreator.apply(py, false);
     }
 
     /**
@@ -120,7 +123,7 @@ public enum Dialect
      */
     public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(SPinyin py)
     {
-        var pinyin = pinyinTryCreator.apply(py,true);
+        var pinyin = pinyinTryCreator.apply(py, true);
         if (pinyin.isEmpty()) throw new IllegalArgumentException("来自信任端的拼音无效。文本：" + py);
         return (T) pinyin.getValue();
     }
@@ -152,6 +155,6 @@ public enum Dialect
 
     public static List<Dialect> getList()
     {
-        return List.of(NAM);
+        return List.of(NAM, CED);
     }
 }

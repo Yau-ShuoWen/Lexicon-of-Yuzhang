@@ -63,7 +63,7 @@ public class GetInfoController
     public Twin<ScTcText> about(@PathVariable Dialect d)
     {
         return Twin.of(
-                new ScTcText(KeyValueService.get("website-about")),
+                new ScTcText(KeyValueService.get("website-about:" + d)),
                 new ScTcText(KeyValueService.get("website-acknowledgement:" + d))
         );
     }
