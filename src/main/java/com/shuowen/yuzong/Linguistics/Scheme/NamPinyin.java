@@ -37,6 +37,18 @@ public class NamPinyin extends UniPinyin<NamStyle>
         {
             String ans = "";
             String py = syll;
+
+            if (!py.matches(".*[aoeiu].*"))
+            {
+                return switch (py)
+                {
+                    case "m" -> "00007";
+                    case "n" -> "00008";
+                    case "ng" -> "00009";
+                    default -> throw new IllegalArgumentException("没有主元音，但不是特殊音节");
+                };
+            }
+
             int idx;
 
 
@@ -80,19 +92,8 @@ public class NamPinyin extends UniPinyin<NamStyle>
             };
             py = py.substring(idx);
 
+            if (py.isEmpty()) throw new InvalidPinyinException("此处拼音结构不完整");
 
-            // 对特殊的韵母处理，m n ng 直接赋值返回
-            // 流程：如果被截取声母之后拼音没有了，如果是m n ng，识别为成音节辅音，否则返回失败
-            if (py.isEmpty())
-            {
-                return switch (ans)
-                {
-                    case "03" -> "00007";
-                    case "14" -> "00008";
-                    case "10" -> "00009";
-                    default -> throw new IllegalArgumentException("声母之后没有内容了");
-                };
-            }
             // 检查特殊韵母zii cii sii
             if (ObjectTool.existEqual(ans, "16", "17", "18") && py.startsWith("i"))
             {
