@@ -12,30 +12,13 @@ import java.util.Map;
 
 public class JsonTool
 {
-    /**
-     * 解析 JSON 为对象
-     */
-    public static <T> T safeRead(String json, Class<T> clazz, ObjectMapper mapper)
+    private JsonTool()
     {
-        if (json == null || json.isEmpty()) return null;
-        try
-        {
-            return mapper.readValue(json, clazz);
-        } catch (Exception e)
-        {
-            System.out.println("JSON 解析失败，得到null");
-            //System.err.println("JSON 解析失败：" + e.getMessage());
-            return null;
-        }
     }
 
-    /**
-     * 解析 JSON 为泛型对象（List/Map 等）
-     * 自动处理空字符串和解析失败：
-     * - JSON "" 或 null → List 返回空集合，Map 返回空 Map
-     * - 解析失败时同样返回对应的空集合或空Map
-     */
-    public static <T> T readJson(String json, TypeReference<T> typeRef, ObjectMapper mapper)
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    public static <T> T readJson(String json, TypeReference<T> typeRef)
     {
         if (json == null || json.isEmpty())
         {
@@ -43,15 +26,14 @@ public class JsonTool
         }
         try
         {
-            return mapper.readValue(json, typeRef);
+            return MAPPER.readValue(json, typeRef);
         } catch (Exception e)
         {
             System.out.println("JSON 解析失败，获得空对象");
-            //System.err.println("JSON 解析失败：" + e.getMessage());
-            // 出错时返回对应的空集合或空Map
             return getEmptyInstance(typeRef);
         }
     }
+
 
     /**
      * 根据TypeReference的类型返回对应的空实例
@@ -98,30 +80,31 @@ public class JsonTool
     /**
      * 对象转 JSON 字符串
      */
-    public static String toJson(Object obj, ObjectMapper mapper)
+    public static String toJson(Object obj)
     {
         if (obj == null) return "null";
         try
         {
-            return mapper.writeValueAsString(obj);
+            return MAPPER.writeValueAsString(obj);
         } catch (Exception e)
         {
             System.out.println("对象转 JSON 失败，获得字符串\"null\"");
-            //System.err.println("对象转 JSON 失败：" + e.getMessage());
             return "null";
         }
     }
 
-    public static String toJson(Object obj, ObjectMapper mapper, String backup)
+    /**
+     * 对象转 JSON 字符串，如果解析失败，使用默认的
+     */
+    public static String toJson(Object obj, String backup)
     {
         if (obj == null) return backup;
         try
         {
-            return mapper.writeValueAsString(obj);
+            return MAPPER.writeValueAsString(obj);
         } catch (Exception e)
         {
             System.out.println("对象转 JSON 失败，转换成默认结构");
-            //System.err.println("对象转 JSON 失败：" + e.getMessage());
             return backup;
         }
     }

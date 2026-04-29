@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
@@ -70,19 +69,17 @@ public class CiyuUpdate
         ciyu = new ScTcText(cy.getSc(), cy.getTc());
         special = cy.getSpecial();
 
-        ObjectMapper om = new ObjectMapper();
-
         mainPy = SPinyins.of(
-                ListTool.mapping(readJson(cy.getMainPy(), new TypeReference<List<String>>() {}, om),
+                ListTool.mapping(readJson(cy.getMainPy(), new TypeReference<List<String>>() {}),
                         i -> PinyinFormatter.toSPinyin(i, d)
                 )
         );
 
 
-        variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {}, om); //？？
+        variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {}); //？？
 
         similar = ListTool.mapping(sim, Similar::new);
-        mean = readJson(cy.getMean(), new TypeReference<>() {}, om);
+        mean = readJson(cy.getMean(), new TypeReference<>() {});
     }
 
     // 前端→后端→数据库 ----------------------------------------------------
@@ -99,24 +96,20 @@ public class CiyuUpdate
         ObjectTool.asserts(NumberTool.closeBetween(special, 0, 3), "");
         cy.setSpecial(special);
 
-        ObjectMapper om = new ObjectMapper();
-
-
         cy.setMainPy(
                 toJson(
                         ListTool.mapping(
                                 mainPy.getPinyin(),
                                 i -> PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(i), d).toString(true)
                         )
-                        , om
                 )
         );
 
-        cy.setVariantPy(toJson(variantPy, om));
+        cy.setVariantPy(toJson(variantPy));
 
         var sim = ListTool.mapping(similar, Similar::transfer);
 
-        cy.setMean(toJson(mean, om));
+        cy.setMean(toJson(mean));
 
         return Pair.of(cy, sim);
     }

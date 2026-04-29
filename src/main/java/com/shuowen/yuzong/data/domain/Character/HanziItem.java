@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
@@ -54,29 +53,27 @@ public class HanziItem
         mainPy = SPinyin.of(ch.getMainPy());
         special = ch.getSpecial();
 
-        ObjectMapper om = new ObjectMapper();
-
         similar = ListTool.mapping(
-                readJson(ch.getSimilar(), new TypeReference<List<ScTcChar>>() {}, om),
+                readJson(ch.getSimilar(), new TypeReference<List<ScTcChar>>() {}),
                 i -> i.get(l)
         );
 
         // sc tc content 三个字段，sc tc创建Text之后选择语言，content直接获取
         variantPy = ListTool.mapping(
-                readJson(ch.getVariantPy(), new TypeReference<List<Map<String, String>>>() {}, om),
+                readJson(ch.getVariantPy(), new TypeReference<List<Map<String, String>>>() {}),
                 i -> Pair.of(new ScTcText(i.get("sc"), i.get("tc")).get(l), SPinyin.of(i.get("content")))
         );
 
 
         // 解析为 List<String>，并且筛选，条件：「mdrInfo里汉字」==「目前的汉字」
         mdrInfo = ListTool.filter(
-                readJson(ch.getMdrInfo(), new TypeReference<>() {}, om),
+                readJson(ch.getMdrInfo(), new TypeReference<>() {}),
                 i -> i.contains(hanzi.toString())
         );
 
         // TODO ：这个字段从来没有被更新过用法
         ipa = ListTool.mapping(
-                readJson(ch.getIpa(), new TypeReference<List<Map<String, String>>>() {}, om)
+                readJson(ch.getIpa(), new TypeReference<List<Map<String, String>>>() {})
                 , i -> Pair.of(i.get("tag"), i.get("content"))
         );
 
@@ -86,12 +83,12 @@ public class HanziItem
         // 变成List<Pair<String, String>>
 
         note = ListTool.mapping(
-                readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}, om),
+                readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}),
                 i -> Twin.of(i.get("tag").get(l), i.get("content").get(l))
         );
 
         // TODO ：这个字段从来没有被更新过用法
-        refer = readJson(ch.getRefer(), new TypeReference<Map<String, List<Map<String, String>>>>() {}, om)
+        refer = readJson(ch.getRefer(), new TypeReference<Map<String, List<Map<String, String>>>>() {})
                 .get(l.toString());
 
         createdAt = ch.getCreatedAt();

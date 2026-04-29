@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.model.IPA.IPAToneEntity;
 import lombok.Getter;
@@ -22,7 +21,7 @@ public class Shengdiao
     public Shengdiao(IPAToneEntity ipa)
     {
         tone = ipa.getStandard();
-        info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
+        info = readJson(ipa.getInfo(), new TypeReference<>() {});
     }
 
     public static Map<Integer, Shengdiao> mapOf(Set<IPAToneEntity> set)

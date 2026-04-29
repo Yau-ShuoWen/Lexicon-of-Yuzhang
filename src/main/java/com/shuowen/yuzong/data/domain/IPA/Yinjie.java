@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
@@ -29,7 +28,7 @@ public class Yinjie
     {
         pinyin = SPinyin.of(ipa.getStandard());
         code = ipa.getCode();
-        info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
+        info = readJson(ipa.getInfo(), new TypeReference<>() {});
     }
 
     public static List<Yinjie> listOf(List<IPASyllEntity> list)
@@ -83,7 +82,7 @@ public class Yinjie
         IPASyllEntity ans = new IPASyllEntity();
         ans.setStandard(pinyin.toString());
         ans.setCode(code);
-        ans.setInfo(toJson(info, new ObjectMapper()));
+        ans.setInfo(toJson(info));
         return ans;
     }
 }

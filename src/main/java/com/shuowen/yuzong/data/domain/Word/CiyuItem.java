@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
@@ -54,19 +53,17 @@ public class CiyuItem
         ciyu = ciyus.get(l);
         special = cy.getSpecial();
 
-        ObjectMapper om = new ObjectMapper();
-
         //check
-        mainPy = readJson(cy.getMainPy(), new TypeReference<>() {}, om);
-        variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {}, om);
+        mainPy = readJson(cy.getMainPy(), new TypeReference<>() {});
+        variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {});
 
         similar = ListTool.mapping(
-                readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}, om),
+                readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}),
                 i -> Pair.of(new ScTcText(i.getSc(), i.getTc()).get(l), i.getType())
         );
 
         mean = ListTool.mapping(
-                readJson(cy.getMean(), new TypeReference<List<ScTcText>>() {}, om),
+                readJson(cy.getMean(), new TypeReference<List<ScTcText>>() {}),
                 i -> i.get(l)
         );
 
@@ -75,7 +72,7 @@ public class CiyuItem
 
         // 通过DAO创建简繁文本，然后一起插入
         matchItem.addAll(ciyus.getTwin().toList());
-        for (var i : readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}, om))
+        for (var i : readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}))
         {
             matchItem.addAll(new ScTcText(i.getSc(), i.getTc())
                     .getTwin().toList());

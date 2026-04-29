@@ -2,7 +2,6 @@ package com.shuowen.yuzong.data.domain.Reference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
@@ -46,25 +45,22 @@ public class RefProof extends Page
 
         public Info(RefEntity ck)
         {
-            var om = new ObjectMapper();
-
             this.id = ck.getId();
             source = UString.of(decode.apply(ck.getContent()));
-            text = readJson(decode.apply(ck.getText()), new TypeReference<>() {}, om);
-            note = readJson(decode.apply(ck.getNote()), new TypeReference<>() {}, om);
+            text = readJson(decode.apply(ck.getText()), new TypeReference<>() {});
+            note = readJson(decode.apply(ck.getNote()), new TypeReference<>() {});
         }
 
         public RefEntity transfer(DictCode dict, FractionIndex sort, Pair<String, Integer> pageInfo)
         {
-            var om = new ObjectMapper();
             var ans = new RefEntity();
             ans.setId(this.id);
             ans.setTheDict(dict);
             ans.setTheSort(sort);
             ans.setContent(encode.apply(source.toString()));
             ans.setThePageInfo(pageInfo);
-            ans.setText(encode.apply(toJson(text, om)));
-            ans.setNote(encode.apply(toJson(note, om)));
+            ans.setText(encode.apply(toJson(text)));
+            ans.setNote(encode.apply(toJson(note)));
 
             return ans;
         }

@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.model.Reference;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.ChangeDetectable;
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
@@ -89,7 +88,7 @@ public class RefEntity implements ChangeDetectable<RefEntity>
 
     public Pair<String, Integer> getThePageInfo()
     {
-        Map<String, Object> map = JsonTool.readJson(getPageInfo(), new TypeReference<>() {}, new ObjectMapper());
+        Map<String, Object> map = JsonTool.readJson(getPageInfo(), new TypeReference<>() {});
         return Pair.of((String) map.get("title"), (Integer) map.get("page"));
     }
 
@@ -98,7 +97,7 @@ public class RefEntity implements ChangeDetectable<RefEntity>
         this.pageInfo = JsonTool.toJson(Map.of(
                 "title", info.getLeft(),
                 "page", info.getRight()
-        ), new ObjectMapper());
+        ));
     }
 
     /**

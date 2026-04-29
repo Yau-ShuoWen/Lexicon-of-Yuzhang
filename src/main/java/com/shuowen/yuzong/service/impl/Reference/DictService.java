@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
@@ -37,7 +36,7 @@ public class DictService
         Map<DictCode, String> ans = new HashMap<>();
         for (var i : cd.findByDialect(d.toString()))
         {
-            ScTcText name = JsonTool.readJson(i.getName(), new TypeReference<>() {}, new ObjectMapper());
+            ScTcText name = JsonTool.readJson(i.getName(), new TypeReference<>() {});
             ans.put(new DictCode(i.getCode()), name.get(l).toString());
         }
         return new DictGroup(ans);

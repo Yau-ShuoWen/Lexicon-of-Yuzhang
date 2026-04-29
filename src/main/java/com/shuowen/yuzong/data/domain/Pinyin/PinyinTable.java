@@ -2,7 +2,6 @@ package com.shuowen.yuzong.data.domain.Pinyin;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -90,8 +89,7 @@ public class PinyinTable
     {
         var data = readJson(
                 KeyValueService.get("pinyin-table-display-json:" + d.toString()),
-                new TypeReference<List<Pair<Map<String, String>, List<Map<String, List<List<String>>>>>>>() {},
-                new ObjectMapper()
+                new TypeReference<List<Pair<Map<String, String>, List<Map<String, List<List<String>>>>>>>() {}
         );
 
         table = ListTool.mapping(data, Grid::new);

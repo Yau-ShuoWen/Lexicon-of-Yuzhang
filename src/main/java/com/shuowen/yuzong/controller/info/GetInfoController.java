@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.controller.info;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
@@ -72,6 +71,6 @@ public class GetInfoController
     public List<ScTcText> pronunTagList(@PathVariable String code)
     {
         return JsonTool.readJson(KeyValueService.get("types-of-pronunciation"),
-                new TypeReference<>() {}, new ObjectMapper());
+                new TypeReference<>() {});
     }
 }

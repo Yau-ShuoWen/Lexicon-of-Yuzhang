@@ -2,7 +2,6 @@ package com.shuowen.yuzong.data.domain.Account;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.model.Account.UserEntity;
@@ -28,7 +27,7 @@ public class User
         id = u.getId();
         username = u.getUsername();
         password = u.getPassword();
-        authority = JsonTool.readJson(u.getAuthority(), new TypeReference<>() {}, new ObjectMapper());
+        authority = JsonTool.readJson(u.getAuthority(), new TypeReference<>() {});
     }
 
     public User()
@@ -41,7 +40,7 @@ public class User
         u.setId(id);
         u.setUsername(username);
         u.setPassword(password);
-        u.setAuthority(JsonTool.toJson(authority, new ObjectMapper(), "[]"));
+        u.setAuthority(JsonTool.toJson(authority, "[]"));
         return u;
     }
 

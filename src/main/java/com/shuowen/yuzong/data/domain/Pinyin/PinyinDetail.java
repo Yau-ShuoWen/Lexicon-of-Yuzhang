@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.Pinyin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool;
@@ -51,7 +50,7 @@ public class PinyinDetail
             key = item.getUrl();
 
             {
-                var tmp = readJson(item.getNotation(), new TypeReference<Map<String, String>>() {}, new ObjectMapper());
+                var tmp = readJson(item.getNotation(), new TypeReference<Map<String, String>>() {});
 
 
                 Matcher matcher = Pattern.compile("\\[.*?]").matcher(tmp.get("standard"));
@@ -70,7 +69,7 @@ public class PinyinDetail
                 );
             }
 
-            for (var i : readJson(item.getInfo(), new TypeReference<Map<DictCode, String>>() {}, new ObjectMapper()).entrySet())
+            for (var i : readJson(item.getInfo(), new TypeReference<Map<DictCode, String>>() {}).entrySet())
             {
                 if ("-".equals(i.getValue())) continue;
                 if (type != Type.TONE)
@@ -84,7 +83,7 @@ public class PinyinDetail
             }
 
             note = ListTool.mapping(
-                    readJson(item.getNote(), new TypeReference<List<String>>() {}, new ObjectMapper()),
+                    readJson(item.getNote(), new TypeReference<List<String>>() {}),
                     i -> ScTcText.get(i, l)
             );
         }

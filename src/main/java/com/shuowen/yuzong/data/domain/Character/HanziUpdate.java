@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
@@ -115,10 +114,8 @@ public class HanziUpdate
 
         // 表的复杂字段
 
-        ObjectMapper om = new ObjectMapper();
-
         note = ListTool.mapping(
-                readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}, om),
+                readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}),
                 i -> Twin.of(i.get("tag"), i.get("content").map(str -> TextPinyinIPA.transferPinyin(str, d, true))));
 
         status = ch.getStatus();
@@ -148,7 +145,6 @@ public class HanziUpdate
         ListTool.handle(mdr, i -> i.setDialectId(id));
 
         // @desprate，之后新功能上之后需要完全删掉，所以不重构
-        ObjectMapper om = new ObjectMapper();
         {
             List<Map<String, String>> tmp = new ArrayList<>();
             for (var i : ipa)
@@ -158,7 +154,7 @@ public class HanziUpdate
                 t.put("content", i.getRight());
                 tmp.add(t);
             }
-            ch.setIpa(toJson(tmp, om, "[]"));
+            ch.setIpa(toJson(tmp, "[]"));
         }
 
         ch.setNote(
@@ -167,7 +163,7 @@ public class HanziUpdate
                                         "tag", i.getLeft(),
                                         "content", i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, d, false))
                                 )
-                        ), om, "[]"
+                        ), "[]"
                 )
         );
 

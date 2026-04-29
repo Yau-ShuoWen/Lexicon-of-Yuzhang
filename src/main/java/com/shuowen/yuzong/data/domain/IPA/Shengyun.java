@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.model.IPA.IPASyllEntity;
@@ -24,7 +23,7 @@ public class Shengyun
     private Shengyun(IPASyllEntity ipa)
     {
         pinyin = ipa.getStandard();
-        info = readJson(ipa.getInfo(), new TypeReference<>() {}, new ObjectMapper());
+        info = readJson(ipa.getInfo(), new TypeReference<>() {});
         code = ipa.getCode();
     }
 

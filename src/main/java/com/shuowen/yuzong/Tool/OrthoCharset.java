@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.Tool;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shuowen.yuzong.Tool.TextTool.Punctuation;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -40,7 +39,7 @@ public class OrthoCharset
     private OrthoCharset(Dialect d)
     {
         var map = JsonTool.readJson(KeyValueService.get("ortho-charset:" + d),
-                new TypeReference<Map<String, String>>() {}, new ObjectMapper());
+                new TypeReference<Map<String, String>>() {});
 
         for (var i : map.entrySet())
             handle.put(UChar.of(i.getKey()), UChar.of(i.getValue()));
