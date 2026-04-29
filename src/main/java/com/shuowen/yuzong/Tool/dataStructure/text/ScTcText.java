@@ -115,4 +115,9 @@ public class ScTcText
     {
         return new ScTcText(fun.apply(sc.toString()), fun.apply(tc.toString()));
     }
+
+    public <T> Twin<T> mapToOther(Function<String, T> fun)
+    {
+        return Twin.of(fun.apply(sc.toString()), fun.apply(tc.toString()));
+    }
 }

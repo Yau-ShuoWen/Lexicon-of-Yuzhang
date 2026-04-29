@@ -6,6 +6,7 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.WeightSort;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
@@ -21,6 +22,7 @@ import com.shuowen.yuzong.data.domain.Word.CiyuShow;
 import com.shuowen.yuzong.data.mapper.Word.CiyuMapper;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -127,7 +129,7 @@ public class CiyuService
      */
     public CiyuUpdate getCiyuById(int id, Dialect d)
     {
-        return new CiyuUpdate(
+        return new CiyuUpdate(d,
                 cy.findCiyuByWordId(id, d.toString()).get(0),//TODO
                 cy.findCiyuSimilarByWordId(id, d.toString())
         );
@@ -177,6 +179,20 @@ public class CiyuService
 
     public void createCiyu(CiyuCreate ci, Dialect d)
     {
-        cy.insertWord(ci.checkAndTransfer(d), d.toString());
+        var model = ci.checkAndTransfer(d);
+
+        for (var i : model)
+        {
+            if (Maybe.uncertain(cy.findByUniqueKey(i, d.toString())).isEmpty())
+            {
+                try
+                {
+                    cy.insertWord(i, d.toString());
+                }
+                catch (DuplicateKeyException ignored)//幂等
+                {
+                }
+            }
+        }
     }
 }

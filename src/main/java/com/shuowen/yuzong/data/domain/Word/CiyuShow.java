@@ -52,14 +52,17 @@ public class CiyuShow
 
         }
         similar = cy.getSimilar();
-        mean = cy.getMean();
 
         mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->
                 PinyinFormatter.handle(d.trustedCreatePinyin(i), d)
         ));
 
         variantPy = ListTool.mapping(cy.getVariantPy(),
-                i -> RichTextUtil.format(i, data, false, Maybe.nothing(),true)
+                i -> RichTextUtil.format(i, data, false, Maybe.nothing(), true)
+        );
+
+        mean = ListTool.mapping(cy.getMean(),
+                i -> RichTextUtil.format(i, data, false, Maybe.nothing(), true)
         );
 
         {

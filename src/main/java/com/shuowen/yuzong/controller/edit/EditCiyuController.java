@@ -4,6 +4,7 @@ import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.controller.APIResponse;
+import com.shuowen.yuzong.data.domain.Word.CiyuCreate;
 import com.shuowen.yuzong.data.domain.Word.CiyuUpdate;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.service.impl.Word.CiyuService;
@@ -59,4 +60,18 @@ public class EditCiyuController
         }
     }
 
+    @PostMapping ("/create/{d}")
+    public APIResponse<Void> createCiyu(@PathVariable Dialect d, @RequestBody CiyuCreate ce
+    )
+    {
+        try
+        {
+            cy.createCiyu(ce, d);
+            return APIResponse.success();
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
 }

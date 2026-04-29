@@ -6,6 +6,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
@@ -79,7 +80,10 @@ public class CiyuUpdate
         variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {}); //？？
 
         similar = ListTool.mapping(sim, Similar::new);
-        mean = readJson(cy.getMean(), new TypeReference<>() {});
+        mean = ListTool.mapping(
+                readJson(cy.getMean(), new TypeReference<List<ScTcText>>() {}),
+                i -> i.map(str -> TextPinyinIPA.transferPinyin(str, d, true))
+        );
     }
 
     // 前端→后端→数据库 ----------------------------------------------------
@@ -109,7 +113,11 @@ public class CiyuUpdate
 
         var sim = ListTool.mapping(similar, Similar::transfer);
 
-        cy.setMean(toJson(mean));
+        cy.setMean(toJson(
+                ListTool.mapping(mean,
+                        i -> i.map(str -> TextPinyinIPA.transferPinyin(str, d, false))
+                )
+        ));
 
         return Pair.of(cy, sim);
     }
