@@ -14,7 +14,7 @@ public class SPinyins
 
     private SPinyins(String text)
     {
-        pinyin = ListTool.mapping(List.of(text.trim().split("\\s+")), SPinyin::of);
+        pinyin = ListTool.mapping(text.trim().split("\\s+"), SPinyin::of);
     }
 
     private SPinyins(List<SPinyin> pinyin)
@@ -38,5 +38,10 @@ public class SPinyins
     public String toString()
     {
         return String.join(" ", ListTool.mapping(pinyin, SPinyin::toString));
+    }
+
+    public int size()
+    {
+        return pinyin.size();
     }
 }

@@ -22,6 +22,14 @@ public class ListTool
         return result;
     }
 
+    public static <T, U> List<U> mapping(T[] arr, Function<T, U> fun)
+    {
+        NullTool.checkNotNull(arr);
+        List<U> result = new ArrayList<>(arr.length);
+        for (T i : arr) result.add(fun.apply(i));
+        return result;
+    }
+
     public static <T> List<T> filter(Collection<T> list, Predicate<T> fun)
     {
         NullTool.checkNotNull(list);

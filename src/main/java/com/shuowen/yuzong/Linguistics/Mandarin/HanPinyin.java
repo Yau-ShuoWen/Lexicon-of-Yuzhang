@@ -110,7 +110,7 @@ public class HanPinyin
         Pinyin[] py = PinyinDictionary.get(c);
 
         return (py == null) ? new ArrayList<>() :
-                ListTool.mapping(Arrays.asList(py), i -> HanPinyin.tryOf(i).getValue());
+                ListTool.mapping(py, i -> HanPinyin.tryOf(i).getValue());
     }
 
 
