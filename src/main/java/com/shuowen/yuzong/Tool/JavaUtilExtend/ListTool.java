@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import org.apache.ibatis.exceptions.TooManyResultsException;
 
@@ -82,7 +83,7 @@ public class ListTool
 
     public static <T> boolean isIndexValid(List<T> l, int... index)
     {
-        for (int i : index) if (!NumberTool.arrayBetween(i, 0, l.size())) return false;
+        for (int i : index) if (!Range.of(l.size()).contains(i)) return false;
         return true;
     }
 

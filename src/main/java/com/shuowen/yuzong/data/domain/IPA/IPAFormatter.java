@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 
 public class IPAFormatter
 {
@@ -55,7 +55,7 @@ public class IPAFormatter
         char[] places = {' ', 'l', 'l', 'l', 'l', 'r', 'r', 'r', 'r', 'r', 'r'};
 
         // l在左边，r在右边
-        if (NumberTool.closeBetween(d, 1, 10))
+        if (Range.close(1, 10).contains(d))
         {
             char mark = marks[d], place = places[d];
             return (place == 'l') ?

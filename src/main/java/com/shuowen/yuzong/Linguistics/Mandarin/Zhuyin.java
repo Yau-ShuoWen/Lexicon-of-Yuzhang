@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.Linguistics.Mandarin;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import lombok.Getter;
@@ -24,7 +24,7 @@ public class Zhuyin
     {
         String[] sidemark = {null, "", "ˊ", "ˇ", "ˋ"};
 
-        return NumberTool.closeBetween(tone, 1, 4) ?
+        return Range.close(1, 4).contains(tone) ?
                 initial + middle + last + sidemark[tone] :
                 "·" + initial + middle + last;
     }
@@ -43,7 +43,7 @@ public class Zhuyin
     {
         try
         {
-            var hanPY= HanPinyin.of(pinyin);
+            var hanPY = HanPinyin.of(pinyin);
             return Maybe.exist(new Zhuyin(hanPY));
         } catch (InvalidPinyinException e)
         {
@@ -84,7 +84,7 @@ public class Zhuyin
 
     private Integer initTone(Integer tone)
     {
-        if (!NumberTool.closeBetween(tone, 0, 4))
+        if (!Range.close(0, 4).contains(tone))
             throw new InvalidPinyinException("音调超出范围");
         return tone;
     }

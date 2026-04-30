@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
@@ -97,7 +97,7 @@ public class CiyuUpdate
         cy.setSc(ciyu.getSc().toString());
         cy.setTc(ciyu.getTc().toString());
 
-        ObjectTool.asserts(NumberTool.closeBetween(special, 0, 3), "");
+        ObjectTool.asserts(Range.close(0, 3).contains(special), "");
         cy.setSpecial(special);
 
         cy.setMainPy(

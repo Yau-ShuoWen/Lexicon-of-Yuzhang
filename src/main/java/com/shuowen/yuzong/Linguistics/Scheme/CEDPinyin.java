@@ -1,9 +1,9 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 
 /**
@@ -160,7 +160,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
 
     protected void checkToneValid()
     {
-        if (!NumberTool.closeBetween(tone.getValueOrDefault(0), 0, 6))
+        if (!Range.close(0, 6).contains(tone.getValueOrDefault(0)))
             throw new InvalidPinyinException("音调范围超出");
     }
 

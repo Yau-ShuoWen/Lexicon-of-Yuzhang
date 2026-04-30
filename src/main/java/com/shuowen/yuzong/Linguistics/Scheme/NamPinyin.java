@@ -1,9 +1,9 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.NamStyle;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 
@@ -243,11 +243,11 @@ public class NamPinyin extends UniPinyin<NamStyle>
     {
         var t = tone.getValueOrDefault(0); // 轻声不会影响无声调的判断
 
-        if (!NumberTool.closeBetween(t, 0, 7)) throw new InvalidPinyinException("音调范围超出");
+        if (!Range.close(0, 7).contains(t)) throw new InvalidPinyinException("音调范围超出");
 
         boolean end = ObjectTool.existEqual(StringTool.back(syll), 't', 'k', 'l');
-        if (NumberTool.closeBetween(t, 1, 5)) if (end) throw new InvalidPinyinException("非入声音调配对入声韵尾");
-        if (NumberTool.closeBetween(t, 6, 7)) if (!end) throw new InvalidPinyinException("入声音调配对非入声韵尾");
+        if (Range.close(1, 5).contains(t)) if (end) throw new InvalidPinyinException("非入声音调配对入声韵尾");
+        if (Range.close(6, 7).contains(t)) if (!end) throw new InvalidPinyinException("入声音调配对非入声韵尾");
     }
 
     protected int initCorner()

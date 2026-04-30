@@ -2,8 +2,8 @@ package com.shuowen.yuzong.Tool.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -61,9 +61,9 @@ public class ObfInt
 
         for (char c : code.toCharArray())
         {
-            if (NumberTool.closeBetween(c, '0', '9')) continue;
-            if (NumberTool.closeBetween(c, 'A', 'Z')) continue;
-            if (NumberTool.closeBetween(c, 'a', 'z')) continue;
+            if (Range.close('0', '9').contains(c)) continue;
+            if (Range.close('A', 'Z').contains(c)) continue;
+            if (Range.close('a', 'z').contains(c)) continue;
 
             throw new IllegalArgumentException("无效的62进制编码字符: " + c);
         }
@@ -98,9 +98,9 @@ public class ObfInt
         {
             int val = -1;
 
-            if (NumberTool.closeBetween(c, '0', '9')) val = c - '0';
-            if (NumberTool.closeBetween(c, 'A', 'Z')) val = c - 'A' + 10;
-            if (NumberTool.closeBetween(c, 'a', 'z')) val = c - 'a' + 36;
+            if (Range.close('0', '9').contains(c)) val = c - '0';
+            if (Range.close('A', 'Z').contains(c)) val = c - 'A' + 10;
+            if (Range.close('a', 'z').contains(c)) val = c - 'a' + 36;
 
             num = num.multiply(BASE).add(BigInteger.valueOf(val));
         }

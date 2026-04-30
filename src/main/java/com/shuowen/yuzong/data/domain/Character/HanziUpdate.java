@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NumberTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcChar;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
@@ -134,7 +134,7 @@ public class HanziUpdate
         ch.setMainPy(PinyinFormatter.toDPinyin(dPinyin, d).toString(true));
         ch.setPyCode(dPinyin.getWeight());
 
-        ObjectTool.asserts(NumberTool.closeBetween(special, 0, 4), "");
+        ObjectTool.asserts(Range.close(0, 4).contains(special), "");
         ch.setSpecial(special);
 
         var sim = ListTool.mapping(similar, i -> i.transfer(id));

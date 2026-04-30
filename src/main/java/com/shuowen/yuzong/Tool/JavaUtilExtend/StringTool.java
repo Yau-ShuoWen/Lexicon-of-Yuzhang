@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.Tool.JavaUtilExtend;
 
+import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 
 import java.util.*;
@@ -84,11 +85,11 @@ public class StringTool
         {
             if (open) // 右侧开区间
             {
-                if (!NumberTool.arrayBetween(i, 0, str.length())) return false;
+                if (!Range.of(str.length()).contains(i)) return false;
             }
             else // 右侧闭区间
             {
-                if (!NumberTool.closeBetween(i, 0, str.length())) return false;
+                if (!Range.close(str.length()).contains(i)) return false;
             }
         }
         return true;
