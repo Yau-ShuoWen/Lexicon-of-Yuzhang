@@ -195,4 +195,17 @@ public class CiyuService
             }
         }
     }
+
+    public Maybe<ObfInt> getEditLinkIfExist(UString ciyu, Dialect d)
+    {
+        try
+        {
+            var entity = ListTool.checkSizeOne(cy.findCiyuByScOrTc(ciyu.toString(), d.toString(), Language.TC.toString()),
+                    "没有找到词语", "查到了过多的数据");
+            return Maybe.exist(ObfInt.encode(entity.getId()));
+        } catch (NoSuchElementException e)
+        {
+            return Maybe.nothing();
+        }
+    }
 }

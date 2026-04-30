@@ -40,7 +40,7 @@ public class CiyuCreate
             SPinyins py = pinyins.get(i);
 
             if (sc.length() != py.size()) throw new IllegalArgumentException(
-                    String.format("词语：%s %s\n和对应拼音的长度不一样", sc, tc)
+                    String.format("詞語：【%s】【%s】（長度%s）和拼音的字數（長度%s）不一样", sc, tc, sc.length(), py.size())
             );
 
             var tmp = new CiyuEntity();

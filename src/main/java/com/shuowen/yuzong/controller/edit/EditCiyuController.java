@@ -1,9 +1,11 @@
 package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.controller.APIResponse;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Word.CiyuCreate;
 import com.shuowen.yuzong.data.domain.Word.CiyuUpdate;
 import com.shuowen.yuzong.data.dto.SearchResult;
@@ -61,13 +63,31 @@ public class EditCiyuController
     }
 
     @PostMapping ("/create/{d}")
-    public APIResponse<Void> createCiyu(@PathVariable Dialect d, @RequestBody CiyuCreate ce
-    )
+    public APIResponse<Void> createCiyu(@PathVariable Dialect d, @RequestBody CiyuCreate ce)
     {
         try
         {
             cy.createCiyu(ce, d);
             return APIResponse.success();
+        } catch (Exception e)
+        {
+            if (e instanceof IllegalArgumentException)
+            {
+            }
+            else e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
+    @GetMapping ("/get-link/{d}/{dict}")
+    public APIResponse<Maybe<ObfInt>> getLink(
+            @PathVariable Dialect d, @PathVariable DictCode dict,
+            @RequestParam UString ciyu
+    )
+    {
+        try
+        {
+            return APIResponse.success(cy.getEditLinkIfExist(ciyu, d));
         } catch (Exception e)
         {
             e.printStackTrace();
