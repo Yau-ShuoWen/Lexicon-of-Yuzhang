@@ -18,7 +18,7 @@ public class TestIPA
     {
         if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
 
-        System.out.println(ipa.checkIPA(Dialect.NAM).toString());
+        System.out.println(ipa.checkIPA(Dialect.LAC).toString());
     }
 
     @Test
@@ -26,7 +26,7 @@ public class TestIPA
     {
         if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
 
-        ipa.updateIPA(Dialect.NAM);
-        System.out.println(ipa.checkIPA(Dialect.NAM));
+        ipa.updateIPA(Dialect.LAC);
+        System.out.println(ipa.checkIPA(Dialect.LAC));
     }
 }

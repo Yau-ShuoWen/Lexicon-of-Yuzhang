@@ -39,9 +39,9 @@ public class RefProof extends Page
         ScTcText note;   // 注释
 
         @JsonIgnore
-        private static Function<String, String> decode = i -> TextPinyinIPA.transferPinyin(i, Dialect.NAM, true);
+        private static Function<String, String> decode = i -> TextPinyinIPA.transferPinyin(i, Dialect.LAC, true);
         @JsonIgnore
-        private static Function<String, String> encode = i -> TextPinyinIPA.transferPinyin(i, Dialect.NAM, false);
+        private static Function<String, String> encode = i -> TextPinyinIPA.transferPinyin(i, Dialect.LAC, false);
 
         public Info(RefEntity ck)
         {

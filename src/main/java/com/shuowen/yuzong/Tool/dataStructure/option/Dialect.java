@@ -3,11 +3,11 @@ package com.shuowen.yuzong.Tool.dataStructure.option;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
-import com.shuowen.yuzong.Linguistics.Format.NamStyle;
+import com.shuowen.yuzong.Linguistics.Format.LACStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.Scheme.CEDPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.NamPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.LACPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
@@ -23,18 +23,17 @@ import java.util.function.Function;
 /**
  * 方言代码，提供未来的扩展
  * <ul>
- * <li> {@code NAM} 南昌话 </li>
+ * <li> {@code LAC} 南昌话 </li>
  * <li> {@code CED} 成都话 </li>
  * </ul>
  */
 @SuppressWarnings ({"unchecked", "rawtypes", "unused"})
 public enum Dialect
 {
-    NAM("南昌話", "nam", NamStyle.class, NamPinyin.class,
-            NamPinyin::tryOf, NamStyle::createStyle, NamPinyin::normalize,
+    LAC("南昌話", "lac", LACStyle.class, LACPinyin.class,
+            LACPinyin::tryOf, LACStyle::createStyle, LACPinyin::normalize,
             new DictCode("ncdict"), 7, 2),
 
-    //   南昌话LAC
     CED("成都话", "ced", CEDStyle.class, CEDPinyin.class,
             CEDPinyin::tryOf, CEDStyle::createStyle, CEDPinyin::normalize,
             new DictCode("cddict"), 4, 2);
@@ -93,7 +92,7 @@ public enum Dialect
         StringTool.checkTrimValid(s);
         return switch (s.toLowerCase().trim())
         {
-            case "nam" -> NAM;
+            case "lac" -> LAC;
             case "ced" -> CED;
             default -> throw new IllegalArgumentException("方言代号无效：" + s);
         };
@@ -155,6 +154,6 @@ public enum Dialect
 
     public static List<Dialect> getList()
     {
-        return List.of(NAM, CED);
+        return List.of(LAC, CED);
     }
 }

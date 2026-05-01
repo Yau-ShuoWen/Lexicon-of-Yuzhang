@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @JsonIgnoreProperties (ignoreUnknown = true)
 @EqualsAndHashCode (callSuper = true)
 @Data
-public class NamStyle extends PinyinStyle
+public class LACStyle extends PinyinStyle
 {
     //↓ DOTO 之后需要把他给成protect，放进同一个包里
     public enum Style
@@ -18,18 +18,18 @@ public class NamStyle extends PinyinStyle
 
     private Style style;
 
-    private NamStyle(Style style)
+    private LACStyle(Style style)
     {
         this.style = style;
     }
 
-    public static NamStyle createStyle(Scheme scheme)
+    public static LACStyle createStyle(Scheme scheme)
     {
         return switch (scheme)
         {
-            case DISPLAY -> new NamStyle(Style.DISPALY);
-            case KEYBOARD -> new NamStyle(Style.KEYBOAD);
-            case DEBUG -> new NamStyle(Style.DEBUG);
+            case DISPLAY -> new LACStyle(Style.DISPALY);
+            case KEYBOARD -> new LACStyle(Style.KEYBOAD);
+            case DEBUG -> new LACStyle(Style.DEBUG);
         };
     }
 }

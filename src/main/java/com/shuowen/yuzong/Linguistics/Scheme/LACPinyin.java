@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
-import com.shuowen.yuzong.Linguistics.Format.NamStyle;
+import com.shuowen.yuzong.Linguistics.Format.LACStyle;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
@@ -12,19 +12,19 @@ import java.util.Objects;
 /**
  * 南昌话拼音方案
  */
-public class NamPinyin extends UniPinyin<NamStyle>
+public class LACPinyin extends UniPinyin<LACStyle>
 {
-    protected NamPinyin(SPinyin s)
+    protected LACPinyin(SPinyin s)
     {
         super(s);
     }
 
-    public static Maybe<NamPinyin> tryOf(SPinyin s, boolean fromDatabase)
+    public static Maybe<LACPinyin> tryOf(SPinyin s, boolean fromDatabase)
     {
         try
         {
-            var p = fromDatabase ? s : LacKeyboard.normalize(s);
-            return Maybe.exist(new NamPinyin(p));
+            var p = fromDatabase ? s : LACKeyboard.normalize(s);
+            return Maybe.exist(new LACPinyin(p));
         } catch (InvalidPinyinException e)
         {
             return Maybe.nothing();
@@ -270,30 +270,30 @@ public class NamPinyin extends UniPinyin<NamStyle>
     }
 
     @Override
-    protected RPinyin toRPinyin(NamStyle p)
+    protected RPinyin toRPinyin(LACStyle p)
     {
         String pinyin = switch (p.getStyle())
         {
-            case DISPALY -> LacDisplay.format(this);
-            case KEYBOAD -> LacKeyboard.format(this);
+            case DISPALY -> LACDisplay.format(this);
+            case KEYBOAD -> LACKeyboard.format(this);
             case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
         };
         return RPinyin.of(pinyin);
     }
 
     @Override
-    protected SPinyin toSPinyin(NamStyle p)
+    protected SPinyin toSPinyin(LACStyle p)
     {
         String pinyin = switch (p.getStyle())
         {
             case DISPALY -> throw new IllegalArgumentException();
-            case KEYBOAD -> LacKeyboard.format(this);
+            case KEYBOAD -> LACKeyboard.format(this);
             case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
         };
         return SPinyin.of(pinyin);
     }
 
-    protected DPinyin toDPinyin(NamStyle p)
+    protected DPinyin toDPinyin(LACStyle p)
     {
         String pinyin = switch (p.getStyle())
         {
@@ -306,9 +306,9 @@ public class NamPinyin extends UniPinyin<NamStyle>
     /**
      * 展示格式工具类，单向
      */
-    private static class LacDisplay
+    private static class LACDisplay
     {
-        public static String format(NamPinyin p)
+        public static String format(LACPinyin p)
         {
             String s = p.syll;
 
@@ -340,11 +340,11 @@ public class NamPinyin extends UniPinyin<NamStyle>
     /**
      * 输入格式工具类，双向
      */
-    private static class LacKeyboard
+    private static class LACKeyboard
     {
         // 实现：只要处理ii的问题就可以了，其他不动
 
-        public static String format(NamPinyin p)
+        public static String format(LACPinyin p)
         {
             String s = p.syll;
             var t = p.tone;

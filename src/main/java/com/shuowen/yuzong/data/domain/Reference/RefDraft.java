@@ -48,7 +48,7 @@ public class RefDraft extends Page
             if (i != 1) content += "\n\n";
             content += l.get(i).getContent();
         }
-        content = TextPinyinIPA.transferPinyin(content, Dialect.NAM, true);
+        content = TextPinyinIPA.transferPinyin(content, Dialect.LAC, true);
     }
 
     public static RefDraft of(List<RefEntity> list)
@@ -73,7 +73,7 @@ public class RefDraft extends Page
 
         // 中段，内容部分
         var mid = new ArrayList<RefEntity>();
-        var texts = TextPinyinIPA.transferPinyin(content, Dialect.NAM, false).split("\n\n");
+        var texts = TextPinyinIPA.transferPinyin(content, Dialect.LAC, false).split("\n\n");
         var sorts = FractionIndex.between(frontSort, endSort, texts.length);
         for (int i = 0; i < sorts.size(); i++)
             mid.add(new RefEntity(dictionary, sorts.get(i), texts[i], pageInfo));
