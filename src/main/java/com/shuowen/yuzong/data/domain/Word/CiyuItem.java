@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.WeightSort;
@@ -106,8 +106,10 @@ public class CiyuItem
         return matchItem.get(0);
     }
 
-    public List<RPinyin> getPinyin(Dialect d)
+    public RPinyins getPinyin(Dialect d)
     {
-        return ListTool.mapping(mainPy, i -> PinyinFormatter.handle(i, d));
+        return RPinyins.of(
+                ListTool.mapping(mainPy, i -> PinyinFormatter.handle(i, d))
+        );
     }
 }

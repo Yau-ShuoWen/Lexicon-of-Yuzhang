@@ -70,20 +70,10 @@ public class CiyuService
         for (var i : list)
         {
             var ans = new SearchResult();
-
-            ans.setTitle(i.getCiyu() + "  " +
-                    i.getPinyin(d).stream().map(RPinyin::toString).collect(Collectors.joining("")));
-
-            String explain = "{b 【詞語】}  ";
-
-            if (!i.getSortKey(query).equals(i.getCiyu())) explain += "根據{b 「%s」}模糊識別；";
-            explain = StringTool.deleteBack(explain);
-            explain = String.format(ScTcText.get(explain, l).toString(), i.getSortKey(query));
-
-            ans.setExplain(explain);
+            ans.setTitle(i.getCiyu());
+            ans.setExplain(i.getPinyin(d).toString());
             ans.setTag("ciyu");
             ans.setInfo(Map.of("query", i.getCiyu()));
-
             res.add(ans);
         }
         return res;
@@ -188,8 +178,7 @@ public class CiyuService
                 try
                 {
                     cy.insertWord(i, d.toString());
-                }
-                catch (DuplicateKeyException ignored)//幂等
+                } catch (DuplicateKeyException ignored)//幂等
                 {
                 }
             }

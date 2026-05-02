@@ -57,23 +57,9 @@ public class HanziService
 
             for (var i : item)
             {
-                // 标题 = 字 + 拼音，如果不止一个主读音，使用" / "拼接
-                String title = i.getHanzi() + "  " +
-                        i.getPinyin().stream().map(RPinyin::toString).collect(Collectors.joining(" / "));
-
-                // 标签为加粗体【字】
-                // - 如果查询字不等于查询到的汉字，说明模糊识别，先转移，在拼接
-                // - 如果存在特殊的汉字，展示出来
-                String explain = "{b 【字】}  ";
-                if (!i.getHanzi().equals(hanzi)) explain += "根據{b 「%s」}模糊識別；";
-                if (i.isSpecial()) explain += "存在{b 特殊用法}；";
-                explain = StringTool.deleteBack(explain);
-                explain = String.format(ScTcText.get(explain, l).toString(), hanzi);
-
-
                 var tmp = new SearchResult();
-                tmp.setTitle(title);
-                tmp.setExplain(explain);
+                tmp.setTitle(i.getHanzi() + "【字】");
+                tmp.setExplain(i.getPinyin().toString());
                 tmp.setTag("hanzi");
                 tmp.setInfo(Map.of("query", i.getHanzi()));
                 ans.add(tmp);

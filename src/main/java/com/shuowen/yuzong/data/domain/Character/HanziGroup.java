@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.domain.Character;
 
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
@@ -46,9 +46,11 @@ public class HanziGroup
         return groups;
     }
 
-    public List<RPinyin> getPinyin()
+    public RPinyins getPinyin()
     {
-        return new ArrayList<>(SetTool.mapping(data, i -> PinyinFormatter.handle(i.getMainPy(), dialect)));
+        return RPinyins.of(new ArrayList<>(
+                SetTool.mapping(data, i -> PinyinFormatter.handle(i.getMainPy(), dialect))
+        ));
     }
 
     public boolean isSpecial()
