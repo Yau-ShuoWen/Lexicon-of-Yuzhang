@@ -92,6 +92,14 @@ public class ScTcText
                 UString.of(tc);
     }
 
+    /**
+     * 对于最简单的硬编码字符，不需要机翻，甚至不需要转UString
+     */
+    public static String get(String tc, String sc, Language l)
+    {
+        return l.isSimplified() ? sc : tc;
+    }
+
     public static UString get(String tc, Dialect d, Language l)
     {
         return l.isSimplified() ?

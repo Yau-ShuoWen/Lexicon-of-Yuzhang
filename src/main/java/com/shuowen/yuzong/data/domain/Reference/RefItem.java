@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.data.domain.Reference;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
@@ -7,6 +8,8 @@ import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import lombok.Data;
+
+import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 
 /**
  * 参考资料条目
@@ -16,6 +19,7 @@ public class RefItem
 {
     private final UString content;
     private final UString source;
+    private final UString note;
 
     public RefItem(RefEntity ck, final IPAData data, DictCode dict)
     {
@@ -32,5 +36,11 @@ public class RefItem
                 ck.getThePageInfo().getLeft(),
                 ck.getThePageInfo().getRight())
         ).get(l);
+
+        {
+            var tmp = readJson(ck.getNote(), new TypeReference<ScTcText>() {}).get(l);
+            tmp = RichTextUtil.handleRefTitle(tmp);
+            note = RichTextUtil.format(tmp, data, false, Maybe.exist(dict), true);
+        }
     }
 }
