@@ -1,9 +1,7 @@
 package com.shuowen.yuzong.service.impl.Character;
 
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
@@ -28,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class HanziService
@@ -58,8 +55,9 @@ public class HanziService
             for (var i : item)
             {
                 var tmp = new SearchResult();
-                tmp.setTitle(i.getHanzi() + "【字】");
-                tmp.setExplain(i.getPinyin().toString());
+                tmp.setTitle(String.format("%s【%s】", i.getHanzi(), ScTcText.get("漢字", "汉字", l)));
+                tmp.setExplain(i.getPinyin());
+                tmp.setSpecial(i.isSpecial());
                 tmp.setTag("hanzi");
                 tmp.setInfo(Map.of("query", i.getHanzi()));
                 ans.add(tmp);

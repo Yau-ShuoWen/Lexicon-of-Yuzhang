@@ -28,7 +28,7 @@
         main.sc like concat('%', #{ciyu}, '%') OR
         main.tc like concat('%', #{ciyu}, '%')
         )
-        AND special &lt; 2
+        AND special &lt; 5
         GROUP BY main.id
     </select>
 
@@ -42,7 +42,7 @@
         similar.sc like concat('%', #{ciyu}, '%') OR
         similar.tc like concat('%', #{ciyu}, '%')
         )
-        AND special &lt; 2
+        AND special &lt; 5
         GROUP BY main.id
     </select>
 
@@ -52,7 +52,7 @@
         <include refid="allIn"/>
         WHERE
         main.id = #{id}
-        AND special &lt; 2
+        AND special &lt; 5
         GROUP BY main.id
     </select>
 
@@ -61,7 +61,7 @@
         <include refid="allIn"/>
         WHERE
         main.${language} = #{ciyu}
-        AND special &lt; 2
+        AND special &lt; 5
         GROUP BY main.id
     </select>
 

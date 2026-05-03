@@ -11,7 +11,6 @@ import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.*;
@@ -23,6 +22,7 @@ import lombok.Data;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * 用作词条的汉字，隐藏细节
@@ -37,7 +37,7 @@ public class HanziShow
     public static class Info
     {
         RPinyin mainPy;
-        UString special;
+        Integer special;
         List<Pair<UString, RPinyin>> variantPy;
         Set<UChar> similar;
         List<Pair<String, String>> mdrInfo;
@@ -118,14 +118,17 @@ public class HanziShow
             Info info = new Info();
 
             // 和「数据库拼音初始化」无关的内容先处理
+            info.special = ((Supplier<Integer>) () ->
             {
-                String tmp = "用法和普通話基本相同。";
-                if (i.special.contains(1)) tmp = "方言里有特殊用法。";
-                if (i.special.contains(2)) tmp = "方言里使用的地方很少。";
-                if (i.special.contains(3)) tmp = "方言里不會使用。";
-
-                info.special = ScTcText.get("概覽：" + tmp, l);
-            }
+                // 优先级别：
+                // 1. 有特殊用法的情况下，使用地方少算做特殊用法的一种
+                // 2. 使用方法少，就不能说不会使用
+                // 3. 没有上面的，才能判断完全不使用
+                if (i.special.contains(1)) return 1;
+                if (i.special.contains(2)) return 2;
+                if (i.special.contains(3)) return 3;
+                return 0;
+            }).get();
 
             info.similar = i.similar;
             info.mdrInfo = ListTool.mapping(i.mdrInfo, j -> Pair.of(

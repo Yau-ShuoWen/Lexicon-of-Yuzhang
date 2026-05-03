@@ -46,11 +46,11 @@ public class HanziGroup
         return groups;
     }
 
-    public RPinyins getPinyin()
+    public String getPinyin()
     {
-        return RPinyins.of(new ArrayList<>(
-                SetTool.mapping(data, i -> PinyinFormatter.handle(i.getMainPy(), dialect))
-        ));
+        return String.join("/",
+                SetTool.mapping(data, i -> PinyinFormatter.handle(i.getMainPy(), dialect).toString())
+        );
     }
 
     public boolean isSpecial()

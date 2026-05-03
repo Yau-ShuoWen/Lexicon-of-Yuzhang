@@ -1,16 +1,13 @@
 package com.shuowen.yuzong.service.impl.Word;
 
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.WeightSort;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
@@ -27,7 +24,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
@@ -72,6 +68,7 @@ public class CiyuService
             var ans = new SearchResult();
             ans.setTitle(i.getCiyu());
             ans.setExplain(i.getPinyin(d).toString());
+            ans.setSpecial(i.getSpecial() != 0);
             ans.setTag("ciyu");
             ans.setInfo(Map.of("query", i.getCiyu()));
             res.add(ans);

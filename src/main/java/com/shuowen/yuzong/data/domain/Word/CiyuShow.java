@@ -23,7 +23,7 @@ import java.util.*;
 public class CiyuShow
 {
     private final UString ciyu;
-    private final UString special;
+    private final Integer special;
     private final RPinyins mainPy;
     private final List<UString> variantPy;
     private final List<Pair<UString, Integer>> similar;
@@ -41,16 +41,8 @@ public class CiyuShow
         var d = data.getDialect();
 
         ciyu = cy.getCiyus().get(l);
+        special = cy.getSpecial();
 
-        {
-            String tmp = "用法和普通話基本相同。";
-            if (cy.getSpecial() == 2) tmp = "";
-            special = ScTcText.get("概覽：" + tmp, l);
-        }
-
-        {
-
-        }
         similar = cy.getSimilar();
 
         mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->

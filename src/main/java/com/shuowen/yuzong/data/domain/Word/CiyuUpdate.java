@@ -97,7 +97,7 @@ public class CiyuUpdate
         cy.setSc(ciyu.getSc().toString());
         cy.setTc(ciyu.getTc().toString());
 
-        ObjectTool.asserts(Range.close(0, 3).contains(special), "");
+        ObjectTool.asserts(Range.close(0, 4).contains(special), "特殊標記超出範圍");
         cy.setSpecial(special);
 
         cy.setMainPy(
