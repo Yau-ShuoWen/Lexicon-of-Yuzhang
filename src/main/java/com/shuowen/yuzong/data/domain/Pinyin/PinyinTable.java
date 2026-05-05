@@ -29,7 +29,7 @@ public class PinyinTable
         private Item(String standard, String keyboard, String code)
         {
             this.exist = !"-".equals(standard);
-            this.standard = exist ? String.format("{b [%s]}", standard) : "-";
+            this.standard = exist ? String.format("[%s]", standard) : "-";
             this.id = exist ? code + "-" + keyboard : "-";
         }
     }
