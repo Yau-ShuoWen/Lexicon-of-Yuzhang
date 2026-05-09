@@ -37,7 +37,7 @@ public class ScTcText
     public ScTcText(@JsonProperty ("sc") String sc,
                     @JsonProperty ("tc") String tc)
     {
-        NullTool.checkNotNull(sc, tc);
+        NullTool.checkNotNull(false, sc, tc);
         this.sc = UString.of(sc);
         this.tc = UString.of(tc);
         if (sc.length() != tc.length()) throw new IllegalStringException(String.format("""
@@ -69,6 +69,13 @@ public class ScTcText
     {
         this.tc = UString.of(tc);
         this.sc = escapeCharTraslate(this.tc, Language.TC, OrthoCharset.of(d));
+    }
+
+    public ScTcText(UString tc, UString sc)
+    {
+        NullTool.checkNotNull(false, sc, tc);
+        this.sc = sc;
+        this.tc = tc;
     }
 
     public UString get(Language l)

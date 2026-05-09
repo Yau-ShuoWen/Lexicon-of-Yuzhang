@@ -204,7 +204,7 @@ public class TextPinyinIPA
                         {
                             case AllPinyin -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);
                             case PinyinIPA ->
-                                    handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, false, Maybe.nothing(), isfromDB);
+                                    handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, false, dict, isfromDB);
                         };
                     }
 

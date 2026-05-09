@@ -31,4 +31,9 @@ public class ScTcChar
                 {"sc": "", "tc": ""}
                 """;
     }
+
+    public ScTcText toText()
+    {
+        return new ScTcText(sc.toUString(), tc.toUString());
+    }
 }

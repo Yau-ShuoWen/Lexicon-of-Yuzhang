@@ -80,6 +80,8 @@ public class RichTextUtil
      */
     private static String handleAnnotation(String text)
     {
+        if(text.isEmpty()) return "";
+
         StringBuilder result = new StringBuilder();
         String[] lines = text.split("\n", -1); // 保留空行
 

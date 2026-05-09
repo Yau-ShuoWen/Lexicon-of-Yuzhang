@@ -1,6 +1,5 @@
 package com.shuowen.yuzong.data.domain.Character;
 
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
@@ -15,7 +14,6 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.service.impl.Reference.RefReadService;
 import lombok.Data;
@@ -41,15 +39,14 @@ public class HanziShow
         List<Pair<UString, RPinyin>> variantPy;
         Set<UChar> similar;
         List<Pair<String, String>> mdrInfo;
-        List<Pair<String, String>> ipa;
         List<Twin<UString>> note;
     }
 
     private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
 
-    public static HanziShow of(HanziGroup hz, final IPAData ipa)
+    public static HanziShow of(HanziGroup hz, final IPAData data)
     {
-        return new HanziShow(hz.getData(), ipa);
+        return new HanziShow(hz.getData(), data);
     }
 
     private HanziShow(List<HanziItem> hz, final IPAData data)
@@ -66,7 +63,6 @@ public class HanziShow
             Set<Pair<UString, UniPinyin<?>>> variantPy = new LinkedHashSet<>();// 读音变体：插入顺序的集合
             Set<UChar> similar = new TreeSet<>();                        // 模糊识别汉字：默认顺序的集合
             List<String> mdrInfo = new ArrayList<>();
-            List<Pair<DictCode, UniPinyin<?>>> ipa = new ArrayList<>();
             List<Twin<UString>> note = new ArrayList<>();
         }
 
@@ -95,22 +91,9 @@ public class HanziShow
             info.variantPy.addAll(SetTool.mapping(h.getVariantPy(),
                     i -> Pair.of(i.getLeft(), d.trustedCreatePinyin(i.getRight()))
             ));
-            info.ipa.addAll(SetTool.mapping(h.getIpa(),
-                    i -> Pair.of(new DictCode(i.getLeft()), d.trustedCreatePinyin(SPinyin.of(i.getRight())))
-            ));
         }
 
-        // 格式化，两轮循环 ----------------------------------------------------------------------
-
-
-        // 第一次：获得国际音标资料
-        if (data.getPinyinOption().getPhonogram() == Phonogram.PinyinIPA)
-        {
-            for (var i : tmpInfoMap.values())
-                data.add(SetTool.mapping(i.ipa, Pair::getRight));
-        }
-
-        // 第二次：对于展示类，格式化拼音、回填国际音标数据、处理字符串内容
+        // 格式化拼音、回填国际音标数据、处理字符串内容
 
         Map<String, Info> infoMap = new TreeMap<>();
         for (var i : tmpInfoMap.values())
@@ -143,26 +126,6 @@ public class HanziShow
             info.mainPy = format.apply(i.mainPy);
             info.variantPy = ListTool.mapping(i.variantPy, pair -> Pair.of(pair.getLeft(), format.apply(pair.getRight())));
 
-            switch (data.getPinyinOption().getPhonogram())
-            {
-                case AllPinyin ->
-                {
-                    info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
-                            data.getDictionaryName(pair.getLeft()),
-                            format.apply(pair.getRight()).toString()
-                    ));
-                }
-                case PinyinIPA ->
-                {
-                    // ipa 查询
-                    info.ipa = ListTool.mapping(i.ipa, pair -> Pair.of(
-                            data.getDictionaryName(pair.getLeft()),
-                            data.submitAndGet(pair.getRight(), pair.getLeft()).getValueDirectly("获取音标失败")
-                    ));
-                }
-            }
-
-            // 使用富文本的内 容，放在最后，说不定可以用上前面获得的数据
             info.note = ListTool.mapping(i.note, pair -> Twin.of(pair.getLeft(),
                     RichTextUtil.format(pair.getRight(), data, false, Maybe.nothing(), true)
             ));
@@ -172,7 +135,6 @@ public class HanziShow
         }
         info = new ArrayList<>(infoMap.values());
 
-        ref.addAll(RefReadService.getRef(hz.get(0).getHanzis().getSc().toString(), DictCode.of("ncdict"), data));
-        ref.addAll(RefReadService.getRef(hz.get(0).getHanzis().getTc().toString(), DictCode.of("ncdict"), data));
+        ref.addAll(RefReadService.getRef(hz.get(0).getHanzis().toText(),data));
     }
 }

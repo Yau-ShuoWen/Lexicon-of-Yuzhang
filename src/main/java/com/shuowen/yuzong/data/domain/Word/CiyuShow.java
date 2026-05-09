@@ -5,11 +5,9 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.service.impl.Reference.RefReadService;
 import lombok.Data;
@@ -57,9 +55,6 @@ public class CiyuShow
                 i -> RichTextUtil.format(i, data, false, Maybe.nothing(), true)
         );
 
-        {
-            ref.addAll(RefReadService.getRef(cy.getCiyus().getSc().toString(), DictCode.of("ncdict"), data));
-            ref.addAll(RefReadService.getRef(cy.getCiyus().getTc().toString(), DictCode.of("ncdict"), data));
-        }
+        ref.addAll(RefReadService.getRef(cy.getCiyus(), data));
     }
 }
