@@ -21,10 +21,11 @@ public class RefItem
     private final UString source;
     private final UString note;
 
-    public RefItem(RefEntity ck, final IPAData data, DictCode dict)
+    public RefItem(RefEntity ck, final IPAData data)
     {
         var l = data.getLanguage();
         var d = data.getDialect();
+        var dict= DictCode.of(ck.getDictionary());
 
         {
             var tmp = RichTextUtil.handleRefTitle(new ScTcText(ck.getContent(), d).get(l));
@@ -32,7 +33,7 @@ public class RefItem
         }
 
         source = new ScTcText(String.format("%s%s第%s頁",
-                data.getDictionaryName(DictCode.of(ck.getDictionary())),
+                data.getDictName(dict),
                 ck.getThePageInfo().getLeft(),
                 ck.getThePageInfo().getRight())
         ).get(l);

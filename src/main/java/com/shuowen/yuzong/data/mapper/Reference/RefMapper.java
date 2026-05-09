@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 @Mapper
 public interface RefMapper
@@ -78,7 +79,9 @@ public interface RefMapper
      */
     List<RefEntity> findPageinfo(String dictionary);
 
-    List<RefEntity> findByQuery(String dictionary, String query);
+    List<RefEntity> findAllByQuery(Set<String> dicts, String query);
 
     Integer findRowCountInReferTable(String dialect);
+
+    List<RefEntity> findAll(String dictionary);
 }

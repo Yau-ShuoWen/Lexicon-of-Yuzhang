@@ -181,16 +181,15 @@
         ORDER BY sort
     </select>
 
-    <!--  條件  -->
-    <!--  必須存在 {query} 或 {+query}（不允許空格 → 避開富文本）  -->
-    <!--  排除 {-query}  -->
-    <select id="findByQuery" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <select id="findAllByQuery" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
-        WHERE dictionary = #{dictionary}
+        WHERE dictionary IN
+        <foreach collection="dicts" item="dict" open="(" separator="," close=")">
+            #{dict}
+        </foreach>
         AND indexes LIKE CONCAT('%', #{query}, '%')-- 粗篩：至少包含關鍵字（減少數據量）
         AND indexes REGEXP CONCAT('\\{[+]?', '', #{query}, '', '\\}')
         AND NOT indexes REGEXP CONCAT('\\{-', #{query}, '\\}')
-        ORDER BY LOCATE(CONCAT('{', #{query}, '}'), indexes);
     </select>
 
 
@@ -205,5 +204,11 @@
             WHERE BINARY dialects LIKE CONCAT('%', #{dialect}, '%')
         )
         ]]>
+    </select>
+
+    <select id="findAll" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+        SELECT * FROM NC.reference
+        WHERE dictionary = #{dictionary}
+        ORDER BY sort
     </select>
 </mapper>
