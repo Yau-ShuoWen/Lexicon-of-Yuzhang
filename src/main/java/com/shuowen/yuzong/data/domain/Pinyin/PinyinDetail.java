@@ -11,7 +11,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
-import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.data.domain.Reference.DictCodeExt;
 import com.shuowen.yuzong.data.model.IPA.IPAItem;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
 import lombok.Data;
@@ -69,16 +69,16 @@ public class PinyinDetail
                 );
             }
 
-            for (var i : readJson(item.getInfo(), new TypeReference<Map<DictCode, String>>() {}).entrySet())
+            for (var i : readJson(item.getInfo(), new TypeReference<Map<DictCodeExt, String>>() {}).entrySet())
             {
                 if ("-".equals(i.getValue())) continue;
                 if (type != Type.TONE)
-                    ipa.put(data.getDictionaryName(i.getKey()), String.format("[ /%s/ ]", i.getValue()));
+                    ipa.put(data.getDictName(i.getKey()), String.format("[ /%s/ ]", i.getValue()));
                 else
                 {
                     String num = IPAFormatter.mergeFiveDegreeNum(i.getValue(), true);
                     String line = IPAFormatter.mergeFiveDegree("", i.getValue(), false);
-                    ipa.put(data.getDictionaryName(i.getKey()), String.format("[%-4s][%s]", num, line));
+                    ipa.put(data.getDictName(i.getKey()), String.format("[%-4s][%s]", num, line));
                 }
             }
 

@@ -5,9 +5,9 @@ import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.data.domain.Reference.DictCodeExt;
 import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
-import com.shuowen.yuzong.service.impl.Reference.DictService;
 import lombok.Getter;
 
 import java.util.*;
@@ -25,9 +25,10 @@ public class IPAData
     private final Dialect dialect;                         // 方言：预先存进不可变
     @Getter
     private final PinyinOption pinyinOption;               // 拼音格式：预先存进不可变
-    private final DictGroup dictionary;          // 字典代号-字典中文对照表
-    private final Set<IPinyin> buffer = new HashSet<>();    // 没有查的内容的缓冲区
-    private final Set<IPinyin> failCase = new HashSet<>();  // 失败用例
+    @Getter
+    private final DictGroup dictGroup;                     // 字典代号-字典中文对照表
+    private final Set<IPinyin> buffer = new HashSet<>();   // 没有查的内容的缓冲区
+    private final Set<IPinyin> failCase = new HashSet<>(); // 失败用例
     private final Map<IPinyin, Map<DictCode, String>> data = new HashMap<>(); // 信息
 
     public IPAData(Language l, Dialect d, PinyinOption op)
@@ -35,7 +36,7 @@ public class IPAData
         language = l;
         dialect = d;
         pinyinOption = op;
-        dictionary = DictService.getDictionary(dialect, language);
+        dictGroup = DictGroup.of(d);
     }
 
     /**
@@ -52,7 +53,7 @@ public class IPAData
      */
     private boolean inDictionary(DictCode dict)
     {
-        return dictionary.containDict(dict);
+        return dictGroup.containDict(dict);
     }
 
     /**
@@ -60,7 +61,7 @@ public class IPAData
      */
     private void search(Set<IPinyin> set)
     {
-        data.putAll(IPAService.getTheIPA(set, pinyinOption, dialect, dictionary.getKeySet()));
+        data.putAll(IPAService.getTheIPA(set, pinyinOption, dialect, dictGroup.getKeySet()));
         for (var i : set) if (!data.containsKey(i)) failCase.add(i);
     }
 
@@ -114,18 +115,26 @@ public class IPAData
     }
 
     /**
-     * 直接需要内容的时候
+     * 直接需要内容的时候，不推荐使用，可以优化。
      */
+    @Deprecated
     public Maybe<String> getDirectly(IPinyin pinyin, DictCode dict)
     {
         if (!haveHistory(pinyin)) search(Set.of(pinyin));
         return submitAndGet(pinyin, dict);
     }
 
-    public String getDictionaryName(DictCode dict)
+    public String getDictName(DictCode dict)
     {
         return inDictionary(dict) ?
-                dictionary.getName(dict, language) :
+                dictGroup.getName(dict, language) :
+                "找不到对应字典。dictionary not found.";
+    }
+
+    public String getDictName(DictCodeExt dict)
+    {
+        return inDictionary(dict.getCode()) ?
+                dictGroup.getName(dict, language) :
                 "找不到对应字典。dictionary not found.";
     }
 }

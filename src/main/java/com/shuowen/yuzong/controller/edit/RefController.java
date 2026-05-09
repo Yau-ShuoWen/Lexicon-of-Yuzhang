@@ -2,6 +2,7 @@ package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
@@ -33,7 +34,7 @@ public class RefController
      * 获取词典列表
      */
     @GetMapping ("/get-dictionaries/{d}")
-    public List<Pair<String, DictCode>> getDictionaries(@PathVariable Dialect d)
+    public List<Pair<UString, DictCode>> getDictionaries(@PathVariable Dialect d)
     {
         return dict.getDictionaryMenu(d);
     }

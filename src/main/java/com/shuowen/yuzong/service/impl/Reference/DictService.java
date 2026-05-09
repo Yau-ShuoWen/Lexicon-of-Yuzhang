@@ -1,25 +1,21 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.data.mapper.Reference.DictMapper;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
+import com.shuowen.yuzong.data.model.Reference.DictEntity;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
@@ -28,28 +24,19 @@ public class DictService
     @Autowired
     private DictMapper cd;
 
-    /**
-     * 获得由「词典代号」查询「名称」的查询表
-     */
-    public DictGroup getDictionaryMap(Dialect d, Language l)
+    public static Set<DictEntity> getDicts(Dialect d)
     {
-        Map<DictCode, String> ans = new HashMap<>();
-        for (var i : cd.findByDialect(d.toString()))
-        {
-            ScTcText name = JsonTool.readJson(i.getName(), new TypeReference<>() {});
-            ans.put(new DictCode(i.getCode()), name.get(l).toString());
-        }
-        return new DictGroup(ans);
+        return new HashSet<>(instance.cd.findByDialect(d.toString()));
     }
 
     /**
      * 把「词典代号」查询「名称」按照序列的方法排列，用于前端
      */
-    public List<Pair<String, DictCode>> getDictionaryMenu(Dialect dialect)
+    public List<Pair<UString, DictCode>> getDictionaryMenu(Dialect dialect)
     {
-        List<Pair<String, DictCode>> ans = new ArrayList<>();
-        for (var i : getDictionaryMap(dialect, Language.TC).getDict().entrySet())
-            ans.add(Pair.of(i.getValue(), i.getKey()));
+        List<Pair<UString, DictCode>> ans = new ArrayList<>();
+        for (var i : DictGroup.of(dialect).getDict().entrySet())
+            ans.add(Pair.of(i.getValue().get(Language.TC), i.getKey()));
         return ans;
     }
 
@@ -60,12 +47,6 @@ public class DictService
     {
         instance = this;
     }
-
-    public static DictGroup getDictionary(Dialect d, Language l)
-    {
-        return instance.getDictionaryMap(d, l);
-    }
-
 
     @Autowired
     private RefMapper ck;
