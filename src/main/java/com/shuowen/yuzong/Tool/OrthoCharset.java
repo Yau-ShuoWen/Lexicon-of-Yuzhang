@@ -15,8 +15,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OrthoCharset
 {
+    /**
+     * 全局缓存，一个map，每一个方言都有对应的规则
+     */
     private static final Map<Dialect, OrthoCharset> CACHE = new ConcurrentHashMap<>();
 
+    /**
+     * 没有方言的对应规则
+     */
     private static final OrthoCharset DEFAULT = new OrthoCharset();
 
     public static OrthoCharset of()
@@ -33,38 +39,52 @@ public class OrthoCharset
 
     private OrthoCharset()
     {
+        var map = JsonTool.readJson(KeyValueService.get("ortho-charset"),
+                new TypeReference<Map<UChar, UChar>>() {});
+
+        handle.putAll(map);
+
         addIgnores(Punctuation.getCharset()); // 在方言的基础上加上标点符号的规则
     }
 
     private OrthoCharset(Dialect d)
     {
-        var map = JsonTool.readJson(KeyValueService.get("ortho-charset:" + d),
-                new TypeReference<Map<String, String>>() {});
-
-        for (var i : map.entrySet())
-            handle.put(UChar.of(i.getKey()), UChar.of(i.getValue()));
+        handle.putAll(JsonTool.readJson(KeyValueService.get("ortho-charset"), new TypeReference<Map<UChar, UChar>>() {}));
+        handle.putAll(JsonTool.readJson(KeyValueService.get("ortho-charset:" + d), new TypeReference<Map<UChar, UChar>>() {}));
 
         addIgnores(Punctuation.getCharset()); // 在方言的基础上加上标点符号的规则
     }
 
+    /**
+     * 不特殊处理的字符
+     */
     public void addIgnore(UChar ignore)
     {
         handle.put(ignore, UChar.of("-"));
     }
 
+    /**
+     * 不特殊处理的字符集合
+     */
     public void addIgnores(Collection<UChar> ignores)
     {
         for (var i : ignores) addIgnore(i);
     }
 
+    /**
+     * 特殊转换的字符集合
+     */
     public void addRule(UChar tc, UChar sc)
     {
         handle.put(tc, sc);
     }
 
+    /**
+     * 特殊转换的字符集合
+     */
     public void addRules(Map<UChar, UChar> rule)
     {
-        for (var i : rule.entrySet()) addRule(i.getKey(), i.getValue());
+        handle.putAll(rule);
     }
 
     public UChar choose(UChar original, UChar translation)
