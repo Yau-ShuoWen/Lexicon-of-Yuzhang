@@ -5,7 +5,7 @@ import com.shuowen.yuzong.Tool.TextTool.Punctuation;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.format.JsonTool;
-import com.shuowen.yuzong.service.impl.KeyValueService;
+import com.shuowen.yuzong.service.impl.KV;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -39,7 +39,7 @@ public class OrthoCharset
 
     private OrthoCharset()
     {
-        var map = JsonTool.readJson(KeyValueService.get("ortho-charset"),
+        var map = JsonTool.readJson(KV.get("ortho-charset"),
                 new TypeReference<Map<UChar, UChar>>() {});
 
         handle.putAll(map);
@@ -49,8 +49,8 @@ public class OrthoCharset
 
     private OrthoCharset(Dialect d)
     {
-        handle.putAll(JsonTool.readJson(KeyValueService.get("ortho-charset"), new TypeReference<Map<UChar, UChar>>() {}));
-        handle.putAll(JsonTool.readJson(KeyValueService.get("ortho-charset:" + d), new TypeReference<Map<UChar, UChar>>() {}));
+        handle.putAll(JsonTool.readJson(KV.get("ortho-charset"), new TypeReference<Map<UChar, UChar>>() {}));
+        handle.putAll(JsonTool.readJson(KV.get("ortho-charset:" + d), new TypeReference<Map<UChar, UChar>>() {}));
 
         addIgnores(Punctuation.getCharset()); // 在方言的基础上加上标点符号的规则
     }

@@ -10,7 +10,7 @@ import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
 import com.shuowen.yuzong.data.mapper.Word.CiyuMapper;
-import com.shuowen.yuzong.service.impl.KeyValueService;
+import com.shuowen.yuzong.service.impl.KV;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,9 +51,9 @@ public class GetInfoController
                            @PathVariable String code)
     {
 
-        if (code.equals("welcome")) return ScTcText.get(KeyValueService.get("website-greeting:" + d), d, l);
+        if (code.equals("welcome")) return ScTcText.get(KV.get("website-greeting:" + d), d, l);
 
-        if (code.contains("explain")) return ScTcText.get(KeyValueService.get(code), l);
+        if (code.contains("explain")) return ScTcText.get(KV.get(code), l);
 
         return UString.of("-");
     }
@@ -62,15 +62,15 @@ public class GetInfoController
     public Twin<ScTcText> about(@PathVariable Dialect d)
     {
         return Twin.of(
-                new ScTcText(KeyValueService.get("website-about:" + d)),
-                new ScTcText(KeyValueService.get("website-acknowledgement:" + d))
+                new ScTcText(KV.get("website-about:" + d)),
+                new ScTcText(KV.get("website-acknowledgement:" + d))
         );
     }
 
     @GetMapping ("/get-menu/{code}")
     public List<ScTcText> pronunTagList(@PathVariable String code)
     {
-        return JsonTool.readJson(KeyValueService.get("types-of-pronunciation"),
+        return JsonTool.readJson(KV.get("types-of-pronunciation"),
                 new TypeReference<>() {});
     }
 }

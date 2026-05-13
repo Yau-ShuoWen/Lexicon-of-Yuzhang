@@ -7,7 +7,7 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.service.impl.KeyValueService;
+import com.shuowen.yuzong.service.impl.KV;
 import lombok.Data;
 
 import java.util.*;
@@ -88,7 +88,7 @@ public class PinyinTable
     public PinyinTable(Dialect d)
     {
         var data = readJson(
-                KeyValueService.get("pinyin-table-display-json:" + d.toString()),
+                KV.get("pinyin-table-display-json:" + d),
                 new TypeReference<List<Pair<Map<String, String>, List<Map<String, List<List<String>>>>>>>() {}
         );
 

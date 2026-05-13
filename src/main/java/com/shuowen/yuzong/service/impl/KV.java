@@ -6,12 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class KeyValueService
+public class KV
 {
     @Autowired
     KVSMapper m;
 
-    private static KeyValueService instance;
+    private static KV instance;
 
     @PostConstruct
     public void init()
