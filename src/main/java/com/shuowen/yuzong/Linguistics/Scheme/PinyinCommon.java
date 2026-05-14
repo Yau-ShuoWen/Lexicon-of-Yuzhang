@@ -83,4 +83,9 @@ public class PinyinCommon
         }
         return s;
     }
+
+    public static char toSuperScript(Integer i)
+    {
+        return "⁰¹²³⁴⁵⁶⁷⁸⁹".charAt(i);
+    }
 }
