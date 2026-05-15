@@ -5,7 +5,6 @@ import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
@@ -14,8 +13,9 @@ import com.shuowen.yuzong.service.impl.KV;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 /**
  * 获得字典信息<br>
@@ -34,16 +34,21 @@ public class GetInfoController
     @Autowired
     private RefMapper ck;
 
-    @GetMapping ("/get-num/{d}")
-    public Map<String, Integer> getInfoNumber(@PathVariable Dialect d)
+    public ScTcText aboutNumber(@PathVariable Dialect d)
     {
         var dialect = d.toString();
-        return Map.of(
-                "hanzi_num", hz.findRowCountInHanziTable(dialect),
-                "pinyin_num", hz.findRowCountInPinyinTable(dialect),
-                "ciyu_num", cy.findRowCountInCiyuTable(dialect),
-                "ref_num", ck.findRowCountInReferTable(dialect)
+        String s = String.format("""
+                        - 項目开始已经：%s天
+                        - 收錄%s用漢字：%s個
+                        - 收錄%s詞語：%s條
+                        - 電子化%s相關辭書：%s段
+                        """,
+                ChronoUnit.DAYS.between(LocalDate.of(2024, 10, 3), LocalDate.now()),
+                d.getName().getTc(), hz.findRowCountInHanziTable(dialect),
+                d.getName().getTc(), cy.findRowCountInCiyuTable(dialect),
+                d.getName().getTc(), ck.findRowCountInReferTable(dialect)
         );
+        return new ScTcText(s);
     }
 
     @GetMapping ("/get-text/{d}/{l}/{code}")
@@ -58,13 +63,17 @@ public class GetInfoController
         return UString.of("-");
     }
 
-    @GetMapping ("/about-page-text/{d}")
-    public Twin<ScTcText> about(@PathVariable Dialect d)
+    @GetMapping ("/about-page/{d}")
+    public Map<String, ScTcText> about(@PathVariable Dialect d)
     {
-        return Twin.of(
-                new ScTcText(KV.get("website-about:" + d)),
-                new ScTcText(KV.get("website-acknowledgement:" + d))
-        );
+        Map<String, ScTcText> map = new HashMap<>();
+
+        map.put("about", new ScTcText(KV.get("website-about:" + d)));
+        map.put("thanks", new ScTcText(KV.get("website-acknowledgement:" + d)));
+        map.put("statistic", aboutNumber(d));
+        //map.put("update",)
+
+        return map;
     }
 
     @GetMapping ("/get-menu/{code}")
