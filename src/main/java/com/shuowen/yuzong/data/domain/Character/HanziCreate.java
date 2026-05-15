@@ -40,9 +40,7 @@ public class HanziCreate
             tmp.setPyCode(dPinyin.getWeight());
             // 非关键内容使用默认值代替
             tmp.setSpecial(0);
-            tmp.setIpa("[]");
             tmp.setNote("[]");
-            tmp.setRefer("[]");
             tmp.setStatus(1);
 
             left.add(tmp);

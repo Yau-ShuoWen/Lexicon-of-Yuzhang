@@ -37,9 +37,7 @@ public class HanziItem
     private final List<String> mdrInfo;
 
     // 原表复杂结构
-    private final List<Pair<String, String>> ipa;
     private final List<Twin<UString>> note;
-    private final List<Map<String, String>> refer;
 
     // 时间信息
     private final LocalDateTime createdAt;
@@ -71,12 +69,6 @@ public class HanziItem
                 i -> i.contains(hanzi.toString())
         );
 
-        // TODO ：这个字段从来没有被更新过用法
-        ipa = ListTool.mapping(
-                readJson(ch.getIpa(), new TypeReference<List<Map<String, String>>>() {})
-                , i -> Pair.of(i.get("tag"), i.get("content"))
-        );
-
         // 解析为 Map< 简繁 , List<Map< 标签 , 内容 >>>>
         // 使用 .get(l)选取对应语言
         // 使用tag获得题目，content获取内容
@@ -86,10 +78,6 @@ public class HanziItem
                 readJson(ch.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}),
                 i -> Twin.of(i.get("tag").get(l), i.get("content").get(l))
         );
-
-        // TODO ：这个字段从来没有被更新过用法
-        refer = readJson(ch.getRefer(), new TypeReference<Map<String, List<Map<String, String>>>>() {})
-                .get(l.toString());
 
         createdAt = ch.getCreatedAt();
         updatedAt = ch.getUpdatedAt();

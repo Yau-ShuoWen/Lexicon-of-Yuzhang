@@ -56,8 +56,6 @@ public class CiyuCreate
                     })
             ));
 
-
-            tmp.setVariantPy("[]");
             tmp.setMean("[]");
 
             ans.add(tmp);

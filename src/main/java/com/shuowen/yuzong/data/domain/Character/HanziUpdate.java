@@ -91,7 +91,6 @@ public class HanziUpdate
     private List<PinyinData> variantPy;
     private List<MdrChar> mandarin;
 
-    private List<Pair<String, String>> ipa = new ArrayList<>();
     private List<Twin<ScTcText>> note;
 
     private Integer status;
@@ -143,19 +142,6 @@ public class HanziUpdate
 
         var mdr = mandarin;
         ListTool.handle(mdr, i -> i.setDialectId(id));
-
-        // @desprate，之后新功能上之后需要完全删掉，所以不重构
-        {
-            List<Map<String, String>> tmp = new ArrayList<>();
-            for (var i : ipa)
-            {
-                Map<String, String> t = new HashMap<>();
-                t.put("tag", i.getLeft());
-                t.put("content", i.getRight());
-                tmp.add(t);
-            }
-            ch.setIpa(toJson(tmp, "[]"));
-        }
 
         ch.setNote(
                 toJson(

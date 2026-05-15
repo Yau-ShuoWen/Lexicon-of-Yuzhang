@@ -17,9 +17,7 @@ public class HanziEntity
     private String similar;
     private String variantPy;
     private String mdrInfo;
-    private String ipa;
     private String note;
-    private String refer;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

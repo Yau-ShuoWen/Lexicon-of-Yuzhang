@@ -13,7 +13,6 @@ public class CiyuEntity
     private Integer special;
 
     private String mainPy;
-    private String variantPy;
     private String similar;   // 只读
     private String mean;
 

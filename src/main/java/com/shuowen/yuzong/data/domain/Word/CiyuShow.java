@@ -23,7 +23,6 @@ public class CiyuShow
     private final UString ciyu;
     private final Integer special;
     private final RPinyins mainPy;
-    private final List<UString> variantPy;
     private final List<Pair<UString, Integer>> similar;
     private final List<UString> mean;
     private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
@@ -46,10 +45,6 @@ public class CiyuShow
         mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->
                 PinyinFormatter.handle(d.trustedCreatePinyin(i), d)
         ));
-
-        variantPy = ListTool.mapping(cy.getVariantPy(),
-                i -> RichTextUtil.format(i, data, false, Maybe.nothing(), true)
-        );
 
         mean = ListTool.mapping(cy.getMean(),
                 i -> RichTextUtil.format(i, data, false, Maybe.nothing(), true)

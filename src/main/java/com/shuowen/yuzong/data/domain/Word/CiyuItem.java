@@ -34,7 +34,6 @@ public class CiyuItem
 
     // 结构组数据
     private final List<SPinyin> mainPy;
-    private final List<UString> variantPy;
     private final List<Pair<UString, Integer>> similar;
     private final List<UString> mean;
 
@@ -55,7 +54,6 @@ public class CiyuItem
 
         //check
         mainPy = readJson(cy.getMainPy(), new TypeReference<>() {});
-        variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {});
 
         similar = ListTool.mapping(
                 readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}),

@@ -146,9 +146,9 @@
     <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity" useGeneratedKeys="true"
             keyProperty="ch.id">
         INSERT INTO ${dialect}_char
-        (sc, tc, main_py, py_code, special, ipa, note, refer, status)
+        (sc, tc, main_py, py_code, special, note, status)
         VALUES
-        (#{ch.sc}, #{ch.tc}, #{ch.mainPy}, #{ch.pyCode},#{ch.special}, #{ch.ipa}, #{ch.note}, #{ch.refer}, #{ch.status})
+        (#{ch.sc}, #{ch.tc}, #{ch.mainPy}, #{ch.pyCode},#{ch.special}, #{ch.note}, #{ch.status})
     </insert>
 
     <!--  插入新的内容（相似汉字表）  -->
@@ -175,9 +175,7 @@
         main_py = #{ch.mainPy},
         py_code = #{ch.pyCode},
         special = #{ch.special},
-        ipa = #{ch.ipa},
         note = #{ch.note},
-        refer = #{ch.refer},
         status = #{ch.status}
         WHERE id = #{ch.id}
     </update>

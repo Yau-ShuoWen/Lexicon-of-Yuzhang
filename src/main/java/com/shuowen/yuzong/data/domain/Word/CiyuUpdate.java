@@ -30,7 +30,6 @@ public class CiyuUpdate
     private Integer special;
 
     private SPinyins mainPy;
-    private List<ScTcText> variantPy;  //？？
 
     @Data
     @NoArgsConstructor
@@ -76,9 +75,6 @@ public class CiyuUpdate
                 )
         );
 
-
-        variantPy = readJson(cy.getVariantPy(), new TypeReference<>() {}); //？？
-
         similar = ListTool.mapping(sim, Similar::new);
         mean = ListTool.mapping(
                 readJson(cy.getMean(), new TypeReference<List<ScTcText>>() {}),
@@ -108,8 +104,6 @@ public class CiyuUpdate
                         )
                 )
         );
-
-        cy.setVariantPy(toJson(variantPy));
 
         var sim = ListTool.mapping(similar, Similar::transfer);
 
