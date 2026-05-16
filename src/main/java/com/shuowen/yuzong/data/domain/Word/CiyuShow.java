@@ -6,6 +6,7 @@ import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
@@ -24,6 +25,7 @@ public class CiyuShow
     private final Integer special;
     private final RPinyins mainPy;
     private final List<Pair<UString, Integer>> similar;
+    private final List<Twin<UString>> note;
     private final List<UString> mean;
     private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
 
@@ -45,6 +47,11 @@ public class CiyuShow
         mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->
                 PinyinFormatter.handle(d.trustedCreatePinyin(i), d)
         ));
+
+        note = ListTool.mapping(cy.getNote(),
+                i -> Twin.of(i.getLeft(),
+                        RichTextUtil.format(i.getRight(), data, false, Maybe.nothing(), true))
+        );
 
         mean = ListTool.mapping(cy.getMean(),
                 i -> RichTextUtil.format(i, data, false, Maybe.nothing(), true)

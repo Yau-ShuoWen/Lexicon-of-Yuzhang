@@ -8,9 +8,11 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.WeightSort;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.dataStructure.option.NoteTag;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.data.model.Word.CiyuSimilar;
 import lombok.Data;
@@ -35,6 +37,7 @@ public class CiyuItem
     // 结构组数据
     private final List<SPinyin> mainPy;
     private final List<Pair<UString, Integer>> similar;
+    private final List<Twin<UString>> note;
     private final List<UString> mean;
 
     // 时间数据
@@ -58,6 +61,11 @@ public class CiyuItem
         similar = ListTool.mapping(
                 readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}),
                 i -> Pair.of(new ScTcText(i.getSc(), i.getTc()).get(l), i.getType())
+        );
+
+        note = ListTool.mapping(
+                readJson(cy.getNote(), new TypeReference<List<Pair<NoteTag, ScTcText>>>() {}),
+                i -> Twin.of(i.getLeft().getName().get(l), i.getRight().get(l))
         );
 
         mean = ListTool.mapping(

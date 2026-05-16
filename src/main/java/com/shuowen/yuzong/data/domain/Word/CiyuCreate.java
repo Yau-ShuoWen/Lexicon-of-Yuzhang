@@ -56,6 +56,7 @@ public class CiyuCreate
                     })
             ));
 
+            tmp.setNote("[]");
             tmp.setMean("[]");
 
             ans.add(tmp);

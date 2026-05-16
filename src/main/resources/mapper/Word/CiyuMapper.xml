@@ -92,9 +92,9 @@
     <insert id="insertWord" parameterType="com.shuowen.yuzong.data.model.Word.CiyuEntity"
             useGeneratedKeys="true" keyProperty="wd.id">
         INSERT INTO ${dialect}_word
-        (sc, tc, special, main_py, mean)
+        (sc, tc, special, main_py, note, mean)
         VALUES
-        (#{wd.sc}, #{wd.tc}, #{wd.special}, #{wd.mainPy}, #{wd.mean})
+        (#{wd.sc}, #{wd.tc}, #{wd.special}, #{wd.mainPy}, #{wd.note}, #{wd.mean})
     </insert>
 
     <!--  插入新的内容（相似汉字表）  -->
@@ -110,6 +110,7 @@
         SET
         special = #{wd.special},
         main_py = #{wd.mainPy},
+        note = #{wd.note},
         mean = #{wd.mean}
         WHERE id = #{wd.id}
     </update>

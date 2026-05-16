@@ -8,6 +8,7 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.NoteTag;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
@@ -59,6 +60,7 @@ public class CiyuUpdate
 
     private List<Similar> similar = new ArrayList<>();
 
+    private List<Pair<NoteTag, ScTcText>> note = new ArrayList<>();
     private List<ScTcText> mean;
 
     // 数据库→后端→前端 ----------------------------------------------------
@@ -76,6 +78,15 @@ public class CiyuUpdate
         );
 
         similar = ListTool.mapping(sim, Similar::new);
+
+        // 转换成List Twin ScTcText 之后，对List每一个元素，元素里Twin的标签和文本，标签和文本里的繁体和简体都做转换。
+        note = ListTool.mapping(
+                readJson(cy.getNote(), new TypeReference<List<Pair<NoteTag, ScTcText>>>() {}),
+                i -> Pair.of(
+                        i.getLeft(),
+                        i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, d, true))
+                )
+        );
         mean = ListTool.mapping(
                 readJson(cy.getMean(), new TypeReference<List<ScTcText>>() {}),
                 i -> i.map(str -> TextPinyinIPA.transferPinyin(str, d, true))
@@ -106,6 +117,16 @@ public class CiyuUpdate
         );
 
         var sim = ListTool.mapping(similar, Similar::transfer);
+
+        cy.setNote(toJson(
+                ListTool.mapping(note,
+                        i -> Pair.of(
+                                i.getLeft(),
+                                i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, d, false))
+                        )
+
+                )
+        ));
 
         cy.setMean(toJson(
                 ListTool.mapping(mean,
