@@ -16,16 +16,28 @@ public class Zhuyin
     final private String initial; // 声母
     final private String middle;  // 介母
     final private String last;    // 韵母
-    final private Integer tone;   // 音调
+    final private Maybe<Integer> tone;   // 音调
     final private String code;    // 代码
     final private HanPinyin han;  // 汉语拼音
+
+    public Integer getTheTone()
+    {
+        return tone.getValueOrDefault(0);
+    }
+
+    public String getToneStr()
+    {
+        return tone.isValid() ? tone.getValue().toString() : "";
+    }
 
     public String toString()
     {
         String[] sidemark = {null, "", "ˊ", "ˇ", "ˋ"};
 
-        return Range.close(1, 4).contains(tone) ?
-                initial + middle + last + sidemark[tone] :
+        if (tone.isEmpty()) return initial + middle + last;
+
+        return Range.close(1, 4).contains(tone.getValue()) ?
+                initial + middle + last + sidemark[tone.getValue()] :
                 "·" + initial + middle + last;
     }
 
@@ -76,15 +88,17 @@ public class Zhuyin
         middle = syllable.getMiddle();
         last = syllable.getRight();
 
-        tone = initTone(py.getTone());
+        tone = initTone(py.getTheTone());
         code = initCode();
         han = trasnfer(py);
     }
 
 
-    private Integer initTone(Integer tone)
+    private Maybe<Integer> initTone(Maybe<Integer> tone)
     {
-        if (!Range.close(0, 4).contains(tone))
+        if (tone.isEmpty()) return tone;
+
+        if (!Range.close(0, 4).contains(tone.getValue()))
             throw new InvalidPinyinException("音调超出范围");
         return tone;
     }
@@ -377,7 +391,7 @@ public class Zhuyin
             default -> "";
         };
         String ans = (sheng + yun);
-        ans = ans.replace("ü", (ans.matches("[jqx]ü[a-z]*")) ? "u" : "v") + tone;
+        ans = ans.replace("ü", (ans.matches("[jqx]ü[a-z]*")) ? "u" : "v") + getToneStr();
 
         // 这里比较的是按照解析后数据重新构造的拼音是否正确
         if (!hanPinyin.equals(HanPinyin.of(ans))) throw new InvalidPinyinException("校验失败，拼音无效");

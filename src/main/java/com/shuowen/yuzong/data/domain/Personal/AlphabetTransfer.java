@@ -6,8 +6,6 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Alphabet;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 
-import java.util.Scanner;
-
 public class AlphabetTransfer
 {
     public static String format(Alphabet a, String s)
@@ -71,8 +69,10 @@ public class AlphabetTransfer
                 }
                 return ans.replace("]  [", " ");
             }
-            case Wade ->
+            case Wade, ZhuyinII, TYPinyin ->
             {
+                var tool = MdrPYSceme.of(a);
+
                 var pys = HanPinyin.textPinyin(s);
                 String ans = "";
 
@@ -80,41 +80,7 @@ public class AlphabetTransfer
                 {
                     try
                     {
-                        ans += WadePinyin.format(Zhuyin.tryOf(pys.get(idx).getValue()).getValue());
-                    } catch (Exception e)
-                    {
-                        ans += String.format("%s", s.charAt(idx));
-                    }
-                }
-                return ans.replace("]  [", " ");
-            }
-            case ZhuyinII ->
-            {
-                var pys = HanPinyin.textPinyin(s);
-                String ans = "";
-
-                for (var idx : Range.of(pys.size()))
-                {
-                    try
-                    {
-                        ans += ZhuyinII.format(Zhuyin.tryOf(pys.get(idx).getValue()).getValue());
-                    } catch (Exception e)
-                    {
-                        ans += String.format("%s", s.charAt(idx));
-                    }
-                }
-                return ans.replace("]  [", " ");
-            }
-            case TYPinyin ->
-            {
-                var pys = HanPinyin.textPinyin(s);
-                String ans = "";
-
-                for (var idx : Range.of(pys.size()))
-                {
-                    try
-                    {
-                        ans += TYPinyin.format(Zhuyin.tryOf(pys.get(idx).getValue()).getValue());
+                        ans += tool.format(Zhuyin.tryOf(pys.get(idx).getValue()).getValue());
                     } catch (Exception e)
                     {
                         ans += String.format("%s", s.charAt(idx));
@@ -124,16 +90,6 @@ public class AlphabetTransfer
             }
 
             default -> throw new RuntimeException("");
-        }
-    }
-
-    public static void main(String[] args)
-    {
-        Scanner sc = new Scanner(System.in);
-        for (var i : Range.of(114514))
-        {
-            String s = sc.nextLine();
-            System.out.println(format(Alphabet.TYPinyin, s));
         }
     }
 }

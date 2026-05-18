@@ -10,9 +10,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Data;
 
 import java.util.*;
 
@@ -21,9 +19,7 @@ import java.util.*;
  * 改掉了一些不想要的形式，比如 {@code none5} 的写法和  {@code 5} 作为轻声，
  * 顺便为两个常用字补丁一个读音。
  */
-@Getter
-@ToString
-@EqualsAndHashCode
+@Data
 public class HanPinyin
 {
     private final SPinyin split;
@@ -45,6 +41,11 @@ public class HanPinyin
     public int getTone()
     {
         return split.getTone().handleIfExist(Integer::valueOf).getValueOrDefault(0);
+    }
+
+    public Maybe<Integer> getTheTone()
+    {
+        return split.getTone().handleIfExist(Integer::valueOf);
     }
 
     /**

@@ -89,7 +89,7 @@ public class Romatzyh
                 default -> "";
             };
         }
-        int tone = s.getTone() == 0 ? 0 : s.getTone() - 1;
+        int tone = s.getTheTone() == 0 ? 0 : s.getTheTone() - 1;
         if (ObjectTool.existEqual(Sheng, "ㄇ", "ㄖ", "ㄌ", "ㄋ", "万", "兀", "广"))
         {
             if (tone == 0) Sheng += "h"; //浊音一声加h
