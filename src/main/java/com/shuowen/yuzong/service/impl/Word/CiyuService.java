@@ -3,11 +3,11 @@ package com.shuowen.yuzong.service.impl.Word;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.WeightSort;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
@@ -24,6 +24,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static com.shuowen.yuzong.data.model.Word.CiyuTool.match;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
@@ -46,7 +48,7 @@ public class CiyuService
     /**
      * 通过关键词，搜索出一系列搜索结果，但只保留基本信息
      */
-    public List<SearchResult> getCiyuSearchInfo(String query, Language l, Dialect d, boolean vague)
+    public Twin<List<SearchResult>> getCiyuSearchInfo(String query, Language l, Dialect d, boolean vague)
     {
         // 排序说明：
         // 0. 主词语是指词条本身，模糊识别是指方便查询的内容，如（主：什哩；模糊：什么、甚莫、傻、犀利）
@@ -57,23 +59,28 @@ public class CiyuService
         UniqueList<CiyuItem, Integer> ulist = UniqueList.of(CiyuItem::getId);
         for (String hanzi : UString.of(query).chars())
             ulist.addAll(getCiyu(hanzi, l, d, vague ? 2 : 1));
-        List<CiyuItem> list = ulist.getList();
 
-        var priority = ListTool.mapping(list, i -> Objects.equals(i.getSortKey(query), i.getCiyu()) ? 1.0 : 0.0);
-        WeightSort.sort(list, priority, (CiyuItem i) -> i.getSortKey(query).toString(), query, null);
+        Twin<List<CiyuItem>> answer = Twin.of(new ArrayList<>(), new ArrayList<>());
 
-        List<SearchResult> res = new ArrayList<>();
-        for (var i : list)
+        for (CiyuItem item : ulist.getList())
         {
-            var ans = new SearchResult();
-            ans.setTitle(i.getCiyu());
-            ans.setExplain(i.getPinyin(d).toString());
-            ans.setSpecial(i.getSpecial() != 0);
-            ans.setTag("ciyu");
-            ans.setInfo(Map.of("query", i.getCiyu()));
-            res.add(ans);
+            if (match(item.getSortKey(query).toString(), query))
+                answer.getLeft().add(item);
+            else answer.getRight().add(item);
         }
-        return res;
+
+        return answer.map(i -> ListTool.mapping(i,
+                item ->
+                {
+                    var ans = new SearchResult();
+                    ans.setTitle(item.getCiyu());
+                    ans.setExplain(item.getPinyin(d));
+                    ans.setSpecial(item.getSpecial() != 0);
+                    ans.setTag("ciyu");
+                    ans.setInfo(Map.of("query", item.getCiyu()));
+                    return ans;
+                }
+        ));
     }
 
     public CiyuShow getCiyuDetailInfo(UString query, Language l, Dialect d, PinyinOption op)

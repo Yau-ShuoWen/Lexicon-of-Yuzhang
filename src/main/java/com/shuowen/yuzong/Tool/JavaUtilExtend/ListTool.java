@@ -81,6 +81,15 @@ public class ListTool
         return result;
     }
 
+    @SafeVarargs
+    public static <T> List<T> merge(Collection<T>... list)
+    {
+        NullTool.checkNotNull(list);
+        List<T> result = new ArrayList<>();
+        for (var i : list) result.addAll(i);
+        return result;
+    }
+
     public static <T> boolean isIndexValid(List<T> l, int... index)
     {
         for (int i : index) if (!Range.of(l.size()).contains(i)) return false;

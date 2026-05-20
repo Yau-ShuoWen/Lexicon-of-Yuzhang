@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.WeightSort;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
@@ -15,6 +14,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.data.model.Word.CiyuSimilar;
+import com.shuowen.yuzong.data.model.Word.CiyuTool;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -98,24 +98,15 @@ public class CiyuItem
     // 获得和查询内容最接近的一个作为排序内容
     public UString getSortKey(String query)
     {
-        if (keyCache.containsKey(query)) return keyCache.get(query);
-
-        // 主词条是1.0，繁体简体各一个，模糊识别0.0，2*similar个
-        List<Double> priority = ListTool.nCopies(
-                Pair.of(2, 1.0),
-                Pair.of(similar.size() * 2, 0.0)
+        return keyCache.computeIfAbsent(query,
+                i -> Collections.max(matchItem,
+                        Comparator.comparingDouble(s -> CiyuTool.weight(s.toString(), query))
+                )
         );
-
-        WeightSort.sort(matchItem, priority, UString::toString, query, null);
-
-        keyCache.put(query, matchItem.get(0));
-        return matchItem.get(0);
     }
 
     public RPinyins getPinyin(Dialect d)
     {
-        return RPinyins.of(
-                ListTool.mapping(mainPy, i -> PinyinFormatter.handle(i, d))
-        );
+        return RPinyins.of(ListTool.mapping(mainPy, i -> PinyinFormatter.handle(i, d)));
     }
 }

@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.controller.search;
 
+import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -34,15 +35,17 @@ public class SearchController
      * 适用于搜索时候整合所有信息列成一个列表供选择，所以这里的结果集是可插拔的
      */
     @GetMapping ("{l}/{d}/query")
-    public List<SearchResult> search(
+    public List<List<SearchResult>> search1(
             @PathVariable Dialect d, @PathVariable Language l, @RequestParam String query,
             @RequestParam boolean vague
     )
     {
-        List<SearchResult> ans = new ArrayList<>();
+        var hanzi=h.getHanziSearchInfo(query, l, d, vague);
+        var ciyu=c.getCiyuSearchInfo(query, l, d, vague);
 
-        ans.addAll(h.getHanziSearchInfo(query, l, d, vague));
-        ans.addAll(c.getCiyuSearchInfo(query, l, d, vague));
+        List<List<SearchResult>> ans = new ArrayList<>();
+        ans.add(ListTool.merge(hanzi,ciyu.getLeft()));
+        ans.add(ciyu.getRight());
 
         return ans;
     }
