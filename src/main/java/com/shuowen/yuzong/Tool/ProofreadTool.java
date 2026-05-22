@@ -32,7 +32,7 @@ public class ProofreadTool
     /**
      * 使用HanLP库机翻
      */
-    private static String useHanlpTranslate(String text, Language from)
+    public static String useHanlpTranslate(String text, Language from)
     {
         return from.isSimplified() ? HanLP.s2t(text) : HanLP.t2s(text);
     }

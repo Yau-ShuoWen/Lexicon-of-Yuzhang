@@ -12,6 +12,7 @@ public enum NoteTag
     STRUCT("struct", "詞語結構"),
     SOURCE("source", "字源考證"),
     HISTORY("history", "歷史演變"),
+    PROVERB("proverb", "相關俗語"),
     ;
 
     private final String code;
@@ -21,7 +22,7 @@ public enum NoteTag
     NoteTag(String code, String name)
     {
         this.code = code;
-        this.name = new ScTcText(name);
+        this.name = ScTcText.forEnum(name);
     }
 
     @JsonCreator

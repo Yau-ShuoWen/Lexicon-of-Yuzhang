@@ -74,7 +74,7 @@ public enum Dialect
             DictCode defaultDict, int toneAmount, int initialLength
     )
     {
-        this.name = new ScTcText(name);
+        this.name = ScTcText.forEnum(name);
         this.code = code;
         this.styleClass = styleClass;
         this.pinyinClass = pinyinClass;

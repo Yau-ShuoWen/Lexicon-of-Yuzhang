@@ -12,13 +12,11 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import lombok.Data;
-import lombok.Getter;
-import lombok.ToString;
 
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static com.shuowen.yuzong.Tool.ProofreadTool.escapeCharTraslate;
+import static com.shuowen.yuzong.Tool.ProofreadTool.useHanlpTranslate;
 
 /**
  * 简体繁体对<br>
@@ -76,6 +74,14 @@ public class ScTcText
         NullTool.checkNotNull(false, sc, tc);
         this.sc = sc;
         this.tc = tc;
+    }
+
+    /**
+     * 在枚举初始化的时候，KV用不了，这时候自定义OrthoChaset会出错，所以用常规机翻
+     */
+    public static ScTcText forEnum(String tc)
+    {
+        return new ScTcText(tc, useHanlpTranslate(tc, Language.TC));
     }
 
     public UString get(Language l)
