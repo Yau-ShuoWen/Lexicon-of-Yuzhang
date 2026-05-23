@@ -99,7 +99,7 @@ public class TextPinyinIPA
         }
         m.appendTail(sb);
 
-        return sb.toString();//.replace("]  [", "] [");
+        return sb.toString().replace("]  [", "] [");
     }
 
     /**

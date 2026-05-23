@@ -54,6 +54,11 @@ public class Twin<T>
         return fun.test(left) && fun.test(right);
     }
 
+    public boolean exist(Predicate<T> fun)
+    {
+        return fun.test(left) && fun.test(right);
+    }
+
     public void swap()
     {
         T tmp = left;
