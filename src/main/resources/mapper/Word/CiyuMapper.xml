@@ -71,6 +71,14 @@
         GROUP BY main.id
     </select>
 
+    <select id="getSpecialCiyuByRandom" resultType="CiyuEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE NOT special = 0
+        ORDER BY RAND()
+        LIMIT 1;
+    </select>
+
     <!-- 下面这一段是和编辑有关的内容，这里不需要复杂的聚合了 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
     <!-- 通过外键寻找：附表里的模糊识别汉字 -->
@@ -92,9 +100,9 @@
     <insert id="insertWord" parameterType="com.shuowen.yuzong.data.model.Word.CiyuEntity"
             useGeneratedKeys="true" keyProperty="wd.id">
         INSERT INTO ${dialect}_word
-        (sc, tc, special, main_py, note, mean)
+        (sc, tc, special, main_py, note, mean, status)
         VALUES
-        (#{wd.sc}, #{wd.tc}, #{wd.special}, #{wd.mainPy}, #{wd.note}, #{wd.mean})
+        (#{wd.sc}, #{wd.tc}, #{wd.special}, #{wd.mainPy}, #{wd.note}, #{wd.mean}, #{wd.status})
     </insert>
 
     <!--  插入新的内容（相似汉字表）  -->
@@ -111,7 +119,8 @@
         special = #{wd.special},
         main_py = #{wd.mainPy},
         note = #{wd.note},
-        mean = #{wd.mean}
+        mean = #{wd.mean},
+        status = #{wd.status}
         WHERE id = #{wd.id}
     </update>
 

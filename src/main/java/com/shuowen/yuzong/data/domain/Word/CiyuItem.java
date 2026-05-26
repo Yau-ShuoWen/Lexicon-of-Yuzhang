@@ -46,7 +46,7 @@ public class CiyuItem
 
     // 匹配數據
     private final List<UString> matchItem = new ArrayList<>();
-    private final Map<String, UString> keyCache = new HashMap<>();
+    private final Map<UString, UString> keyCache = new HashMap<>();
 
     private CiyuItem(CiyuEntity cy, Language l)
     {
@@ -96,13 +96,24 @@ public class CiyuItem
     }
 
     // 获得和查询内容最接近的一个作为排序内容
-    public UString getSortKey(String query)
+    public UString getSortKey(UString query)
     {
         return keyCache.computeIfAbsent(query,
                 i -> Collections.max(matchItem,
-                        Comparator.comparingDouble(s -> CiyuTool.weight(s.toString(), query))
+                        Comparator.comparingDouble(s -> CiyuTool.weight(s.toString(), query.toString()))
                 )
         );
+    }
+
+    public boolean match(UString query)
+    {
+        return CiyuTool.match(getSortKey(query).toString(), query.toString());
+    }
+
+    public boolean vague(UString query)
+    {
+        return ciyus.mapToOther(i -> i).
+                exist(i -> !CiyuTool.match(i, getSortKey(query).toString()));
     }
 
     public RPinyins getPinyin(Dialect d)

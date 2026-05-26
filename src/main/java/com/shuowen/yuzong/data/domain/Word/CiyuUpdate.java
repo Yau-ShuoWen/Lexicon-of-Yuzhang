@@ -63,6 +63,8 @@ public class CiyuUpdate
     private List<Pair<NoteTag, ScTcText>> note = new ArrayList<>();
     private List<ScTcText> mean;
 
+    private Integer status;
+
     // 数据库→后端→前端 ----------------------------------------------------
 
     public CiyuUpdate(Dialect d, CiyuEntity cy, List<CiyuSimilar> sim)
@@ -91,6 +93,8 @@ public class CiyuUpdate
                 readJson(cy.getMean(), new TypeReference<List<ScTcText>>() {}),
                 i -> i.map(str -> TextPinyinIPA.transferPinyin(str, d, true))
         );
+
+        status = cy.getStatus();
     }
 
     // 前端→后端→数据库 ----------------------------------------------------
@@ -133,6 +137,8 @@ public class CiyuUpdate
                         i -> i.map(str -> TextPinyinIPA.transferPinyin(str, d, false))
                 )
         ));
+
+        cy.setStatus(status);
 
         return Pair.of(cy, sim);
     }

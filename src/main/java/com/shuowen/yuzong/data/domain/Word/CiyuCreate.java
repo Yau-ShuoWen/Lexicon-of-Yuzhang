@@ -58,6 +58,7 @@ public class CiyuCreate
 
             tmp.setNote("[]");
             tmp.setMean("[]");
+            tmp.setStatus(0);
 
             ans.add(tmp);
         }

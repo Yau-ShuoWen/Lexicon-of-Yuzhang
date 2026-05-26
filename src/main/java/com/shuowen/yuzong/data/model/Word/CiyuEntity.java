@@ -19,4 +19,6 @@ public class CiyuEntity
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private Integer status;
 }

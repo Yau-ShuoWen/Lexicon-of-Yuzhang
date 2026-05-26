@@ -35,6 +35,11 @@ public interface CiyuMapper
     List<CiyuSimilar> findCiyuSimilarByWordId(Integer id, String dialect);
 
     /**
+     * 随机寻找一条特殊的数据
+     */
+    List<CiyuEntity> getSpecialCiyuByRandom(String dialect);
+
+    /**
      * 查找唯一键
      */
     CiyuEntity findByUniqueKey(@Param ("wd") CiyuEntity wd, @Param ("dialect") String dialect);
@@ -65,9 +70,6 @@ public interface CiyuMapper
      * 删除读音变体表数据
      */
     void deleteWordSimilarById(Integer id, String dialect);
-
-    // 跳转 ----------------------------------------------------------------
-
 
     // 展示 -----------------------------------------------------------------
 

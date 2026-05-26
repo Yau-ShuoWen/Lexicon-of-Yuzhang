@@ -18,6 +18,7 @@ import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.domain.Word.CiyuShow;
 import com.shuowen.yuzong.data.mapper.Word.CiyuMapper;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
+import com.shuowen.yuzong.data.model.Word.CiyuTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -48,24 +49,18 @@ public class CiyuService
     /**
      * 通过关键词，搜索出一系列搜索结果，但只保留基本信息
      */
-    public Twin<List<SearchResult>> getCiyuSearchInfo(String query, Language l, Dialect d, boolean vague)
+    public Twin<List<SearchResult>> getCiyuSearchInfo(UString query, Language l, Dialect d, boolean vague)
     {
-        // 排序说明：
-        // 0. 主词语是指词条本身，模糊识别是指方便查询的内容，如（主：什哩；模糊：什么、甚莫、傻、犀利）
-        // 1. （getSortKey）每一个词条先选举出和搜索词最像的词语
-        // 2. （priority）这个词语作为键排序。但是作为惩罚/奖励，优先级是词条的主词汇拥有1.0的得分，模糊识别的词汇0.0
-
         // 去重
         UniqueList<CiyuItem, Integer> ulist = UniqueList.of(CiyuItem::getId);
-        for (String hanzi : UString.of(query).chars())
+        for (String hanzi : query.chars())
             ulist.addAll(getCiyu(hanzi, l, d, vague ? 2 : 1));
 
         Twin<List<CiyuItem>> answer = Twin.of(new ArrayList<>(), new ArrayList<>());
 
         for (CiyuItem item : ulist.getList())
         {
-            if (match(item.getSortKey(query).toString(), query))
-                answer.getLeft().add(item);
+            if (item.match(query)) answer.getLeft().add(item);
             else answer.getRight().add(item);
         }
 
@@ -73,7 +68,9 @@ public class CiyuService
                 item ->
                 {
                     var ans = new SearchResult();
-                    ans.setTitle(item.getCiyu());
+                    ans.setTitle(item.getCiyu() +
+                            (item.vague(query) ? String.format("（%s）", item.getSortKey(query)) : "")
+                    );
                     ans.setExplain(item.getPinyin(d));
                     ans.setSpecial(item.getSpecial() != 0);
                     ans.setTag("ciyu");
@@ -88,6 +85,24 @@ public class CiyuService
         var entity = ListTool.checkSizeOne(cy.findCiyuByScOrTc(query.toString(), d.toString(), l.toString()),
                 "没有找到词语", "查到了过多的数据");
         return CiyuShow.of(CiyuItem.of(entity, l), new IPAData(l, d, op));
+    }
+
+    public List<SearchResult> getCiyuRandom(Language l, Dialect d)
+    {
+        var answer = CiyuItem.listOf(cy.getSpecialCiyuByRandom(d.toString()), l);
+
+        return ListTool.mapping(answer,
+                item ->
+                {
+                    var ans = new SearchResult();
+                    ans.setTitle(item.getCiyu());
+                    ans.setExplain(item.getPinyin(d));
+                    ans.setSpecial(item.getSpecial() != 0);
+                    ans.setTag("ciyu");
+                    ans.setInfo(Map.of("query", item.getCiyu()));
+                    return ans;
+                }
+        );
     }
 
     /**
