@@ -14,7 +14,6 @@ import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.data.model.Word.CiyuSimilar;
-import com.shuowen.yuzong.data.model.Word.CiyuTool;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -113,7 +112,7 @@ public class CiyuItem
     public boolean vague(UString query)
     {
         return ciyus.mapToOther(i -> i).
-                exist(i -> !CiyuTool.match(i, getSortKey(query).toString()));
+                exist(i -> !i.equals(getSortKey(query).toString()));
     }
 
     public RPinyins getPinyin(Dialect d)

@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.data.model.Word;
+package com.shuowen.yuzong.data.domain.Word;
 
 public class CiyuTool
 {
@@ -32,7 +32,8 @@ public class CiyuTool
         double qc = 1.0 * l / q;
         double tc = 1.0 * l / t;
 
-        return Math.max(qc, tc);
+        // 优先比较大的那个，再比较较小的那个
+        return Math.max(qc, tc) + Math.min(qc, tc) * 1e-4;
     }
 
     public static boolean match(String query, String target)
