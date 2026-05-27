@@ -41,16 +41,12 @@ public class HanziService
     /**
      * 通过关键词，搜索出一系列搜索结果，但只保留基本信息
      */
-    public List<SearchResult> getHanziSearchInfo(String query, Language l, Dialect d, boolean vague)
+    public List<SearchResult> getHanziSearchInfo(UString query, Language l, Dialect d)
     {
         UniqueList<SearchResult, SearchResult> ans = UniqueList.of();
-        for (UChar hanzi : UString.of(query))
+        for (UChar hanzi : query)
         {
-            var item = HanziGroup.listOf(
-                    vague ? hz.findHanziByVague(hanzi.toString(), d.toString()) :
-                            hz.findHanziByScTc(hanzi.toString(), d.toString())
-                    , l, d
-            );
+            var item = HanziGroup.listOf(hz.findHanziByVague(hanzi.toString(), d.toString()), l, d);
 
             for (var i : item)
             {

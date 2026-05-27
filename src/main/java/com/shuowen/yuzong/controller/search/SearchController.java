@@ -35,15 +35,12 @@ public class SearchController
      * 适用于搜索时候整合所有信息列成一个列表供选择，所以这里的结果集是可插拔的
      */
     @GetMapping ("{l}/{d}/query")
-    public List<List<SearchResult>> search(
-            @PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query,
-            @RequestParam boolean vague
-    )
+    public List<List<SearchResult>> search(@PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query)
     {
-        if(query.contentEquals("random")) return List.of(c.getCiyuRandom(l, d));
+        if (query.contentEquals("random")) return List.of(c.getCiyuRandom(l, d));
 
-        var hanzi = h.getHanziSearchInfo(query, l, d, vague);
-        var ciyu = c.getCiyuSearchInfo(query, l, d, vague);
+        var hanzi = h.getHanziSearchInfo(query, l, d);
+        var ciyu = c.getCiyuSearchInfo(query, l, d);
 
         List<List<SearchResult>> ans = new ArrayList<>();
         ans.add(ListTool.merge(hanzi, ciyu.getLeft()));

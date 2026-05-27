@@ -18,15 +18,12 @@ import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.domain.Word.CiyuShow;
 import com.shuowen.yuzong.data.mapper.Word.CiyuMapper;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
-import com.shuowen.yuzong.data.model.Word.CiyuTool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-
-import static com.shuowen.yuzong.data.model.Word.CiyuTool.match;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
@@ -35,26 +32,15 @@ public class CiyuService
     @Autowired
     CiyuMapper cy;
 
-    private List<CiyuItem> getCiyu(String query, Language l, Dialect d, int grading)
-    {
-        var res = switch (grading)
-        {
-            case 1 -> cy.findCiyuByScTcInRange(query, d.toString());
-            case 2 -> cy.findCiyuByVagueInRange(query, d.toString());
-            default -> throw new RuntimeException("超范围");
-        };
-        return CiyuItem.listOf(res, l);
-    }
-
     /**
      * 通过关键词，搜索出一系列搜索结果，但只保留基本信息
      */
-    public Twin<List<SearchResult>> getCiyuSearchInfo(UString query, Language l, Dialect d, boolean vague)
+    public Twin<List<SearchResult>> getCiyuSearchInfo(UString query, Language l, Dialect d)
     {
         // 去重
         UniqueList<CiyuItem, Integer> ulist = UniqueList.of(CiyuItem::getId);
         for (String hanzi : query.chars())
-            ulist.addAll(getCiyu(hanzi, l, d, vague ? 2 : 1));
+            ulist.addAll(CiyuItem.listOf(cy.findCiyuByVagueInRange(hanzi, d.toString()), l));
 
         Twin<List<CiyuItem>> answer = Twin.of(new ArrayList<>(), new ArrayList<>());
 
