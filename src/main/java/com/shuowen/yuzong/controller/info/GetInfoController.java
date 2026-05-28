@@ -34,23 +34,6 @@ public class GetInfoController
     @Autowired
     private RefMapper ck;
 
-    public ScTcText aboutNumber(@PathVariable Dialect d)
-    {
-        var dialect = d.toString();
-        String s = String.format("""
-                        - 項目开始已经：%s天
-                        - 收錄%s用漢字：%s個
-                        - 收錄%s詞語：%s條
-                        - 電子化%s相關辭書：%s段
-                        """,
-                ChronoUnit.DAYS.between(LocalDate.of(2024, 10, 3), LocalDate.now()),
-                d.getName().getTc(), hz.findRowCountInHanziTable(dialect),
-                d.getName().getTc(), cy.findRowCountInCiyuTable(dialect),
-                d.getName().getTc(), ck.findRowCountInReferTable(dialect)
-        );
-        return new ScTcText(s);
-    }
-
     @GetMapping ("/get-text/{d}/{l}/{code}")
     public UString welcome(@PathVariable Dialect d, @PathVariable Language l,
                            @PathVariable String code)
@@ -68,12 +51,41 @@ public class GetInfoController
     {
         Map<String, ScTcText> map = new HashMap<>();
 
-        map.put("about", new ScTcText(KV.get("website-about:" + d)));
+        map.put("about", aboutText(d));
         map.put("thanks", new ScTcText(KV.get("website-acknowledgement:" + d)));
         map.put("statistic", aboutNumber(d));
         //map.put("update",)
 
         return map;
+    }
+
+    public ScTcText aboutText(Dialect d)
+    {
+        String s = String.format("""
+                %s
+                -----
+                %s
+                """, KV.get("website-about"), KV.get("website-about:" + d));
+        return new ScTcText(s);
+    }
+
+    public ScTcText aboutNumber(Dialect d)
+    {
+        var dialect = d.toString();
+        String s = String.format("""
+                        - 項目立項已經：%s天
+                        - 項目上綫已經：%s天
+                        - 收錄%s用漢字：%s個
+                        - 收錄%s詞語：%s條
+                        - 電子化%s相關辭書：%s段
+                        """,
+                ChronoUnit.DAYS.between(LocalDate.of(2024, 10, 3), LocalDate.now()),
+                ChronoUnit.DAYS.between(LocalDate.of(2026, 5, 28), LocalDate.now()),
+                d.getName().getTc(), hz.findRowCountInHanziTable(dialect),
+                d.getName().getTc(), cy.findRowCountInCiyuTable(dialect),
+                d.getName().getTc(), ck.findRowCountInReferTable(dialect)
+        );
+        return new ScTcText(s);
     }
 
     @GetMapping ("/get-menu/{code}")
