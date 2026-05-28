@@ -81,7 +81,7 @@ public class ScTcText
      */
     public static ScTcText forEnum(String tc)
     {
-        return new ScTcText(tc, useHanlpTranslate(tc, Language.TC));
+        return new ScTcText(useHanlpTranslate(tc, Language.TC), tc);
     }
 
     public UString get(Language l)

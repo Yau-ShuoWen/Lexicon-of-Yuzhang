@@ -42,7 +42,7 @@ public class CiyuShow
         ciyu = cy.getCiyus().get(l);
         special = cy.getSpecial();
 
-        similar = cy.getSimilar();
+        similar = List.of();//cy.getSimilar();
 
         mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->
                 PinyinFormatter.handle(d.trustedCreatePinyin(i), d)
