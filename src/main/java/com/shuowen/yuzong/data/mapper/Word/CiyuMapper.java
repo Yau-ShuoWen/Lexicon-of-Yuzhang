@@ -37,7 +37,7 @@ public interface CiyuMapper
     /**
      * 随机寻找一条特殊的数据
      */
-    List<CiyuEntity> getSpecialCiyuByRandom(String dialect);
+    Integer getSpecialWordIdByRandom(String dialect);
 
     /**
      * 查找唯一键

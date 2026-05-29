@@ -71,12 +71,12 @@
         GROUP BY main.id
     </select>
 
-    <select id="getSpecialCiyuByRandom" resultType="CiyuEntity">
-        SELECT
-        <include refid="allIn"/>
-        WHERE NOT special = 0
+    <select id="getSpecialWordIdByRandom" resultType="int" useCache="false" flushCache="true">
+        SELECT id
+        FROM NC.${dialect}_word
+        WHERE special != 0
         ORDER BY RAND()
-        LIMIT 1;
+        LIMIT 1
     </select>
 
     <!-- 下面这一段是和编辑有关的内容，这里不需要复杂的聚合了 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
