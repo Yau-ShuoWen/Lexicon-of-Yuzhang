@@ -38,7 +38,7 @@ public class ScTcText
         NullTool.checkNotNull(false, sc, tc);
         this.sc = UString.of(sc);
         this.tc = UString.of(tc);
-        if (sc.length() != tc.length()) throw new IllegalStringException(String.format("""
+        if (this.sc.length() != this.tc.length()) throw new IllegalStringException(String.format("""
                         文本框錯誤：
                         繁體：%s
                         簡體：%s
