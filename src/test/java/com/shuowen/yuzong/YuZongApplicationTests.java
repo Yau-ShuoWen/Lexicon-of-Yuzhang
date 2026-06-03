@@ -8,9 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class YuZongApplicationTests
 {
-     @Test
+    @Test
     void contextLoads()
     {
-
     }
 }
