@@ -1,13 +1,11 @@
 package com.shuowen.yuzong.Tool.dataStructure;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -16,7 +14,6 @@ public class Maybe<T>
 {
     @Getter
     private final boolean empty;
-    @JsonInclude (JsonInclude.Include.NON_NULL)
     private final T value;
 
     private Maybe(boolean empty, T value)
@@ -61,21 +58,9 @@ public class Maybe<T>
     /**
      * 安全的获得值
      */
-    @JsonIgnore
     public T getValue()
     {
         NullTool.checkNotNull(value, "这个对象没有值，不可以获取。Can not get.");
-        return value;
-    }
-
-    /**
-     * 序列化的时候不使用上面一个，可能会误触异常，但是序列化使用同名参数
-     * <br>编码时候不可以使用这个函数，特意使用{@code @Deprecated}提示
-     */
-    @Deprecated
-    @JsonProperty ("value")
-    public T getValueOrNull()
-    {
         return value;
     }
 
@@ -99,6 +84,7 @@ public class Maybe<T>
 
     public <U> U handleIfExistAndGet(Function<T, U> fun, U defaultValue)
     {
+        NullTool.checkNotNull(defaultValue, "默认值不能为空");
         return isValid() ? fun.apply(value) : defaultValue;
     }
 
@@ -134,5 +120,16 @@ public class Maybe<T>
     {
         var s = isValid() ? "value=" + value : "empty=" + empty;
         return "Maybe(" + s + ")";
+    }
+
+    @JsonValue
+    public Map<String, Object> toJson()
+    {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("empty", empty);
+        if (!empty) map.put("value", value);
+
+        return map;
     }
 }
