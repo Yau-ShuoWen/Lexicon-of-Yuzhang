@@ -42,9 +42,12 @@ public class CiyuService
         for (String hanzi : query.chars())
             ulist.addAll(CiyuItem.listOf(cy.findCiyuByVagueInRange(hanzi, d.toString()), l));
 
+        List<CiyuItem> all = ulist.getList();
+        all.sort(Comparator.comparingDouble((CiyuItem i) -> i.score(query)).reversed());
+
         Twin<List<CiyuItem>> answer = Twin.of(new ArrayList<>(), new ArrayList<>());
 
-        for (CiyuItem item : ulist.getList())
+        for (CiyuItem item : all)
         {
             if (item.match(query)) answer.getLeft().add(item);
             else answer.getRight().add(item);

@@ -45,7 +45,7 @@ public class CiyuItem
 
     // 匹配數據
     private final List<UString> matchItem = new ArrayList<>();
-    private final Map<UString, UString> keyCache = new HashMap<>();
+    private final Map<UString, Pair<UString, Double>> keyCache = new HashMap<>();
 
     private CiyuItem(CiyuEntity cy, Language l)
     {
@@ -94,14 +94,24 @@ public class CiyuItem
         return ListTool.mapping(cy, i -> CiyuItem.of(i, l));
     }
 
+    public Pair<UString, Double> getSortKeyWithWeight(UString query)
+    {
+        return keyCache.computeIfAbsent(query, q ->
+        {
+            String str = q.toString();
+            UString best = Collections.max(matchItem,
+                    Comparator.comparingDouble(s ->
+                            CiyuTool.weight(s.toString(), str)
+                    )
+            );
+            return Pair.of(best, CiyuTool.weight(best.toString(), str));
+        });
+    }
+
     // 获得和查询内容最接近的一个作为排序内容
     public UString getSortKey(UString query)
     {
-        return keyCache.computeIfAbsent(query,
-                i -> Collections.max(matchItem,
-                        Comparator.comparingDouble(s -> CiyuTool.weight(s.toString(), query.toString()))
-                )
-        );
+        return getSortKeyWithWeight(query).getLeft();
     }
 
     public boolean match(UString query)
@@ -111,8 +121,14 @@ public class CiyuItem
 
     public boolean vague(UString query)
     {
-        return ciyus.mapToOther(i -> i).
-                exist(i -> !i.equals(getSortKey(query).toString()));
+        return ciyus.getTwin().exist(i -> !i.equals(getSortKey(query)));
+    }
+
+    public double score(UString query)
+    {
+        double a = getSortKeyWithWeight(query).getRight() * 0.8;
+        double b = (getSpecial() != 0) ? 0.2 : 0.0;
+        return a + b;
     }
 
     public RPinyins getPinyin(Dialect d)
