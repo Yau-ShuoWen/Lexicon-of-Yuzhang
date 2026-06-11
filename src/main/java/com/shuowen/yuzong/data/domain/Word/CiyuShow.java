@@ -5,10 +5,12 @@ import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.service.impl.Reference.RefReadService;
 import lombok.Data;
@@ -44,8 +46,10 @@ public class CiyuShow
 
         similar = List.of();//cy.getSimilar();
 
+        Scheme scheme = data.getPinyinOption().getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
+
         mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->
-                PinyinFormatter.handle(d.trustedCreatePinyin(i), d)
+                PinyinFormatter.handle(d.trustedCreatePinyin(i), d, scheme)
         ));
 
         note = ListTool.mapping(cy.getNote(),

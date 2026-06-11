@@ -4,14 +4,14 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 
 public class PinyinOption
 {
-    private final Triple<Phonogram, IPASyllableStyle, IPAToneStyle> data;
+    private final Triple<PinyinMode, IPASyllableStyle, IPAToneStyle> data;
 
-    public PinyinOption(Phonogram p, IPASyllableStyle s, IPAToneStyle t)
+    public PinyinOption(PinyinMode p, IPASyllableStyle s, IPAToneStyle t)
     {
         data = Triple.of(p, s, t);
     }
 
-    public static PinyinOption of(Phonogram p, IPASyllableStyle s, IPAToneStyle t)
+    public static PinyinOption of(PinyinMode p, IPASyllableStyle s, IPAToneStyle t)
     {
         return new PinyinOption(p, s, t);
     }
@@ -19,13 +19,13 @@ public class PinyinOption
     public static PinyinOption defaultOf()
     {
         return new PinyinOption(
-                Phonogram.PinyinIPA,
+                PinyinMode.PROFESSIONAL,
                 IPASyllableStyle.CHINESE_SPECIAL,
                 IPAToneStyle.FIVE_DEGREE_LINE
         );
     }
 
-    public Phonogram getPhonogram()
+    public PinyinMode getPinyinMode()
     {
         return data.getLeft();
     }

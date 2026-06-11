@@ -10,10 +10,9 @@ import lombok.EqualsAndHashCode;
 @Data
 public class LACStyle extends PinyinStyle
 {
-    //↓ DOTO 之后需要把他给成protect，放进同一个包里
     public enum Style
     {
-        DISPALY, KEYBOAD, DEBUG
+        DISPALY, KEYBOAD, INTRO, DEBUG
     }
 
     private Style style;
@@ -29,6 +28,7 @@ public class LACStyle extends PinyinStyle
         {
             case DISPLAY -> new LACStyle(Style.DISPALY);
             case KEYBOARD -> new LACStyle(Style.KEYBOAD);
+            case INTRO -> new LACStyle(Style.INTRO);
             case DEBUG -> new LACStyle(Style.DEBUG);
         };
     }

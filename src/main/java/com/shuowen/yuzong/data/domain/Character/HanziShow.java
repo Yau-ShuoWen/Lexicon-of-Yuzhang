@@ -10,6 +10,7 @@ import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.*;
@@ -119,9 +120,11 @@ public class HanziShow
                     MdrTool.showWithZhuyin(j))
             );
 
+            Scheme scheme = data.getPinyinOption().getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
+
             // 这是三个明确要初始化的内容，已经在上一轮获取了信息
             // 函数：快速调用拼音格式化成字符串
-            Function<UniPinyin<?>, RPinyin> format = p -> PinyinFormatter.handle(p, d);
+            Function<UniPinyin<?>, RPinyin> format = p -> PinyinFormatter.handle(p, d, scheme);
 
             info.mainPy = format.apply(i.mainPy);
             info.variantPy = ListTool.mapping(i.variantPy, pair -> Pair.of(pair.getLeft(), format.apply(pair.getRight())));
@@ -135,6 +138,6 @@ public class HanziShow
         }
         info = new ArrayList<>(infoMap.values());
 
-        ref.addAll(RefReadService.getRef(hz.get(0).getHanzis().toText(),data));
+        ref.addAll(RefReadService.getRef(hz.get(0).getHanzis().toText(), data));
     }
 }

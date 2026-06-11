@@ -9,6 +9,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
+import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 
@@ -200,10 +201,11 @@ public class TextPinyinIPA
                     }
                     else
                     {
-                        return switch (data.getPinyinOption().getPhonogram())
+                        return switch (data.getPinyinOption().getPinyinMode())
                         {
-                            case AllPinyin -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);
-                            case PinyinIPA ->
+                            case INTRODUCE -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);//TODO
+                            case STANDARD -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);
+                            case PROFESSIONAL ->
                                     handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, false, dict, isfromDB);
                         };
                     }
@@ -218,7 +220,8 @@ public class TextPinyinIPA
                                 d.trustedCreatePinyin(pyText) :
                                 d.checkAndCreatePinyin(pyText);
                         // RPinyin已经是 " [%s] "的格式了
-                        return PinyinFormatter.handle(py, d, Scheme.DISPLAY).toString();
+                        Scheme scheme = data.getPinyinOption().getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
+                        return PinyinFormatter.handle(py, d, scheme).toString();
                     } catch (InvalidPinyinException e)
                     {
                         if (developer)
@@ -250,11 +253,12 @@ public class TextPinyinIPA
                     }
                     else
                     {
-                        return switch (data.getPinyinOption().getPhonogram())
+                        return switch (data.getPinyinOption().getPinyinMode())
                         {
-                            case AllPinyin ->
+                            //DOTO
+                            case INTRODUCE, STANDARD ->
                                     handle(new PinyinToken(PinyinType.IGNORE, py), data, false, dict, isfromDB);
-                            case PinyinIPA ->
+                            case PROFESSIONAL ->
                                     handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, false, dict, isfromDB);
                         };
                     }

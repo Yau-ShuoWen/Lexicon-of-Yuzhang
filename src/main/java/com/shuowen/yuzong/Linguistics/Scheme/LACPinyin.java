@@ -276,6 +276,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
         {
             case DISPALY -> LACDisplay.format(this);
             case KEYBOAD -> LACKeyboard.format(this);
+            case INTRO -> LACIntro.format(this);
             case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
         };
         return RPinyin.of(pinyin);
@@ -286,7 +287,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
     {
         String pinyin = switch (p.getStyle())
         {
-            case DISPALY -> throw new IllegalArgumentException();
+            case DISPALY, INTRO -> throw new IllegalArgumentException();
             case KEYBOAD -> LACKeyboard.format(this);
             case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
         };
@@ -297,7 +298,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
     {
         String pinyin = switch (p.getStyle())
         {
-            case DISPALY, KEYBOAD -> throw new IllegalArgumentException();
+            case DISPALY, KEYBOAD, INTRO -> throw new IllegalArgumentException();
             case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
         };
         return DPinyin.of(pinyin);
@@ -322,7 +323,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
             if (p.tone.isEmpty() || p.tone.getValue() == 0) return s;
             else
             {
-                char[] marks = {' ', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
+                char[] marks = {'?', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
                 char t = marks[p.tone.getValue()]; // 前面检查过了
 
                 if (s.contains("iu")) return s.replace("u", "u" + t);
@@ -374,6 +375,89 @@ public class LACPinyin extends UniPinyin<LACStyle>
         }
     }
 
+    /**
+     * 简化拼音
+     */
+    private static class LACIntro
+    {
+        public static String format(LACPinyin p)
+        {
+            String s = p.syll;
+
+            s = deleteTK(s);
+            s = handleYW(s);
+            s = PinyinCommon.decodeJyuQyuXyu(s);
+            s = handleYu(s);
+            s = s.replace("ee", "ẹ");
+            s = s.replace("oe", "ọ");
+            s = PinyinCommon.decodeZiiCiiSii(s);
+
+            // 标音调
+            if (p.tone.isEmpty() || p.tone.getValue() == 0) return s;
+            else
+            {
+                int T = p.tone.getValue();
+
+                // 前四个声调是和普通话一样的
+                if (Range.close(1, 4).contains(T))
+                {
+                    char[] marks = {'̀', '́', '̌', '̄'};
+                    char t = marks[T - 1];
+
+                    if (s.contains("iu")) return s.replace("u", "u" + t);
+
+                    for (String i : "aoọeẹiuü".split(""))
+                        if (s.contains(i)) return s.replace(i, i + t);
+
+                    // 例外：没有主元音m n ng，只有ng要特殊处理
+                    if ("ng".equals(s)) return StringTool.insert(s, 1, t);
+                    else return s + t;
+                }
+                else
+                {
+                    String[] marks = {"↘", "↑", "↓"};
+                    String t = marks[T - 5];
+
+                    return s + t;
+                }
+            }
+        }
+
+        private static String deleteTK(String s)
+        {
+            if (StringTool.back(s)=='k'||StringTool.back(s)=='t') return StringTool.deleteBack(s);
+            return s;
+        }
+
+        /**
+         * 合理添加yw，使得看起来更符合普通话规律
+         */
+        private static String handleYW(String s)
+        {
+            char c = s.charAt(0);
+            if (c == 'i')
+            {
+                // i ->yi it->yit iu->yiu in->yin
+                if (ObjectTool.existEqual(s, "i", "it", "iu", "in"))
+                    s = "y" + s;
+                else s = "y" + s.substring(1);
+            }
+            if (c == 'u')
+            {
+                if (s.length() >= 2 && ObjectTool.existEqual(s.charAt(1), 'a', 'o'))
+                    s = "w" + s.substring(1);
+                else s = "w" + s;
+            }
+            return s;
+        }
+
+        private static String handleYu(String s)
+        {
+            if (s.contains("yu") && !s.startsWith("yu"))
+                s = s.replace("yu", "ü");
+            return s;
+        }
+    }
 
     public static SPinyin normalize(SPinyin pinyin)
     {
