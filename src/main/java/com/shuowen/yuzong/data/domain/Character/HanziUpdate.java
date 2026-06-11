@@ -10,7 +10,6 @@ import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcChar;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
@@ -143,19 +142,14 @@ public class HanziUpdate
         var mdr = mandarin;
         ListTool.handle(mdr, i -> i.setDialectId(id));
 
-        ch.setNote(
-                toJson(
-                        ListTool.mapping(note, i -> Map.of(
-                                        "tag", i.getLeft(),
-                                        "content", i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, d, false))
-                                )
-                        ), "[]"
+        ch.setNote(toJson(ListTool.mapping(note,
+                i -> Map.of("tag", i.getLeft(),
+                        "content", i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, d, false))
                 )
-        );
+        ), "[]"));
 
         ch.setStatus(status);
 
-        System.out.println(Quadruple.of(ch, sim, py, mdr));
         return Quadruple.of(ch, sim, py, mdr);
     }
 }

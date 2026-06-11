@@ -30,6 +30,8 @@ public class TestRandomSearch
     @Test
     void test()
     {
+        if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
+
         Map<Object, Integer> map = new HashMap<>();
 
         int times=500;

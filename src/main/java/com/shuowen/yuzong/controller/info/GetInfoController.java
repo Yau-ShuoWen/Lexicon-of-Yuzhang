@@ -46,20 +46,19 @@ public class GetInfoController
         return UString.of("-");
     }
 
-    @GetMapping ("/about-page/{d}")
-    public Map<String, ScTcText> about(@PathVariable Dialect d)
+    @GetMapping ("/about-page/{d}/{l}")
+    public Map<String, UString> about(@PathVariable Dialect d, @PathVariable Language l)
     {
-        Map<String, ScTcText> map = new HashMap<>();
+        Map<String, UString> map = new HashMap<>();
 
-        map.put("about", aboutText(d));
-        map.put("thanks", new ScTcText(KV.get("website-acknowledgement:" + d)));
-        map.put("statistic", aboutNumber(d));
-        //map.put("update",)
+        map.put("about", aboutText(d).get(l));
+        map.put("thanks", new ScTcText(KV.get("website-acknowledgement:" + d)).get(l));
+        map.put("statistic", aboutNumber(d).get(l));
 
         return map;
     }
 
-    public ScTcText aboutText(Dialect d)
+    private ScTcText aboutText(Dialect d)
     {
         String s = String.format("""
                 %s
@@ -69,7 +68,7 @@ public class GetInfoController
         return new ScTcText(s);
     }
 
-    public ScTcText aboutNumber(Dialect d)
+    private ScTcText aboutNumber(Dialect d)
     {
         var dialect = d.toString();
         String s = String.format("""

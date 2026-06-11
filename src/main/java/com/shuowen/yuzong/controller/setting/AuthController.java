@@ -85,15 +85,14 @@ public class AuthController
         }
     }
 
-    @RequestMapping ("/create-user")
-    public APIResponse<Void> createUser(String username)
+    // @RequestMapping ("/create-user")
+    public APIResponse<Void> createUser(String username, String password)
     {
         try
         {
-            user.createUser(username,"123456");
+            user.createUser(username, password);
             return APIResponse.success();
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
             return APIResponse.failure(e.getMessage());
