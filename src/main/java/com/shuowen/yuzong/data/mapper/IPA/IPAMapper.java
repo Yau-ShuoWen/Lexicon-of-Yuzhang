@@ -5,6 +5,7 @@ import com.shuowen.yuzong.data.model.IPA.IPASyllEntity;
 import com.shuowen.yuzong.data.model.IPA.IPAToneEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 import java.util.Set;
@@ -76,10 +77,21 @@ public interface IPAMapper
     /**
      * 获取声调表的所有信息
      */
+    @Select ("SELECT * FROM NC.${dialect}_ipa_segment ORDER BY standard")
     List<IPAToneEntity> getAllToneInfo(String dialect);
 
     /**
      *
      */
     List<IPAItem> getTableItem(String dialect, String key);
+
+
+    @Select ("SELECT self_key FROM NC.${dialect}_ipa_segment WHERE self_key IS NOT NULL ")
+    List<String> getEditKey(String dialect);
+
+    @Select ("SELECT note FROM NC.${dialect}_ipa_segment WHERE self_key = #{key}")
+    String getNote(String dialect, String key);
+
+    @Select ("UPDATE NC.${dialect}_ipa_segment SET note = #{note} WHERE self_key = #{key}")
+    void updateNote(String dialect, String key, String note);
 }

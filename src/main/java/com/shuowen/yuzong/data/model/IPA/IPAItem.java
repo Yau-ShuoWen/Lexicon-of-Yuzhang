@@ -6,7 +6,7 @@ import lombok.Data;
 public class IPAItem
 {
     String url;
-    String notation;
+    String title;
     String note;
     String info;
 }

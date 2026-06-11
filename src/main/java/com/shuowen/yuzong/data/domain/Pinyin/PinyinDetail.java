@@ -30,7 +30,7 @@ public class PinyinDetail
     private String key;
 
     private enum Type
-    {INITIAL, LAST, TONE, SPECIAL}
+    {INITIAL, LAST, TONE, SPECIAL, CHANGE}
 
     private Type type;
 
@@ -39,35 +39,15 @@ public class PinyinDetail
     {
         String key;
         String standard;
-        LinkedHashMap<String, RPinyin> notation;
         TreeMap<String, String> ipa = new TreeMap<>();
-        List<UString> note;
+        UString note;
 
         public Info(IPAItem item, final IPAData data)
         {
             Language l = data.getLanguage();
 
             key = item.getUrl();
-
-            {
-                var tmp = readJson(item.getNotation(), new TypeReference<Map<String, String>>() {});
-
-
-                Matcher matcher = Pattern.compile("\\[.*?]").matcher(tmp.get("standard"));
-                standard = matcher.find() ? matcher.group() : String.format("[%s]", tmp.get("standard"));
-
-                // 当是单独的内容的时候，打拼音标记并加粗，否则直接加粗
-                Function<String, String> fun = (String s) ->
-                {
-                    if (s.contains("[") && s.contains("]"))
-                        return s.replaceAll("\\[(.*?)]", "{b [$1]}");
-                    else return String.format("{b [%s]}", s);
-                };
-                notation = MapTool.orderMapOf(
-                        ScTcText.get("手寫", l), fun.apply(tmp.get("standard")),
-                        ScTcText.get("打字", l), fun.apply(tmp.get("keyboard"))
-                );
-            }
+            standard = String.format("[%s]",item.getTitle());
 
             for (var i : readJson(item.getInfo(), new TypeReference<Map<DictCodeExt, String>>() {}).entrySet())
             {
@@ -81,11 +61,7 @@ public class PinyinDetail
                     ipa.put(data.getDictName(i.getKey()), String.format("[%-4s][%s]", num, line));
                 }
             }
-
-            note = ListTool.mapping(
-                    readJson(item.getNote(), new TypeReference<List<String>>() {}),
-                    i -> ScTcText.get(i, l)
-            );
+            note = readJson(item.getNote(), new TypeReference<ScTcText>() {}).get(l);
         }
     }
 
@@ -103,6 +79,7 @@ public class PinyinDetail
             case "last" -> Type.LAST;
             case "tone" -> Type.TONE;
             case "special" -> Type.SPECIAL;
+            case "change" -> Type.CHANGE;
             default -> throw new IllegalArgumentException("错误的格式" + arr[0]);
         };
 
