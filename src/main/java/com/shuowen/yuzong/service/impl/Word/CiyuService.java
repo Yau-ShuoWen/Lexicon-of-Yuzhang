@@ -102,29 +102,23 @@ public class CiyuService
     /**
      * 在编辑界面的时候，给一个非常宽松的筛选
      */
-    public List<SearchResult> getCiyuFilterInfo(String query, Dialect d)
+    public List<SearchResult> getCiyuFilterInfo(UString query, Dialect d)
     {
-        // 唯一键是（编了码的id）
-        UniqueList<SearchResult, String> ans =
-                UniqueList.of(i -> i.getInfo().get("query").toString());
+        // 唯一键是id
+        UniqueList<CiyuEntity, Integer> ulist = UniqueList.of(CiyuEntity::getId);
+        for (String hanzi : query.chars()) ulist.addAll(cy.findCiyuByVagueInRange(hanzi, d.toString()));
 
-        for (String hanzi : UString.of(query).chars())
-        {
-            for (var i : cy.findCiyuByVagueInRange(hanzi, d.toString()))
-            {
-                var tmp = new SearchResult();
+        List<CiyuEntity> all = ulist.getList();
+        all.sort(Comparator.comparingDouble((CiyuEntity i) -> CiyuItem.of(i, Language.TC).score(query)).reversed());
 
-                // 相同显示一个："文" ，不同显示两个："车 / 車"
-                tmp.setTitle(Objects.equals(i.getSc(), i.getTc()) ?
-                        i.getSc() : i.getSc() + " / " + i.getTc());
-                tmp.setExplain("");
-                tmp.setTag("");
-                tmp.setInfo(Map.of("query", ObfInt.encode(i.getId())));
-
-                ans.add(tmp);
-            }
-        }
-        return ans.getList();
+        return ListTool.mapping(all, i ->
+                {
+                    var ans = new SearchResult();
+                    ans.setTitle(Objects.equals(i.getSc(), i.getTc()) ? i.getSc() : i.getSc() + " / " + i.getTc());
+                    ans.setInfo(Map.of("query", ObfInt.encode(i.getId())));
+                    return ans;
+                }
+        );
     }
 
     /**
@@ -193,7 +187,7 @@ public class CiyuService
                 try
                 {
                     cy.insertWord(i, d.toString());
-                    log.insertWord(d.toString(), null, JsonTool.toJson(ci), "C");
+                    log.insertWord(d.toString(), null, JsonTool.toJson(i), "C");
                 } catch (DuplicateKeyException ignored)//幂等
                 {
                 }

@@ -32,8 +32,7 @@ public class CiyuTool
         double qc = 1.0 * l / q;
         double tc = 1.0 * l / t;
 
-        // 优先比较大的那个，再比较较小的那个
-        return Math.max(qc, tc) + Math.min(qc, tc) * 1e-4;
+        return Math.max(qc, tc) + Math.min(qc, tc) * 1e-2;
     }
 
     public static boolean match(String query, String target)

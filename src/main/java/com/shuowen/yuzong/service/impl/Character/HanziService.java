@@ -217,7 +217,7 @@ public class HanziService
                     pyModel.setCharId(id);
                     hz.insertCharPinyin(pyModel, d.toString());
 
-                    log.insertWord(d.toString(), null, JsonTool.toJson(he), "C");
+                    log.insertWord(d.toString(), null, JsonTool.toJson(i), "C");
                 } catch (DuplicateKeyException ignored)//幂等
                 {
                 }

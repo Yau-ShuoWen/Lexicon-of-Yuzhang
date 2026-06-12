@@ -126,9 +126,12 @@ public class CiyuItem
 
     public double score(UString query)
     {
-        double a = getSortKeyWithWeight(query).getRight() * 0.8;
-        double b = (getSpecial() != 0) ? 0.2 : 0.0;
-        return a + b;
+        double weight = getSortKeyWithWeight(query).getRight();
+        boolean isExactly = ciyus.getTwin().exist(i -> i.contentEquals(query));
+        boolean isSpecial = getSpecial() != 0;
+        return weight
+                + (isExactly ? 1 : 0) * 1e-3
+                + (isSpecial ? 1 : 0) * 1e-4;
     }
 
     public RPinyins getPinyin(Dialect d)

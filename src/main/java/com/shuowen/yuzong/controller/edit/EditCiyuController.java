@@ -23,7 +23,7 @@ public class EditCiyuController
     CiyuService cy;
 
     @GetMapping ("/filter/{d}")
-    public List<SearchResult> filter(@PathVariable Dialect d, @RequestParam String query)
+    public List<SearchResult> filter(@PathVariable Dialect d, @RequestParam UString query)
     {
         return cy.getCiyuFilterInfo(query, d);
     }
