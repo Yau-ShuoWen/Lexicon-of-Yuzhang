@@ -10,6 +10,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
+import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.data.domain.Character.HanziCreate;
 import com.shuowen.yuzong.data.domain.Character.HanziUpdate;
@@ -19,6 +20,7 @@ import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.domain.Character.HanziShow;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
+import com.shuowen.yuzong.data.mapper.LogMapper;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -35,6 +37,10 @@ public class HanziService
 
     @Autowired
     private PronunService mdr;
+
+    @Autowired
+    private LogMapper log;
+
 
     // 查询界面 ---------------------------------------------------------------------------------------------------------
 
@@ -177,6 +183,8 @@ public class HanziService
 
         // 普通话对应字段，给专门的类处理
         mdr.handleEdit(data.getFourth(), d);
+
+        log.insertChar(d.toString(), JsonTool.toJson(getHanziById(id, d)), JsonTool.toJson(data), "U");
     }
 
     public Twin<Maybe<ObfInt>> getNearBy(int id, Dialect d)
@@ -209,6 +217,7 @@ public class HanziService
                     pyModel.setCharId(id);
                     hz.insertCharPinyin(pyModel, d.toString());
 
+                    log.insertWord(d.toString(), null, JsonTool.toJson(he), "C");
                 } catch (DuplicateKeyException ignored)//幂等
                 {
                 }

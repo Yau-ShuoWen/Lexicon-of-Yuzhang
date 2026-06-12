@@ -8,6 +8,7 @@ import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
+import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
@@ -16,6 +17,7 @@ import com.shuowen.yuzong.data.domain.Word.CiyuItem;
 import com.shuowen.yuzong.data.domain.Word.CiyuUpdate;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.domain.Word.CiyuShow;
+import com.shuowen.yuzong.data.mapper.LogMapper;
 import com.shuowen.yuzong.data.mapper.Word.CiyuMapper;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,10 @@ import java.util.*;
 public class CiyuService
 {
     @Autowired
-    CiyuMapper cy;
+    private CiyuMapper cy;
+
+    @Autowired
+    private LogMapper log;
 
     /**
      * 通过关键词，搜索出一系列搜索结果，但只保留基本信息
@@ -173,6 +178,8 @@ public class CiyuService
                 case DELETED -> cy.deleteWordSimilarById(i.getOldItem().getId(), d.toString());
             }
         }
+
+        log.insertWord(d.toString(), JsonTool.toJson(getCiyuById(id, d)), JsonTool.toJson(data), "U");
     }
 
     public void createCiyu(CiyuCreate ci, Dialect d)
@@ -186,6 +193,7 @@ public class CiyuService
                 try
                 {
                     cy.insertWord(i, d.toString());
+                    log.insertWord(d.toString(), null, JsonTool.toJson(ci), "C");
                 } catch (DuplicateKeyException ignored)//幂等
                 {
                 }
