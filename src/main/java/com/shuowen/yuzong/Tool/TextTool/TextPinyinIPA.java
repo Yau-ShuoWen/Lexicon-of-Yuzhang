@@ -7,10 +7,10 @@ import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 
 import java.util.*;
@@ -81,17 +81,10 @@ public class TextPinyinIPA
     /**
      * 工具类入口：格式化内容
      */
-    public static String format(String text, final IPAData data, boolean developer, Maybe<DictCode> dict, boolean isfromDB)
+    public static String format(String text, PinyinConfig data, boolean developer, Maybe<DictCode> dict, boolean isfromDB)
     {
-        // 预处理所有和拼音有关的内容插入，不一定会查询，但是：
-        // 1. 只要不查询就没有性能消耗
-        // 2. 只要查询就能把所有都找出来
         Matcher m = pattern.matcher(text);
-        while (m.find()) collectPinyin(normalize(m.group()), data, isfromDB);
-
-        // 构建
         StringBuilder sb = new StringBuilder();
-        m = pattern.matcher(text);
         while (m.find())
         {
             var handleAns = handle(normalize(m.group()), data, developer, dict, isfromDB);
@@ -100,7 +93,7 @@ public class TextPinyinIPA
         }
         m.appendTail(sb);
 
-        return sb.toString().replace("]  [", "] [");
+        return sb.toString().replace("]  [", "] [");//作用就是化学实验前后都要洗一次，但是一定有一次是多余的
     }
 
     /**
@@ -112,13 +105,13 @@ public class TextPinyinIPA
      * @param dict      字典的拼音要特殊处理
      */
     private static String handle(
-            PinyinToken pinyin, final IPAData data,
+            PinyinToken pinyin, PinyinConfig data,
             boolean developer, Maybe<DictCode> dict, boolean isfromDB)
     {
         if (pinyin.body.contains(" "))
         {
             List<String> list = new ArrayList<>();
-            for (String s : pinyin.body.split("\\s+"))
+            for (String s : pinyin.body.trim().split("\\s+"))
             {
                 var smaller = new PinyinToken(pinyin.type, s);
                 list.add(handle(smaller, data, developer, dict, isfromDB));
@@ -158,7 +151,7 @@ public class TextPinyinIPA
                     try
                     {
                         return String.format(" %s ",
-                                data.submitAndGet(py, dict.getValueOrDefault(d.getDefaultDict())).getValue()
+                                data.searchIPA(py, dict.getValueOrDefault(d.getDefaultDict())).getValue()
                         );
                     } catch (Exception e)
                     {
@@ -201,7 +194,7 @@ public class TextPinyinIPA
                     }
                     else
                     {
-                        return switch (data.getPinyinOption().getPinyinMode())
+                        return switch (data.getPinyinMode())
                         {
                             case INTRODUCE -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);//TODO
                             case STANDARD -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);
@@ -220,7 +213,7 @@ public class TextPinyinIPA
                                 d.trustedCreatePinyin(pyText) :
                                 d.checkAndCreatePinyin(pyText);
                         // RPinyin已经是 " [%s] "的格式了
-                        Scheme scheme = data.getPinyinOption().getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
+                        Scheme scheme = data.getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
                         return PinyinFormatter.handle(py, d, scheme).toString();
                     } catch (InvalidPinyinException e)
                     {
@@ -253,7 +246,7 @@ public class TextPinyinIPA
                     }
                     else
                     {
-                        return switch (data.getPinyinOption().getPinyinMode())
+                        return switch (data.getPinyinMode())
                         {
                             //DOTO
                             case INTRODUCE, STANDARD ->
@@ -273,34 +266,6 @@ public class TextPinyinIPA
                 else return "";
             }
             default -> throw new RuntimeException("不可到达的位置");
-        }
-    }
-
-    private static void collectPinyin(PinyinToken pinyin, final IPAData data, boolean isfromDB)
-    {
-        if (pinyin.body.contains(" "))
-        {
-            for (String s : pinyin.body.split("\\s+"))
-            {
-                var smaller = new PinyinToken(pinyin.type, s);
-                collectPinyin(smaller, data, isfromDB);
-            }
-            return;
-        }
-
-        if (pinyin.type == PinyinType.IPA || pinyin.type == PinyinType.DIALECT)
-        {
-            try
-            {
-                var d = data.getDialect();
-                SPinyin pyText = SPinyin.of(pinyin.body);
-                var py = isfromDB ?
-                        d.trustedCreatePinyin(pyText) :
-                        d.checkAndCreatePinyin(pyText);
-                data.add(py);
-            } catch (InvalidPinyinException ignored)
-            {
-            }
         }
     }
 
