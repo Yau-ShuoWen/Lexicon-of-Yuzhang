@@ -16,10 +16,6 @@
         select * from NC.${dialect}_ipa_syllable where code = #{code}
     </select>
 
-    <!-- 获取音节表的所有信息，按照编号排序 -->
-    <select id="getAllSyllable" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
-        select * from NC.${dialect}_ipa_syllable order by code
-    </select>
 
     <!-- 批量查询音节信息 -->
     <select id="findSyllableListByStandard" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">

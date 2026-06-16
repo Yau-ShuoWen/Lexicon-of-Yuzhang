@@ -1,12 +1,15 @@
 package com.shuowen.yuzong.service.impl.IPA;
 
 import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
 import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
 import com.shuowen.yuzong.data.model.IPA.IPAItem;
 import jakarta.annotation.PostConstruct;
@@ -29,80 +32,6 @@ public class IPAService
     private IPAMapper m;
 
     /**
-     * 传入多条拼音，把所有字典版本的IPA全部转换出来
-     */
-    public Map<IPinyin, Map<DictCode, String>> getIPA(
-            Set<IPinyin> pinyinSet, PinyinOption op, Dialect d, Set<DictCode> dictSet)
-    {
-        // 给出的是拼音的set，通过mapping获得对应拼音/音调的set
-        // 这个set查数据库，查询之后获得的是对应数据条目的set
-        // 按照standard为关键字映射成map可以查询
-
-        var syll = Yinjie.mapOf(
-                m.findSyllableListByStandard(
-                        SetTool.mapping(pinyinSet, IPinyin::getSyll),
-                        d.toString())
-        );
-        var tone = Shengdiao.mapOf(m.findToneInfoSet(
-                SetTool.mapping(
-                        SetTool.filter(pinyinSet, IPinyin::haveTone), // 筛选掉空音调
-                        i -> i.getToneDirectly().toString()),
-                d.toString())
-        );
-
-        Map<IPinyin, Map<DictCode, String>> dataPerPinyin = new HashMap<>();
-
-        for (var pinyin : pinyinSet)
-        {
-            if (pinyin.haveTone())
-            {
-                var y = syll.get(pinyin.getSyll());
-                var s = tone.get(pinyin.getToneDirectly());
-                if (y == null || s == null) continue;
-
-                Map<DictCode, String> dataPerDict = new HashMap<>();
-                for (var dict : dictSet)
-                {
-                    // 如果查不到结果，那么对于这个字典的这个读音就是无效的，直接略过
-                    var yj = y.getInfo(dict);
-                    var sd = s.getInfo(dict);
-                    if (yj == null || sd == null) continue;
-
-                    var tmp = switch (op.getTone())
-                    {
-                        case FIVE_DEGREE_NUM -> IPAFormatter.mergeFiveDegree(yj, sd, true);
-                        case FIVE_DEGREE_LINE -> IPAFormatter.mergeFiveDegree(yj, sd, false);
-                        case FOUR_CORNER -> IPAFormatter.mergeFourCorner(yj, pinyin.getCorner());
-                    };
-                    tmp = IPAFormatter.formatSyllable(tmp, op.getSyllable());
-
-                    dataPerDict.put(dict, String.format("[%s]", tmp));
-                }
-                dataPerPinyin.put(pinyin, dataPerDict);
-            }
-            else
-            {
-                var y = syll.get(pinyin.getSyll());
-                if (y == null) continue;
-
-                Map<DictCode, String> dataPerDict = new HashMap<>();
-                for (var dict : dictSet)
-                {
-                    // 如果查不到结果，那么对于这个字典的这个读音就是无效的，直接略过
-                    var yj = y.getInfo(dict);
-                    if (yj == null) continue;
-
-                    var tmp = IPAFormatter.formatSyllable(yj, op.getSyllable());
-
-                    dataPerDict.put(dict, String.format("[%s]", tmp));
-                }
-                dataPerPinyin.put(pinyin, dataPerDict);
-            }
-        }
-        return dataPerPinyin;
-    }
-
-    /**
      *
      */
     public EqualChecker<Yinjie> checkIPA(Dialect d)
@@ -111,7 +40,7 @@ public class IPAService
 
         var map = Shengyun.mapOf(m.getAllSegment(d.toString()));  // 获得查询资料
 
-        for (var i : Yinjie.listOf(m.getAllSyllable(d.toString())))
+        for (var i : Yinjie.listOf(m.getAllSyll(d.toString())))
         {
             var pinyinAnswer = d.trustedCreatePinyin(i.getPinyin());
             var merge = constructIPA(d, pinyinAnswer, a -> Maybe.uncertain(map.get(a)));
@@ -167,6 +96,8 @@ public class IPAService
         return Yinjie.merge(data.apply(initial), data.apply(last));
     }
 
+    //=========================================
+
     private static IPAService instance;
 
     @PostConstruct
@@ -175,14 +106,76 @@ public class IPAService
         instance = this;
     }
 
-    public static Map<IPinyin, Map<DictCode, String>> getTheIPA(
-            Set<IPinyin> pinyinSet, PinyinOption op, Dialect d, Set<DictCode> dictSet)
-    {
-        return instance.getIPA(pinyinSet, op, d, dictSet);
-    }
-
     public static List<IPAItem> getTableItem(Dialect d, String key)
     {
         return instance.m.getTableItem(d.toString(), key);
+    }
+
+    public static Map<Quadruple<IPinyin, DictCode, IPASyllStyle, IPAToneStyle>, String> getData(Dialect d)
+    {
+        var syll = instance.m.getAllSyll(d.toString());
+        var tone = instance.m.getAllTone(d.toString());
+
+        Map<Quadruple<IPinyin, DictCode, IPASyllStyle, IPAToneStyle>, String> data = new LinkedHashMap<>();
+
+        // 单拼音，无音调 =================
+
+        for (var s : syll)
+        {
+            var yj = Yinjie.of(s);
+            var pinyin = d.trustedCreatePinyin(SPinyin.of(s.getStandard()));
+            for (var dict : DictGroup.of(d).getKeySet())
+            {
+                for (var sy : IPASyllStyle.values())
+                {
+                    for (var to : IPAToneStyle.values())
+                    {
+                        var ipaSyll = yj.getInfo(dict);
+                        if (ipaSyll == null) continue;
+                        var ipa = IPAFormatter.formatSyllable(ipaSyll, sy);
+                        data.put(Quadruple.of(pinyin, dict, sy, to), ipa);
+                    }
+                }
+            }
+        }
+
+        // 有音调 ===============================
+
+        for (var s : syll)
+        {
+            var yj = Yinjie.of(s);
+            for (var t : tone)
+            {
+                var sd = Shengdiao.of(t);
+                try
+                {
+                    var pinyin = d.trustedCreatePinyin(SPinyin.of(s.getStandard()+t.getStandard()));
+                    for (var dict : DictGroup.of(d).getKeySet())
+                    {
+                        for (var sy : IPASyllStyle.values())
+                        {
+                            for (var to : IPAToneStyle.values())
+                            {
+                                var syllStr = yj.getInfo(dict);
+                                var toneStr = sd.getInfo(dict);
+                                if (syllStr == null || toneStr == null) continue;
+
+                                var ipa = switch (to)
+                                {
+                                    case FIVE_DEGREE_NUM -> IPAFormatter.mergeFiveDegree(syllStr, toneStr, true);
+                                    case FIVE_DEGREE_LINE -> IPAFormatter.mergeFiveDegree(syllStr, toneStr, false);
+                                    case FOUR_CORNER -> IPAFormatter.mergeFourCorner(syllStr, pinyin.getCorner());
+                                };
+                                ipa = IPAFormatter.formatSyllable(ipa, sy);
+                                data.put(Quadruple.of(pinyin, dict, sy, to), ipa);
+                            }
+                        }
+                    }
+                } catch (IllegalArgumentException ignored)
+                {
+                }
+            }
+        }
+        return data;
     }
 }

@@ -24,15 +24,9 @@ public class Shengdiao
         info = readJson(ipa.getInfo(), new TypeReference<>() {});
     }
 
-    public static Map<Integer, Shengdiao> mapOf(Set<IPAToneEntity> set)
+    public static Shengdiao of(IPAToneEntity ipa)
     {
-        Map<Integer, Shengdiao> map = new HashMap<>();
-        for (var i : set)
-        {
-            if (i == null) continue;
-            map.put(i.getStandard(), new Shengdiao(i));
-        }
-        return map;
+        return new Shengdiao(ipa);
     }
 
     public String getInfo(DictCode dict)

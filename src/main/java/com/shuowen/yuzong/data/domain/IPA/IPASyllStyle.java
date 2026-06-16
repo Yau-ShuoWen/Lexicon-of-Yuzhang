@@ -1,15 +1,15 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
-public enum IPASyllableStyle
+public enum IPASyllStyle
 {
     CHINESE_SPECIAL,  // 汉语语言学的习惯用符号
     STANDARD_IPA;     // 标准的国际音标用符号
 
-    IPASyllableStyle()
+    IPASyllStyle()
     {
     }
 
-    public static IPASyllableStyle of(int code)
+    public static IPASyllStyle of(int code)
     {
         return switch (code)
         {

@@ -13,7 +13,6 @@ import java.util.*;
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
 
-
 /**
  * 音节领域模型类
  */
@@ -31,20 +30,14 @@ public class Yinjie
         info = readJson(ipa.getInfo(), new TypeReference<>() {});
     }
 
+    public static Yinjie of(IPASyllEntity ipa)
+    {
+        return new Yinjie(ipa);
+    }
+
     public static List<Yinjie> listOf(List<IPASyllEntity> list)
     {
         return ListTool.mapping(list, Yinjie::new);
-    }
-
-    public static Map<String, Yinjie> mapOf(Set<IPASyllEntity> set)
-    {
-        Map<String, Yinjie> map = new HashMap<>();
-        for (var i : set)
-        {
-            if (i == null) continue;
-            map.put(i.getStandard(), new Yinjie(i));
-        }
-        return map;
     }
 
     public String getInfo(DictCode dict)
@@ -69,13 +62,11 @@ public class Yinjie
         }
     }
 
-
     public static Maybe<Yinjie> merge(Maybe<Shengyun> initial, Maybe<Shengyun> last)
     {
         if (initial.isEmpty() || last.isEmpty()) return Maybe.nothing();
         return Maybe.exist(new Yinjie(initial.getValue(), last.getValue()));
     }
-
 
     public IPASyllEntity transfer()
     {

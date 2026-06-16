@@ -71,7 +71,7 @@ public class IPAFormatter
      * <p>
      * 供复制测试字体用的{@code ɿ  ɹ̩  ʅ  ɻ̍  ʮ  ɹ̩ʷ  ʯ  ɻ̍ʷ  ȶ  t̠ʲ  ȡ  d̠ʲ  ȵ  ṉʲ  ᴀ  ä  ᴇ  e̞}
      */
-    public static String formatSyllable(String s, IPASyllableStyle ss)
+    public static String formatSyllable(String s, IPASyllStyle ss)
     {
         if (s == null) return null; //这里的null表示的是无效的拼音，是空安全的
         return switch (ss)

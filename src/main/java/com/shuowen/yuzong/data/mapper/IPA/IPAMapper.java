@@ -28,7 +28,8 @@ public interface IPAMapper
     /**
      * 获取音节表的所有信息，按照编号排序
      */
-    List<IPASyllEntity> getAllSyllable(String dialect);
+    @Select("SELECT * from NC.${dialect}_ipa_syllable order by code")
+    List<IPASyllEntity> getAllSyll(String dialect);
 
     /**
      * 按照标准拼音为关键字，查询多行信息
@@ -77,8 +78,8 @@ public interface IPAMapper
     /**
      * 获取声调表的所有信息
      */
-    @Select ("SELECT * FROM NC.${dialect}_ipa_segment ORDER BY standard")
-    List<IPAToneEntity> getAllToneInfo(String dialect);
+    @Select ("SELECT * FROM NC.${dialect}_ipa_segment WHERE code LIKE '___t_' ORDER BY standard")
+    List<IPAToneEntity> getAllTone(String dialect);
 
     /**
      *
