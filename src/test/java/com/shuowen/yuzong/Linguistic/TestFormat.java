@@ -1,11 +1,13 @@
 package com.shuowen.yuzong.Linguistic;
 
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
+import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -40,23 +42,22 @@ public class TestFormat
                 这是一个涉及到{l 南昌}词条的链接，但是还没有做，应该无事发生
                 """);
 
-        var data = new IPAData(Language.SC, Dialect.LAC, PinyinOption.defaultOf());
-
-       // System.out.println(RichTextUtil.format(s, data, true, Maybe.nothing()));
+        var data = new PinyinConfig(Language.SC, Dialect.LAC);
+        System.out.println((RichTextUtil.format(s, data, true, Maybe.nothing(), false)));
     }
 
     @Test
     void testIPAInDict()
     {
         if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
-        var s= UString.of(
+        var s = UString.of(
                 """
-                二的拼音是[oe5]
-                周的拼音是[zeeu1]
-                """
+                        二的拼音是[oe5]
+                        周的拼音是[zeeu1]
+                        """
         );
 
-        var data = new IPAData(Language.SC, Dialect.LAC, PinyinOption.defaultOf());
-        //System.out.println(RichTextUtil.format(s, data, true, Maybe.exist(new DictCode("ncphon_y"))));
+        var data = new PinyinConfig(Language.SC, Dialect.LAC);
+        System.out.println((RichTextUtil.format(s, data, true, Maybe.exist(new DictCode("ncphon_y")), false)));
     }
 }

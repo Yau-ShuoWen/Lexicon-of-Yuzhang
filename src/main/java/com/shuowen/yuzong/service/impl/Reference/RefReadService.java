@@ -3,7 +3,7 @@ package com.shuowen.yuzong.service.impl.Reference;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
@@ -22,7 +22,7 @@ public class RefReadService
     @Autowired
     private RefMapper ck;
 
-    public List<RefItem> getAllRef(ScTcText query, final IPAData data)
+    public List<RefItem> getAllRef(ScTcText query, final PinyinConfig data)
     {
         Set<String> dictGroup = SetTool.mapping(data.getDictGroup().getKeySet(), DictCode::toString);
 
@@ -52,7 +52,7 @@ public class RefReadService
         instance = this;
     }
 
-    public static List<RefItem> getRef(ScTcText query, final IPAData data)
+    public static List<RefItem> getRef(ScTcText query, final PinyinConfig data)
     {
         return instance.getAllRef(query, data);
     }

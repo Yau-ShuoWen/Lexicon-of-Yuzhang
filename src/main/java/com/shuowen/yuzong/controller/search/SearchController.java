@@ -7,11 +7,11 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.controller.APIResponse;
-import com.shuowen.yuzong.data.domain.IPA.IPASyllableStyle;
+import com.shuowen.yuzong.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
-import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
 import com.shuowen.yuzong.data.domain.Character.HanziShow;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.domain.Word.CiyuShow;
 import com.shuowen.yuzong.service.impl.Character.HanziService;
@@ -56,7 +56,7 @@ public class SearchController
     public APIResponse<HanziShow> hanziSearch(
             @PathVariable Dialect d, @PathVariable Language l, @RequestParam UChar query,
             @RequestParam PinyinMode phonogram,
-            @RequestParam IPASyllableStyle syllableStyle,
+            @RequestParam IPASyllStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
     )
     {
@@ -64,7 +64,8 @@ public class SearchController
         {
             System.out.println(phonogram);
             return APIResponse.success(h.getHanziDetailInfo(
-                    query, l, d, PinyinOption.of(phonogram, syllableStyle, toneStyle)));
+                    query, l, d, new PinyinConfig(l, d, phonogram, syllableStyle, toneStyle)
+            ));
         } catch (Exception e)
         {
             if (e instanceof NoSuchElementException)
@@ -79,7 +80,7 @@ public class SearchController
     public APIResponse<CiyuShow> ciyuSearch(
             @PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query,
             @RequestParam PinyinMode phonogram,
-            @RequestParam IPASyllableStyle syllableStyle,
+            @RequestParam IPASyllStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
     )
     {
@@ -88,7 +89,7 @@ public class SearchController
             System.out.println(phonogram);
             return APIResponse.success(c.getCiyuDetailInfo(
                     query, l, d,
-                    PinyinOption.of(phonogram, syllableStyle, toneStyle)
+                    new PinyinConfig(l, d, phonogram, syllableStyle, toneStyle)
             ));
         } catch (Exception e)
         {

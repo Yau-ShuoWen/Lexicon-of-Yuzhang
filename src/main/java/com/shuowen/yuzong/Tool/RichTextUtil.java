@@ -9,8 +9,8 @@ import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 
 import java.util.regex.Matcher;
@@ -54,7 +54,7 @@ public class RichTextUtil
      * @param isfromDB  是否是从数据库的来的数据
      */
     public static UString format
-    (UString text, final IPAData data, boolean developer, Maybe<DictCode> dict, boolean isfromDB)
+    (UString text, final PinyinConfig data, boolean developer, Maybe<DictCode> dict, boolean isfromDB)
     {
         String s = text.toString();
 
@@ -63,12 +63,10 @@ public class RichTextUtil
 
         return UString.of(s);
         //TODO
-        // 关键词绑定（包括隐藏绑定）
-        // 链接：转换为<a>标签
         // 同音字表：特殊处理，关联多个汉字条目
     }
 
-    public static UString easyFormatFromTc(String text, final IPAData data)
+    public static UString easyFormatFromTc(String text, final PinyinConfig data)
     {
         return RichTextUtil.format(ScTcText.get(
                 text, data.getDialect(), data.getLanguage()
@@ -80,7 +78,7 @@ public class RichTextUtil
      */
     private static String handleAnnotation(String text)
     {
-        if(text.isEmpty()) return "";
+        if (text.isEmpty()) return "";
 
         StringBuilder result = new StringBuilder();
         String[] lines = text.split("\n", -1); // 保留空行

@@ -10,8 +10,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Trio;
 import com.shuowen.yuzong.controller.APIResponse;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,8 +47,7 @@ public class ProofreadController
                                         @RequestParam UString text
     )
     {
-        var str = RichTextUtil.format(text, new IPAData(
-                l, d, PinyinOption.defaultOf()), true, Maybe.uncertain(dict),false);
+        var str = RichTextUtil.format(text, new PinyinConfig(l, d), true, Maybe.uncertain(dict), false);
         return Pair.of(RichTextUtil.checkWarning(str), str);
     }
 }

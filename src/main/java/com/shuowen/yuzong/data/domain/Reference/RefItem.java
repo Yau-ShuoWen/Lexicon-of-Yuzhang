@@ -5,7 +5,7 @@ import com.shuowen.yuzong.Tool.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import lombok.Data;
 
@@ -21,7 +21,7 @@ public class RefItem
     private final UString source;
     private final UString note;
 
-    public RefItem(RefEntity ck, final IPAData data)
+    public RefItem(RefEntity ck, final PinyinConfig data)
     {
         var l = data.getLanguage();
         var d = data.getDialect();

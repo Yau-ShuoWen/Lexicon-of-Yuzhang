@@ -7,8 +7,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.Course.CourseCatalog;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.mapper.Course.CourseMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,11 +25,11 @@ public class CourseService
 
     public Twin<UString> getArtical(Language l, Dialect d, Integer id)
     {
-        var ipaData = new IPAData(l, d, PinyinOption.defaultOf());
+        var ipaData = new PinyinConfig(l,d);
         var data = ListTool.checkSizeOne(m.getArticalById(d.toString(), id), "", "");
         return Twin.of(
-                RichTextUtil.easyFormatFromTc(data.getTitle(),ipaData),
-                RichTextUtil.easyFormatFromTc(data.getText(),ipaData)
+                RichTextUtil.easyFormatFromTc(data.getTitle(), ipaData),
+                RichTextUtil.easyFormatFromTc(data.getText(), ipaData)
         );
     }
 }

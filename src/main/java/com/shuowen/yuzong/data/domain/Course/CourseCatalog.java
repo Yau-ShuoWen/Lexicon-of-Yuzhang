@@ -8,8 +8,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 
 import com.shuowen.yuzong.Tool.format.ObfInt;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.model.Course.CourseEntity;
 import lombok.Data;
 
@@ -29,7 +28,7 @@ public class CourseCatalog
 
         private List<Section> sections;
 
-        private Chapter(int chapterId, String title, String text, List<Section> sections, final IPAData data)
+        private Chapter(int chapterId, String title, String text, List<Section> sections, final PinyinConfig data)
         {
             this.chapterId = chapterId;
             this.title = RichTextUtil.easyFormatFromTc(title, data);
@@ -37,7 +36,7 @@ public class CourseCatalog
             this.sections = sections;
         }
 
-        public static List<Chapter> listOf(List<CourseEntity> list, final IPAData data)
+        public static List<Chapter> listOf(List<CourseEntity> list, final PinyinConfig data)
         {
             if (list.isEmpty()) return new ArrayList<>();
             List<Chapter> ans = new ArrayList<>();
@@ -74,14 +73,14 @@ public class CourseCatalog
         private int sectionId;
         private UString title;
 
-        private Section(int id, int sectionId, String title, final IPAData data)
+        private Section(int id, int sectionId, String title, final PinyinConfig data)
         {
             this.id = ObfInt.encode(id);
             this.sectionId = sectionId;
             this.title = RichTextUtil.easyFormatFromTc(title, data);
         }
 
-        public static List<Section> listOf(List<CourseEntity> list, final IPAData data)
+        public static List<Section> listOf(List<CourseEntity> list, final PinyinConfig data)
         {
             if (!ObjectTool.allEqual(list, CourseEntity::getChapter))
                 throw new IllegalArgumentException("");
@@ -92,7 +91,7 @@ public class CourseCatalog
 
     public CourseCatalog(List<CourseEntity> list, Dialect d, Language l)
     {
-        var ipaData = new IPAData(l, d, PinyinOption.defaultOf());
+        var ipaData = new PinyinConfig(l, d);
         Collections.sort(list);
         catalog = Chapter.listOf(list, ipaData);
     }

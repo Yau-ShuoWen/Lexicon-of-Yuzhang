@@ -15,6 +15,7 @@ import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.service.impl.Reference.RefReadService;
 import lombok.Data;
@@ -45,12 +46,12 @@ public class HanziShow
 
     private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
 
-    public static HanziShow of(HanziGroup hz, final IPAData data)
+    public static HanziShow of(HanziGroup hz, final PinyinConfig data)
     {
         return new HanziShow(hz.getData(), data);
     }
 
-    private HanziShow(List<HanziItem> hz, final IPAData data)
+    private HanziShow(List<HanziItem> hz, final PinyinConfig data)
     {
         hanzi = hz.get(0).getHanzi();
         Language l = data.getLanguage();
@@ -120,7 +121,7 @@ public class HanziShow
                     MdrTool.showWithZhuyin(j))
             );
 
-            Scheme scheme = data.getPinyinOption().getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
+            Scheme scheme = data.getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
 
             // 这是三个明确要初始化的内容，已经在上一轮获取了信息
             // 函数：快速调用拼音格式化成字符串

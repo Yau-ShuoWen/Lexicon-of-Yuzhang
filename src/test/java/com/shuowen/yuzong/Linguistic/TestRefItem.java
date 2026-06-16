@@ -3,8 +3,7 @@ package com.shuowen.yuzong.Linguistic;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.service.impl.Reference.RefTestService;
 import org.junit.jupiter.api.Test;
@@ -22,6 +21,6 @@ public class TestRefItem
     {
         if (ObjectTool.unchecked(true)) return;
 
-        ref.checkPinyin(DictCode.of("ncdict"), new IPAData(Language.TC, Dialect.LAC, PinyinOption.defaultOf()));
+        ref.checkPinyin(DictCode.of("ncdict"), new PinyinConfig(Language.TC, Dialect.LAC));
     }
 }

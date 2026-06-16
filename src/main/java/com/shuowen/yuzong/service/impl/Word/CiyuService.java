@@ -10,8 +10,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.Tool.format.ObfInt;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
-import com.shuowen.yuzong.data.domain.IPA.PinyinOption;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Word.CiyuCreate;
 import com.shuowen.yuzong.data.domain.Word.CiyuItem;
 import com.shuowen.yuzong.data.domain.Word.CiyuUpdate;
@@ -74,11 +73,11 @@ public class CiyuService
         ));
     }
 
-    public CiyuShow getCiyuDetailInfo(UString query, Language l, Dialect d, PinyinOption op)
+    public CiyuShow getCiyuDetailInfo(UString query, Language l, Dialect d, PinyinConfig op)
     {
         var entity = ListTool.checkSizeOne(cy.findCiyuByScOrTc(query.toString(), d.toString(), l.toString()),
                 "没有找到词语", "查到了过多的数据");
-        return CiyuShow.of(CiyuItem.of(entity, l), new IPAData(l, d, op));
+        return CiyuShow.of(CiyuItem.of(entity, l), op);
     }
 
     public List<SearchResult> getCiyuRandom(Language l, Dialect d)

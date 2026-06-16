@@ -1,15 +1,12 @@
 package com.shuowen.yuzong.data.domain.Pinyin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
 import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.data.domain.Reference.DictCodeExt;
 import com.shuowen.yuzong.data.model.IPA.IPAItem;
@@ -18,9 +15,6 @@ import lombok.Data;
 import lombok.Getter;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 
@@ -42,12 +36,12 @@ public class PinyinDetail
         TreeMap<String, String> ipa = new TreeMap<>();
         UString note;
 
-        public Info(IPAItem item, final IPAData data)
+        public Info(IPAItem item, final PinyinConfig data)
         {
             Language l = data.getLanguage();
 
             key = item.getUrl();
-            standard = String.format("[%s]",item.getTitle());
+            standard = String.format("[%s]", item.getTitle());
 
             for (var i : readJson(item.getInfo(), new TypeReference<Map<DictCodeExt, String>>() {}).entrySet())
             {
@@ -83,7 +77,7 @@ public class PinyinDetail
             default -> throw new IllegalArgumentException("错误的格式" + arr[0]);
         };
 
-        var ipaData = new IPAData(l, d, null);
+        var ipaData = new PinyinConfig(l, d);
         info = ListTool.mapping(IPAService.getTableItem(d, key), i -> new Info(i, ipaData));
 
         // 编码的历史原因，iung在ung前面，iuk在uk前面，所以需要手动重新调整顺序

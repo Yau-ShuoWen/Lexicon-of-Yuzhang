@@ -28,7 +28,7 @@ public class TestDialectPinyin
         {
             System.out.println("方言：" + d);
             Counter ans = new Counter();
-            for (var i : m.getAllSyllable(d.toString()))
+            for (var i : m.getAllSyll(d.toString()))
             {
                 var maybe = d.tryCreatePinyin(SPinyin.of(i.getStandard()));
 

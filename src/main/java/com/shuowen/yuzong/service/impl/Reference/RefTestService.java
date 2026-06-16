@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
-import com.shuowen.yuzong.data.domain.IPA.IPAData;
+import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
@@ -15,7 +15,7 @@ public class RefTestService
     @Autowired
     private RefMapper ck;
 
-    public void checkPinyin(DictCode dict, final IPAData data)
+    public void checkPinyin(DictCode dict, final PinyinConfig data)
     {
         for (var i : ck.findAll(dict.getCode()))
         {
