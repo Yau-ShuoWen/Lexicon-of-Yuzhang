@@ -62,7 +62,9 @@ public class GetInfoController
     {
         String s = String.format("""
                 %s
-                -----
+                
+                
+                
                 %s
                 """, KV.get("website-about"), KV.get("website-about:" + d));
         return new ScTcText(s);
@@ -74,12 +76,15 @@ public class GetInfoController
         String s = String.format("""
                         - 項目立項已經：%s天
                         - 項目上綫已經：%s天
+                        - 版本號：%s
+                        ------
                         - 收錄%s用漢字：%s個
                         - 收錄%s詞語：%s條
                         - 電子化%s相關辭書：%s段
                         """,
                 ChronoUnit.DAYS.between(LocalDate.of(2024, 10, 3), LocalDate.now()),
                 ChronoUnit.DAYS.between(LocalDate.of(2026, 5, 28), LocalDate.now()),
+                KV.get("website-version"),
                 d.getName().getTc(), hz.findRowCountInHanziTable(dialect),
                 d.getName().getTc(), cy.findRowCountInCiyuTable(dialect),
                 d.getName().getTc(), ck.findRowCountInReferTable(dialect)
