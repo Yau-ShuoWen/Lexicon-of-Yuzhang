@@ -248,69 +248,131 @@ public class MdrPYSceme
     // 初始化
     static
     {
-        CACHE.put(
+        CACHE.put(Alphabet.ZhuyinII, new MdrPYSceme(
                 Alphabet.ZhuyinII,
-                new MdrPYSceme(
-                        Alphabet.ZhuyinII,
-                        "jr chr shr r tz tsz sz",
-                        "b p m f d t n l g k h j ch sh j ch sh r tz ts s",
-                        "a o e e ai ei au ou an en ang eng er yi/i ya/ia yo/io ye/ie yau/iao you/iou yan/ian yin/in yang/iang ying/ing wu/u wa/ua wo/uo wai/uai wei/uei wan/uan wen/uen wang/uang weng/ung yu/iu yue/iue yuan/iuan yun/iun yung/iung",
-                        "",
-                        (tone, syll) ->
-                        {
-                            Map<String, String[]> map = Map.of(
-                                    "a", "a ā á ǎ à".split(" "),
-                                    "o", "o ō ó ǒ ò".split(" "),
-                                    "e", "e ē é ě è".split(" "),
-                                    "i", "i ī í ǐ ì".split(" "),
-                                    "u", "u ū ú ǔ ù".split(" "),
-                                    "z", "z z̄ ź ž z̀".split(" "),
-                                    "r", "r r̄ ŕ ř r̀".split(" ")
-                            );
-                            for (String i : "aoeiuzr".split(""))
-                                if (syll.contains(i)) return syll.replace(i, map.get(i)[tone]);
-                            return syll;
-                        }
-                )
-        );
+                "jr chr shr r tz tsz sz",
+                "b p m f d t n l g k h j ch sh j ch sh r tz ts s",
+                "a o e e ai ei au ou an en ang eng er yi/i ya/ia yo/io ye/ie yau/iao you/iou yan/ian yin/in yang/iang ying/ing wu/u wa/ua wo/uo wai/uai wei/uei wan/uan wen/uen wang/uang weng/ung yu/iu yue/iue yuan/iuan yun/iun yung/iung",
+                "",
+                (tone, syll) ->
+                {
+                    Map<String, String[]> map = Map.of(
+                            "a", "a ā á ǎ à".split(" "),
+                            "o", "o ō ó ǒ ò".split(" "),
+                            "e", "e ē é ě è".split(" "),
+                            "i", "i ī í ǐ ì".split(" "),
+                            "u", "u ū ú ǔ ù".split(" "),
+                            "z", "z z̄ ź ž z̀".split(" "),
+                            "r", "r r̄ ŕ ř r̀".split(" ")
+                    );
+                    for (String i : "aoeiuzr".split(""))
+                        if (syll.contains(i)) return syll.replace(i, map.get(i)[tone]);
+                    return syll;
+                }
+        ));
 
-        CACHE.put(
+        CACHE.put(Alphabet.TYPinyin, new MdrPYSceme(
                 Alphabet.TYPinyin,
-                new MdrPYSceme(
-                        Alphabet.TYPinyin,
-                        "jhih chih shih rih zih cih sih",
-                        "b p m f d t n l g k h j c s jh ch sh r z c s",
-                        "a o e e ai ei au ou an en ang eng er yi/i ya/ia yo/io ye/ie yao/iao you/iou yan/ian yin/in yang/iang ying/ing wu/u wa/ua wo/uo wai/uai wei/uei wan/uan wun/un wang/uang wong/ong yu yue yuan yun yong",
-                        "",
-                        (tone, syll) ->
-                        {
-                            Map<String, String[]> map = Map.of(
-                                    "a", "å ā á ǎ à".split(" "),
-                                    "o", "o̊ ō ó ǒ ò".split(" "),
-                                    "e", "e̊ ē é ě è".split(" "),
-                                    "i", "i̊ ī í ǐ ì".split(" "),
-                                    "u", "ů ū ú ǔ ù".split(" ")
-                            );
-                            for (String i : "aoeiuü".split(""))
-                                if (syll.contains(i)) return syll.replace(i, map.get(i)[tone]);
-                            return syll;
-                        }
-                )
-        );
+                "jhih chih shih rih zih cih sih",
+                "b p m f d t n l g k h j c s jh ch sh r z c s",
+                "a o e e ai ei au ou an en ang eng er yi/i ya/ia yo/io ye/ie yao/iao you/iou yan/ian yin/in yang/iang ying/ing wu/u wa/ua wo/uo wai/uai wei/uei wan/uan wun/un wang/uang wong/ong yu yue yuan yun yong",
+                "",
+                (tone, syll) ->
+                {
+                    Map<String, String[]> map = Map.of(
+                            "a", "å ā á ǎ à".split(" "),
+                            "o", "o̊ ō ó ǒ ò".split(" "),
+                            "e", "e̊ ē é ě è".split(" "),
+                            "i", "i̊ ī í ǐ ì".split(" "),
+                            "u", "ů ū ú ǔ ù".split(" ")
+                    );
+                    for (String i : "aoeiuü".split(""))
+                        if (syll.contains(i)) return syll.replace(i, map.get(i)[tone]);
+                    return syll;
+                }
+        ));
 
-        CACHE.put(
+        CACHE.put(Alphabet.Wade, new MdrPYSceme(
                 Alphabet.Wade,
-                new MdrPYSceme(
-                        Alphabet.Wade,
-                        "chih chʻih shih jih tzŭ tzʻŭ ssŭ",
-                        "p pʻ m f t tʻ n l k kʻ h ch chʻ hs ch chʻ sh j ts tsʻ s",
-                        "a o ê eh ai ei ao ou an ên ang êng êrh i ya/ia yo/io yeh/ieh yao/iao yu/iu yen/ien yin/in yang/iang ying/ing wu/u wa/ua wo/uo wai/uai wei/ui wan/uan wen/un wang/uang wêng/ung yü/ü yüeh/üeh yüan/üan yün/ün yung/iung",
-                        "ge->go ke->ko he->ho duo->do tuo->to nuo->no luo->lo zhuo->zho chuo->cho shuo->sho ruo->ro zuo->zo cuo->co suo->so",
-                        (tone, syll) -> syll + PinyinCommon.toSuperScript(tone)
-                )
+                "chih chʻih shih jih tzŭ tzʻŭ ssŭ",
+                "p pʻ m f t tʻ n l k kʻ h ch chʻ hs ch chʻ sh j ts tsʻ s",
+                "a o ê eh ai ei ao ou an ên ang êng êrh i ya/ia yo/io yeh/ieh yao/iao yu/iu yen/ien yin/in yang/iang ying/ing wu/u wa/ua wo/uo wai/uai wei/ui wan/uan wen/un wang/uang wêng/ung yü/ü yüeh/üeh yüan/üan yün/ün yung/iung",
+                "ge->go ke->ko he->ho duo->do tuo->to nuo->no luo->lo zhuo->zho chuo->cho shuo->sho ruo->ro zuo->zo cuo->co suo->so",
+                (tone, syll) -> syll + PinyinCommon.toSuperScript(tone)
+        ));
 
-        );
+        CACHE.put(Alphabet.HanYale,new MdrPYSceme(
+                Alphabet.HanYale,
+                "jr chr shr r dz tsz sz",
+                "b p m f d t n l g k h jy chy sy j ch sh r dz ts s",
+                "a wo e e ai ei au ou an en ang eng ya ye yau you yan yin yang ying wa wo wai wei wan wen wang weng/ung yu ywe ywan yun yung",
+                "",
+                null
+        ));
 
+
+        CACHE.put(Alphabet.HanRussia, new MdrPYSceme(
+                Alphabet.HanRussia,
+                "чжи чи ши жи цзы цы сы",
+                "б п м ф д т н л г к х цз ц с чж ч ш ж цз ц с",
+                "а о э э ай эй ао оу ань энь ан эн эр и я - е яо ю янь инь ян ин у уа/ва о/во уай/вай уй/вэй уань/вань унь/вэнь уан/ван ун/вэн юй юэ юань юнь юн",
+                "",
+                null
+        ));
+
+//        CACHE.put(Alphabet.HanRussiaNew, new MdrPYSceme(
+//                Alphabet.HanRussiaNew,
+//                "жи чи ши ри цзы цы зы",
+//                "б п м ф д т н л г к х цз ц с ж ч ш р цз ц з",
+//                "а о э э ай эй аy оу ань энь ан эн эр и я - е яу ю янь инь ян ин у уа/ва о/во уай/вай уй/вэй уань/вань унь/вэнь уан/ван ун/вэн юй юэ юань юнь юн",
+//                "",
+//                null
+//        ));
+//
+//        CACHE.put(Alphabet.HanUkraine, new MdrPYSceme(
+//                Alphabet.HanUkraine,
+//                "",
+//                "б п м ф д т н л ґ к х цз ц с чж ч ш ж цз ц с",
+//                "？？а о э э ай эй ао оу ань энь ан эн эр и я - е яо ю янь инь ян ин у уа/ва о/во уай/вай уй/вэй уань/вань унь/вэнь уан/ван ун/вэн юй юэ юань юнь юн",
+//                "",
+//                null
+//        ));
+//
+//        CACHE.put(Alphabet.HanBelarus, new MdrPYSceme(
+//                Alphabet.HanBelarus,
+//                "чжы чы шы жы цзы цы сы",
+//                "б п м ф д т н л г к х цз ц с чж ч ш ж цз ц с",
+//                "а о э э ай эй аа оу ань энь ан эн эр і я - е яа ю янь інь ян ін у уа/ва о/во уай/вай уй/вэй уань/вань унь/вэнь уан/ван ун/вэн юй юэ юань юнь юн",
+//                "",
+//                null
+//        ));
+//
+//        CACHE.put(Alphabet.HanSerbia, new MdrPYSceme(
+//                Alphabet.HanSerbia,
+//                "џи чи ши жи ци ци си",
+//                "б п м ф д т н л г к х ђ ћ с џ ч ш ж ц ц с",
+//                "",
+//                "",
+//                null
+//        ));
+//
+//        CACHE.put(Alphabet.HanMavrfonis, new MdrPYSceme(
+//                Alphabet.HanMavrfonis,
+//                "",
+//                "",
+//                "",
+//                "",
+//                null
+//        ));
+//
+//        CACHE.put(Alphabet.HanBulgaria, new MdrPYSceme(
+//                Alphabet.HanBulgaria,
+//                "",
+//                "",
+//                "",
+//                "",
+//                null
+//        ));
     }
 
     // 测试
