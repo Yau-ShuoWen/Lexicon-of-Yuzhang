@@ -1,9 +1,11 @@
-package com.shuowen.yuzong.data.domain.Personal;
+package com.shuowen.yuzong.ysw.data.domain;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
-import com.shuowen.yuzong.Tool.dataStructure.option.Alphabet;
+import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.ysw.linguistic.Alphabet;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.service.impl.KV;
@@ -71,15 +73,15 @@ public class AlphabetTable
     @Data
     static class Grid
     {
-        ScTcText name;     // 区域名称，如：声母，韵母
+        UString name;     // 区域名称，如：声母，韵母
         String code;
         List<Line> line;
 
 
-        public Grid(Pair<Map<String, String>, List<List<List<String>>>> data, Alphabet d)
+        public Grid(Pair<Map<String, String>, List<List<List<String>>>> data, Alphabet d,Language l)
         {
             var gridData = data.getLeft();
-            name = new ScTcText(gridData.get("name-sc"), gridData.get("name-tc"));
+            name = ScTcText.get(gridData.get("name"),l);
             code = gridData.get("code");
             line = ListTool.mapping(data.getRight(), i -> new Line(i, code, d));
         }
@@ -87,12 +89,12 @@ public class AlphabetTable
 
     private final List<Grid> table;
 
-    public AlphabetTable(Alphabet d)
+    public AlphabetTable(Alphabet d, Language l)
     {
         var data = readJson(
                 KV.get("alphabet-table-json:" + d.toString()),
                 new TypeReference<List<Pair<Map<String, String>, List<List<List<String>>>>>>() {}
         );
-        table = ListTool.mapping(data, i -> new Grid(i, d));
+        table = ListTool.mapping(data, i -> new Grid(i, d,l));
     }
 }

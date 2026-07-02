@@ -1,6 +1,6 @@
-package com.shuowen.yuzong.data.mapper.Personal;
+package com.shuowen.yuzong.ysw.data.mapper;
 
-import com.shuowen.yuzong.data.model.Personal.CipherEntity;
+import com.shuowen.yuzong.ysw.data.model.CipherEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 

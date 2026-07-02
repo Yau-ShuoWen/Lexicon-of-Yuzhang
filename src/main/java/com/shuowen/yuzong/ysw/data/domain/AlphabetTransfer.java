@@ -1,18 +1,24 @@
-package com.shuowen.yuzong.data.domain.Personal;
+package com.shuowen.yuzong.ysw.data.domain;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.*;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
-import com.shuowen.yuzong.Tool.dataStructure.option.Alphabet;
+import com.shuowen.yuzong.ysw.linguistic.Alphabet;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.ysw.linguistic.MdrPYSceme;
+import com.shuowen.yuzong.ysw.linguistic.Romatzyh;
 
+/**
+ * 各种转写的控制类
+ */
 public class AlphabetTransfer
 {
-    public static String format(Alphabet a, String s)
+    public static String format(Alphabet a, Language l, String funName, String s)
     {
         s = ScTcText.get(s, Language.SC).toString(); // 对繁体的支持不太好，会出现厦sha门这样的错误
         switch (a)
         {
+            // 拼音
             case PinYin ->
             {
                 var pys = HanPinyin.textPinyin(s);
@@ -29,7 +35,9 @@ public class AlphabetTransfer
                 }
                 return ans.replace("]  [", " ");
             }
-            case ZhuYin ->
+
+            // 注音
+            case BoPoMoFo ->
             {
                 var pys = HanPinyin.textPinyin(s);
                 String ans = ""; ;
@@ -45,6 +53,8 @@ public class AlphabetTransfer
                 }
                 return ans;
             }
+
+            // 罗马字：单独处理
             case Romatzyh ->
             {
                 // 唯一一个广泛接受的专有名词
@@ -69,6 +79,8 @@ public class AlphabetTransfer
                 }
                 return ans.replace("]  [", " ");
             }
+
+            // 基于汉语拼音替换的拼音方案
             case Wade, ZhuyinII, TYPinyin ->
             {
                 var tool = MdrPYSceme.of(a);
@@ -87,6 +99,12 @@ public class AlphabetTransfer
                     }
                 }
                 return ans.replace("]  [", " ");
+            }
+
+            // 数字类
+            case SuZhouCode, RomanNumber, NumberSystem ->
+            {
+                return NumberTransfer.format(a, l, funName, s);
             }
 
             default -> throw new RuntimeException("");

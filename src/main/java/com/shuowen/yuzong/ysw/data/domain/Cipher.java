@@ -1,10 +1,10 @@
-package com.shuowen.yuzong.data.domain.Personal;
+package com.shuowen.yuzong.ysw.data.domain;
 
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.data.model.Personal.CipherEntity;
+import com.shuowen.yuzong.ysw.data.model.CipherEntity;
 import lombok.Data;
 
 import java.util.List;
