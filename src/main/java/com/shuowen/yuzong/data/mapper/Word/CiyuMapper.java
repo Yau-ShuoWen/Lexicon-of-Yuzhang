@@ -4,6 +4,7 @@ import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.data.model.Word.CiyuSimilar;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -38,6 +39,9 @@ public interface CiyuMapper
      * 随机寻找一条特殊的数据
      */
     Integer getSpecialWordIdByRandom(String dialect);
+
+    @Select("SELECT id FROM NC.${dialect}_word WHERE special != 0")
+    List<Integer> getAllSpecialWordId(String dialect);
 
     /**
      * 查找唯一键

@@ -82,7 +82,10 @@ public class CiyuService
 
     public List<SearchResult> getCiyuRandom(Language l, Dialect d)
     {
-        var answer = CiyuItem.listOf(cy.findCiyuByWordId(cy.getSpecialWordIdByRandom(d.toString()), d.toString()), l);
+        var ids = cy.getAllSpecialWordId(d.toString());
+        int id = ids.get(new Random().nextInt(ids.size()));
+
+        var answer = CiyuItem.listOf(cy.findCiyuByWordId(id, d.toString()), l);
 
         return ListTool.mapping(answer,
                 item ->
