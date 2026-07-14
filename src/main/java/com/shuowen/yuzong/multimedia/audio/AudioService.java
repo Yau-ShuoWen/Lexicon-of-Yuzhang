@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.multimedia.audio;
 
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.ScTcText;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

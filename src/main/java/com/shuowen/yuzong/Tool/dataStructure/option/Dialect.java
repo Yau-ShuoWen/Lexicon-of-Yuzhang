@@ -12,7 +12,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import lombok.Getter;
 

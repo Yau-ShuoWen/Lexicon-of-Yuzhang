@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;

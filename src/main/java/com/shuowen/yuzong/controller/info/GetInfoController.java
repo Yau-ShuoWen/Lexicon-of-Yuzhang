@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.controller.info;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;

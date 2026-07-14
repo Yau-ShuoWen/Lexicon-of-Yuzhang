@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.controller.edit;
 
-import com.shuowen.yuzong.Tool.OrthoCharset;
-import com.shuowen.yuzong.Tool.ProofreadTool;
-import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.util.text.OrthoCharset;
+import com.shuowen.yuzong.util.text.ProofreadTool;
+import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;

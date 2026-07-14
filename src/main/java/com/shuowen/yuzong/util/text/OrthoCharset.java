@@ -1,8 +1,6 @@
-package com.shuowen.yuzong.Tool;
+package com.shuowen.yuzong.util.text;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.TextTool.Punctuation;
-import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.service.impl.KV;

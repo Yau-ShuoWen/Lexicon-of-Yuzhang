@@ -1,9 +1,8 @@
-package com.shuowen.yuzong.Tool;
+package com.shuowen.yuzong.util.text;
 
 import com.hankcs.hanlp.HanLP;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.UStringCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 
@@ -13,7 +12,7 @@ import java.util.*;
  * 一个古籍简繁和格式管理工具类
  *
  * @see com.shuowen.yuzong.Tool.DataVersionCtrl.UStringCompareUtil
- * @see com.shuowen.yuzong.Tool.dataStructure.UString
+ * @see UString
  */
 public class ProofreadTool
 {

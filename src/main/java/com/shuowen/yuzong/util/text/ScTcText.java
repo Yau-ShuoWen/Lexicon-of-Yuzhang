@@ -1,12 +1,10 @@
-package com.shuowen.yuzong.Tool.dataStructure.text;
+package com.shuowen.yuzong.util.text;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
-import com.shuowen.yuzong.Tool.OrthoCharset;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
@@ -15,8 +13,8 @@ import lombok.Data;
 
 import java.util.function.Function;
 
-import static com.shuowen.yuzong.Tool.ProofreadTool.escapeCharTraslate;
-import static com.shuowen.yuzong.Tool.ProofreadTool.useHanlpTranslate;
+import static com.shuowen.yuzong.util.text.ProofreadTool.escapeCharTraslate;
+import static com.shuowen.yuzong.util.text.ProofreadTool.useHanlpTranslate;
 
 /**
  * 简体繁体对<br>

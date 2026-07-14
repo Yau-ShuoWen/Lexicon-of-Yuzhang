@@ -2,9 +2,9 @@ package com.shuowen.yuzong.data.domain.Word;
 
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;

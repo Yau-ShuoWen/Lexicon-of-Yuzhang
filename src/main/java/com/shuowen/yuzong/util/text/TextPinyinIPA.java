@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.TextTool;
+package com.shuowen.yuzong.util.text;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;

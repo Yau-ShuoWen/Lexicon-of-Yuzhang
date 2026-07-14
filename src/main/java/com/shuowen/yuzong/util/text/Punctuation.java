@@ -1,7 +1,6 @@
-package com.shuowen.yuzong.Tool.TextTool;
+package com.shuowen.yuzong.util.text;
 
 import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
-import com.shuowen.yuzong.Tool.dataStructure.UChar;
 
 import java.util.*;
 

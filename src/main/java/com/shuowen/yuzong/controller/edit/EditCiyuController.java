@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.format.ObfInt;
 import com.shuowen.yuzong.controller.APIResponse;

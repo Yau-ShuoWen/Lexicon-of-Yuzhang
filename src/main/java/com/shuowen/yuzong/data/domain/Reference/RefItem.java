@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.data.domain.Reference;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import lombok.Data;

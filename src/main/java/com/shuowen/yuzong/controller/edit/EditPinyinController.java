@@ -1,9 +1,7 @@
 package com.shuowen.yuzong.controller.edit;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
-import com.shuowen.yuzong.Tool.format.JsonTool;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.service.impl.IPA.PinyinService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

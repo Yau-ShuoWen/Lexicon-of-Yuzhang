@@ -4,7 +4,7 @@ import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;

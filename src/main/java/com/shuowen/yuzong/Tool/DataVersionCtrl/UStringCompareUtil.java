@@ -3,7 +3,7 @@ package com.shuowen.yuzong.Tool.DataVersionCtrl;
 import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.Patch;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 
 import java.util.ArrayList;

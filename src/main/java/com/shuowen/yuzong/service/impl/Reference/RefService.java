@@ -3,7 +3,7 @@ package com.shuowen.yuzong.service.impl.Reference;
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
-import com.shuowen.yuzong.Tool.RichTextUtil;
+import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;

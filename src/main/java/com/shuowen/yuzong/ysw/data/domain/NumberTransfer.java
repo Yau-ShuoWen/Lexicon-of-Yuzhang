@@ -4,7 +4,7 @@ import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.ScTcText;
 
 import java.math.BigInteger;
 import java.util.HashMap;

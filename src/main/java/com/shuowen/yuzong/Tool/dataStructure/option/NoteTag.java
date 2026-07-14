@@ -2,7 +2,7 @@ package com.shuowen.yuzong.Tool.dataStructure.option;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.ScTcText;
 import lombok.Getter;
 
 public enum NoteTag

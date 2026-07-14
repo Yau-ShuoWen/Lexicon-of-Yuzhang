@@ -3,7 +3,7 @@ package com.shuowen.yuzong.data.model.Reference;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.ChangeDetectable;
 import com.shuowen.yuzong.Tool.FractionIndex;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.Tool.format.JsonTool;

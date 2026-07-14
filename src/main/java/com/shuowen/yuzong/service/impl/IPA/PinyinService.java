@@ -2,7 +2,7 @@ package com.shuowen.yuzong.service.impl.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
 import org.springframework.beans.factory.annotation.Autowired;

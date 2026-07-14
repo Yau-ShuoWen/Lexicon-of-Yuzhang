@@ -1,11 +1,11 @@
 package com.shuowen.yuzong.controller.search;
 
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.dataStructure.UChar;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UChar;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.text.ScTcText;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.controller.APIResponse;
 import com.shuowen.yuzong.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;

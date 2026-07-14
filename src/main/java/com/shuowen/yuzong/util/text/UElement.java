@@ -1,6 +1,4 @@
-package com.shuowen.yuzong.Tool.dataStructure.text;
-
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+package com.shuowen.yuzong.util.text;
 
 public interface UElement<T extends UElement<T>> extends Comparable<T>
 {

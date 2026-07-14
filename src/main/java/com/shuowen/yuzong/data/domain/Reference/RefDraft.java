@@ -2,7 +2,7 @@ package com.shuowen.yuzong.data.domain.Reference;
 
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.TextTool.TextPinyinIPA;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;

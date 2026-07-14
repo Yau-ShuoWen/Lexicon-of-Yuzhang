@@ -1,8 +1,7 @@
-package com.shuowen.yuzong.Tool.dataStructure.text;
+package com.shuowen.yuzong.util.text;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.shuowen.yuzong.Tool.dataStructure.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import lombok.Getter;
 

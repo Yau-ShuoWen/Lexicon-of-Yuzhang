@@ -2,7 +2,7 @@ package com.shuowen.yuzong.controller.edit;
 
 import com.shuowen.yuzong.Tool.FractionIndex;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.UString;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
