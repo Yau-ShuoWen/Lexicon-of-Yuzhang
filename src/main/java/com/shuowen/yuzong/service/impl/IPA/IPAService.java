@@ -2,8 +2,7 @@ package com.shuowen.yuzong.service.impl.IPA;
 
 import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
-import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
+import com.shuowen.yuzong.util.test.EqualChecker;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;

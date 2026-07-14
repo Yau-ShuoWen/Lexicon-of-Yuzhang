@@ -2,7 +2,7 @@ package com.shuowen.yuzong.Linguistic;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
-import com.shuowen.yuzong.Tool.TestTool.EqualChecker;
+import com.shuowen.yuzong.util.test.EqualChecker;
 
 public class TestTransferPinyinAndZhuyin
 {

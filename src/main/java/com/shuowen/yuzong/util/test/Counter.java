@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.TestTool;
+package com.shuowen.yuzong.util.test;
 
 public class Counter
 {

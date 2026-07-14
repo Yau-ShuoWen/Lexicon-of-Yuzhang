@@ -1,21 +1,17 @@
 package com.shuowen.yuzong;
 
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
-import com.shuowen.yuzong.Tool.TestTool.Counter;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.controller.search.SearchController;
-import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 
 @SpringBootTest
 public class TestRandomSearch
