@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
-import com.shuowen.yuzong.Tool.FractionIndex;
+import com.shuowen.yuzong.util.ext.sort.FractionIndex;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.RefDraft;

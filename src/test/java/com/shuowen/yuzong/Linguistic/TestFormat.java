@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.util.text.UString;

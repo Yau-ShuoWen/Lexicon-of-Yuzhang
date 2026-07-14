@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;

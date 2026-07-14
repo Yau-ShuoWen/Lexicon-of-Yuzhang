@@ -1,21 +1,24 @@
-package com.shuowen.yuzong.Tool.dataStructure.set;
+package com.shuowen.yuzong.util.ext.set;
 
 import java.util.*;
 
-public class HashMultiSet<T> implements Iterable<T>
+public class TreeMultiSet<T> implements Iterable<T>
 {
-    private final Map<T, Integer> map;
-    private int size = 0;
+    private final NavigableMap<T, Integer> map;
 
-    public HashMultiSet()
+    public TreeMultiSet()
     {
-        this.map = new HashMap<>();
+        this.map = new TreeMap<>();
+    }
+
+    public TreeMultiSet(Comparator<? super T> comparator)
+    {
+        this.map = new TreeMap<>(comparator);
     }
 
     public void add(T value)
     {
         map.merge(value, 1, Integer::sum);
-        size++;
     }
 
     public boolean remove(T value)
@@ -27,23 +30,12 @@ public class HashMultiSet<T> implements Iterable<T>
         if (cnt == 1) map.remove(value);
         else map.put(value, cnt - 1);
 
-        size--;
         return true;
     }
 
     public int count(T value)
     {
         return map.getOrDefault(value, 0);
-    }
-
-    public int size()
-    {
-        return size;
-    }
-
-    public int distinctSize()
-    {
-        return map.size();
     }
 
     @Override

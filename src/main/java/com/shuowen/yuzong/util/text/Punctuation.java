@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.util.text;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
+import com.shuowen.yuzong.util.ext.set.SetTool;
 
 import java.util.*;
 

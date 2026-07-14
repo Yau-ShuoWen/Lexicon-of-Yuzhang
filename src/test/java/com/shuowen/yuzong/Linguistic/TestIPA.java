@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
 import org.junit.jupiter.api.Test;

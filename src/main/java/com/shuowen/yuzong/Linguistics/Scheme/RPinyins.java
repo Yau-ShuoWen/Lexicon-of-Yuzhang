@@ -2,7 +2,7 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.util.ext.list.ListTool;
 import lombok.EqualsAndHashCode;
 
 import java.util.List;

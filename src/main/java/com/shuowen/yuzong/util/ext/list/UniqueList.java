@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.JavaUtilExtend;
+package com.shuowen.yuzong.util.ext.list;
 
 import lombok.Getter;
 

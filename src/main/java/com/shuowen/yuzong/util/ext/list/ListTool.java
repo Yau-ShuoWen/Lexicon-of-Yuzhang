@@ -1,5 +1,6 @@
-package com.shuowen.yuzong.Tool.JavaUtilExtend;
+package com.shuowen.yuzong.util.ext.list;
 
+import com.shuowen.yuzong.util.ext.other.NullTool;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
 import org.apache.ibatis.exceptions.TooManyResultsException;

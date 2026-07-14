@@ -6,7 +6,7 @@ import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
 
 import java.util.Objects;
 
-import static com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool.checkNotNull;
+import static com.shuowen.yuzong.util.ext.other.NullTool.checkNotNull;
 
 /**
  * 单个Unicode字符（代码点）

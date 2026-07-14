@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
-import com.shuowen.yuzong.Tool.DataVersionCtrl.ListCompareUtil;
-import com.shuowen.yuzong.Tool.FractionIndex;
+import com.shuowen.yuzong.util.ext.sort.FractionIndex;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.RefProof;
 import com.shuowen.yuzong.data.mapper.Reference.RefMapper;
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

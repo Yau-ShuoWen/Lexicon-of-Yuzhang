@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.ysw.data.domain;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;

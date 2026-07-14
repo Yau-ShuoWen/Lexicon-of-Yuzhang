@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.domain.Reference;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import lombok.Data;
 

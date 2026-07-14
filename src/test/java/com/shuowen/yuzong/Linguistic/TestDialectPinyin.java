@@ -2,7 +2,7 @@ package com.shuowen.yuzong.Linguistic;
 
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.util.test.Counter;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
 import org.junit.jupiter.api.Test;

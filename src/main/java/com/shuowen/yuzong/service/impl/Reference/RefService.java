@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
-import com.shuowen.yuzong.Tool.FractionIndex;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.util.ext.sort.FractionIndex;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;

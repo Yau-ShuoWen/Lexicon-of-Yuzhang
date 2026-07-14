@@ -2,7 +2,7 @@ package com.shuowen.yuzong.util.text;
 
 import com.hankcs.hanlp.HanLP;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.UStringCompareUtil;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.MapTool;
+import com.shuowen.yuzong.util.ext.map.MapTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
 

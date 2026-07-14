@@ -3,7 +3,7 @@ package com.shuowen.yuzong.data.domain.Word;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;

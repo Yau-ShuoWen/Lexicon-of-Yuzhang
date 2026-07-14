@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
 import com.shuowen.yuzong.Linguistics.Format.LACStyle;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ObjectTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;

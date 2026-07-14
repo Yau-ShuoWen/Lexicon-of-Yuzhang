@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.service.impl.Character;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;

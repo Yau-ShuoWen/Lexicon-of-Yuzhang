@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.JavaUtilExtend;
+package com.shuowen.yuzong.util.ext.sort;
 
 import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
 import lombok.Data;

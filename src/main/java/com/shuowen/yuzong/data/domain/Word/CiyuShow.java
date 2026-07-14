@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.data.domain.Word;
 
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
+import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.util.text.UString;

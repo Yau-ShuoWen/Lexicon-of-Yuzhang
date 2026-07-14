@@ -1,4 +1,6 @@
-package com.shuowen.yuzong.Tool.JavaUtilExtend;
+package com.shuowen.yuzong.util.ext.set;
+
+import com.shuowen.yuzong.util.ext.other.NullTool;
 
 import java.util.*;
 import java.util.function.Function;

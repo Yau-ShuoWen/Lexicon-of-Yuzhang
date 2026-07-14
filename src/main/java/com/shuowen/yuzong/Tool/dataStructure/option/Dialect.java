@@ -9,7 +9,7 @@ import com.shuowen.yuzong.Linguistics.Scheme.CEDPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.LACPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.util.text.ScTcText;

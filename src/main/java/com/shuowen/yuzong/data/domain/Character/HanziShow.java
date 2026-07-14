@@ -2,8 +2,8 @@ package com.shuowen.yuzong.data.domain.Character;
 
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.ListTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.ext.set.SetTool;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.util.text.UChar;

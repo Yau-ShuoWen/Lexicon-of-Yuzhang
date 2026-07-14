@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.util.text;
 
-import static com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool.checkNotNull;
+import static com.shuowen.yuzong.util.ext.other.NullTool.checkNotNull;
 
 /**
  * 固定长度字符串 Fixed Length Text<br>

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.*;
 
-import static com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool.checkNotNull;
+import static com.shuowen.yuzong.util.ext.other.NullTool.checkNotNull;
 
 /**
  * 增强版基于代理对的字符串类，封装掉所有和代码点有关的内容，提供完整的Unicode支持

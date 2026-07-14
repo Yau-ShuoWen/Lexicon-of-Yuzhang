@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.JavaUtilExtend;
+package com.shuowen.yuzong.util.ext.map;
 
 import java.util.*;
 import java.util.function.Function;

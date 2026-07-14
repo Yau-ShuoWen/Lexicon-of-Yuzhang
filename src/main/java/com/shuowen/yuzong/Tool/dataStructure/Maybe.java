@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.Tool.dataStructure;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.NullTool;
+import com.shuowen.yuzong.util.ext.other.NullTool;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

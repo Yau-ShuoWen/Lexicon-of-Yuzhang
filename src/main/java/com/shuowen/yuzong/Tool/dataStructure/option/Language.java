@@ -2,7 +2,7 @@ package com.shuowen.yuzong.Tool.dataStructure.option;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.util.text.StringTool;
 
 /**
  * 两种合适的参数（不考虑地区陆港台）

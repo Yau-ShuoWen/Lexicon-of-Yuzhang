@@ -1,4 +1,6 @@
-package com.shuowen.yuzong.Tool.JavaUtilExtend;
+package com.shuowen.yuzong.util.ext.other;
+
+import com.shuowen.yuzong.util.ext.list.ListTool;
 
 import java.util.Collection;
 import java.util.Objects;

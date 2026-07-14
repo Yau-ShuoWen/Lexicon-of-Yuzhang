@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.service.impl.Reference;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.SetTool;
-import com.shuowen.yuzong.Tool.JavaUtilExtend.UniqueList;
+import com.shuowen.yuzong.util.ext.set.SetTool;
+import com.shuowen.yuzong.util.ext.list.UniqueList;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;

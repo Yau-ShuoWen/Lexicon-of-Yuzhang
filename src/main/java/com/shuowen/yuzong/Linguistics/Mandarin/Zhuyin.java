@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.Linguistics.Mandarin;
 
-import com.shuowen.yuzong.Tool.JavaUtilExtend.StringTool;
+import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
