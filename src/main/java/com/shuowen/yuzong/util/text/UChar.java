@@ -2,7 +2,7 @@ package com.shuowen.yuzong.util.text;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
+import com.shuowen.yuzong.util.err.IllegalStringException;
 
 import java.util.Objects;
 

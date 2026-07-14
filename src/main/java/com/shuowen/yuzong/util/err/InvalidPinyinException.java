@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.dataStructure.error;
+package com.shuowen.yuzong.util.err;
 
 public class InvalidPinyinException extends RuntimeException
 {

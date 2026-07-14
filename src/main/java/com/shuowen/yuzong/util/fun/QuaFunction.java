@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.dataStructure.functions;
+package com.shuowen.yuzong.util.fun;
 
 @FunctionalInterface
 public interface QuaFunction<T, U, V, R, S>

@@ -3,7 +3,7 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
+import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

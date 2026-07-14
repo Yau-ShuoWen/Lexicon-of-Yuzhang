@@ -2,7 +2,7 @@ package com.shuowen.yuzong.util.text;
 
 import com.shuowen.yuzong.util.ext.other.NullTool;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
-import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
+import com.shuowen.yuzong.util.err.IllegalStringException;
 
 import java.util.*;
 

@@ -5,7 +5,7 @@ import com.shuowen.yuzong.util.ext.other.NullTool;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.Range;
-import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
+import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.text.FLText;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

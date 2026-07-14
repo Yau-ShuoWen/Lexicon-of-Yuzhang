@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.dataStructure.functions;
+package com.shuowen.yuzong.util.fun;
 
 @FunctionalInterface
 public interface TriFunction<T, U, V, R>

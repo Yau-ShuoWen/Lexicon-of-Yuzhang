@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.config;
 
-import com.shuowen.yuzong.Tool.dataStructure.error.IllegalStringException;
-import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
+import com.shuowen.yuzong.util.err.IllegalStringException;
+import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
