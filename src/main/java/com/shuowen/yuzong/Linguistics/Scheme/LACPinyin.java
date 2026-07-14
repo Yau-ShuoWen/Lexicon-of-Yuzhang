@@ -415,8 +415,8 @@ public class LACPinyin extends UniPinyin<LACStyle>
                 }
                 else
                 {
-                    String[] marks = {"↘", "↑", "↓"};
-                    String t = marks[T - 5];
+                    char[] marks = {'↘', '↑', '↓'};
+                    char t = marks[T - 5];
 
                     return s + t;
                 }

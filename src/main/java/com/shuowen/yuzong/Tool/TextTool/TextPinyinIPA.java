@@ -3,6 +3,7 @@ package com.shuowen.yuzong.Tool.TextTool;
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
 import com.shuowen.yuzong.Tool.dataStructure.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.error.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -339,5 +340,64 @@ public class TextPinyinIPA
             return PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(SPinyin.of(pinyin.body)), d).toString(false);
         }
     }
+
+    //
+
+    public static String preview(
+            SPinyins pinyin, Dialect d, boolean developer, boolean isfromDB)
+    {
+        String display = "", introduce = "", keyboard = "", debug = "";
+
+        int size = pinyin.getPinyin().size();
+        for (SPinyin s : pinyin.getPinyin())
+        {
+            try
+            {
+                var py = isfromDB ?
+                        d.trustedCreatePinyin(s) :
+                        d.checkAndCreatePinyin(s);
+
+                display += PinyinFormatter.handle(py, d, Scheme.DISPLAY);
+                keyboard += PinyinFormatter.handle(py, d, Scheme.KEYBOARD);
+                introduce += PinyinFormatter.handle(py, d, Scheme.INTRO);
+                debug += PinyinFormatter.handle(py, d, Scheme.DEBUG);
+
+            } catch (InvalidPinyinException e)
+            {
+                var checkRes = PinyinChecker.suggestively(s, d);
+                String add = (checkRes.getLeft() == 2) ?
+                        String.format("{n ❓=>无效方言拼音：[%s]\\\\是否应为：[%s]？}", s, checkRes.getRight()) :
+                        String.format("{n ⚠️=>无效方言拼音：[%s]}", s);
+                display += add;
+                keyboard += add;
+                introduce += add;
+                debug += add;
+            }
+            display += "|";
+            keyboard += "|";
+            introduce += "|";
+            debug += "|";
+        }
+        if (developer)
+        {
+            return String.format("""
+                    |---!|%s
+                    |顯示和書寫|%s
+                    |鍵盤輸入|%s
+                    |更像漢語拼音|%s
+                    |調試|%s
+                    """, "---!|".repeat(size), display, keyboard, introduce, debug);
+        }
+        else
+        {
+            return String.format("""
+                    |---!|%s
+                    |顯示和書寫|%s
+                    |鍵盤輸入|%s
+                    |更像漢語拼音|%s
+                    """, "---!|".repeat(size), display, keyboard, introduce);
+        }
+    }
+
 
 }

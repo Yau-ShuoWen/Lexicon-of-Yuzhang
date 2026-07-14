@@ -12,7 +12,7 @@ public class CEDStyle extends PinyinStyle
 {
     public enum Style
     {
-        DISPALY, KEYBOAD, DEBUG
+        DISPALY, KEYBOAD, INTRO, DEBUG
     }
 
     private Style style;
@@ -28,6 +28,7 @@ public class CEDStyle extends PinyinStyle
         {
             case DISPLAY -> new CEDStyle(Style.DISPALY);
             case KEYBOARD -> new CEDStyle(Style.KEYBOAD);
+            case INTRO -> new CEDStyle(Style.INTRO);
             case DEBUG -> new CEDStyle(Style.DEBUG);
         };
     }

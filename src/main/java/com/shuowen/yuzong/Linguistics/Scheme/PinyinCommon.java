@@ -27,6 +27,45 @@ public class PinyinCommon
         return s;
     }
 
+    /**
+     * 新版本的编码zi ci si ri：改成ɏ<br>
+     * 原因：ii好触发，ɏ不好触发，如果碰到了，说明真的巧，如果看源代码，那说明白底层
+     */
+    public static String e_ZCSR(String s)
+    {
+        if (s.matches("^[zcsr]i$")) s = s.charAt(0) + "ɏ";
+        return s;
+    }
+
+    public static String d_ZCSR(String s)
+    {
+        if (s.matches("^[zcsr]ɏ$")) s = s.charAt(0) + "i";
+        return s;
+    }
+
+    public static String e_Nh(String s)
+    {
+        if (s.startsWith("nh")) s = "ñ" + s.substring(2);
+        return s;
+    }
+
+    public static String d_Nh(String s)
+    {
+        if (s.startsWith("ñ")) s = "nh" + s.substring(1);
+        return s;
+    }
+
+    public static String e_Ng(String s)
+    {
+        return s.replace("ng", "ŋ");
+    }
+
+    public static String d_Ng(String s)
+    {
+        return s.replace("ŋ", "ng");
+    }
+
+
     public static String encodeYiFront(String s, boolean punish)
     {
         // 如果不允许，开头i的就是不合法的字符
@@ -82,6 +121,41 @@ public class PinyinCommon
             if (!s.startsWith("yu")) s = s.replace("yu", keyboard ? "v" : "ü");
         }
         return s;
+    }
+
+    public static String e_Yu(String s)
+    {
+        if (s.matches("^[jqx]u.*")) s = s.replace("u", "ü");
+        if (s.startsWith("yu")) s = s.replace("yu", "ü");
+        if (s.equals("nv") || s.equals("nhv")) s = s.replace("v", "ü");
+        return s;
+    }
+
+    public static String d_Yu_keyboard(String s)
+    {
+        if (s.matches("^[jqx]ü.*")) s = s.replace("ü", "u");
+        if (s.startsWith("ü")) s = s.replace("ü", "yu");
+        if (s.equals("nü") || s.equals("nhü")) s = s.replace("ü", "v");
+        return s;
+    }
+
+    public static String d_Yu_display(String s)
+    {
+        if (s.matches("^[jqx]ü.*")) s = s.replace("ü", "u");
+        if (s.startsWith("ü")) s = s.replace("ü", "yu");
+        return s;
+    }
+
+    public static String encodeAuFromAo(String s, boolean punish)
+    {
+        if (punish && s.endsWith("au")) s = "";
+        if (s.endsWith("ao")) s = s.replace("ao", "au");
+        return s;
+    }
+
+    public static String decodeAuToAu(String s)
+    {
+        return s.replace("au", "ao");
     }
 
     public static char toSuperScript(Integer i)
