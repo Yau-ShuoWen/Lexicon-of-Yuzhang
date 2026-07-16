@@ -3,9 +3,9 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.util.text.StringTool;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Pair;
 import lombok.Data;
 
 /**

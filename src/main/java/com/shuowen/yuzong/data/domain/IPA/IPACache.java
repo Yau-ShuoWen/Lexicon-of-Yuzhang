@@ -1,9 +1,9 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
 import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
+import com.shuowen.yuzong.util.tuple.Quadruple;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;

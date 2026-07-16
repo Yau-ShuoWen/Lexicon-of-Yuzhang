@@ -2,7 +2,7 @@ package com.shuowen.yuzong.util.ext.sort;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.Tool.format.ObfString;
 import lombok.Data;
 

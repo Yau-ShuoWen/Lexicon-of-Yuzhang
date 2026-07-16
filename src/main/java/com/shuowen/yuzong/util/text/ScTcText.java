@@ -7,7 +7,7 @@ import com.shuowen.yuzong.util.ext.other.NullTool;
 import com.shuowen.yuzong.util.err.IllegalStringException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
+import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 
 import java.util.function.Function;

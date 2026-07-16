@@ -8,8 +8,8 @@ import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.util.text.ScTcChar;
 import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
+import com.shuowen.yuzong.util.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import lombok.Data;
 

@@ -6,7 +6,7 @@ import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.service.impl.KV;
 import lombok.Data;
 

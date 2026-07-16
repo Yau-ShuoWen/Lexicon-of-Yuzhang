@@ -1,6 +1,6 @@
 //package com.shuowen.yuzong.Linguistics.Mandarin;
 //
-//import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+//import com.shuowen.yuzong.util.tuple.Pair;
 //
 //public class RussiaScheme
 //{

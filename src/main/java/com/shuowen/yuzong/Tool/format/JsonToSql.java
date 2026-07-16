@@ -3,7 +3,7 @@ package com.shuowen.yuzong.Tool.format;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Quadruple;
+import com.shuowen.yuzong.util.tuple.Quadruple;
 
 
 import java.io.File;

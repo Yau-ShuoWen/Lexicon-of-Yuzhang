@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.mapper.Reference;
 
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.data.model.Reference.RefEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

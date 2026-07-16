@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
-import com.shuowen.yuzong.Tool.dataStructure.Range;
+import com.shuowen.yuzong.util.tuple.Range;
 
 public class IPAFormatter
 {

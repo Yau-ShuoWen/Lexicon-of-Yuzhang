@@ -47,7 +47,7 @@
     </select>
 
     <!--  更新排序顺序  -->
-    <update id="updateAllSort" parameterType="com.shuowen.yuzong.Tool.dataStructure.tuple.Pair">
+    <update id="updateAllSort" parameterType="com.shuowen.yuzong.util.tuple.Pair">
         UPDATE NC.reference
         SET sort = CASE id
         <foreach collection="items" item="item">

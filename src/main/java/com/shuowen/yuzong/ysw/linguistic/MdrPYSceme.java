@@ -3,9 +3,9 @@ package com.shuowen.yuzong.ysw.linguistic;
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
 import com.shuowen.yuzong.Linguistics.Scheme.PinyinCommon;
 import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Pair;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

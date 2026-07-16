@@ -3,7 +3,7 @@ package com.shuowen.yuzong.Tool.format;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.util.text.StringTool;
-import com.shuowen.yuzong.Tool.dataStructure.Range;
+import com.shuowen.yuzong.util.tuple.Range;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

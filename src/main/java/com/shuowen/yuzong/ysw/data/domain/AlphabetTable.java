@@ -7,7 +7,7 @@ import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.service.impl.KV;
 import lombok.Data;
 

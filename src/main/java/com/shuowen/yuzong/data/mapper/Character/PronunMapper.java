@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.mapper.Character;
 
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.data.model.Character.MdrChar;
 import org.apache.ibatis.annotations.*;
 

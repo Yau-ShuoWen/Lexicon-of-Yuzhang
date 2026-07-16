@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.ysw.data.domain;
 
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.Range;
+import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.Range;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.util.text.ScTcText;

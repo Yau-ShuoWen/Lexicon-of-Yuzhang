@@ -2,7 +2,7 @@ package com.shuowen.yuzong.data.domain.Pinyin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;

@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.util.test;
 
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.Pair;
 import lombok.Getter;
 
 import java.util.*;

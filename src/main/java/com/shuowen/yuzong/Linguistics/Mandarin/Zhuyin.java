@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.Linguistics.Mandarin;
 
 import com.shuowen.yuzong.util.text.StringTool;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.Range;
+import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.Range;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import com.shuowen.yuzong.util.tuple.Triple;
 import lombok.Getter;
 
 /**

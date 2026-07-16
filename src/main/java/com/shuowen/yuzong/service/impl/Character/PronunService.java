@@ -5,7 +5,7 @@ import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.data.domain.Character.MdrTool;
 import com.shuowen.yuzong.data.mapper.Character.PronunMapper;
 import com.shuowen.yuzong.data.model.Character.MdrChar;

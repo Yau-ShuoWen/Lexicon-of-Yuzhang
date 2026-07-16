@@ -4,7 +4,7 @@ import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.AbstractDelta;
 import com.github.difflib.patch.Patch;
 import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Twin;
+import com.shuowen.yuzong.util.tuple.Twin;
 
 import java.util.ArrayList;
 import java.util.List;

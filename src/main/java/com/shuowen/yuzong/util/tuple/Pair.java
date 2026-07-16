@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.dataStructure.tuple;
+package com.shuowen.yuzong.util.tuple;
 
 import lombok.Data;
 

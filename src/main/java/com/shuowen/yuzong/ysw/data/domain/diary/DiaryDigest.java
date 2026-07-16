@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.ysw.data.domain.diary;
 
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.util.text.ScTcText;

@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.service.impl.Account;
 
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.data.domain.Account.User;
 import com.shuowen.yuzong.data.mapper.Account.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,9 +3,9 @@ package com.shuowen.yuzong.Linguistics.Scheme;
 import com.shuowen.yuzong.Linguistics.Format.LACStyle;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.text.StringTool;
-import com.shuowen.yuzong.Tool.dataStructure.Range;
+import com.shuowen.yuzong.util.tuple.Range;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.util.tuple.Maybe;
 
 import java.util.Objects;
 

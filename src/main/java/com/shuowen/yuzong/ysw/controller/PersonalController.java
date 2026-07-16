@@ -2,13 +2,13 @@ package com.shuowen.yuzong.ysw.controller;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.Tool.dataStructure.Maybe;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Pair;
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import com.shuowen.yuzong.util.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Triple;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.ysw.data.domain.AlphabetTable;
 import com.shuowen.yuzong.ysw.data.domain.AlphabetTransfer;

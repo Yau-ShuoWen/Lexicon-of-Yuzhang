@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.util.ext.sort;
 
-import com.shuowen.yuzong.Tool.dataStructure.tuple.Triple;
+import com.shuowen.yuzong.util.tuple.Triple;
 import lombok.Data;
 import org.apache.commons.text.diff.CommandVisitor;
 import org.apache.commons.text.diff.StringsComparator;
