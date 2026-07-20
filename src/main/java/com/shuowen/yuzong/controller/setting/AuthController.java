@@ -21,9 +21,14 @@ public class AuthController
     @RequestMapping ("/login")
     public APIResponse<String> login(String username, String password)
     {
-        return user.checkIdentity(username, password) ?
-                APIResponse.success(token.generateAndSaveToken(username)) :
-                APIResponse.failure("用户名或密码错误。Username or Password incorrect.");
+        try
+        {
+            user.checkIdentity(username, password);
+            return APIResponse.success(token.generateAndSaveToken(username));
+        } catch (Exception e)
+        {
+            return APIResponse.failure(e.getMessage());
+        }
     }
 
     @RequestMapping ("/logout")
@@ -45,16 +50,14 @@ public class AuthController
     {
         try
         {
-            if (user.getUserByToken(t).isValid())
-            {
-                token.refreshToken(t);  // 每次验证时刷新Token过期时间
-                return APIResponse.success();
-            }
+            user.getUserByToken(t);
+            token.refreshToken(t);  // 每次验证时刷新Token过期时间
+            return APIResponse.success();
         } catch (Exception e)
         {
             e.printStackTrace();
+            return APIResponse.failure("登陆状态无效。Invalid login status.");
         }
-        return APIResponse.failure("登陆状态无效。Invalid login status.");
     }
 
     @RequestMapping ("/update-username")

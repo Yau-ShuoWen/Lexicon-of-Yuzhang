@@ -1,11 +1,16 @@
 package com.shuowen.yuzong.service.impl.Account;
 
-import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.data.domain.Account.User;
+import com.shuowen.yuzong.data.model.Account.UserEntity;
 import com.shuowen.yuzong.data.mapper.Account.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.NoSuchElementException;
+
+import static com.shuowen.yuzong.authority.PasswordUtil.encodePassword;
+import static com.shuowen.yuzong.authority.PasswordUtil.isPasswordEqual;
+import static com.shuowen.yuzong.util.ext.other.NullTool.assertNotNull;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
@@ -20,66 +25,50 @@ public class UserService
     /**
      * 检查用户名、密码是否对应，用于登陆
      */
-    public boolean checkIdentity(String username, String password)
+    public void checkIdentity(String username, String password)
     {
-        var u = User.tryOf(username, i -> user.getUserByName(i));
-        return u.isValid() && u.getValue().isPasswordEqual(password);
+        var u = assertNotNull(user.getUserByName(username), new NoSuchElementException("用户不存在"));
+        if (!isPasswordEqual(password, u.getPassword()))
+            throw new IllegalArgumentException("用户名或者密码错误");
     }
 
     /**
      * 通过令牌获得用户数据
      */
-    public Maybe<User> getUserByToken(String t)
+    public UserEntity getUserByToken(String t)
     {
-        return User.tryOf(t, i -> token.getUsernameByToken(i), i -> user.getUserByName(i));
+        var name = assertNotNull(token.getUsernameByToken(t), new NoSuchElementException("登陆状态无效"));
+        return assertNotNull(user.getUserByName(name), new NoSuchElementException("用户不存在"));
     }
-
-    public boolean isUsernameRepeated(String username)
-    {
-        return user.getUserByName(username) != null;
-    }
-
 
     public void createUser(String username, String password)
     {
-        User u = new User();
-        if (!isUsernameRepeated(username))
-        {
-            u.setUsername(username);
-            u.setPassword(password);
-            user.insertUser(u.transfer());
-        }
-        else throw new IllegalArgumentException("用户名重复。Username is repetitive.");
+        if (user.getUserByName(username) != null) throw new IllegalArgumentException("用户名重复");
+        user.insertUser(
+                new UserEntity(null, username, encodePassword(password), "[]")
+        );
     }
-
 
     public void updateUsername(String t, String newUsername)
     {
-        var maybeUser = getUserByToken(t);
-        if (!maybeUser.isValid()) throw new IllegalArgumentException("登陆状态无效。Invalid login status.");
-
-        var u = maybeUser.getValue();
-        if (!isUsernameRepeated(newUsername))
-        {
-            u.setUsername(newUsername);
-            user.updateUsername(u.transfer());
-            token.removeToken(t);
-        }
-        else throw new IllegalArgumentException("用户名重复。Username is repetitive.");
+        var u = getUserByToken(t);
+        if (user.getUserByName(newUsername) != null) throw new IllegalArgumentException("用户名重复");
+        u.setUsername(newUsername);
+        user.updateUsername(u);
+        token.removeToken(t);
     }
 
 
     public void updatePassword(String t, String oldPassword, String newPassword)
     {
-        var maybeUser = getUserByToken(t);
-        if (!maybeUser.isValid()) throw new IllegalArgumentException("登陆状态无效。Invalid login status.");
+        var u = getUserByToken(t);
 
-        var u = maybeUser.getValue();
-        if (u.isPasswordEqual(oldPassword))
+        if (isPasswordEqual(oldPassword,u.getPassword()))
         {
-            u.setPassword(newPassword);
-            user.updatePassword(u.transfer());
+            u.setPassword(encodePassword(newPassword));
+            user.updatePassword(u);
+            token.removeToken(t);
         }
-        else throw new IllegalArgumentException("密码错误。Password incorrect.");
+        else throw new IllegalArgumentException("密码错误");
     }
 }

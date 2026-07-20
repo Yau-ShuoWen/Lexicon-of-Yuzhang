@@ -25,8 +25,9 @@ public class NullTool
 
     /**
      * 批量检查内容，抛出默认异常
+     *
      * @param recursion 是否递归检查
-     * */
+     */
     public static void checkNotNull(boolean recursion, Object... objects)
     {
         checkNotNull(objects); // 直接传入null
@@ -40,6 +41,7 @@ public class NullTool
 
     /**
      * 批量检查内容
+     *
      * @param recursion 是否递归检查
      */
     public static void checkNotNull(String message, boolean recursion, Object... objects)
@@ -126,5 +128,11 @@ public class NullTool
 
         sb.append(String.format("参数[%d]: %s", index + 1, detail));
         return sb.toString();
+    }
+
+    public static <T> T assertNotNull(T obj, Exception e)
+    {
+        if (obj == null) throw new RuntimeException(e);
+        return obj;
     }
 }
