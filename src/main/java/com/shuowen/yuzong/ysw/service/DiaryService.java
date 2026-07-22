@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -28,10 +29,12 @@ public class DiaryService
     {
         checkMonth(month);
         checkDateRange(startDate, endDate);
-        return ListTool.mapping(
+        var list=ListTool.mapping(
                 m.query(year, month, startDate, endDate, normalizeLimit(limit)),
                 item -> new DiaryDigest(item, l)
         );
+        Collections.reverse(list);
+        return list;
     }
 
     public List<DiaryDigest> getRecent(Language l, Integer limit)

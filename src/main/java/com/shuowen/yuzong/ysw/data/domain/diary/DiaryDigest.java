@@ -23,7 +23,7 @@ public class DiaryDigest
     public DiaryDigest(DiaryEntity d, Language l)
     {
         date = d.getDate();
-        abridge = Maybe.create(() -> d.getContent().split("\\R", 2)[0]).handleIfExist(i -> ScTcText.get(i, l));
+        abridge = Maybe.create(() -> d.getContent().split("\\R\\R+", 2)[0]).handleIfExist(i -> ScTcText.get(i.replace(" ","   "), l));
         startDate = d.getStartDate();
         finalizeDate = d.getFinalizeDate();
         id = d.getId();
