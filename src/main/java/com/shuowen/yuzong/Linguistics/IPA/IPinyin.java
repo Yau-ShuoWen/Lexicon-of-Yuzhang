@@ -8,10 +8,6 @@ public interface IPinyin
 
     Maybe<Integer> getTone();
 
-    Boolean haveTone();
-
-    Integer getToneDirectly();
-
     Integer getCorner();
 
     String getCode();

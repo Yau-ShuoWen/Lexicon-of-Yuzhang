@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
 import com.shuowen.yuzong.Linguistics.Format.LACStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.CEDPinyin;
+import com.shuowen.yuzong.Linguistics.pinyin.CEDPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.LACPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.UniPinyin;
+import com.shuowen.yuzong.Linguistics.pinyin.LACPinyin;
+import com.shuowen.yuzong.Linguistics.pinyin.UniPinyin;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
@@ -34,10 +34,15 @@ public enum Dialect
             LACPinyin::tryOf, LACStyle::createStyle, LACPinyin::normalize,
             new DictCode("ncdict"), 7, 2),
 
-    CED("成都话", "ced", CEDStyle.class, CEDPinyin.class,
+    CED("成都話", "ced", CEDStyle.class, CEDPinyin.class,
             CEDPinyin::tryOf, CEDStyle::createStyle, CEDPinyin::normalize,
-            new DictCode("cddict"), 4, 2);
+            new DictCode("cddict"), 4, 2),
 
+    WUH("武漢話", null, null, null, null, null, null, null, 0, 0),
+    GHZ("杭州話", null, null, null, null, null, null, null, 0, 0),
+
+
+    ;
 
     @Getter
     private final ScTcText name;

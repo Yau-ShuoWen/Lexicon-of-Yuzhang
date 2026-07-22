@@ -384,7 +384,7 @@ public class TextPinyinIPA
                     |---!|%s
                     |顯示和書寫|%s
                     |鍵盤輸入|%s
-                    |更像漢語拼音|%s
+                    |讀起來像普通話的|%s
                     |調試|%s
                     """, "---!|".repeat(size), display, keyboard, introduce, debug);
         }
@@ -394,7 +394,7 @@ public class TextPinyinIPA
                     |---!|%s
                     |顯示和書寫|%s
                     |鍵盤輸入|%s
-                    |更像漢語拼音|%s
+                    |讀起來像普通話的|%s
                     """, "---!|".repeat(size), display, keyboard, introduce);
         }
     }

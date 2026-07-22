@@ -1,6 +1,10 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
+package com.shuowen.yuzong.Linguistics.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
+import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.PinyinCommon;
+import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.util.ext.other.NullTool;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -32,7 +36,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
         }
     }
 
-    protected String initCode()
+    public String initCode()
     {
         @NoArgsConstructor
         @Getter
@@ -181,24 +185,24 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
         }
     }
 
-    protected void checkEncodable()
+    public void checkEncodable()
     {
 
     }
 
-    protected void checkToneValid()
+    public void checkToneValid()
     {
         if (!Range.close(0, 7).contains(tone.getValueOrDefault(0)))
             throw new InvalidPinyinException("音调范围超出");
     }
 
-    protected int initCorner()
+    public int initCorner()
     {
         int[] fourCorner = {0, 1, 2, 3, 5, 0, 0, 0};// 阴平 阳平 阴上 阴去
         return fourCorner[tone.getValueOrDefault(0)];
     }
 
-    protected String initWeight()
+    public String initWeight()
     {
         return "";
     }
@@ -212,7 +216,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
     }
 
     @Override
-    protected RPinyin toRPinyin(CEDStyle p)
+    public RPinyin toRPinyin(CEDStyle p)
     {
         String pinyin = switch (p.getStyle())
         {
@@ -225,7 +229,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
     }
 
     @Override
-    protected SPinyin toSPinyin(CEDStyle p)
+    public SPinyin toSPinyin(CEDStyle p)
     {
         String pinyin = switch (p.getStyle())
         {
@@ -237,7 +241,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
         return SPinyin.of(pinyin);
     }
 
-    protected DPinyin toDPinyin(CEDStyle p)
+    public DPinyin toDPinyin(CEDStyle p)
     {
         String pinyin = switch (p.getStyle())
         {

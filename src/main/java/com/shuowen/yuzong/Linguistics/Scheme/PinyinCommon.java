@@ -95,6 +95,28 @@ public class PinyinCommon
         return s;
     }
 
+    public static String e_Yi(String s)
+    {
+        if (s.matches("^y[^u].*")) s = s.replace("yi", "i").replace("y", "i");
+        return s;
+    }
+
+    public static String e_Wu(String s)
+    {
+        if (s.matches("^w.*")) s = s.replace("wu", "u").replace("w", "u");
+        return s;
+    }
+
+    public static String e_JQX_Ü_V_YU_U(String s)
+    {
+        return s.replaceAll("([jqx])(?:ü|v|yu|u)", "$1yu");
+    }
+
+    public static String e_Ü_V_YU(String s)
+    {
+        return s.replaceAll("(?:ü|v|yu)", "$1yu");
+    }
+
     public static String decodeJyuQyuXyu(String s)
     {
         if (s.matches("^[jqx]yu.*")) s = s.replace("yu", "u");

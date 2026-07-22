@@ -1,7 +1,10 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
+package com.shuowen.yuzong.Linguistics.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import lombok.EqualsAndHashCode;
@@ -17,16 +20,6 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
     protected final String code;        // 拼音编码
     protected final Integer corner;     // 四角调类的数字序号
     protected final String weight;      // 排序用的权重
-
-    public Boolean haveTone()
-    {
-        return tone.isValid();
-    }
-
-    public Integer getToneDirectly()
-    {
-        return tone.getValue();
-    }
 
     /**
      * 私有的构造函数，子类构造函数也应该是私有的
@@ -63,15 +56,15 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
         }
     }
 
-    protected abstract String initCode();
+    public abstract String initCode();
 
-    protected abstract void checkToneValid();
+    public abstract void checkToneValid();
 
-    protected abstract void checkEncodable();
+    public abstract void checkEncodable();
 
-    protected abstract int initCorner();
+    public abstract int initCorner();
 
-    protected abstract String initWeight();
+    public abstract String initWeight();
 
     // 转字符串
 
@@ -89,9 +82,9 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
      * <br>1. 是protected的，也就是只給{@code PinyinFormatter}
      * <br>2. 结果并不是简单的字符串，而是包装类
      */
-    abstract protected RPinyin toRPinyin(T params);
+    public abstract RPinyin toRPinyin(T params);
 
-    abstract protected SPinyin toSPinyin(T params);
+    public abstract SPinyin toSPinyin(T params);
 
-    abstract protected DPinyin toDPinyin(T params);
+    public abstract DPinyin toDPinyin(T params);
 }
