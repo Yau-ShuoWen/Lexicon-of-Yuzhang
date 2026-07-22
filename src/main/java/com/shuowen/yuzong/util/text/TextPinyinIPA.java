@@ -10,7 +10,6 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 
@@ -161,15 +160,7 @@ public class TextPinyinIPA
 
                 } catch (InvalidPinyinException e)
                 {
-                    // 拼音异常，如果是编辑者模式下，提示文本长一些。如果是查看模式，直接报错即可。
-                    if (developer)
-                    {
-                        var checkRes = PinyinChecker.suggestively(pyText, d);
-                        return (checkRes.getLeft() == 2) ?
-                                String.format(" 【无效方言拼音：[%s]，是否应为：[%s]】", pyText, checkRes.getRight()) :
-                                String.format(" 【无效方言拼音：[%s]】 ", pyText);
-                    }
-                    else return " 【无效方言拼音】 ";
+                    return developer ? String.format(" 【无效方言拼音：[%s]】 ", pyText) : " 【无效方言拼音】 ";
                 }
             }
             case OUT_IPA ->
@@ -218,14 +209,7 @@ public class TextPinyinIPA
                         return PinyinFormatter.handle(py, d, scheme).toString();
                     } catch (InvalidPinyinException e)
                     {
-                        if (developer)
-                        {
-                            var checkRes = PinyinChecker.suggestively(pyText, d);
-                            return (checkRes.getLeft() == 2) ?
-                                    String.format(" 【无效方言拼音：[%s]，是否应为：[%s]？】", pyText, checkRes.getRight()) :
-                                    String.format(" 【无效方言拼音：[%s]】 ", pyText);
-                        }
-                        else return " 【无效方言拼音】 ";
+                        return developer ? String.format(" 【无效方言拼音：[%s]】 ", pyText) : " 【无效方言拼音】 ";
                     }
                 }
             }
@@ -346,7 +330,7 @@ public class TextPinyinIPA
     public static String preview(
             SPinyins pinyin, Dialect d, boolean developer, boolean isfromDB)
     {
-        String display = "", introduce = "", keyboard = "", debug = "";
+        String isTrue = "", display = "", introduce = "", keyboard = "", debug = "";
 
         int size = pinyin.getPinyin().size();
         for (SPinyin s : pinyin.getPinyin())
@@ -357,6 +341,8 @@ public class TextPinyinIPA
                         d.trustedCreatePinyin(s) :
                         d.checkAndCreatePinyin(s);
 
+                isTrue += PinyinFormatter.handle(py, d, Scheme.KEYBOARD).toString().equals(
+                        String.format(" [%s] ", s.toString())) ? "✅" : "❌";
                 display += PinyinFormatter.handle(py, d, Scheme.DISPLAY);
                 keyboard += PinyinFormatter.handle(py, d, Scheme.KEYBOARD);
                 introduce += PinyinFormatter.handle(py, d, Scheme.INTRO);
@@ -364,15 +350,14 @@ public class TextPinyinIPA
 
             } catch (InvalidPinyinException e)
             {
-                var checkRes = PinyinChecker.suggestively(s, d);
-                String add = (checkRes.getLeft() == 2) ?
-                        String.format("{n ❓=>无效方言拼音：[%s]\\\\是否应为：[%s]？}", s, checkRes.getRight()) :
-                        String.format("{n ⚠️=>无效方言拼音：[%s]}", s);
+                String add = "无效";
+                isTrue += "❌";
                 display += add;
                 keyboard += add;
                 introduce += add;
                 debug += add;
             }
+            isTrue += "|";
             display += "|";
             keyboard += "|";
             introduce += "|";
@@ -382,20 +367,22 @@ public class TextPinyinIPA
         {
             return String.format("""
                     |---!|%s
+                    |寫對了嗎？|%s
                     |顯示和書寫|%s
                     |鍵盤輸入|%s
                     |讀起來像普通話的|%s
                     |調試|%s
-                    """, "---!|".repeat(size), display, keyboard, introduce, debug);
+                    """, "---!|".repeat(size), isTrue, display, keyboard, introduce, debug);
         }
         else
         {
             return String.format("""
                     |---!|%s
+                    |寫對了嗎？|%s
                     |顯示和書寫|%s
                     |鍵盤輸入|%s
                     |讀起來像普通話的|%s
-                    """, "---!|".repeat(size), display, keyboard, introduce);
+                    """, "---!|".repeat(size), isTrue, display, keyboard, introduce);
         }
     }
 

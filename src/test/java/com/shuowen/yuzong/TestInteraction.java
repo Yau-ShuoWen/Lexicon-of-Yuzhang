@@ -1,8 +1,5 @@
 package com.shuowen.yuzong;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinChecker;
-
 import java.util.Scanner;
 
 

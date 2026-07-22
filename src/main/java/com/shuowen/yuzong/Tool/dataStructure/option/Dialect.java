@@ -9,6 +9,7 @@ import com.shuowen.yuzong.Linguistics.pinyin.CEDPinyin;
 import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
 import com.shuowen.yuzong.Linguistics.pinyin.LACPinyin;
 import com.shuowen.yuzong.Linguistics.pinyin.UniPinyin;
+import com.shuowen.yuzong.Linguistics.pinyin.WUHPinyin;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
@@ -30,37 +31,19 @@ import java.util.function.Function;
 @SuppressWarnings ({"unchecked", "rawtypes", "unused"})
 public enum Dialect
 {
-    LAC("南昌話", "lac", LACStyle.class, LACPinyin.class,
-            LACPinyin::tryOf, LACStyle::createStyle, LACPinyin::normalize,
-            new DictCode("ncdict"), 7, 2),
-
-    CED("成都話", "ced", CEDStyle.class, CEDPinyin.class,
-            CEDPinyin::tryOf, CEDStyle::createStyle, CEDPinyin::normalize,
-            new DictCode("cddict"), 4, 2),
-
-    WUH("武漢話", null, null, null, null, null, null, null, 0, 0),
-    GHZ("杭州話", null, null, null, null, null, null, null, 0, 0),
-
-
+    LAC("南昌話", "lac", LACPinyin::tryOf, LACStyle::createStyle, "ncdict", 2),
+    CED("成都話", "ced", CEDPinyin::tryOf, CEDStyle::createStyle, "cddict", 2),
+    WUH("武漢話", "wuh", WUHPinyin::tryOf, null, "whdict", 0),
+    GHZ("杭州話", "ghz", null, null, "hzdict", 0),
     ;
 
     @Getter
     private final ScTcText name;
     private final String code;
-    private final Class<? extends PinyinStyle> styleClass;
-    private final Class<? extends UniPinyin<?>> pinyinClass;
     private final BiFunction<SPinyin, Boolean, Maybe<?>> pinyinTryCreator;
     private final Function<Scheme, ? extends PinyinStyle> styleCreator;
-    private final Function<SPinyin, SPinyin> normalizer;
     @Getter
     private final DictCode defaultDict;
-
-    /**
-     * 返回声调的数量<br>
-     * 不包含轻声，这样好循环: {@code [0, tonesAmount()]}
-     */
-    @Getter
-    private final int toneAmount;
 
     /**
      * 返回{@code code}里从头开始多少位是声母编码，剩下的就是介韵母的编码长度了<p>
@@ -73,21 +56,16 @@ public enum Dialect
      * 构造函数
      */
     <U extends PinyinStyle, T extends UniPinyin<U>>
-    Dialect(String name, String code, Class<U> styleClass, Class<T> pinyinClass,
+    Dialect(String name, String code,
             BiFunction<SPinyin, Boolean, Maybe<T>> pinyinTryCreator, Function<Scheme, U> styleCreator,
-            Function<SPinyin, SPinyin> normalizer,
-            DictCode defaultDict, int toneAmount, int initialLength
+            String defaultDict, int initialLength
     )
     {
         this.name = ScTcText.forEnum(name);
         this.code = code;
-        this.styleClass = styleClass;
-        this.pinyinClass = pinyinClass;
         this.pinyinTryCreator = (BiFunction) pinyinTryCreator;
         this.styleCreator = styleCreator;
-        this.normalizer = normalizer;
-        this.defaultDict = defaultDict;
-        this.toneAmount = toneAmount;
+        this.defaultDict = new DictCode(defaultDict);
         this.initialLength = initialLength;
     }
 
@@ -95,12 +73,11 @@ public enum Dialect
     public static Dialect of(String s)
     {
         StringTool.checkTrimValid(s);
-        return switch (s.toLowerCase().trim())
+        for (Dialect d : values())
         {
-            case "lac" -> LAC;
-            case "ced" -> CED;
-            default -> throw new IllegalArgumentException("方言代号无效：" + s);
-        };
+            if (d.code.equalsIgnoreCase(s)) return d;
+        }
+        throw new IllegalArgumentException("方言代号无效：" + s);
     }
 
     @JsonValue
@@ -152,13 +129,8 @@ public enum Dialect
         return (U) styleCreator.apply(param);
     }
 
-    public SPinyin normalizePinyin(SPinyin s)
-    {
-        return normalizer.apply(s);
-    }
-
     public static List<Dialect> getList()
     {
-        return List.of(LAC, CED);
+        return List.of(values());
     }
 }
