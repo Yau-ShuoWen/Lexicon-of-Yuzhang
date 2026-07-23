@@ -1,46 +1,47 @@
 package com.shuowen.yuzong.Linguistics.Scheme;
 
+/**
+ * 拼音常用工具类，e_表示编码，d_表示解码
+ * */
 public class PinyinCommon
 {
     private PinyinCommon()
     {
-
     }
 
     /**
-     * 把{@code zi ci si}转换成把{@code zii cii sii}<br>
-     * 把原来写成的{@code zii cii sii}挡掉防止hack
-     */
-    public static String encodeZiCiSi(String s)
-    {
-        if (s.matches("^[zcs]ii$")) s = "";
-        if (s.matches("^[zcs]i$")) s = s.charAt(0) + "ii";
-        return s;
-    }
-
-    /**
-     * 把{@code zii cii sii}转换成把{@code zi ci si}
-     */
-    public static String decodeZiiCiiSii(String s)
-    {
-        if (s.matches("^[zcs]ii$")) s = s.charAt(0) + "i";
-        return s;
-    }
-
-    /**
-     * 新版本的编码zi ci si ri：改成ɏ<br>
-     * 原因：ii好触发，ɏ不好触发，如果碰到了，说明真的巧，如果看源代码，那说明白底层
+     * zi ci si ri：i改成ı，表示虽然是i，但是底层不同<br>
+     * 作者的想法：考虑到未来的扩展性，所有带上标的都是未来方言拼音可能选择的，
+     * 但是中国人还能接受iI乱加点这件事吗？所以不正好土耳其语的两个符号，在未来的拼音里一定用不到。
      */
     public static String e_ZCSR(String s)
     {
-        if (s.matches("^[zcsr]i$")) s = s.charAt(0) + "ɏ";
+        if (s.matches("^[zcsr]i$")) s = s.charAt(0) + "ı";
         return s;
     }
 
+    /**
+     * 软件内部信任为唯一可能，直接解密
+     */
     public static String d_ZCSR(String s)
     {
-        if (s.matches("^[zcsr]ɏ$")) s = s.charAt(0) + "i";
+        return s.replace("ı", "i");
+    }
+
+    public static String e_ZHCHSH(String s)
+    {
+        s = s.replace("zh", "ẑ").replace("ch", "ĉ").replace("sh", "ŝ");
+        if (s.matches("^[zcs]hi$")) s = s.charAt(0) + s.charAt(1) + "İ";
         return s;
+    }
+
+    public static String d_ZHCHSH(String s)
+    {
+        return s
+                .replace("ẑ", "zh")
+                .replace("ĉ", "ch")
+                .replace("ŝ", "sh")
+                .replace("İ", "i");
     }
 
     public static String e_Nh(String s)
@@ -65,34 +66,14 @@ public class PinyinCommon
         return s.replace("ŋ", "ng");
     }
 
-
-    public static String encodeYiFront(String s, boolean punish)
+    public static String e_Ao(String s)
     {
-        // 如果不允许，开头i的就是不合法的字符
-        if (s.startsWith("i") && punish) s = "";
-
-        // y开头，但不是yu
-        if (s.matches("^y[^u].*"))
-            s = s.replace("yi", "i").replace("y", "i");
-
-        return s;
+        return s.replace("ao", "au");
     }
 
-    public static String encodeWuFront(String s, boolean punish)
+    public static String d_Ao(String s)
     {
-        if (s.startsWith("u") && punish) s = "";
-
-        if (s.matches("^w.*"))
-            s = s.replace("wu", "u").replace("w", "u");
-
-        return s;
-    }
-
-    public static String encodeJuQuXu(String s, boolean punish)
-    {
-        if (punish && s.matches("^[jqx]yu.*")) s = "";
-        if (s.matches("^[jqx]u.*")) s = s.replace("u", "yu");
-        return s;
+        return s.replace("au", "ao");
     }
 
     public static String e_Yi(String s)
@@ -107,42 +88,14 @@ public class PinyinCommon
         return s;
     }
 
-    public static String e_JQX_Ü_V_YU_U(String s)
+    public static String e_JQX_Ü_V_Yu_U(String s)
     {
         return s.replaceAll("([jqx])(?:ü|v|yu|u)", "$1yu");
     }
 
-    public static String e_Ü_V_YU(String s)
+    public static String e_Ü_V_Yu(String s)
     {
-        return s.replaceAll("(?:ü|v|yu)", "$1yu");
-    }
-
-    public static String decodeJyuQyuXyu(String s)
-    {
-        if (s.matches("^[jqx]yu.*")) s = s.replace("yu", "u");
-        return s;
-    }
-
-    public static String encodeYuNotFront(String s, boolean keyboard, boolean punish)
-    {
-        // 在不合适的情况和位置出现了，如果要判断错误，就判断
-        if (keyboard && s.contains("ü") && punish) s = "";
-        if (!keyboard && s.contains("v") && punish) s = "";
-        if ((s.startsWith("ü") || s.startsWith("v")) && punish) s = "";
-
-        if (s.matches(".*[vü].*"))
-            s = s.replace("v", "yu").replace("ü", "yu");
-
-        return s;
-    }
-
-    public static String decodeYuNotFront(String s, boolean keyboard)
-    {
-        if (s.contains("yu"))
-        {
-            if (!s.startsWith("yu")) s = s.replace("yu", keyboard ? "v" : "ü");
-        }
-        return s;
+        return s.replaceAll("(ü|v|yu)", "yu");
     }
 
     public static String e_Yu(String s)
@@ -166,18 +119,6 @@ public class PinyinCommon
         if (s.matches("^[jqx]ü.*")) s = s.replace("ü", "u");
         if (s.startsWith("ü")) s = s.replace("ü", "yu");
         return s;
-    }
-
-    public static String encodeAuFromAo(String s, boolean punish)
-    {
-        if (punish && s.endsWith("au")) s = "";
-        if (s.endsWith("ao")) s = s.replace("ao", "au");
-        return s;
-    }
-
-    public static String decodeAuToAu(String s)
-    {
-        return s.replace("au", "ao");
     }
 
     public static char toSuperScript(Integer i)

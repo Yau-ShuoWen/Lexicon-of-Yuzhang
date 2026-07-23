@@ -1,18 +1,11 @@
 package com.shuowen.yuzong.Linguistics.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinCommon;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.ext.other.NullTool;
+import com.shuowen.yuzong.Linguistics.Scheme.*;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Range;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
-import com.shuowen.yuzong.util.text.FLText;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
  * 成都话拼音
@@ -38,64 +31,23 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
 
     public String initCode()
     {
-        @NoArgsConstructor
-        @Getter
-        class Code
-        {
-            private String sh = null; //声母
-            private String ji = null; //介母
-            private String zh = null; //中心元音
-            private String we = null; //韵尾
-
-            public Code(String sh, String ji, String zh, String we)
-            {
-                setSh(sh);
-                setJi(ji);
-                setZh(zh);
-                setWe(we);
-            }
-
-            public void setSh(String sh)
-            {
-                this.sh = FLText.of(sh, 2);
-            }
-
-            public void setJi(String ji)
-            {
-                this.ji = FLText.of(ji, 1);
-            }
-
-            public void setZh(String zh)
-            {
-                this.zh = FLText.of(zh, 1);
-            }
-
-            public void setWe(String we)
-            {
-                this.we = FLText.of(we, 1);
-            }
-
-            @Override
-            public String toString()
-            {
-                NullTool.checkNotNull(false, sh, ji, zh, we);
-                return sh + we + ji + zh;
-            }
-        }
-
         try
         {
-            Code c = new Code();// 结果
+            FLCode c = new FLCode("声母:2,韵尾:1,介母:1,中心元音:1");
             String py = syll;
 
-            if (!py.matches(".*[aoeëiuüɏ].*"))
+            if (!py.matches(".*[aoeëiıuü].*"))
             {
-                if (py.equals("m")) return new Code("00", "0", "0", "3").toString();
+                if (py.equals("m"))
+                {
+                    c.setMul("声母", "00", "韵尾", "3", "介母", "0", "中心元音", "0");
+                    return c.toString();
+                }
                 else throw new IllegalArgumentException("没有主元音，但是不是特殊音节");
             }
 
             int idx = 1;
-            c.setSh(switch (StringTool.substring(py, 0, 1))
+            c.set("声母", switch (StringTool.substring(py, 0, 1))
             {
                 case "b" -> "01";
                 case "p" -> "02";
@@ -127,10 +79,14 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
 
             if (py.isEmpty()) throw new InvalidPinyinException("此处拼音结构不完整");
 
-            if (py.equals("ɏ")) return new Code(c.getSh(), "0", "0", "1").toString();
+            if (py.equals("ı"))
+            {
+                c.setMul("介母", "0", "中心元音", "0", "韵尾", "1");
+                return c.toString();
+            }
 
             idx = 1;
-            c.setJi(switch (StringTool.substring(py, 0, 1)) // 删掉了开头的就是现在的
+            c.set("介母", switch (StringTool.substring(py, 0, 1)) // 删掉了开头的就是现在的
             {
                 case "i" -> "1";
                 case "u" -> "2";
@@ -144,10 +100,8 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
             py = py.substring(idx);
 
 
-            // 韵尾：特殊的地方只有
-            // 除了没有韵尾不移动，ng要移动两位，其他都是移动一位（所以统一移动一位，其他的调整）
             idx = 1;
-            c.setWe(switch (StringTool.substring(py, py.length() - 1))
+            c.set("韵尾", switch (StringTool.substring(py, py.length() - 1))
             {
                 case "i" -> "4";
                 case "u" -> "5";
@@ -162,7 +116,8 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
             });
             py = py.substring(0, py.length() - idx);
 
-            c.setZh(switch (py)
+
+            c.set("中心元音", switch (py)
             {
                 case "a" -> "1";
                 case "o" -> "2";
@@ -266,7 +221,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
             s = PinyinCommon.d_Nh(s);
             s = PinyinCommon.d_Ng(s);
             s = PinyinCommon.d_Yu_display(s);
-            s = PinyinCommon.decodeAuToAu(s);
+            s = PinyinCommon.d_Ao(s);
 
             if (p.tone.isEmpty() || p.tone.getValue() == 0) return s;
             else
@@ -299,7 +254,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
             s = PinyinCommon.d_Nh(s);
             s = PinyinCommon.d_Ng(s);
             s = PinyinCommon.d_Yu_keyboard(s);
-            s = PinyinCommon.decodeAuToAu(s);
+            s = PinyinCommon.d_Ao(s);
 
             var t = p.tone;
             if (t.isEmpty() || t.getValue() == 0) return s;
@@ -323,9 +278,9 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
             s = PinyinCommon.e_Nh(s);
             s = PinyinCommon.e_Ng(s);
             s = PinyinCommon.e_Yu(s);
-            s = PinyinCommon.encodeYiFront(s, true);
-            s = PinyinCommon.encodeWuFront(s, true);
-            s = PinyinCommon.encodeAuFromAo(s, true);
+            s = PinyinCommon.e_Yi(s);
+            s = PinyinCommon.e_Wu(s);
+            s = PinyinCommon.e_Ao(s);
             if (s.endsWith("e")) s = s.replace("e", "ë");
             if (s.endsWith("ie") || s.endsWith("ue") || s.endsWith("üe"))
             {
@@ -384,16 +339,13 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
         {
             String s = p.syll;
 
-            if (s.endsWith("ië") || s.endsWith("uë") || s.endsWith("üë"))
-            {
-                s = s.replace("ë", "e");
-            }
+            s = s.replaceAll("([iuü])ë$", "$1e");
             s = decodeYiWuFront(s);
             s = PinyinCommon.d_ZCSR(s);
             s = PinyinCommon.d_Nh(s);
             s = PinyinCommon.d_Ng(s);
             s = PinyinCommon.d_Yu_keyboard(s);
-            s = PinyinCommon.decodeAuToAu(s);
+            s = PinyinCommon.d_Ao(s);
 
             if (p.tone.isEmpty() || p.tone.getValue() == 0) return s;
             else
@@ -425,14 +377,5 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
                 }
             }
         }
-    }
-
-    public static SPinyin normalize(SPinyin pinyin)
-    {
-        String text = pinyin.getSyll();
-        text = text.toLowerCase();
-
-
-        return pinyin;
     }
 }

@@ -1,10 +1,7 @@
 package com.shuowen.yuzong.Linguistics.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.LACStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinCommon;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Linguistics.Scheme.*;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Range;
@@ -39,18 +36,19 @@ public class LACPinyin extends UniPinyin<LACStyle>
     {
         try
         {
-            String ans = "";
+            FLCode c = new FLCode("声母:2,韵尾:1,介母:1,中心元音:1");
             String py = syll;
 
             if (!py.matches(".*[aoeiu].*"))
             {
-                return switch (py)
+                switch (py)
                 {
-                    case "m" -> "00007";
-                    case "n" -> "00008";
-                    case "ng" -> "00009";
+                    case "m" -> c.setMul("声母", "0", "介母", "0", "中心元音", "7", "韵尾", "0");
+                    case "n" -> c.setMul("声母", "0", "介母", "0", "中心元音", "8", "韵尾", "0");
+                    case "ng" -> c.setMul("声母", "0", "介母", "0", "中心元音", "9", "韵尾", "0");
                     default -> throw new IllegalArgumentException("没有主元音，但不是特殊音节");
-                };
+                }
+                return c.toString();
             }
 
             int idx;
@@ -60,7 +58,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
             // 1. n和ng都是n开头，需要具体区分
             // 2. 除了零声母识别，ng识别长度为2，其他都是1位（所以统一idx=1，其他的调整）
             idx = 1;
-            ans += switch (StringTool.substring(py, 0, 1))
+            c.set("声母", switch (StringTool.substring(py, 0, 1))
             {
                 case "b" -> "01";
                 case "p" -> "02";
@@ -93,22 +91,23 @@ public class LACPinyin extends UniPinyin<LACStyle>
                     idx = 0;
                     yield "00";
                 }
-            };
+            });
             py = py.substring(idx);
 
             if (py.isEmpty()) throw new InvalidPinyinException("此处拼音结构不完整");
 
             // 检查特殊韵母zii cii sii
-            if (ObjectTool.existEqual(ans, "16", "17", "18") && py.startsWith("i"))
+
+            if (py.equals("ii"))
             {
-                if (py.equals("ii")) return ans + "100";
-                else throw new IllegalArgumentException("zcs后面接的不是ii");
+                c.setMul("介母", "0", "中心元音", "0", "韵尾", "1");
+                return c.toString();
             }
 
 
             // 介母：左指针统一移动一位
             idx = 1;
-            ans += switch (StringTool.substring(py, 0, 1)) // 删掉了开头的就是现在的
+            c.set("介母", switch (StringTool.substring(py, 0, 1)) // 删掉了开头的就是现在的
             {
                 case "i" -> "1";
                 case "u" -> "2";
@@ -126,14 +125,14 @@ public class LACPinyin extends UniPinyin<LACStyle>
                     idx = 0;
                     yield "0";
                 }
-            };
+            });
             py = py.substring(idx);
 
 
             // 韵尾：特殊的地方只有
             // 除了没有韵尾不移动，ng要移动两位，其他都是移动一位（所以统一移动一位，其他的调整）
             idx = 1;
-            ans += switch (StringTool.substring(py, py.length() - 1))
+            c.set("韵尾", switch (StringTool.substring(py, py.length() - 1))
             {
                 case "i" -> "3";
                 case "u" -> "4";
@@ -141,7 +140,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
                 case "g" ->    // 这里有g没有n怎么办？encodable会检查能不能反过来的
                 {
                     idx = 2;
-                    yield 6;
+                    yield "6";
                 }
                 case "t" -> "7";
                 case "k" -> "8";
@@ -151,11 +150,11 @@ public class LACPinyin extends UniPinyin<LACStyle>
                     idx = 0;
                     yield "0";
                 }
-            };
+            });
             py = py.substring(0, py.length() - idx);
 
 
-            ans += switch (py)
+            c.set("中心元音", switch (py)
             {
                 case "a" -> "1";
                 case "o" -> "2";
@@ -171,12 +170,9 @@ public class LACPinyin extends UniPinyin<LACStyle>
                     if (!py.isEmpty()) throw new IndexOutOfBoundsException();
                     else yield "0";
                 }
-            };
+            });
 
-            ans = StringTool.swap(ans, 2, 3);  // 识别和显示优先级不同
-
-            if (ans.length() != 5) throw new IndexOutOfBoundsException();// 是否有效位数
-            return ans;
+            return c.toString();
         } catch (IndexOutOfBoundsException | IllegalArgumentException e) // 这里面拼音出现了任何错误，就认为是无效的，所以里面可以大胆sub和charAt
         {
             throw new InvalidPinyinException("拼音编码出现异常");
@@ -321,13 +317,13 @@ public class LACPinyin extends UniPinyin<LACStyle>
             s = s.replace("yu", "ü");
             s = s.replace("ee", "ẹ");
             s = s.replace("oe", "ọ");
-            s = PinyinCommon.decodeZiiCiiSii(s);
+            s = decodeZiiCiiSii(s);
 
             // 标音调
             if (p.tone.isEmpty() || p.tone.getValue() == 0) return s;
             else
             {
-                char[] marks = {'?', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
+                char[] marks = {'_', '̀', '́', '̌', '̄', '̉', '̋', '̏'};
                 char t = marks[p.tone.getValue()]; // 前面检查过了
 
                 if (s.contains("iu")) return s.replace("u", "u" + t);
@@ -354,7 +350,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
             String s = p.syll;
             var t = p.tone;
 
-            s = PinyinCommon.decodeZiiCiiSii(s);
+            s = decodeZiiCiiSii(s);
 
             return s + (t.isValid() ? t.getValue() : "");
         }
@@ -365,9 +361,9 @@ public class LACPinyin extends UniPinyin<LACStyle>
 
             s = PinyinCommon.e_Yi(s);            // 丢掉开头的 y 和 yi 为 i
             s = PinyinCommon.e_Wu(s);            // 丢掉开头的 w 和 wu 为 u
-            s = PinyinCommon.e_JQX_Ü_V_YU_U(s);  // 丢掉JQX后的 ü v yu u 改为 yu
-            s = PinyinCommon.e_Ü_V_YU(s);        // 丢掉其他地方的 ü v yu 改为 yu
-            s = PinyinCommon.encodeZiCiSi(s);    // 特殊编码 ZCS 后的 i
+            s = PinyinCommon.e_JQX_Ü_V_Yu_U(s);  // 丢掉JQX后的 ü v yu u 改为 yu
+            s = PinyinCommon.e_Ü_V_Yu(s);        // 丢掉其他地方的 ü v yu 改为 yu
+            s = encodeZiCiSi(s);    // 特殊编码 ZCS 后的 i
 
             // 双韵母的模糊处理
             // 匹配：普通话常见但是不符合的： ao iao ou iou uei
@@ -387,7 +383,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
             // 匹配：普通话常见但是不符合的： ian yuan uen
             // 特殊：uen的简写歪打正着un，这里的uen实际上是从wen变过来的
             // ian->ien  yuan->yuon  uen->un
-            if (s.contains("ian")) s = s.replace("ian", "ien");
+            s = s.replaceAll("ian$", "ien");
             if (s.contains("yuan")) s = s.replace("yuan", "yuon");
             if (s.contains("uen")) s = s.replace("uen", "un");
 
@@ -415,13 +411,15 @@ public class LACPinyin extends UniPinyin<LACStyle>
         {
             String s = p.syll;
 
-            s = deleteTK(s); // 删除入声韵尾
+            s = s.replace("ien", "ian").replace("yuon", "yuan");
+            s = s.replaceAll("[tk]$", ""); // 删除入声韵尾
             s = handleYW(s); //
-            s = PinyinCommon.decodeJyuQyuXyu(s);
+            s = decodeJyuQyuXyu(s);
             s = handleYu(s);
             s = s.replace("ee", "e");
             s = s.replace("oe", "o");
-            s = PinyinCommon.decodeZiiCiiSii(s);
+            s = decodeZiiCiiSii(s);
+            s = s.replaceFirst("^ng", "嗯+");
 
             // 标音调
             if (p.tone.isEmpty() || p.tone.getValue() == 0) return s;
@@ -454,12 +452,6 @@ public class LACPinyin extends UniPinyin<LACStyle>
             }
         }
 
-        private static String deleteTK(String s)
-        {
-            if (StringTool.back(s) == 'k' || StringTool.back(s) == 't') return StringTool.deleteBack(s);
-            return s;
-        }
-
         /**
          * 合理添加yw，使得看起来更符合普通话规律
          */
@@ -471,17 +463,14 @@ public class LACPinyin extends UniPinyin<LACStyle>
                 // i ->yi it->yit iu->yiu in->yin
                 if (ObjectTool.existEqual(s, "i", "it", "in"))
                     s = "y" + s;
-                else if (s.equals("iu"))
-                    s = "yi+wu";
-                else
-                    s = "y" + s.substring(1);
+                else if (s.equals("iu")) s = "yi+wu";
+                else s = "y" + s.substring(1);
             }
             if (c == 'u')
             {
                 if (s.length() >= 2 && ObjectTool.existEqual(s.charAt(1), 'a', 'o'))
                     s = "w" + s.substring(1);
-                else if (s.equals("ui"))
-                    s = "wu+yi";
+                else if (s.equals("ui")) s = "wu+yi";
                 else s = "w" + s;
             }
             return s;
@@ -495,38 +484,31 @@ public class LACPinyin extends UniPinyin<LACStyle>
         }
     }
 
-    public static SPinyin normalize(SPinyin pinyin)
-    {
-//        String text = pinyin.getSyll();
-//        text = text.toLowerCase();
-//
-//        text = PinyinCommon.encodeYiFront(text, false);
-//        text = PinyinCommon.encodeWuFront(text, false);
-//        text = PinyinCommon.encodeYuNotFront(text, true, false);
-//        text = PinyinCommon.encodeJuQuXu(text, false);// yu是正确写法，所以直接写不惩罚。
-//
-//        // 双韵母的模糊处理
-//        // 匹配：普通话常见但是不符合的： ao iao ou iou uei
-//        // 特殊：iou/uei的简写歪打正着iu/ui，这里的iou/uei实际上是从you/wei变过来的
-//        // ao->au  iau->ieu  ou->eu  iou->iu
-//        if (text.contains("ao")) text = text.replace("ao", "au");
-//        if (text.contains("iau")) text = text.replace("iau", "ieu");
-//        if (text.contains("ou"))
-//        {
-//            if (text.contains("iou"))
-//                text = text.replace("iou", "iu");
-//            else text = text.replace("ou", "eu");
-//        }
-//        if (text.contains("uei")) text = text.replace("uei", "ui");
-//
-//        // 鼻韵母的模糊处理
-//        // 匹配：普通话常见但是不符合的： ian yuan uen
-//        // 特殊：uen的简写歪打正着un，这里的uen实际上是从wen变过来的
-//        // ian->ien  yuan->yuon  uen->un
-//        if (text.contains("ian")) text = text.replace("ian", "ien");
-//        if (text.contains("yuan")) text = text.replace("yuan", "yuon");
-//        if (text.contains("uen")) text = text.replace("uen", "un");
+    // 这已经是旧版本的了，所以放在这里面，不要影响其他
 
-        return pinyin;//SPinyin.of(text, pinyin.getTone());
+    /**
+     * 把{@code zi ci si}转换成把{@code zii cii sii}<br>
+     * 把原来写成的{@code zii cii sii}挡掉防止hack
+     */
+    private static String encodeZiCiSi(String s)
+    {
+        if (s.matches("^[zcs]i$")) s = s.charAt(0) + "ii";
+        return s;
+    }
+
+    /**
+     * 把{@code zii cii sii}转换成把{@code zi ci si}
+     */
+    private static String decodeZiiCiiSii(String s)
+    {
+        if (s.matches("^[zcs]ii$")) s = s.charAt(0) + "i";
+        return s;
+    }
+
+
+    public static String decodeJyuQyuXyu(String s)
+    {
+        if (s.matches("^[jqx]yu.*")) s = s.replace("yu", "u");
+        return s;
     }
 }
