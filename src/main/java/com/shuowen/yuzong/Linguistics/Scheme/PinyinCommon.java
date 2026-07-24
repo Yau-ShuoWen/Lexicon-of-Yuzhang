@@ -90,12 +90,12 @@ public class PinyinCommon
 
     public static String e_JQX_Ü_V_Yu_U(String s)
     {
-        return s.replaceAll("([jqx])(?:ü|v|yu|u)", "$1yu");
+        return s.replaceAll("([jqx])(?:ü|v|yu|u)", "$1ü");
     }
 
     public static String e_Ü_V_Yu(String s)
     {
-        return s.replaceAll("(ü|v|yu)", "yu");
+        return s.replaceAll("(ü|v|yu)", "ü");
     }
 
     public static String e_Yu(String s)
