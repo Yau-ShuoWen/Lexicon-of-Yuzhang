@@ -16,7 +16,7 @@ public class IPAFormatter
             if (tone.length() == 2 && tone.charAt(0) == tone.charAt(1))
                 tone = tone + tone.charAt(1);
 
-            if (tone.equals("0")) return "·" + syllable;
+            if (tone.equals("0")) return "·" + syllable + "_";
             else return syllable + "_" + (tone
                     .replace('1', '˩')
                     .replace('2', '˨')

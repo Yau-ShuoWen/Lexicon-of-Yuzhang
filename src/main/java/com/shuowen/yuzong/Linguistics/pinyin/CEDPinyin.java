@@ -1,32 +1,38 @@
 package com.shuowen.yuzong.Linguistics.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.*;
+import com.shuowen.yuzong.Linguistics.util.*;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
+import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Range;
-import com.shuowen.yuzong.util.err.InvalidPinyinException;
 
 /**
  * 成都话拼音
  */
 public class CEDPinyin extends UniPinyin<CEDStyle>
 {
-    protected CEDPinyin(SPinyin s)
+    protected CEDPinyin(SplitedPinyin s)
     {
-        super(s);
+        super(s, Dialect.CED);
     }
 
-    public static Maybe<CEDPinyin> tryOf(SPinyin s, boolean fromDatabase)
+    public static Maybe<CEDPinyin> tryOf(SplitedPinyin p)
     {
         try
         {
-            var p = fromDatabase ? s : CEDKeyboard.normalize(s);
             return Maybe.exist(new CEDPinyin(p));
         } catch (InvalidPinyinException e)
         {
             return Maybe.nothing();
         }
+    }
+
+    public static Maybe<CEDPinyin> tryOf(KeyboardPinyin p)
+    {
+        return tryOf(CEDKeyboard.normalize(p));
     }
 
     public String initCode()
@@ -63,7 +69,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
                 case "h" -> "12";
                 case "j" -> "13";
                 case "q" -> "14";
-                case "ñ" -> "15";
+                case "N" -> "15";
                 case "x" -> "16";
                 case "z" -> "17";
                 case "c" -> "18";
@@ -184,26 +190,20 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
     }
 
     @Override
-    public SPinyin toSPinyin(CEDStyle p)
+    public KeyboardPinyin toKeyboardPinyin()
     {
-        String pinyin = switch (p.getStyle())
-        {
-            case DISPALY -> throw new IllegalArgumentException();
-            case KEYBOAD -> CEDKeyboard.format(this);
-            case INTRO -> CEDIntro.format(this);
-            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
-        };
-        return SPinyin.of(pinyin);
+        return KeyboardPinyin.of(CEDKeyboard.format(this));
     }
 
-    public DPinyin toDPinyin(CEDStyle p)
+    public DatabasePinyin toDatabasePinyin()
     {
-        String pinyin = switch (p.getStyle())
-        {
-            case DISPALY, KEYBOAD, INTRO -> throw new IllegalArgumentException();
-            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
-        };
-        return DPinyin.of(pinyin);
+        return DatabasePinyin.of(syll + tone.toStringOrEmpty());
+    }
+
+    @Override
+    public PinyinBlock format(PinyinMode md)
+    {
+        return null;
     }
 
     private static class CEDDisplay
@@ -269,7 +269,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
             };
         }
 
-        public static SPinyin normalize(SPinyin p)
+        public static SplitedPinyin normalize(KeyboardPinyin p)
         {
             String s = p.getSyll();
             var t = p.getTone();
@@ -299,7 +299,7 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
                 };
             }
 
-            return SPinyin.of(s, t);
+            return SplitedPinyin.of(s, t);
         }
     }
 

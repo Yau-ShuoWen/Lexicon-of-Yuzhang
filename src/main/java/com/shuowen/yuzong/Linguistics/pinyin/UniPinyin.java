@@ -2,11 +2,11 @@ package com.shuowen.yuzong.Linguistics.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.DPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.Linguistics.util.*;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -21,12 +21,14 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
     protected final Integer corner;     // 四角调类的数字序号
     protected final String weight;      // 排序用的权重
 
+    protected final Dialect dialect;
+
     /**
      * 私有的构造函数，子类构造函数也应该是私有的
      *
      * @throws InvalidPinyinException 在子类静态工厂里捕获这个错误，说明构造错误，拼音建构失败，返回空集合
      */
-    protected UniPinyin(SPinyin s)
+    protected UniPinyin(SplitedPinyin s,Dialect d)
     {
         syll = s.getSyll();
         tone = initTone(s.getTone());
@@ -37,6 +39,8 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
 
         corner = initCorner();
         weight = initWeight();
+
+        dialect = d;
     }
 
     // 下面六个函数会且仅会在构造函数里用到一次
@@ -84,7 +88,9 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
      */
     public abstract RPinyin toRPinyin(T params);
 
-    public abstract SPinyin toSPinyin(T params);
+    public abstract KeyboardPinyin toKeyboardPinyin();
 
-    public abstract DPinyin toDPinyin(T params);
+    public abstract DatabasePinyin toDatabasePinyin();
+
+    public abstract PinyinBlock format(PinyinMode md);
 }

@@ -1,36 +1,43 @@
 package com.shuowen.yuzong.Linguistics.pinyin;
 
 import com.shuowen.yuzong.Linguistics.Format.LACStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.*;
+import com.shuowen.yuzong.Linguistics.util.*;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
+import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.text.StringTool;
-import com.shuowen.yuzong.util.tuple.Range;
-import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.Range;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * 南昌话拼音方案
  */
 public class LACPinyin extends UniPinyin<LACStyle>
 {
-    protected LACPinyin(SPinyin s)
+    protected LACPinyin(SplitedPinyin s)
     {
-        super(s);
+        super(s, Dialect.LAC);
     }
 
-    public static Maybe<LACPinyin> tryOf(SPinyin s, boolean fromDatabase)
+    public static Maybe<LACPinyin> tryOf(SplitedPinyin p)
     {
         try
         {
-            var p = fromDatabase ? s : LACKeyboard.normalize(s);
             return Maybe.exist(new LACPinyin(p));
         } catch (InvalidPinyinException e)
         {
             return Maybe.nothing();
         }
+    }
+
+    public static Maybe<LACPinyin> tryOf(KeyboardPinyin p)
+    {
+        return tryOf(LACKeyboard.normalize(p));
     }
 
     public String initCode()
@@ -244,6 +251,38 @@ public class LACPinyin extends UniPinyin<LACStyle>
     }
 
     @Override
+    public PinyinBlock format(PinyinMode md)
+    {
+        PinyinBlock block = new PinyinBlock();
+
+        Function<String, String> fun = s -> String.format("[%s]", PinyinCommon.e_A_G(s));
+
+        String display = fun.apply(LACDisplay.format(this));
+        String keyboard = fun.apply(LACKeyboard.format(this));
+        String introduce = fun.apply(LACIntro.format(this));
+
+        switch (md)
+        {
+            case INTRODUCE ->
+            {
+                block.setTitle(introduce);
+                block.add("就像普通話的", introduce);
+                block.add("標準寫法", display);
+            }
+            case STANDARD, PROFESSIONAL ->
+            {
+                block.setTitle(display);
+                block.add("印刷和書寫", display);
+                block.add("鍵盤輸入", keyboard);
+            }
+        }
+
+
+//        block.add("調錯", syll + tone.handleIfExistAndGet(Object::toString, ""));
+        return block;
+    }
+
+    @Override
     public RPinyin toRPinyin(LACStyle p)
     {
         String pinyin = switch (p.getStyle())
@@ -257,25 +296,15 @@ public class LACPinyin extends UniPinyin<LACStyle>
     }
 
     @Override
-    public SPinyin toSPinyin(LACStyle p)
+    public KeyboardPinyin toKeyboardPinyin()
     {
-        String pinyin = switch (p.getStyle())
-        {
-            case DISPALY, INTRO -> throw new IllegalArgumentException();
-            case KEYBOAD -> LACKeyboard.format(this);
-            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
-        };
-        return SPinyin.of(pinyin);
+        return KeyboardPinyin.of(LACKeyboard.format(this));
     }
 
-    public DPinyin toDPinyin(LACStyle p)
+    @Override
+    public DatabasePinyin toDatabasePinyin()
     {
-        String pinyin = switch (p.getStyle())
-        {
-            case DISPALY, KEYBOAD, INTRO -> throw new IllegalArgumentException();
-            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
-        };
-        return DPinyin.of(pinyin);
+        return DatabasePinyin.of(syll + tone.toStringOrEmpty());
     }
 
     /**
@@ -314,8 +343,6 @@ public class LACPinyin extends UniPinyin<LACStyle>
      */
     private static class LACKeyboard
     {
-        // 实现：只要处理ii的问题就可以了，其他不动
-
         public static String format(LACPinyin p)
         {
             String s = p.syll;
@@ -340,9 +367,9 @@ public class LACPinyin extends UniPinyin<LACStyle>
                 '̏', "7"
         );
 
-        public static SPinyin normalize(SPinyin p)
+        public static SplitedPinyin normalize(KeyboardPinyin p)
         {
-            if (p.getTone().isEmpty()) p = ToneParser.parse(p.getSyll(), tones, "0");
+            if (p.getTone().isEmpty()) p = ToneParser.parse(p.getSyll(), tones);
 
             String s = p.getSyll().toLowerCase();
 
@@ -388,7 +415,7 @@ public class LACPinyin extends UniPinyin<LACStyle>
                 };
             }
 
-            return SPinyin.of(s, t);
+            return SplitedPinyin.of(s, t);
         }
     }
 

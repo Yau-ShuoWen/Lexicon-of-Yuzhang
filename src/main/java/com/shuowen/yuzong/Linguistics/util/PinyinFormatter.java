@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
+package com.shuowen.yuzong.Linguistics.util;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.pinyin.UniPinyin;
@@ -26,7 +26,7 @@ public class PinyinFormatter
         return handle(pinyin, d, Scheme.DISPLAY);
     }
 
-    public static RPinyin handle(SPinyin pinyin, Dialect d)
+    public static RPinyin handle(SplitedPinyin pinyin, Dialect d)
     {
         return d.trustedCreatePinyin(pinyin).toRPinyin(d.createStyle(Scheme.DISPLAY));
     }
@@ -37,20 +37,5 @@ public class PinyinFormatter
     public static <U extends PinyinStyle> RPinyin handle(UniPinyin<U> pinyin, U style)
     {
         return pinyin.toRPinyin(style);
-    }
-
-    public static SPinyin toSPinyin(String pinyin, Dialect d)
-    {
-        return d.trustedCreatePinyin(SPinyin.of(pinyin)).toSPinyin(d.createStyle(Scheme.KEYBOARD));
-    }
-
-    public static SPinyin toSPinyin(UniPinyin<?> pinyin, Dialect d)
-    {
-        return pinyin.toSPinyin(d.createStyle(Scheme.KEYBOARD));
-    }
-
-    public static DPinyin toDPinyin(UniPinyin<?> pinyin, Dialect d)
-    {
-        return pinyin.toDPinyin(d.createStyle(Scheme.DEBUG));
     }
 }

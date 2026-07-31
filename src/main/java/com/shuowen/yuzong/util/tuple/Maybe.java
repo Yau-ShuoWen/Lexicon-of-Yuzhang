@@ -122,6 +122,11 @@ public class Maybe<T>
         return "Maybe(" + s + ")";
     }
 
+    public String toStringOrEmpty()
+    {
+        return isValid() ? value.toString() : "";
+    }
+
     @JsonValue
     public Map<String, Object> toJson()
     {
