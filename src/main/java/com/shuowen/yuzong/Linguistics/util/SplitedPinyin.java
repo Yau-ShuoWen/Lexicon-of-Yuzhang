@@ -1,10 +1,10 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
+package com.shuowen.yuzong.Linguistics.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.tuple.Pair;
 import lombok.Data;
 
@@ -12,24 +12,24 @@ import lombok.Data;
  * {@code Splitted Pinyin}，分割了的拼音。音节和音调拆开，容易做处理。类型安全
  */
 @Data
-public class SPinyin
+public class SplitedPinyin
 {
     private final String syll;
     private final Maybe<String> tone;
 
-    private SPinyin(String syll, Maybe<String> tone)
+    private SplitedPinyin(String syll, Maybe<String> tone)
     {
         this.syll = syll;
         this.tone = tone;
     }
 
-    public static SPinyin valueOf(String s)
+    public static SplitedPinyin valueOf(String s)
     {
-        return SPinyin.of(s);
+        return SplitedPinyin.of(s);
     }
 
     @JsonCreator
-    public static SPinyin of(String text)
+    public static SplitedPinyin of(String text)
     {
         if (!StringTool.isTrimValid(text))
             throw new InvalidPinyinException("缺少拼音");
@@ -38,12 +38,12 @@ public class SPinyin
         );
 
         var tmp = trySplit(text);
-        return new SPinyin(tmp.getLeft(), tmp.getRight());
+        return new SplitedPinyin(tmp.getLeft(), tmp.getRight());
     }
 
-    public static SPinyin of(String syll, Maybe<String> tone)
+    public static SplitedPinyin of(String syll, Maybe<String> tone)
     {
-        return new SPinyin(syll, tone);
+        return new SplitedPinyin(syll, tone);
     }
 
     @JsonValue

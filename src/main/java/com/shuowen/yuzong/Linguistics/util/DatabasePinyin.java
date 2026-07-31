@@ -1,23 +1,23 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
+package com.shuowen.yuzong.Linguistics.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode
-public class DPinyin
+public class DatabasePinyin
 {
     private final String pinyin;
 
-    private DPinyin(String pinyin)
+    private DatabasePinyin(String pinyin)
     {
         this.pinyin = pinyin;
     }
 
     @JsonCreator
-    public static DPinyin of(String pinyin)
+    public static DatabasePinyin of(String pinyin)
     {
-        return new DPinyin(pinyin);
+        return new DatabasePinyin(pinyin);
     }
 
     @JsonValue

@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
+package com.shuowen.yuzong.Linguistics.util;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
