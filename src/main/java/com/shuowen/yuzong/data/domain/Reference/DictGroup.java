@@ -3,12 +3,14 @@ package com.shuowen.yuzong.data.domain.Reference;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.Tool.format.JsonTool;
 import com.shuowen.yuzong.service.impl.Reference.DictService;
+import com.shuowen.yuzong.util.text.ScTcText;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
@@ -35,6 +37,11 @@ public class DictGroup
     public String getName(DictCode di, Language l)
     {
         return String.format("《%s》", dict.get(di).get(l));
+    }
+
+    public String getName(DictCode di)
+    {
+        return String.format("《%s》", dict.get(di).get(Language.TC));
     }
 
     public String getName(DictCodeExt di, Language l)

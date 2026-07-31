@@ -1,16 +1,16 @@
 package com.shuowen.yuzong.data.domain.Character;
 
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Linguistics.util.KeyboardPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import com.shuowen.yuzong.data.model.Character.HanziPinyin;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.tuple.Pair;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 批量初始化内容
@@ -20,7 +20,7 @@ import java.util.*;
 public class HanziCreate
 {
     ScTcText text;
-    SPinyin pinyin;
+    KeyboardPinyin pinyin;
 
     public Pair<List<HanziEntity>, HanziPinyin> checkAndTransfer(Dialect d)
     {
@@ -36,7 +36,7 @@ public class HanziCreate
             var tmp = new HanziEntity();
             tmp.setSc(sc.at(i));
             tmp.setTc(tc.at(i));
-            tmp.setMainPy(PinyinFormatter.toDPinyin(dPinyin, d).toString(true));
+            tmp.setMainPy(dPinyin.toDatabasePinyin().toString(true));
             tmp.setPyCode(dPinyin.getWeight());
             // 非关键内容使用默认值代替
             tmp.setSpecial(0);

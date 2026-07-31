@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Linguistics.Scheme;
+package com.shuowen.yuzong.Linguistics.util;
 
 import com.shuowen.yuzong.util.text.FLText;
 import com.shuowen.yuzong.util.tuple.Pair;

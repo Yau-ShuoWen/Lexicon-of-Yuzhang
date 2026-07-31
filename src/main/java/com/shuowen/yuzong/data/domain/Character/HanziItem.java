@@ -1,22 +1,23 @@
 package com.shuowen.yuzong.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.text.UChar;
-import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.data.model.Character.HanziEntity;
+import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.ScTcChar;
 import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.UChar;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.*;
+import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 
 /**
  * 格式化的汉字主体
@@ -28,12 +29,12 @@ public class HanziItem
     private final Integer id;
     private final UChar hanzi;
     private final ScTcChar hanzis;
-    private final SPinyin mainPy;
+    private final SplitedPinyin mainPy;
     private final Integer special;
 
     // 连接表信息
     private final List<UChar> similar;
-    private final List<Pair<UString, SPinyin>> variantPy;
+    private final List<Pair<UString, SplitedPinyin>> variantPy;
     private final List<String> mdrInfo;
 
     // 原表复杂结构
@@ -48,7 +49,7 @@ public class HanziItem
         id = ch.getId();
         hanzis = new ScTcChar(ch.getSc(), ch.getTc());
         hanzi = hanzis.get(l);
-        mainPy = SPinyin.of(ch.getMainPy());
+        mainPy = SplitedPinyin.of(ch.getMainPy());
         special = ch.getSpecial();
 
         similar = ListTool.mapping(
@@ -59,7 +60,7 @@ public class HanziItem
         // sc tc content 三个字段，sc tc创建Text之后选择语言，content直接获取
         variantPy = ListTool.mapping(
                 readJson(ch.getVariantPy(), new TypeReference<List<Map<String, String>>>() {}),
-                i -> Pair.of(new ScTcText(i.get("sc"), i.get("tc")).get(l), SPinyin.of(i.get("content")))
+                i -> Pair.of(new ScTcText(i.get("sc"), i.get("tc")).get(l), SplitedPinyin.of(i.get("content")))
         );
 
 

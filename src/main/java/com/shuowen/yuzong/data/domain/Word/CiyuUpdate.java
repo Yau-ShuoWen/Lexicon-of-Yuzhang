@@ -1,18 +1,17 @@
 package com.shuowen.yuzong.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.ext.other.ObjectTool;
-import com.shuowen.yuzong.util.text.TextPinyinIPA;
-import com.shuowen.yuzong.util.tuple.Range;
+import com.shuowen.yuzong.Linguistics.util.KeyboardPinyinList;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.NoteTag;
-import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.data.model.Word.CiyuSimilar;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
+import com.shuowen.yuzong.util.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Range;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,7 +29,7 @@ public class CiyuUpdate
     private ScTcText ciyu;
     private Integer special;
 
-    private SPinyins mainPy;
+    private KeyboardPinyinList mainPy;
 
     @Data
     @NoArgsConstructor
@@ -73,9 +72,9 @@ public class CiyuUpdate
         ciyu = new ScTcText(cy.getSc(), cy.getTc());
         special = cy.getSpecial();
 
-        mainPy = SPinyins.of(
+        mainPy = KeyboardPinyinList.of(
                 ListTool.mapping(readJson(cy.getMainPy(), new TypeReference<List<String>>() {}),
-                        i -> PinyinFormatter.toSPinyin(i, d)
+                       i->d.trustedCreatePinyin(i).toKeyboardPinyin()
                 )
         );
 
@@ -115,7 +114,7 @@ public class CiyuUpdate
                 toJson(
                         ListTool.mapping(
                                 mainPy.getPinyin(),
-                                i -> PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(i), d).toString(true)
+                                i -> d.checkAndCreatePinyin(i).toDatabasePinyin().toString(true)
                         )
                 )
         );

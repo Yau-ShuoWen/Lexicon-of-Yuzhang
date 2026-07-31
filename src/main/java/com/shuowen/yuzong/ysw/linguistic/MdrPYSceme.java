@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.ysw.linguistic;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinCommon;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Linguistics.util.PinyinCommon;
+import com.shuowen.yuzong.Linguistics.util.RPinyin;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.tuple.Pair;

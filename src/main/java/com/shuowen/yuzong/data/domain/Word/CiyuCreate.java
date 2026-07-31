@@ -1,12 +1,11 @@
 package com.shuowen.yuzong.data.domain.Word;
 
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.Linguistics.util.KeyboardPinyinList;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.UString;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -27,7 +26,7 @@ public class CiyuCreate
         var txt = text.mapToOther(str ->
                 ListTool.mapping(str.split("\n"), UString::of)
         );
-        var pinyins = ListTool.mapping(pys.split("\n"), SPinyins::of);
+        var pinyins = ListTool.mapping(pys.split("\n"), KeyboardPinyinList::of);
 
         if (txt.getLeft().size() != pinyins.size()) throw new IllegalArgumentException("词语数量和拼音行数不一样");
         var size = pinyins.size();
@@ -37,7 +36,7 @@ public class CiyuCreate
         {
             UString sc = txt.getLeft().get(i);
             UString tc = txt.getRight().get(i);
-            SPinyins py = pinyins.get(i);
+            KeyboardPinyinList py = pinyins.get(i);
 
             if (sc.length() != py.size()) throw new IllegalArgumentException(
                     String.format("詞語：【%s】【%s】（長度%s）和拼音的字數（長度%s）不一样", sc, tc, sc.length(), py.size())
@@ -52,7 +51,7 @@ public class CiyuCreate
                     ListTool.mapping(py.getPinyin(), j ->
                     {
                         var dPinyin = d.checkAndCreatePinyin(j);
-                        return PinyinFormatter.toDPinyin(dPinyin, d).toString(true);
+                        return dPinyin.toDatabasePinyin().toString(true);
                     })
             ));
 

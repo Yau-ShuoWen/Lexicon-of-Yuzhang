@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.domain.Word;
 
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
+import com.shuowen.yuzong.Linguistics.util.RPinyins;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -8,7 +8,7 @@ import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
 import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;

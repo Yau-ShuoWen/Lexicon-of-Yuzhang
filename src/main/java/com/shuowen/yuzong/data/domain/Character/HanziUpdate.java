@@ -1,25 +1,25 @@
 package com.shuowen.yuzong.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.ext.other.ObjectTool;
-import com.shuowen.yuzong.util.text.TextPinyinIPA;
-import com.shuowen.yuzong.util.tuple.Range;
+import com.shuowen.yuzong.Linguistics.util.KeyboardPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.util.text.ScTcChar;
-import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.util.tuple.Quadruple;
-import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import com.shuowen.yuzong.data.model.Character.HanziPinyin;
 import com.shuowen.yuzong.data.model.Character.HanziSimilar;
 import com.shuowen.yuzong.data.model.Character.MdrChar;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.util.text.ScTcChar;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
+import com.shuowen.yuzong.util.tuple.Quadruple;
+import com.shuowen.yuzong.util.tuple.Range;
+import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
@@ -29,7 +29,7 @@ public class HanziUpdate
 {
     private Integer id;
     private ScTcChar hanzi;
-    private SPinyin mainPy;
+    private KeyboardPinyin mainPy;
     private Integer special;
 
     @Data
@@ -62,14 +62,14 @@ public class HanziUpdate
     {
         Integer id;     // 新增的内容id设置为0
         ScTcText tag;   // 标签，简繁
-        SPinyin pinyin; // 读音变体
+        KeyboardPinyin pinyin; // 读音变体
         Integer sort;   // 优先等级
 
         public PinyinData(HanziPinyin py, Dialect d)
         {
             id = py.getId();
             tag = new ScTcText(py.getSc(), py.getTc());
-            pinyin = PinyinFormatter.toSPinyin(py.getPinyin(), d);
+            pinyin = d.trustedCreatePinyin(py.getPinyin()).toKeyboardPinyin();
             sort = py.getSort();
         }
 
@@ -80,7 +80,7 @@ public class HanziUpdate
             ans.setCharId(charId);
             ans.setSc(tag.getSc().toString());
             ans.setTc(tag.getTc().toString());
-            ans.setPinyin(PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(pinyin), d).toString(true));
+            ans.setPinyin(d.checkAndCreatePinyin(pinyin).toDatabasePinyin().toString(true));
             ans.setSort(sort);
             return ans;
         }
@@ -102,7 +102,7 @@ public class HanziUpdate
     {
         id = ch.getId();
         hanzi = new ScTcChar(ch.getSc(), ch.getTc());
-        mainPy = PinyinFormatter.toSPinyin(ch.getMainPy(), d);
+        mainPy = d.trustedCreatePinyin(ch.getMainPy()).toKeyboardPinyin();
         special = ch.getSpecial();
 
         // 其他表的查询
@@ -129,7 +129,7 @@ public class HanziUpdate
         ch.setTc(hanzi.getTc().toString());
 
         var dPinyin = d.checkAndCreatePinyin(mainPy);
-        ch.setMainPy(PinyinFormatter.toDPinyin(dPinyin, d).toString(true));
+        ch.setMainPy(dPinyin.toDatabasePinyin().toString(true));
         ch.setPyCode(dPinyin.getWeight());
 
         ObjectTool.asserts(Range.close(0, 4).contains(special), "");

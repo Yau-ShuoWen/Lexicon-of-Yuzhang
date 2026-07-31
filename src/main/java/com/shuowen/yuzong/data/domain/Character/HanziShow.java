@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.data.domain.Character;
 
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Linguistics.util.RPinyin;
 import com.shuowen.yuzong.Linguistics.pinyin.UniPinyin;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.set.SetTool;
@@ -14,7 +14,7 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.data.domain.IPA.*;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.service.impl.Reference.RefReadService;

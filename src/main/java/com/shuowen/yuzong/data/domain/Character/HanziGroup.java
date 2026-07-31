@@ -5,7 +5,7 @@ import com.shuowen.yuzong.util.ext.set.SetTool;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
+import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
 import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import lombok.Data;
 

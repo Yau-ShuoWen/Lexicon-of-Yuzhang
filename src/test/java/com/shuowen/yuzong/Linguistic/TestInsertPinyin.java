@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.service.impl.IPA.IPAService;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ public class TestInsertPinyin
 
         for (var i : py)
         {
-            ipaService.insertSyllable(d.trustedCreatePinyin(SPinyin.of(i)), d);
+            ipaService.insertSyllable(d.trustedCreatePinyin(SplitedPinyin.of(i)), d);
         }
     }
 }

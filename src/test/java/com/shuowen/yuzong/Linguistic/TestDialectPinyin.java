@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.test.Counter;
-import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.util.test.Counter;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +30,7 @@ public class TestDialectPinyin
             Counter ans = new Counter();
             for (var i : m.getAllSyll(d.toString()))
             {
-                var maybe = d.tryCreatePinyin(SPinyin.of(i.getStandard()));
+                var maybe = d.tryCreatePinyin(SplitedPinyin.of(i.getStandard()));
 
                 String a = maybe.isValid() ? maybe.getValue().getCode() : null;
                 if (ans.check(i.getCode().equals(a)))

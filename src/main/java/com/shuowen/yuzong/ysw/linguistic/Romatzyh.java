@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.ysw.linguistic;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
+import com.shuowen.yuzong.Linguistics.util.RPinyin;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 
 import java.util.*;

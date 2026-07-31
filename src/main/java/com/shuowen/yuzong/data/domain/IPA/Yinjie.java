@@ -1,14 +1,16 @@
 package com.shuowen.yuzong.data.domain.IPA;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.model.IPA.IPASyllEntity;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import lombok.Data;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
 import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
@@ -19,13 +21,13 @@ import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
 @Data
 public class Yinjie
 {
-    protected SPinyin pinyin;
+    protected SplitedPinyin pinyin;
     protected Map<DictCode, String> info;
     protected String code;
 
     private Yinjie(IPASyllEntity ipa)
     {
-        pinyin = SPinyin.of(ipa.getStandard());
+        pinyin = SplitedPinyin.of(ipa.getStandard());
         code = ipa.getCode();
         info = readJson(ipa.getInfo(), new TypeReference<>() {});
     }
@@ -51,7 +53,7 @@ public class Yinjie
      */
     private Yinjie(Shengyun initial, Shengyun last)
     {
-        pinyin = SPinyin.of(initial.pinyin + last.pinyin);
+        pinyin = SplitedPinyin.of(initial.pinyin + last.pinyin);
         code = (initial.code + last.code).replace("~", "");
         info = new HashMap<>();
         for (var i : initial.getInfo().keySet())

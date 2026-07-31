@@ -1,21 +1,23 @@
 package com.shuowen.yuzong.service.impl.IPA;
 
 import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.test.EqualChecker;
-import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.util.tuple.Quadruple;
 import com.shuowen.yuzong.data.domain.IPA.*;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
 import com.shuowen.yuzong.data.model.IPA.IPAItem;
+import com.shuowen.yuzong.util.test.EqualChecker;
+import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.Quadruple;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -122,7 +124,7 @@ public class IPAService
         for (var s : syll)
         {
             var yj = Yinjie.of(s);
-            var pinyin = d.trustedCreatePinyin(SPinyin.of(s.getStandard()));
+            var pinyin = d.trustedCreatePinyin(SplitedPinyin.of(s.getStandard()));
             for (var dict : DictGroup.of(d).getKeySet())
             {
                 for (var sy : IPASyllStyle.values())
@@ -148,7 +150,7 @@ public class IPAService
                 var sd = Shengdiao.of(t);
                 try
                 {
-                    var pinyin = d.trustedCreatePinyin(SPinyin.of(s.getStandard()+t.getStandard()));
+                    var pinyin = d.trustedCreatePinyin(SplitedPinyin.of(s.getStandard()+t.getStandard()));
                     for (var dict : DictGroup.of(d).getKeySet())
                     {
                         for (var sy : IPASyllStyle.values())

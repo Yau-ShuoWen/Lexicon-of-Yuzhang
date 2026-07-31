@@ -4,7 +4,7 @@
 //
 //public class RussiaScheme
 //{
-//    private enum Scheme
+//    private enum util
 //    {
 //        Russia,
 //        RussiaNew,
@@ -15,7 +15,7 @@
 //        Bulgaria
 //    }
 //
-//    public String format(Zhuyin zy, Scheme scheme)
+//    public String format(Zhuyin zy, util scheme)
 //    {
 //        var pair = initial(zy, scheme);
 //        String initial = pair.getLeft();
@@ -30,7 +30,7 @@
 //        return initial + yun;
 //    }
 //
-//    private Pair<String, Boolean> initial(Zhuyin zy, Scheme scheme)
+//    private Pair<String, Boolean> initial(Zhuyin zy, util scheme)
 //    {
 //        boolean zero = false;
 //        String s = switch (zy.getInitial())
@@ -97,7 +97,7 @@
 //        return Pair.of(s, zero);
 //    }
 //
-//    private String zicisi(Zhuyin zy, Scheme scheme)
+//    private String zicisi(Zhuyin zy, util scheme)
 //    {
 //
 //        return switch (zy.toStringWithoutTone())
@@ -118,7 +118,7 @@
 //        };
 //    }
 //а о э э ай эй ао оу ань энь ан эн эр и я - е яо ю	янь	инь	ян ин у	уа/ва о/во уай/вай уй/вэй уань/вань	унь/вэнь уан/ван ун/вэн юй юэ юань юнь юн
-//    private String last(Zhuyin zy, Scheme scheme, boolean zero)
+//    private String last(Zhuyin zy, util scheme, boolean zero)
 //    {
 //        return switch (zy.getMiddle() + zy.getLast())
 //        {

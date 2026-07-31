@@ -1,19 +1,19 @@
 package com.shuowen.yuzong.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyins;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
+import com.shuowen.yuzong.Linguistics.util.RPinyins;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.Tool.dataStructure.option.NoteTag;
-import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.util.tuple.Pair;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.data.model.Word.CiyuSimilar;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -34,7 +34,7 @@ public class CiyuItem
     private final Integer special;
 
     // 结构组数据
-    private final List<SPinyin> mainPy;
+    private final List<SplitedPinyin> mainPy;
     private final List<Pair<UString, Integer>> similar;
     private final List<Twin<UString>> note;
     private final List<UString> mean;

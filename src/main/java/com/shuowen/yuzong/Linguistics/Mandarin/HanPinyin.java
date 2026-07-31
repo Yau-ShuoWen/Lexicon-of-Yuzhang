@@ -5,14 +5,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
-import com.shuowen.yuzong.Linguistics.Scheme.RPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
+import com.shuowen.yuzong.Linguistics.util.RPinyin;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
+import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import lombok.Data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 所有汉语拼音有关内容都放在这里， Pinyin类不要用在外面，外面直接用字符串接住，
@@ -22,13 +24,13 @@ import java.util.*;
 @Data
 public class HanPinyin
 {
-    private final SPinyin split;
+    private final SplitedPinyin split;
     @JsonValue
     private final RPinyin read;
 
     private HanPinyin(String syll, Maybe<String> tone)
     {
-        split = SPinyin.of(syll, tone);
+        split = SplitedPinyin.of(syll, tone);
         read = topMark();
     }
 
@@ -74,7 +76,7 @@ public class HanPinyin
     @JsonCreator
     public static HanPinyin of(String p)
     {
-        var pinyin = SPinyin.of(p);
+        var pinyin = SplitedPinyin.of(p);
         return new HanPinyin(pinyin.getSyll(), pinyin.getTone());
     }
 
