@@ -1,13 +1,13 @@
 package com.shuowen.yuzong.util.text;
 
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.Twin;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +32,7 @@ public class RichTextUtil
         while (m.find())
         {
             String content = m.group();
-            var pyMaybe = d.tryCreatePinyin(SPinyin.of(content.substring(1, content.length() - 1)));
+            var pyMaybe = d.tryCreatePinyin(SplitedPinyin.of(content.substring(1, content.length() - 1)));
             String ans = pyMaybe.isValid() ?
                     PinyinFormatter.handle((pyMaybe.getValue()), style).toString() :
                     "{b 无效方言拼音}";

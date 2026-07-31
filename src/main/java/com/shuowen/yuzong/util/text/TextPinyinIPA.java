@@ -1,19 +1,18 @@
 package com.shuowen.yuzong.util.text;
 
 import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.PinyinFormatter;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyin;
-import com.shuowen.yuzong.Linguistics.Scheme.SPinyins;
-import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.data.domain.Reference.DictGroup;
+import com.shuowen.yuzong.util.err.InvalidPinyinException;
+import com.shuowen.yuzong.util.tuple.Maybe;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,15 +107,16 @@ public class TextPinyinIPA
             PinyinToken pinyin, PinyinConfig data,
             boolean developer, Maybe<DictCode> dict, boolean isfromDB)
     {
+        Language l = data.getLanguage();
         if (pinyin.body.contains(" "))
         {
-            List<String> list = new ArrayList<>();
+            var str = new StringBuilder();
             for (String s : pinyin.body.trim().split("\\s+"))
             {
                 var smaller = new PinyinToken(pinyin.type, s);
-                list.add(handle(smaller, data, developer, dict, isfromDB));
+                str.append(handle(smaller, data, developer, dict, isfromDB));
             }
-            return concatPinyin(list);
+            return str.toString();
         }
 
         var d = data.getDialect();
@@ -139,7 +139,7 @@ public class TextPinyinIPA
             }
             case IPA ->
             {
-                SPinyin pyText = SPinyin.of(pinyin.body);
+                var pyText = pinyin.body;
                 try
                 {
                     // 创建拼音，如果失败，返回警告
@@ -150,9 +150,7 @@ public class TextPinyinIPA
                     // 创建音标，如果失败，返回警告
                     try
                     {
-                        return String.format(" %s ",
-                                data.searchIPA(py, dict.getValueOrDefault(d.getDefaultDict())).getValue()
-                        );
+                        return data.searchIPA(py, dict.getValueOrDefault(d.getDefaultDict())).getValue();
                     } catch (Exception e)
                     {
                         return " 【无效国际音标】 ";
@@ -172,53 +170,87 @@ public class TextPinyinIPA
             }
             case DIALECT ->
             {
-                // 如果是在辞书里，这里的方言拼音不是简单的方言拼音。是辞典的特殊流程
-                if (!dict.isEmpty())
+                try
                 {
-                    // 如果是开发者模式，就显示两个
+                    var pyText = pinyin.body;
+                    var py = isfromDB ? d.trustedCreatePinyin(pyText) : d.checkAndCreatePinyin(pyText);
+                    var dictGroup = DictGroup.of(d);
+
                     if (developer)
                     {
-                        // developer 为 true 是因为这个分支里都是如此；dict 为空是因为拆分了之后就不用了
-                        return String.format("%s/%s",
-                                handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, true, dict, isfromDB),
-                                handle(pinyin, data, true, Maybe.nothing(), isfromDB)
-                        );
+                        var block = py.format(PinyinMode.STANDARD);
+
+                        if (!dict.isEmpty()) // 没有字典上下文，就是标准模式，不处理
+                        {
+                            var ipa = data.searchIPA(py, dict.getValue()).getValueOrDefault("？");
+                            String dictName = dictGroup.getName(dict.getValue(), Language.TC);
+
+                            block.setTitle(ipa);
+                            block.addFirst(dictName, ipa);
+                        }
+                        return block.toTheString(l);
                     }
                     else
                     {
-                        return switch (data.getPinyinMode())
-                        {
-                            case INTRODUCE -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);//TODO
-                            case STANDARD -> handle(pinyin, data, false, Maybe.nothing(), isfromDB);
-                            case PROFESSIONAL ->
-                                    handle(new PinyinToken(PinyinType.IPA, pinyin.body), data, false, dict, isfromDB);
-                        };
-                    }
+                        var block = py.format(data.getPinyinMode());
 
-                }
-                else
-                {
-                    var pyText = SPinyin.of(pinyin.body);
-                    try
-                    {
-                        var py = isfromDB ?
-                                d.trustedCreatePinyin(pyText) :
-                                d.checkAndCreatePinyin(pyText);
-                        // RPinyin已经是 " [%s] "的格式了
-                        Scheme scheme = data.getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
-                        return PinyinFormatter.handle(py, d, scheme).toString();
-                    } catch (InvalidPinyinException e)
-                    {
-                        return developer ? String.format(" 【无效方言拼音：[%s]】 ", pyText) : " 【无效方言拼音】 ";
+                        switch (data.getPinyinMode())
+                        {
+                            case STANDARD ->
+                            {
+                                var dictCode = d.getDefaultDict();
+                                var ipa = data.searchIPA(py, dictCode);
+                                String dictName = DictGroup.of(d).getName(dictCode, Language.TC);
+
+                                if (ipa.isValid())
+                                {
+                                    // 标准版的普通拼音，如果有拼音，加这个，但是放在最后
+                                    if (dict.isEmpty()) block.add(dictName, ipa.getValue());
+                                        // 标准版的字典拼音，如果有拼音，放在最前面和标题
+                                    else block.addFirst(dictName, ipa.getValue());
+                                }
+                            }
+                            // 专业版把国际音标放在最前面，并且放在首位
+                            case PROFESSIONAL ->
+                            {
+                                if (dict.isEmpty())
+                                {
+                                    for (var i : dictGroup.getKeySet())
+                                    {
+                                        var ipa = data.searchIPA(py, i);
+                                        String dictName = dictGroup.getName(i, Language.TC);
+                                        if (ipa.isValid()) block.add(dictName, ipa.getValue());
+                                    }
+                                }
+                                else
+                                {
+                                    for (var i : dictGroup.getKeySet())
+                                    {
+                                        var ipa = data.searchIPA(py, i);
+                                        String dictName = dictGroup.getName(i, Language.TC);
+                                        if (ipa.isValid())
+                                        {
+                                            block.add(dictName, ipa.getValue());
+                                            if (i.equals(dict.getValue()))
+                                                block.setTitle(ipa.getValue());
+                                        }
+                                    }
+                                }
+                            }
+                            // 初学者在哪，叫一声，有回应吗？
+                        }
+
+                        return String.format(block.toTheString(l));
                     }
+                } catch (InvalidPinyinException e)
+                {
+                    return ScTcText.get("【無效拼音】", "【无效拼音】", l);
                 }
             }
             case CUSTOM ->
             {
                 try
                 {
-
-
                     int idx = pinyin.body.indexOf('=');
                     var ipa = pinyin.body.substring(0, idx);
                     var py = pinyin.body.substring(idx + 1);
@@ -254,31 +286,6 @@ public class TextPinyinIPA
         }
     }
 
-    private static String concatPinyin(List<String> list)
-    {
-        if (list.isEmpty())
-            throw new RuntimeException("此处不应该有空字符串");
-
-        if (list.get(0).contains("/"))
-        {
-            var t1 = new StringBuilder();
-            var t2 = new StringBuilder();
-            for (String s : list)
-            {
-                var idx = s.indexOf('/');
-                t1.append(s, 0, idx);
-                t2.append(s.substring(idx + 1));
-            }
-            return String.format(t1 + " / " + t2);
-        }
-        else
-        {
-            var res = new StringBuilder();
-            for (String s : list) res.append(s);
-            return res.toString();
-        }
-    }
-
     /**
      * 工具类入口：把展示和存储的内容相互转化
      */
@@ -307,84 +314,22 @@ public class TextPinyinIPA
         if (pinyin.body.contains(" "))
         {
             List<String> list = new ArrayList<>();
+            var str = new StringBuilder();
             for (String s : pinyin.body.split("\\s+"))
             {
                 var smaller = new PinyinToken(pinyin.type, s);
-                list.add(pinyinToDB(smaller, d, isfromDB));
+                str.append(pinyinToDB(smaller, d, isfromDB));
             }
-            return concatPinyin(list).replace("][", " ");
+            return str.toString().replace("][", " ");
         }
 
         if (isfromDB)
         {
-            return String.format("[%s]", PinyinFormatter.toSPinyin(pinyin.body, d).toString());
+            return "[" + d.trustedCreatePinyin(pinyin.body).toKeyboardPinyin().toString() + "]";
         }
         else
         {
-            return PinyinFormatter.toDPinyin(d.checkAndCreatePinyin(SPinyin.of(pinyin.body)), d).toString(false);
+            return d.checkAndCreatePinyin(pinyin.body).toDatabasePinyin().toString(false);
         }
     }
-
-    //
-
-    public static String preview(
-            SPinyins pinyin, Dialect d, boolean developer, boolean isfromDB)
-    {
-        String isTrue = "", display = "", introduce = "", keyboard = "", debug = "";
-
-        int size = pinyin.getPinyin().size();
-        for (SPinyin s : pinyin.getPinyin())
-        {
-            try
-            {
-                var py = isfromDB ?
-                        d.trustedCreatePinyin(s) :
-                        d.checkAndCreatePinyin(s);
-
-                isTrue += PinyinFormatter.handle(py, d, Scheme.KEYBOARD).toString().equals(
-                        String.format(" [%s] ", s.toString())) ? "✅" : "❌";
-                display += PinyinFormatter.handle(py, d, Scheme.DISPLAY);
-                keyboard += PinyinFormatter.handle(py, d, Scheme.KEYBOARD);
-                introduce += PinyinFormatter.handle(py, d, Scheme.INTRO);
-                debug += PinyinFormatter.handle(py, d, Scheme.DEBUG);
-
-            } catch (InvalidPinyinException e)
-            {
-                String add = "无效";
-                isTrue += "❌";
-                display += add;
-                keyboard += add;
-                introduce += add;
-                debug += add;
-            }
-            isTrue += "|";
-            display += "|";
-            keyboard += "|";
-            introduce += "|";
-            debug += "|";
-        }
-        if (developer)
-        {
-            return String.format("""
-                    |---!|%s
-                    |寫對了嗎？|%s
-                    |顯示和書寫|%s
-                    |鍵盤輸入|%s
-                    |讀起來像普通話的|%s
-                    |調試|%s
-                    """, "---!|".repeat(size), isTrue, display, keyboard, introduce, debug);
-        }
-        else
-        {
-            return String.format("""
-                    |---!|%s
-                    |寫對了嗎？|%s
-                    |顯示和書寫|%s
-                    |鍵盤輸入|%s
-                    |讀起來像普通話的|%s
-                    """, "---!|".repeat(size), isTrue, display, keyboard, introduce);
-        }
-    }
-
-
 }
