@@ -5,15 +5,16 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
 import com.shuowen.yuzong.Linguistics.Format.LACStyle;
 import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.util.KeyboardPinyin;
-import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
+import com.shuowen.yuzong.Linguistics.Format.WUHStyle;
 import com.shuowen.yuzong.Linguistics.pinyin.CEDPinyin;
 import com.shuowen.yuzong.Linguistics.pinyin.LACPinyin;
 import com.shuowen.yuzong.Linguistics.pinyin.UniPinyin;
+import com.shuowen.yuzong.Linguistics.pinyin.WUHPinyin;
+import com.shuowen.yuzong.Linguistics.util.KeyboardPinyin;
+import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import lombok.Getter;
 
@@ -21,26 +22,23 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * 方言代码，提供未来的扩展
- * <ul>
- * <li> {@code LAC} 南昌话 </li>
- * <li> {@code CED} 成都话 </li>
- * </ul>
+ * 方言代码
  */
-@SuppressWarnings ({"unchecked", "rawtypes", "unused"})
+@SuppressWarnings ({"unchecked", "unused"})
 public enum Dialect
 {
-    LAC("南昌話", "lac",  LACPinyin::tryOf, LACPinyin::tryOf, LACStyle::createStyle, "ncdict", 2),
-    CED("成都話", "ced",  CEDPinyin::tryOf, CEDPinyin::tryOf, CEDStyle::createStyle, "cddict", 2),
-//    WUH("武漢話", "wuh", WUHPinyin::tryOf,  null, "whdict", 0),
-//    GHZ("杭州話", "ghz", null，, null, "hzdict", 0),
+    LAC("南昌話", "lac", LACPinyin::tryOf, LACPinyin::tryOf, LACStyle::createStyle, "ncdict", 2),
+    CED("成都話", "ced", CEDPinyin::tryOf, CEDPinyin::tryOf, CEDStyle::createStyle, "cddict", 2),
+    WUH("武漢話", "wuh", WUHPinyin::tryOf, WUHPinyin::tryOf, WUHStyle::createStyle, "whdict", 2),
+    //JIN("濟南話", "jin", null, null, null, "jndict", 0),
+    //HGZ("濟南話", "hgz", null, null, null, "hzdict", 0),
     ;
 
     @Getter
     private final ScTcText name;
     private final String code;
-    private final Function<SplitedPinyin, Maybe<?>> creatorFromSplitedPinyin;
-    private final Function<KeyboardPinyin, Maybe<?>> creatorFromKeyboardPinyin;
+    private final Function<SplitedPinyin, Maybe<? extends UniPinyin<? extends PinyinStyle>>> creatorFromSplitedPinyin;
+    private final Function<KeyboardPinyin, Maybe<? extends UniPinyin<? extends PinyinStyle>>> creatorFromKeyboardPinyin;
     private final Function<Scheme, ? extends PinyinStyle> styleCreator;
     @Getter
     private final DictCode defaultDict;
@@ -57,8 +55,8 @@ public enum Dialect
      */
     <U extends PinyinStyle, T extends UniPinyin<U>>
     Dialect(String name, String code,
-            Function<SplitedPinyin, Maybe<?>> creatorFromSplitedPinyin,
-            Function<KeyboardPinyin, Maybe<?>> creatorFromKeyboardPinyin,
+            Function<SplitedPinyin, Maybe<? extends UniPinyin<?>>> creatorFromSplitedPinyin,
+            Function<KeyboardPinyin, Maybe<? extends UniPinyin<?>>> creatorFromKeyboardPinyin,
             Function<Scheme, U> styleCreator,
             String defaultDict, int initialLength
     )
@@ -75,7 +73,6 @@ public enum Dialect
     @JsonCreator
     public static Dialect of(String s)
     {
-        StringTool.checkTrimValid(s);
         for (Dialect d : values())
         {
             if (d.code.equalsIgnoreCase(s)) return d;

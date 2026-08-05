@@ -2,7 +2,6 @@ package com.shuowen.yuzong.Tool.dataStructure.option;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.util.text.StringTool;
 
 /**
  * 两种合适的参数（不考虑地区陆港台）
@@ -14,18 +13,23 @@ import com.shuowen.yuzong.util.text.StringTool;
  */
 public enum Language
 {
-    SC, TC;
+    SC("sc"), TC("tc");
+
+    private final String code;
+
+    Language(String code)
+    {
+        this.code = code;
+    }
 
     @JsonCreator
     public static Language of(String s)
     {
-        StringTool.checkTrimValid(s);
-        return switch (s.trim().toLowerCase())
+        for (Language l : values())
         {
-            case "sc" -> SC;
-            case "tc" -> TC;
-            default -> throw new IllegalArgumentException("简繁体代号无效：" + s);
-        };
+            if (l.code.equalsIgnoreCase(s)) return l;
+        }
+        throw new IllegalArgumentException("简繁体代码无效：" + s);
     }
 
     /**
@@ -33,22 +37,14 @@ public enum Language
      */
     public Language reverse()
     {
-        return switch (this)
-        {
-            case SC -> TC;
-            case TC -> SC;
-        };
+        return this == SC ? TC : SC;
     }
 
     @JsonValue
     @Override
     public String toString()
     {
-        return switch (this)
-        {
-            case SC -> "sc";
-            case TC -> "tc";
-        };
+        return code;
     }
 
     /**
@@ -56,11 +52,7 @@ public enum Language
      */
     public boolean isSimplified()
     {
-        return switch (this)
-        {
-            case SC -> true;
-            case TC -> false;
-        };
+        return this == SC;
     }
 }
 
