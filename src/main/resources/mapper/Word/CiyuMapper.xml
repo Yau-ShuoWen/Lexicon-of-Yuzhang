@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.data.mapper.Word.CiyuMapper">
+<mapper namespace="com.shuowen.yuzong.dict.data.mapper.Word.CiyuMapper">
 
 
     <sql id="allIn">
@@ -21,7 +21,7 @@
     </sql>
 
     <!-- 使用简繁体，查询包含该内容的词语 -->
-    <select id="findCiyuByScTcInRange" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+    <select id="findCiyuByScTcInRange" resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity">
         SELECT
         <include refid="allIn"/>
         WHERE (
@@ -33,7 +33,7 @@
     </select>
 
     <!-- 使用模糊识别，查询包含该内容的词语 -->
-    <select id="findCiyuByVagueInRange" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+    <select id="findCiyuByVagueInRange" resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity">
         SELECT
         <include refid="allIn"/>
         WHERE (
@@ -47,7 +47,7 @@
     </select>
 
     <!-- 通过主键寻找词语：精确查询 -->
-    <select id="findCiyuByWordId" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+    <select id="findCiyuByWordId" resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity">
         SELECT
         <include refid="allIn"/>
         WHERE
@@ -56,7 +56,7 @@
         GROUP BY main.id
     </select>
 
-    <select id="findCiyuByScOrTc" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+    <select id="findCiyuByScOrTc" resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity">
         SELECT
         <include refid="allIn"/>
         WHERE
@@ -65,7 +65,7 @@
         GROUP BY main.id
     </select>
 
-    <select id="getAllCiyu" resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+    <select id="getAllCiyu" resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity">
         SELECT
         <include refid="allIn"/>
         GROUP BY main.id
@@ -82,14 +82,14 @@
     <!-- 下面这一段是和编辑有关的内容，这里不需要复杂的聚合了 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
 
     <!-- 通过外键寻找：附表里的模糊识别汉字 -->
-    <select id="findCiyuSimilarByWordId" resultType="com.shuowen.yuzong.data.model.Word.CiyuSimilar">
+    <select id="findCiyuSimilarByWordId" resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar">
         SELECT * FROM NC.${dialect}_word_similar
         WHERE word_id = #{id}
     </select>
 
     <select id="findByUniqueKey"
-            parameterType="com.shuowen.yuzong.data.model.Word.CiyuEntity"
-            resultType="com.shuowen.yuzong.data.model.Word.CiyuEntity"
+            parameterType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity"
+            resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity"
     >
         SELECT * FROM NC.${dialect}_word
         WHERE sc = #{wd.sc} AND tc = #{wd.tc}
@@ -97,7 +97,7 @@
 
     <!-- 编辑时候插入的模块：（用于「如果之前没有这个id」，插入新的数据）-->
 
-    <insert id="insertWord" parameterType="com.shuowen.yuzong.data.model.Word.CiyuEntity"
+    <insert id="insertWord" parameterType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity"
             useGeneratedKeys="true" keyProperty="wd.id">
         INSERT INTO ${dialect}_word
         (sc, tc, special, main_py, note, mean, status)
@@ -106,14 +106,14 @@
     </insert>
 
     <!--  插入新的内容（相似汉字表）  -->
-    <insert id="insertWordSimilar" parameterType="com.shuowen.yuzong.data.model.Word.CiyuSimilar">
+    <insert id="insertWordSimilar" parameterType="com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar">
         INSERT into NC.${dialect}_word_similar
         (word_id, sc, tc, type)
         VALUES (#{wd.wordId}, #{wd.sc}, #{wd.tc}, #{wd.type})
     </insert>
 
     <!--  更新内容（主表）  -->
-    <update id="updateWordById" parameterType="com.shuowen.yuzong.data.model.Word.CiyuEntity">
+    <update id="updateWordById" parameterType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity">
         UPDATE NC.${dialect}_word
         SET
         special = #{wd.special},
@@ -125,7 +125,7 @@
     </update>
 
     <!--  更新内容（相似汉字表）  -->
-    <update id="updateWordSimilarById" parameterType="com.shuowen.yuzong.data.model.Word.CiyuSimilar">
+    <update id="updateWordSimilarById" parameterType="com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar">
         UPDATE NC.${dialect}_word_similar
         SET
         word_id = #{wd.wordId}, sc = #{wd.sc}, tc = #{wd.tc}, type = #{wd.type}

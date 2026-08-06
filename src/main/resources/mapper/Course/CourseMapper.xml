@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.data.mapper.Course.CourseMapper">
-    <select id="getCatalog" resultType="com.shuowen.yuzong.data.model.Course.CourseEntity">
+<mapper namespace="com.shuowen.yuzong.dict.data.mapper.Course.CourseMapper">
+    <select id="getCatalog" resultType="com.shuowen.yuzong.dict.data.model.Course.CourseEntity">
         SELECT *
         FROM NC.${dialect}_course
         ORDER BY chapter, section
     </select>
 
-    <select id="getArticalById" resultType="com.shuowen.yuzong.data.model.Course.CourseEntity">
+    <select id="getArticalById" resultType="com.shuowen.yuzong.dict.data.model.Course.CourseEntity">
         SELECT *
         FROM NC.${dialect}_course
         WHERE id = #{id}

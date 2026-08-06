@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.service.impl.IPA.IPAService;
+import com.shuowen.yuzong.dict.service.IPA.IPAService;
+import com.shuowen.yuzong.linguistics.util.SplitedPinyin;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

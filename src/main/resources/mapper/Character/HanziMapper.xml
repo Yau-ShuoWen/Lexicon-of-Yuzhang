@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.data.mapper.Character.HanziMapper">
+<mapper namespace="com.shuowen.yuzong.dict.data.mapper.Character.HanziMapper">
 
     <!-- 查询的时候复杂字段的合成- - - - - - - - - - - - - - - - - - - - -->
     <sql id="fields">
@@ -52,7 +52,7 @@
     <!--  下面的是为了展示而查询的方法，GROUP BY main.id实际上是上面连接的结果，但没有办法写在一起  -->
 
     <!-- 使用简繁体寻找汉字 -->
-    <select id="findHanziByScTc" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+    <select id="findHanziByScTc" resultType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity">
         SELECT
         <include refid="fields"/>
         WHERE
@@ -62,7 +62,7 @@
     </select>
 
     <!-- 使用简繁体、模糊识别寻找汉字 -->
-    <select id="findHanziByVague" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+    <select id="findHanziByVague" resultType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity">
         SELECT
         <include refid="fields"/>
         WHERE
@@ -74,7 +74,7 @@
     </select>
 
     <!--  精确查询  -->
-    <select id="findHanziByScOrTc" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+    <select id="findHanziByScOrTc" resultType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity">
         SELECT
         <include refid="fields"/>
         WHERE
@@ -82,7 +82,7 @@
         GROUP BY main.id
     </select>
 
-    <select id="findHanziByScTcBatch" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+    <select id="findHanziByScTcBatch" resultType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity">
         SELECT
         <include refid="fields"/>
         WHERE
@@ -97,7 +97,7 @@
     </select>
 
     <!--  查询所有内容  -->
-    <select id="getAllHanzi" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+    <select id="getAllHanzi" resultType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity">
         SELECT
         <include refid="fields"/>
         GROUP BY main.id
@@ -109,14 +109,14 @@
     <!-- 编辑时候的寻找模块：-->
 
     <!-- 通过主键寻找汉字 -->
-    <select id="findHanziByCharId" resultType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+    <select id="findHanziByCharId" resultType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity">
         SELECT * FROM NC.${dialect}_char WHERE id = #{id}
     </select>
 
     <!--  通过唯一键寻找汉字，查看是不是唯一性重复了  -->
     <select id="findByUniqueKey"
-            parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity"
-            resultType="com.shuowen.yuzong.data.model.Character.HanziEntity"
+            parameterType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity"
+            resultType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity"
     >
         SELECT * FROM NC.${dialect}_char
         WHERE
@@ -127,13 +127,13 @@
 
 
     <!-- 通过主键寻找：附表里的模糊识别汉字 -->
-    <select id="findHanziSimilarByCharId" resultType="com.shuowen.yuzong.data.model.Character.HanziSimilar">
+    <select id="findHanziSimilarByCharId" resultType="com.shuowen.yuzong.dict.data.model.Character.HanziSimilar">
         SELECT * FROM NC.${dialect}_char_similar
         WHERE char_id = #{id}
     </select>
 
     <!-- 通过主键寻找：附表里的多种拼音 -->
-    <select id="findHanziPinyinByCharId" resultType="com.shuowen.yuzong.data.model.Character.HanziPinyin">
+    <select id="findHanziPinyinByCharId" resultType="com.shuowen.yuzong.dict.data.model.Character.HanziPinyin">
         SELECT * FROM NC.${dialect}_char_pinyin
         WHERE char_id = #{id}
         ORDER BY sort
@@ -143,7 +143,7 @@
     <!-- 编辑时候插入的模块：（用于「如果之前没有这个id」，插入新的数据）-->
 
     <!--  插入新的内容（主表）  -->
-    <insert id="insertChar" parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity" useGeneratedKeys="true"
+    <insert id="insertChar" parameterType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity" useGeneratedKeys="true"
             keyProperty="ch.id">
         INSERT INTO ${dialect}_char
         (sc, tc, main_py, py_code, special, note, status)
@@ -152,14 +152,14 @@
     </insert>
 
     <!--  插入新的内容（相似汉字表）  -->
-    <insert id="insertCharSimilar" parameterType="com.shuowen.yuzong.data.model.Character.HanziSimilar">
+    <insert id="insertCharSimilar" parameterType="com.shuowen.yuzong.dict.data.model.Character.HanziSimilar">
         INSERT into NC.${dialect}_char_similar
         (char_id, sc, tc)
         VALUES (#{ch.charId}, #{ch.sc}, #{ch.tc})
     </insert>
 
     <!--  插入新的内容（读音变体表）  -->
-    <insert id="insertCharPinyin" parameterType="com.shuowen.yuzong.data.model.Character.HanziPinyin">
+    <insert id="insertCharPinyin" parameterType="com.shuowen.yuzong.dict.data.model.Character.HanziPinyin">
         INSERT INTO NC.${dialect}_char_pinyin
         (char_id, sc, tc, pinyin, sort)
         VALUES (#{ch.charId}, #{ch.sc}, #{ch.tc}, #{ch.pinyin}, #{ch.sort})
@@ -169,7 +169,7 @@
     <!-- 编辑时候修改的模块：（用于「如果之前已经有了这个id」，覆盖非重要字段）-->
 
     <!--  更新内容（主表）  -->
-    <update id="updateCharById" parameterType="com.shuowen.yuzong.data.model.Character.HanziEntity">
+    <update id="updateCharById" parameterType="com.shuowen.yuzong.dict.data.model.Character.HanziEntity">
         UPDATE NC.${dialect}_char
         SET
         main_py = #{ch.mainPy},
@@ -181,7 +181,7 @@
     </update>
 
     <!--  更新内容（相似汉字表）  -->
-    <update id="updateCharSimilarById" parameterType="com.shuowen.yuzong.data.model.Character.HanziSimilar">
+    <update id="updateCharSimilarById" parameterType="com.shuowen.yuzong.dict.data.model.Character.HanziSimilar">
         UPDATE NC.${dialect}_char_similar
         SET
         char_id = #{ch.charId}, sc = #{ch.sc}, tc = #{ch.tc}
@@ -189,7 +189,7 @@
     </update>
 
     <!--  更新内容（读音变体表）  -->
-    <update id="updateCharPinyinById" parameterType="com.shuowen.yuzong.data.model.Character.HanziPinyin">
+    <update id="updateCharPinyinById" parameterType="com.shuowen.yuzong.dict.data.model.Character.HanziPinyin">
         UPDATE NC.${dialect}_char_pinyin
         SET
         char_id = #{ch.charId}, sc = #{ch.sc}, tc = #{ch.tc}, pinyin = #{ch.pinyin}, sort = #{ch.sort}

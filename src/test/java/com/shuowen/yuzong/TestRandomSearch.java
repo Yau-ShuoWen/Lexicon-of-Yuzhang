@@ -1,11 +1,11 @@
 package com.shuowen.yuzong;
 
-import com.shuowen.yuzong.util.ext.other.ObjectTool;
-import com.shuowen.yuzong.util.tuple.Range;
-import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.controller.search.SearchController;
+import com.shuowen.yuzong.dict.controller.search.SearchController;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.tuple.Range;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

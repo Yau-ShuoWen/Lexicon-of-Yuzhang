@@ -1,0 +1,36 @@
+package com.shuowen.yuzong.dict.controller.edit;
+
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.dict.service.IPA.PinyinService;
+import com.shuowen.yuzong.util.text.ScTcText;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping ("/api/edit/pinyin")
+public class EditPinyinController
+{
+    @Autowired
+    PinyinService py;
+
+    @GetMapping ("/filter/{d}")
+    public List<String> filter(@PathVariable Dialect d)
+    {
+        return py.getKey(d);
+    }
+
+    @GetMapping ("/get-note/{d}")
+    public ScTcText getNote(@PathVariable Dialect d, @RequestParam String key)
+    {
+        return py.getNote(d, key);
+    }
+
+    @PostMapping ("/update-note/{d}")
+    public void updateNote(@PathVariable Dialect d,
+                           @RequestParam String key, @RequestBody ScTcText note)
+    {
+        py.updateNote(d, key, note);
+    }
+}

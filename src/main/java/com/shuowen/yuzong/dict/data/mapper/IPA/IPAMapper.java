@@ -1,0 +1,98 @@
+package com.shuowen.yuzong.dict.data.mapper.IPA;
+
+import com.shuowen.yuzong.dict.data.model.IPA.IPAItem;
+import com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity;
+import com.shuowen.yuzong.dict.data.model.IPA.IPAToneEntity;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
+import java.util.Set;
+
+@Mapper
+public interface IPAMapper
+{
+    // 音节表-------------------------------
+
+    /**
+     * 按照标准拼音为关键字，查询单行信息
+     */
+    IPASyllEntity findSyllableByStandard(String standard, String dialect);
+
+    /**
+     * 按照编号为关键字，查询单行信息
+     */
+    IPASyllEntity findSyllableByCode(String code, String dialect);
+
+    /**
+     * 获取音节表的所有信息，按照编号排序
+     */
+    @Select("SELECT * from NC.${dialect}_ipa_syllable order by code")
+    List<IPASyllEntity> getAllSyll(String dialect);
+
+    /**
+     * 按照标准拼音为关键字，查询多行信息
+     */
+    Set<IPASyllEntity> findSyllableListByStandard(Set<String> list, String dialect);
+
+    /**
+     * 插入新的音节
+     */
+    void insertSyllable(@Param ("py") IPASyllEntity pinyin, String dialect);
+
+    /**
+     * 修改音节的具体音标信息
+     */
+    void changeSyllableInfo(@Param ("py") IPASyllEntity pinyin, String dialect);
+
+    // 音段表 -------------------------------
+
+    /**
+     * 按照编号为关键字，查询音段表单行信息
+     */
+    IPASyllEntity findSegmentInfo(String code, String dialect);
+
+    /**
+     * 按照编号为关键字，查询音段表多行信息
+     */
+    List<IPASyllEntity> findSegmentListByCode(List<String> list, String dialect);
+
+    /**
+     * 获取音段表的所有信息
+     */
+    List<IPASyllEntity> getAllSegment(String dialect);
+
+    // 声调表 -------------------------------
+
+    /**
+     * 按照声调为关键字，查询声调表单行信息
+     */
+    IPAToneEntity findToneInfo(int tone, String dialect);
+
+    /**
+     * 按照声调为关键字，查询声调表多行信息
+     */
+    Set<IPAToneEntity> findToneInfoSet(Set<String> list, String dialect);
+
+    /**
+     * 获取声调表的所有信息
+     */
+    @Select ("SELECT * FROM NC.${dialect}_ipa_segment WHERE code LIKE '___t_' ORDER BY standard")
+    List<IPAToneEntity> getAllTone(String dialect);
+
+    /**
+     *
+     */
+    List<IPAItem> getTableItem(String dialect, String key);
+
+
+    @Select ("SELECT self_key FROM NC.${dialect}_ipa_segment WHERE self_key IS NOT NULL ")
+    List<String> getEditKey(String dialect);
+
+    @Select ("SELECT note FROM NC.${dialect}_ipa_segment WHERE self_key = #{key}")
+    String getNote(String dialect, String key);
+
+    @Select ("UPDATE NC.${dialect}_ipa_segment SET note = #{note} WHERE self_key = #{key}")
+    void updateNote(String dialect, String key, String note);
+}

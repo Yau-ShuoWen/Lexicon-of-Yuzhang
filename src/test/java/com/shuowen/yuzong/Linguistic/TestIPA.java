@@ -2,7 +2,7 @@ package com.shuowen.yuzong.Linguistic;
 
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.service.impl.IPA.IPAService;
+import com.shuowen.yuzong.dict.service.IPA.IPAService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

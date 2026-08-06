@@ -1,0 +1,48 @@
+package com.shuowen.yuzong.dict.data.domain.IPA;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity;
+import lombok.Getter;
+
+import java.util.*;
+
+import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+
+/**
+ * 音段领域模型类
+ */
+@Getter
+public class Shengyun
+{
+    protected String pinyin;
+    protected Map<DictCode, String> info;
+    protected String code;
+
+    private Shengyun(IPASyllEntity ipa)
+    {
+        pinyin = ipa.getStandard();
+        info = readJson(ipa.getInfo(), new TypeReference<>() {});
+        code = ipa.getCode();
+    }
+
+    /**
+     * 使用一个不确定是否有效的IPASyllableEntity初始化
+     */
+    public static Maybe<Shengyun> tryOf(IPASyllEntity ipa)
+    {
+        if (ipa == null) return Maybe.nothing();
+        else return Maybe.exist(new Shengyun(ipa));
+    }
+
+    /**
+     * 获得查询表
+     */
+    public static Map<String, Shengyun> mapOf(List<IPASyllEntity> list)
+    {
+        Map<String, Shengyun> map = new HashMap<>();
+        for (var i : list) map.put(i.getCode(), new Shengyun(i));
+        return map;
+    }
+}

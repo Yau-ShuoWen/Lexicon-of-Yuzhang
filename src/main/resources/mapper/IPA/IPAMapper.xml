@@ -2,35 +2,35 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.data.mapper.IPA.IPAMapper">
+<mapper namespace="com.shuowen.yuzong.dict.data.mapper.IPA.IPAMapper">
 
     <!-- 音节表相关查询 -->
 
     <!-- 关键字：标注拼音，单行信息 -->
-    <select id="findSyllableByStandard" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
+    <select id="findSyllableByStandard" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity">
         select * from NC.${dialect}_ipa_syllable where standard = #{standard}
     </select>
 
     <!-- 关键字：编码，单行信息 -->
-    <select id="findSyllableByCode" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
+    <select id="findSyllableByCode" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity">
         select * from NC.${dialect}_ipa_syllable where code = #{code}
     </select>
 
 
     <!-- 批量查询音节信息 -->
-    <select id="findSyllableListByStandard" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
+    <select id="findSyllableListByStandard" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity">
         SELECT * FROM NC.${dialect}_ipa_syllable WHERE standard IN
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>
 
-    <select id="insertSyllable" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
+    <select id="insertSyllable" parameterType="com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity">
         insert into NC.${dialect}_ipa_syllable (standard, code, info)
         values (#{py.standard}, #{py.code}, #{py.info})
     </select>
 
-    <select id="changeSyllableInfo" parameterType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
+    <select id="changeSyllableInfo" parameterType="com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity">
         update NC.${dialect}_ipa_syllable
         set info = #{py.info}
         where standard = #{py.standard} ;
@@ -39,12 +39,12 @@
     <!-- 音节成分表相关查询 -->
 
     <!-- 通过带空位的code查询 -->
-    <select id="findSegmentInfo" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
+    <select id="findSegmentInfo" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity">
         select * from NC.${dialect}_ipa_segment where code = #{code}
     </select>
 
     <!-- order by code 保证了一定是先声母再韵母 -->
-    <select id="findSegmentListByCode" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
+    <select id="findSegmentListByCode" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity">
         select * from NC.${dialect}_ipa_segment where code in
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
@@ -52,19 +52,19 @@
         order by code
     </select>
 
-    <select id="getAllSegment" resultType="com.shuowen.yuzong.data.model.IPA.IPASyllEntity">
+    <select id="getAllSegment" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPASyllEntity">
         select * from NC.${dialect}_ipa_segment order by code
     </select>
 
     <!-- 声调表相关查询 -->
 
     <!-- 单行信息 -->
-    <select id="findToneInfo" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
+    <select id="findToneInfo" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPAToneEntity">
         select * from NC.${dialect}_ipa_segment where standard = #{tone}
     </select>
 
     <!-- 多行信息 -->
-    <select id="findToneInfoSet" resultType="com.shuowen.yuzong.data.model.IPA.IPAToneEntity">
+    <select id="findToneInfoSet" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPAToneEntity">
         SELECT * FROM NC.${dialect}_ipa_segment
         <where>
             <if test="list != null and list.size() > 0">
@@ -79,7 +79,7 @@
         </where>
     </select>
 
-    <select id="getTableItem" resultType="com.shuowen.yuzong.data.model.IPA.IPAItem">
+    <select id="getTableItem" resultType="com.shuowen.yuzong.dict.data.model.IPA.IPAItem">
         SELECT self_key as url, title, note, info
         FROM NC.${dialect}_ipa_segment
         WHERE root_key = #{key}

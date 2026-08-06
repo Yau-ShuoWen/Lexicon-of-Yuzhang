@@ -1,0 +1,118 @@
+package com.shuowen.yuzong.dict.data.domain.Reference;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.util.ext.sort.FractionIndex;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
+import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Twin;
+import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.*;
+import java.util.function.Function;
+
+import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
+
+@Data
+@NoArgsConstructor
+public class RefProof extends Page
+{
+    private DictCode dictionary;
+    private FractionIndex frontSort;
+    private FractionIndex endSort;
+    private Pair<String, Integer> pageInfo;
+
+    @Data
+    @NoArgsConstructor
+    private static class Info
+    {
+        Integer id;
+        UString source;  // 原始数据
+        ScTcText text;   // 简体和繁体版本
+        ScTcText note;   // 注释
+
+        @JsonIgnore
+        private static Function<String, String> decode = i -> TextPinyinIPA.transferPinyin(i, Dialect.LAC, true);
+        @JsonIgnore
+        private static Function<String, String> encode = i -> TextPinyinIPA.transferPinyin(i, Dialect.LAC, false);
+
+        public Info(RefEntity ck)
+        {
+            this.id = ck.getId();
+            source = UString.of(decode.apply(ck.getContent()));
+            text = readJson(decode.apply(ck.getText()), new TypeReference<>() {});
+            note = readJson(decode.apply(ck.getNote()), new TypeReference<>() {});
+        }
+
+        public RefEntity transfer(DictCode dict, FractionIndex sort, Pair<String, Integer> pageInfo)
+        {
+            var ans = new RefEntity();
+            ans.setId(this.id);
+            ans.setTheDict(dict);
+            ans.setTheSort(sort);
+            ans.setContent(encode.apply(source.toString()));
+            ans.setThePageInfo(pageInfo);
+            ans.setText(encode.apply(toJson(text)));
+            ans.setNote(encode.apply(toJson(note)));
+
+            return ans;
+        }
+    }
+
+    private List<Info> contents;
+
+    private RefProof(List<RefEntity> list)
+    {
+        type = "proof";
+
+        var l = readList(list);
+        var front = l.get(0);
+        var end = l.get(l.size() - 1);
+
+        // 标记只有sort字段重要
+        frontSort = front.getTheSort();
+        endSort = end.getTheSort();
+        // 已经被证明全部相等，直接获取第一个的对应属性即可
+        dictionary = front.getTheDict();
+        pageInfo = front.getThePageInfo();
+
+        // 拼接内容
+        contents = new ArrayList<>();
+        for (int i = 1; i < l.size() - 1; i++)
+        {
+            contents.add(new Info(l.get(i)));
+        }
+    }
+
+    public static RefProof of(List<RefEntity> list)
+    {
+        return new RefProof(list);
+    }
+
+    public Pair<Twin<RefEntity>, List<RefEntity>> transfer()
+    {
+        var edge = Twin.of(
+                new RefEntity(dictionary, frontSort, Keyword.FRONT_OF_PAGE, pageInfo),
+                new RefEntity(dictionary, endSort, Keyword.END_OF_PAGE, pageInfo)
+        );
+        edge.handle(i -> i.setLocked(true));
+
+        List<RefEntity> mid = new ArrayList<>();
+        var sorts = FractionIndex.between(frontSort, endSort, contents.size());
+        for (int i = 0; i < contents.size(); i++)
+        {
+            mid.add(contents.get(i).transfer(dictionary, sorts.get(i), pageInfo));
+        }
+
+        ListTool.handle(mid, i -> i.setLocked(true));
+
+        return Pair.of(edge, mid);
+    }
+}

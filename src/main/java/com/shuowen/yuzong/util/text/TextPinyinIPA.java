@@ -1,13 +1,13 @@
 package com.shuowen.yuzong.util.text;
 
-import com.shuowen.yuzong.Linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.data.domain.IPA.IPAFormatter;
-import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
-import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
-import com.shuowen.yuzong.data.domain.Reference.DictCode;
-import com.shuowen.yuzong.data.domain.Reference.DictGroup;
+import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
+import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
+import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
+import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.dict.data.domain.Reference.DictGroup;
+import com.shuowen.yuzong.linguistics.Mandarin.HanPinyin;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.tuple.Maybe;
 

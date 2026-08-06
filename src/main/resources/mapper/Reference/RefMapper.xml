@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.data.mapper.Reference.RefMapper">
+<mapper namespace="com.shuowen.yuzong.dict.data.mapper.Reference.RefMapper">
 
     <select id="isDictionaryExist" resultType="Boolean">
         <![CDATA[
@@ -25,13 +25,13 @@
         ]]>
     </select>
 
-    <select id="getItemsByQuery" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <select id="getItemsByQuery" resultType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
         WHERE content LIKE CONCAT('%', #{query}, '%')
         AND dictionary = #{dictionary}
     </select>
 
-    <select id="getItemByRandom" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <select id="getItemByRandom" resultType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         SELECT *
         FROM NC.reference
         WHERE dictionary = #{dictionary}
@@ -68,7 +68,7 @@
     </update>
 
     <!--  传入随便哪一条数据的排序号码，找到整页的全部数据  -->
-    <select id="getPageBySort" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <select id="getPageBySort" resultType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         <![CDATA[
             SELECT *
             FROM NC.reference
@@ -104,7 +104,7 @@
     </select>
 
     <!--  寻找上一页和下一页  -->
-    <select id="findNearby" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <select id="findNearby" resultType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
         WHERE dictionary = #{dictionary}
         AND sort ${before ? '&lt;' : '>'} #{sort}
@@ -113,7 +113,7 @@
     </select>
 
     <!--  插入数据  -->
-    <insert id="batchInsert" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <insert id="batchInsert" parameterType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         INSERT INTO NC.reference(dictionary, sort, content, page_info, text, note, locked)
         VALUES
         <foreach collection="list" item="item" separator=",">
@@ -123,7 +123,7 @@
     </insert>
 
     <!-- 更新页面边缘的标记符号，除了序号是可以更改的，其他的都是要稳定的 -->
-    <update id="updateEdge" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <update id="updateEdge" parameterType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         UPDATE NC.reference
         SET page_info = #{pageInfo}
         WHERE dictionary = #{dictionary}
@@ -140,7 +140,7 @@
     </delete>
 
     <!--  清除控制数据，因为清空内容需要根据控制数据做区间，所以单独拿出来  -->
-    <update id="deleteEdge" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <update id="deleteEdge" parameterType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         DELETE FROM NC.reference
         WHERE dictionary = #{dictionary}
         AND sort = #{sort}
@@ -153,7 +153,7 @@
         AND dictionary = #{dictionary}
     </delete>
 
-    <update id="update" parameterType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <update id="update" parameterType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         UPDATE NC.reference
         SET
         content = #{content},
@@ -174,14 +174,14 @@
     </update>
 
     <!--  获取每一页开头（/FRONT/）的对应信息  -->
-    <select id="findPageinfo" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <select id="findPageinfo" resultType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
         WHERE dictionary = #{dictionary}
         AND BINARY content = '/FRONT/'
         ORDER BY sort
     </select>
 
-    <select id="findAllByQuery" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <select id="findAllByQuery" resultType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
         WHERE dictionary IN
         <foreach collection="dicts" item="dict" open="(" separator="," close=")">
@@ -206,7 +206,7 @@
         ]]>
     </select>
 
-    <select id="findAll" resultType="com.shuowen.yuzong.data.model.Reference.RefEntity">
+    <select id="findAll" resultType="com.shuowen.yuzong.dict.data.model.Reference.RefEntity">
         SELECT * FROM NC.reference
         WHERE dictionary = #{dictionary}
         ORDER BY sort

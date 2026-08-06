@@ -1,0 +1,66 @@
+package com.shuowen.yuzong.dict.data.domain.Word;
+
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
+import com.shuowen.yuzong.linguistics.util.KeyboardPinyinList;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.UString;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
+
+@Data
+@NoArgsConstructor
+public class CiyuCreate
+{
+    ScTcText text;
+    String pys;
+
+    public List<CiyuEntity> checkAndTransfer(Dialect d)
+    {
+        var txt = text.mapToOther(str ->
+                ListTool.mapping(str.split("\n"), UString::of)
+        );
+        var pinyins = ListTool.mapping(pys.split("\n"), KeyboardPinyinList::of);
+
+        if (txt.getLeft().size() != pinyins.size()) throw new IllegalArgumentException("词语数量和拼音行数不一样");
+        var size = pinyins.size();
+
+        List<CiyuEntity> ans = new ArrayList<>();
+        for (int i = 0; i < size; i++)
+        {
+            UString sc = txt.getLeft().get(i);
+            UString tc = txt.getRight().get(i);
+            KeyboardPinyinList py = pinyins.get(i);
+
+            if (sc.length() != py.size()) throw new IllegalArgumentException(
+                    String.format("詞語：【%s】【%s】（長度%s）和拼音的字數（長度%s）不一样", sc, tc, sc.length(), py.size())
+            );
+
+            var tmp = new CiyuEntity();
+            tmp.setSc(sc.toString());
+            tmp.setTc(tc.toString());
+            tmp.setSpecial(0);
+
+            tmp.setMainPy(toJson(
+                    ListTool.mapping(py.getPinyin(), j ->
+                    {
+                        var dPinyin = d.checkAndCreatePinyin(j);
+                        return dPinyin.toDatabasePinyin().toString(true);
+                    })
+            ));
+
+            tmp.setNote("[]");
+            tmp.setMean("[]");
+            tmp.setStatus(0);
+
+            ans.add(tmp);
+        }
+        return ans;
+    }
+}

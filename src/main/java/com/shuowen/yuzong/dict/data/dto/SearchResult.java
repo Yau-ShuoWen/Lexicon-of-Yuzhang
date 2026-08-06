@@ -1,0 +1,18 @@
+package com.shuowen.yuzong.dict.data.dto;
+
+import lombok.Data;
+
+import java.util.*;
+
+/**
+ * 搜索结果的预览信息，无论是汉字、词语还是其他都是这个
+ */
+@Data
+public class SearchResult
+{
+    private Object title;     // 结果的主体
+    private Object explain;   // 结果的简短说明
+    private Object tag;       // 结果的标签
+    private Object special;   //
+    private Map<String,Object> info;      // 反查的信息，因为内容复杂，不管格式
+}

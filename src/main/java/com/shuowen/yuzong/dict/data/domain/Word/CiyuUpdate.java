@@ -1,0 +1,144 @@
+package com.shuowen.yuzong.dict.data.domain.Word;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.NoteTag;
+import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
+import com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar;
+import com.shuowen.yuzong.linguistics.util.KeyboardPinyinList;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
+import com.shuowen.yuzong.util.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Range;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
+
+@Data
+@NoArgsConstructor
+public class CiyuUpdate
+{
+    private Integer id;
+    private ScTcText ciyu;
+    private Integer special;
+
+    private KeyboardPinyinList mainPy;
+
+    @Data
+    @NoArgsConstructor
+    public static class Similar
+    {
+        Integer id;      // 新增的内容id设置为0
+        ScTcText text;
+        Integer type;
+
+        public Similar(CiyuSimilar sim)
+        {
+            id = sim.getId();
+            text = new ScTcText(sim.getSc(), sim.getTc());
+            type = sim.getType();
+        }
+
+        public CiyuSimilar transfer()
+        {
+            var ans = new CiyuSimilar();
+            ans.setId(id);
+            ans.setSc(text.getSc().toString());
+            ans.setTc(text.getTc().toString());
+            ans.setType(type);
+            return ans;
+        }
+    }
+
+    private List<Similar> similar = new ArrayList<>();
+
+    private List<Pair<NoteTag, ScTcText>> note = new ArrayList<>();
+    private List<ScTcText> mean;
+
+    private Integer status;
+
+    // 数据库→后端→前端 ----------------------------------------------------
+
+    public CiyuUpdate(Dialect d, CiyuEntity cy, List<CiyuSimilar> sim)
+    {
+        id = cy.getId();
+        ciyu = new ScTcText(cy.getSc(), cy.getTc());
+        special = cy.getSpecial();
+
+        mainPy = KeyboardPinyinList.of(
+                ListTool.mapping(readJson(cy.getMainPy(), new TypeReference<List<String>>() {}),
+                       i->d.trustedCreatePinyin(i).toKeyboardPinyin()
+                )
+        );
+
+        similar = ListTool.mapping(sim, Similar::new);
+
+        // 转换成List Twin ScTcText 之后，对List每一个元素，元素里Twin的标签和文本，标签和文本里的繁体和简体都做转换。
+        note = ListTool.mapping(
+                readJson(cy.getNote(), new TypeReference<List<Pair<NoteTag, ScTcText>>>() {}),
+                i -> Pair.of(
+                        i.getLeft(),
+                        i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, d, true))
+                )
+        );
+        mean = ListTool.mapping(
+                readJson(cy.getMean(), new TypeReference<List<ScTcText>>() {}),
+                i -> i.map(str -> TextPinyinIPA.transferPinyin(str, d, true))
+        );
+
+        status = cy.getStatus();
+    }
+
+    // 前端→后端→数据库 ----------------------------------------------------
+
+    public Pair<CiyuEntity, List<CiyuSimilar>> checkAndTransfer(Dialect d)
+    {
+        ObjectTool.asserts(ciyu.length() == mainPy.getPinyin().size(), "");
+
+        var cy = new CiyuEntity();
+        cy.setId(id);
+        cy.setSc(ciyu.getSc().toString());
+        cy.setTc(ciyu.getTc().toString());
+
+        ObjectTool.asserts(Range.close(0, 4).contains(special), "特殊標記超出範圍");
+        cy.setSpecial(special);
+
+        cy.setMainPy(
+                toJson(
+                        ListTool.mapping(
+                                mainPy.getPinyin(),
+                                i -> d.checkAndCreatePinyin(i).toDatabasePinyin().toString(true)
+                        )
+                )
+        );
+
+        var sim = ListTool.mapping(similar, Similar::transfer);
+
+        cy.setNote(toJson(
+                ListTool.mapping(note,
+                        i -> Pair.of(
+                                i.getLeft(),
+                                i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, d, false))
+                        )
+
+                )
+        ));
+
+        cy.setMean(toJson(
+                ListTool.mapping(mean,
+                        i -> i.map(str -> TextPinyinIPA.transferPinyin(str, d, false))
+                )
+        ));
+
+        cy.setStatus(status);
+
+        return Pair.of(cy, sim);
+    }
+}

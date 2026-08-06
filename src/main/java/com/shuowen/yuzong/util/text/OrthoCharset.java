@@ -3,9 +3,11 @@ package com.shuowen.yuzong.util.text;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.format.JsonTool;
-import com.shuowen.yuzong.service.impl.KV;
+import com.shuowen.yuzong.util.map.KV;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**

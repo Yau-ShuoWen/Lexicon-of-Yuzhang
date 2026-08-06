@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.data.mapper.IPA.IPAMapper;
+import com.shuowen.yuzong.dict.data.mapper.IPA.IPAMapper;
+import com.shuowen.yuzong.linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.test.Counter;
 import org.junit.jupiter.api.Test;
