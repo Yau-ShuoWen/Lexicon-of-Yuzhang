@@ -1,27 +1,23 @@
 package com.shuowen.yuzong.data.domain.Character;
 
-import com.shuowen.yuzong.Linguistics.util.RPinyin;
 import com.shuowen.yuzong.Linguistics.pinyin.UniPinyin;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.ext.set.SetTool;
-import com.shuowen.yuzong.util.text.RichTextUtil;
-import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.text.UChar;
-import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.Linguistics.util.RPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.option.Scheme;
-import com.shuowen.yuzong.util.tuple.Pair;
-import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.data.domain.IPA.*;
-import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.service.impl.Reference.RefReadService;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.ext.set.SetTool;
+import com.shuowen.yuzong.util.text.RichTextUtil;
+import com.shuowen.yuzong.util.text.UChar;
+import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.Pair;
+import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -60,9 +56,9 @@ public class HanziShow
         @Data
         class tmpInfo
         {
-            UniPinyin<?> mainPy;                                           // 标准拼音
+            UniPinyin mainPy;                                           // 标准拼音
             Set<Integer> special = new TreeSet<>();                       // 特殊性数字：默认顺序的集合
-            Set<Pair<UString, UniPinyin<?>>> variantPy = new LinkedHashSet<>();// 读音变体：插入顺序的集合
+            Set<Pair<UString, UniPinyin>> variantPy = new LinkedHashSet<>();// 读音变体：插入顺序的集合
             Set<UChar> similar = new TreeSet<>();                        // 模糊识别汉字：默认顺序的集合
             List<String> mdrInfo = new ArrayList<>();
             List<Twin<UString>> note = new ArrayList<>();
@@ -70,7 +66,7 @@ public class HanziShow
 
         // 初始化 ----------------------------------------------------------------------
 
-        Map<UniPinyin<?>, tmpInfo> tmpInfoMap = new HashMap<>();
+        Map<UniPinyin, tmpInfo> tmpInfoMap = new HashMap<>();
 
         // 根据信息初始化
         for (HanziItem h : hz)
@@ -121,14 +117,11 @@ public class HanziShow
                     MdrTool.showWithZhuyin(j))
             );
 
-            Scheme scheme = data.getPinyinMode() == PinyinMode.INTRODUCE ? Scheme.INTRO : Scheme.DISPLAY;
 
             // 这是三个明确要初始化的内容，已经在上一轮获取了信息
-            // 函数：快速调用拼音格式化成字符串
-            Function<UniPinyin<?>, RPinyin> format = p -> PinyinFormatter.handle(p, d, scheme);
 
-            info.mainPy = format.apply(i.mainPy);
-            info.variantPy = ListTool.mapping(i.variantPy, pair -> Pair.of(pair.getLeft(), format.apply(pair.getRight())));
+            info.mainPy = i.mainPy.toRPinyin();
+            info.variantPy = ListTool.mapping(i.variantPy, pair -> Pair.of(pair.getLeft(), pair.getRight().toRPinyin()));
 
             info.note = ListTool.mapping(i.note, pair -> Twin.of(pair.getLeft(),
                     RichTextUtil.format(pair.getRight(), data, false, Maybe.nothing(), true)

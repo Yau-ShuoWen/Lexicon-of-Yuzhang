@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
 import com.shuowen.yuzong.Linguistics.util.RPinyins;
 import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -136,6 +135,6 @@ public class CiyuItem
 
     public RPinyins getPinyin(Dialect d)
     {
-        return RPinyins.of(ListTool.mapping(mainPy, i -> PinyinFormatter.handle(i, d)));
+        return RPinyins.of(ListTool.mapping(mainPy, i -> d.trustedCreatePinyin(i).toRPinyin()));
     }
 }

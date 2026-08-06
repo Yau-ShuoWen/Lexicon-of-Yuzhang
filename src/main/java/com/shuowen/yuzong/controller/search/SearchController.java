@@ -1,25 +1,27 @@
 package com.shuowen.yuzong.controller.search;
 
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.text.UChar;
-import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.controller.APIResponse;
+import com.shuowen.yuzong.data.domain.Character.HanziShow;
 import com.shuowen.yuzong.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
-import com.shuowen.yuzong.data.domain.Character.HanziShow;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
-import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.data.domain.Word.CiyuShow;
+import com.shuowen.yuzong.data.dto.SearchResult;
 import com.shuowen.yuzong.service.impl.Character.HanziService;
 import com.shuowen.yuzong.service.impl.Word.CiyuService;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.UChar;
+import com.shuowen.yuzong.util.text.UString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping ("/api/search/")

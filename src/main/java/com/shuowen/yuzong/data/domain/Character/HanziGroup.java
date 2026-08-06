@@ -1,15 +1,17 @@
 package com.shuowen.yuzong.data.domain.Character;
 
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.set.SetTool;
 import com.shuowen.yuzong.util.text.UChar;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
-import com.shuowen.yuzong.data.model.Character.HanziEntity;
 import lombok.Data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 汉字结果集
@@ -48,7 +50,7 @@ public class HanziGroup
     public String getPinyin()
     {
         return String.join("/",
-                SetTool.mapping(data, i -> PinyinFormatter.handle(i.getMainPy(), dialect).toString())
+                SetTool.mapping(data, i -> dialect.trustedCreatePinyin(i.getMainPy()).toRPinyin().toString())
         );
     }
 
