@@ -1,6 +1,5 @@
 package com.shuowen.yuzong.Linguistics.pinyin;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
 import com.shuowen.yuzong.Linguistics.IPA.IPinyin;
 import com.shuowen.yuzong.Linguistics.util.*;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
@@ -12,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 @EqualsAndHashCode // 因为其他字段只由这 syll tone 两个决定，所以实际上也只是比较这两个的区别
-abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
+abstract public class UniPinyin implements IPinyin
 {
     protected final String syll;        // 不包括声调的标准拼音
     protected final Maybe<Integer> tone;// 数字音调，0表示轻声
@@ -81,12 +80,7 @@ abstract public class UniPinyin<T extends PinyinStyle> implements IPinyin
         return "默认的未知方言拼音：" + syll + (tone.isValid() ? tone.getValue() : "");
     }
 
-    /**
-     * 这才是真正的转字符串的函数，但是
-     * <br>1. 是protected的，也就是只給{@code PinyinFormatter}
-     * <br>2. 结果并不是简单的字符串，而是包装类
-     */
-    public abstract RPinyin toRPinyin(T params);
+    public abstract RPinyin toRPinyin();
 
     public abstract KeyboardPinyin toKeyboardPinyin();
 

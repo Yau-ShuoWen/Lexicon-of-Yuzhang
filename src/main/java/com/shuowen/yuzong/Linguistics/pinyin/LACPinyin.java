@@ -1,6 +1,5 @@
 package com.shuowen.yuzong.Linguistics.pinyin;
 
-import com.shuowen.yuzong.Linguistics.Format.LACStyle;
 import com.shuowen.yuzong.Linguistics.util.*;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
@@ -17,7 +16,7 @@ import java.util.function.Function;
 /**
  * 南昌话拼音方案
  */
-public class LACPinyin extends UniPinyin<LACStyle>
+public class LACPinyin extends UniPinyin
 {
     protected LACPinyin(SplitedPinyin s)
     {
@@ -283,16 +282,9 @@ public class LACPinyin extends UniPinyin<LACStyle>
     }
 
     @Override
-    public RPinyin toRPinyin(LACStyle p)
+    public RPinyin toRPinyin()
     {
-        String pinyin = switch (p.getStyle())
-        {
-            case DISPALY -> LACDisplay.format(this);
-            case KEYBOAD -> LACKeyboard.format(this);
-            case INTRO -> LACIntro.format(this);
-            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
-        };
-        return RPinyin.of(pinyin);
+        return RPinyin.of(LACDisplay.format(this));
     }
 
     @Override

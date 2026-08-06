@@ -2,10 +2,6 @@ package com.shuowen.yuzong.Tool.dataStructure.option;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
-import com.shuowen.yuzong.Linguistics.Format.LACStyle;
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.Format.WUHStyle;
 import com.shuowen.yuzong.Linguistics.pinyin.CEDPinyin;
 import com.shuowen.yuzong.Linguistics.pinyin.LACPinyin;
 import com.shuowen.yuzong.Linguistics.pinyin.UniPinyin;
@@ -27,9 +23,9 @@ import java.util.function.Function;
 @SuppressWarnings ({"unchecked", "unused"})
 public enum Dialect
 {
-    LAC("南昌話", "lac", LACPinyin::tryOf, LACPinyin::tryOf, LACStyle::createStyle, "ncdict", 2),
-    CED("成都話", "ced", CEDPinyin::tryOf, CEDPinyin::tryOf, CEDStyle::createStyle, "cddict", 2),
-    WUH("武漢話", "wuh", WUHPinyin::tryOf, WUHPinyin::tryOf, WUHStyle::createStyle, "whdict", 2),
+    LAC("南昌話", "lac", LACPinyin::tryOf, LACPinyin::tryOf, "ncdict", 2),
+    CED("成都話", "ced", CEDPinyin::tryOf, CEDPinyin::tryOf, "cddict", 2),
+    WUH("武漢話", "wuh", WUHPinyin::tryOf, WUHPinyin::tryOf, "whdict", 2),
     //JIN("濟南話", "jin", null, null, null, "jndict", 0),
     //HGZ("濟南話", "hgz", null, null, null, "hzdict", 0),
     ;
@@ -37,9 +33,8 @@ public enum Dialect
     @Getter
     private final ScTcText name;
     private final String code;
-    private final Function<SplitedPinyin, Maybe<? extends UniPinyin<? extends PinyinStyle>>> creatorFromSplitedPinyin;
-    private final Function<KeyboardPinyin, Maybe<? extends UniPinyin<? extends PinyinStyle>>> creatorFromKeyboardPinyin;
-    private final Function<Scheme, ? extends PinyinStyle> styleCreator;
+    private final Function<SplitedPinyin, Maybe<? extends UniPinyin>> creatorFromSplitedPinyin;
+    private final Function<KeyboardPinyin, Maybe<? extends UniPinyin>> creatorFromKeyboardPinyin;
     @Getter
     private final DictCode defaultDict;
 
@@ -53,11 +48,10 @@ public enum Dialect
     /**
      * 构造函数
      */
-    <U extends PinyinStyle, T extends UniPinyin<U>>
+    <T extends UniPinyin>
     Dialect(String name, String code,
-            Function<SplitedPinyin, Maybe<? extends UniPinyin<?>>> creatorFromSplitedPinyin,
-            Function<KeyboardPinyin, Maybe<? extends UniPinyin<?>>> creatorFromKeyboardPinyin,
-            Function<Scheme, U> styleCreator,
+            Function<SplitedPinyin, Maybe<? extends UniPinyin>> creatorFromSplitedPinyin,
+            Function<KeyboardPinyin, Maybe<? extends UniPinyin>> creatorFromKeyboardPinyin,
             String defaultDict, int initialLength
     )
     {
@@ -65,7 +59,6 @@ public enum Dialect
         this.code = code;
         this.creatorFromSplitedPinyin = creatorFromSplitedPinyin;
         this.creatorFromKeyboardPinyin = creatorFromKeyboardPinyin;
-        this.styleCreator = styleCreator;
         this.defaultDict = new DictCode(defaultDict);
         this.initialLength = initialLength;
     }
@@ -87,12 +80,12 @@ public enum Dialect
         return code;
     }
 
-    public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(KeyboardPinyin py)
+    public <T extends UniPinyin> Maybe<T> tryCreatePinyin(KeyboardPinyin py)
     {
         return (Maybe<T>) creatorFromKeyboardPinyin.apply(py);
     }
 
-    public <U extends PinyinStyle, T extends UniPinyin<U>> Maybe<T> tryCreatePinyin(SplitedPinyin py)
+    public <T extends UniPinyin> Maybe<T> tryCreatePinyin(SplitedPinyin py)
     {
         return (Maybe<T>) creatorFromSplitedPinyin.apply(py);
     }
@@ -102,14 +95,14 @@ public enum Dialect
      *
      * @return 直接返回内容，不需要解析，但是如果是无效的，就直接报异常，说明流程的漏洞把缺陷的拼音存进去了
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(SplitedPinyin py)
+    public <T extends UniPinyin> T trustedCreatePinyin(SplitedPinyin py)
     {
         var pinyin = creatorFromSplitedPinyin.apply(py);
         if (pinyin.isEmpty()) throw new IllegalArgumentException("来自信任端的拼音无效。文本：" + py);
         return (T) pinyin.getValue();
     }
 
-    public <U extends PinyinStyle, T extends UniPinyin<U>> T trustedCreatePinyin(String py)
+    public <T extends UniPinyin> T trustedCreatePinyin(String py)
     {
         return trustedCreatePinyin(SplitedPinyin.of(py));
     }
@@ -119,24 +112,16 @@ public enum Dialect
      *
      * @throws InvalidPinyinException 碰见这个错误不用打印栈
      */
-    public <U extends PinyinStyle, T extends UniPinyin<U>> T checkAndCreatePinyin(KeyboardPinyin py)
+    public <T extends UniPinyin> T checkAndCreatePinyin(KeyboardPinyin py)
     {
         var pinyin = tryCreatePinyin(py);
         if (pinyin.isEmpty()) throw new InvalidPinyinException(String.format("%s拼音%s无效", getName().getSc(), py));
         return (T) pinyin.getValue();
     }
 
-    public <U extends PinyinStyle, T extends UniPinyin<U>> T checkAndCreatePinyin(String py)
+    public <T extends UniPinyin> T checkAndCreatePinyin(String py)
     {
         return checkAndCreatePinyin(KeyboardPinyin.of(py));
-    }
-
-    /**
-     * 根据通用的拼音参数创建方言拼音格式
-     */
-    public <U extends PinyinStyle> U createStyle(Scheme param)
-    {
-        return (U) styleCreator.apply(param);
     }
 
     public static List<Dialect> getList()

@@ -1,9 +1,5 @@
 package com.shuowen.yuzong.util.text;
 
-import com.shuowen.yuzong.Linguistics.Format.PinyinStyle;
-import com.shuowen.yuzong.Linguistics.util.PinyinFormatter;
-import com.shuowen.yuzong.Linguistics.util.SplitedPinyin;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -16,30 +12,6 @@ public class RichTextUtil
 {
     private RichTextUtil()
     {
-    }
-
-    /**
-     * 对于预览的拼音列做拼音初始化，只用于专业版
-     *
-     * @param s     字符串，里面只能有[]这个特殊字符
-     * @param style 为数不多可以直接用style的流程
-     */
-    public static <U extends PinyinStyle> String format(String s, U style, Dialect d)
-    {
-        Matcher m = Pattern.compile("\\[[^]]+]").matcher(s);
-        StringBuilder sb = new StringBuilder();
-
-        while (m.find())
-        {
-            String content = m.group();
-            var pyMaybe = d.tryCreatePinyin(SplitedPinyin.of(content.substring(1, content.length() - 1)));
-            String ans = pyMaybe.isValid() ?
-                    PinyinFormatter.handle((pyMaybe.getValue()), style).toString() :
-                    "{b 无效方言拼音}";
-            m.appendReplacement(sb, Matcher.quoteReplacement(ans));
-        }
-        m.appendTail(sb);
-        return sb.toString();
     }
 
     /**

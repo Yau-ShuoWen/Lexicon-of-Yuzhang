@@ -1,6 +1,5 @@
 package com.shuowen.yuzong.Linguistics.pinyin;
 
-import com.shuowen.yuzong.Linguistics.Format.CEDStyle;
 import com.shuowen.yuzong.Linguistics.util.*;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.data.domain.IPA.PinyinMode;
@@ -12,7 +11,7 @@ import com.shuowen.yuzong.util.tuple.Range;
 /**
  * 成都话拼音
  */
-public class CEDPinyin extends UniPinyin<CEDStyle>
+public class CEDPinyin extends UniPinyin
 {
     protected CEDPinyin(SplitedPinyin s)
     {
@@ -177,16 +176,9 @@ public class CEDPinyin extends UniPinyin<CEDStyle>
     }
 
     @Override
-    public RPinyin toRPinyin(CEDStyle p)
+    public RPinyin toRPinyin()
     {
-        String pinyin = switch (p.getStyle())
-        {
-            case DISPALY -> CEDDisplay.format(this);
-            case KEYBOAD -> CEDKeyboard.format(this);
-            case INTRO -> CEDIntro.format(this);
-            case DEBUG -> syll + tone.handleIfExistAndGet(Object::toString, "");
-        };
-        return RPinyin.of(pinyin);
+        return RPinyin.of(CEDDisplay.format(this));
     }
 
     @Override
