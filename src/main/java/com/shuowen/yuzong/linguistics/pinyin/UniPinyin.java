@@ -77,7 +77,7 @@ abstract public class UniPinyin implements IPinyin
     @Override
     public String toString()
     {
-        return "默认的未知方言拼音：" + syll + (tone.isValid() ? tone.getValue() : "");
+        return "默认的未知方言拼音：" + syll + tone.toStringOrEmpty();
     }
 
     public abstract RPinyin toRPinyin();

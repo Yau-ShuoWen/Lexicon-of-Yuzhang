@@ -244,9 +244,7 @@ public class LACPinyin extends UniPinyin
     @Override
     public String toString()
     {
-        return String.format("默认的南昌话拼音：%s%s", syll,
-                tone.handleIfExistAndGet(Object::toString, "")
-        );
+        return String.format("默认的南昌话拼音：%s%s", syll, tone.toStringOrEmpty());
     }
 
     @Override
