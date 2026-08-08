@@ -23,10 +23,10 @@ public class PinyinController
         return UString.of(ans);
     }
 
-    @GetMapping ("/table/{d}")
-    public PinyinTable getTable(@PathVariable Dialect d)
+    @GetMapping ("/table/{d}/{l}")
+    public PinyinTable getTable(@PathVariable Dialect d, @PathVariable Language l)
     {
-        return new PinyinTable(d);
+        return new PinyinTable(d,l);
     }
 
     @GetMapping ("/pinyin-detail/{d}/{l}")

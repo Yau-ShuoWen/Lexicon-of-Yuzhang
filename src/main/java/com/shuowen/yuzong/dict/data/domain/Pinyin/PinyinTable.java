@@ -3,8 +3,9 @@ package com.shuowen.yuzong.dict.data.domain.Pinyin;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.linguistics.util.PinyinCommon;
 import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.map.KV;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.tuple.Pair;
@@ -28,11 +29,11 @@ public class PinyinTable
         final String standard;  // 标准拼音
         final String id;        // 调用地址 initial-b（声母b） last-ang（韵母ang）
 
-        private Item(String standard, String keyboard, String code)
+        private Item(String standard, String code)
         {
             this.exist = !"-".equals(standard);
-            this.standard = exist ? String.format("[%s]", standard) : "-";
-            this.id = exist ? code + "-" + keyboard : "-";
+            this.standard = exist ? String.format("[%s]", PinyinCommon.e_A_G(standard)) : "-";
+            this.id = exist ? code + "-" + standard : "-";
         }
     }
 
@@ -43,10 +44,9 @@ public class PinyinTable
     {
         final List<Item> item = new ArrayList<>();
 
-        public Group(List<String> standards, List<String> keyboards, String code)
+        public Group(List<String> standards, String code)
         {
-            int size = ObjectTool.assertEqual(standards.size(), keyboards.size());
-            for (int i = 0; i < size; i++) item.add(new Item(standards.get(i), keyboards.get(i), code));
+            for (String standard : standards) item.add(new Item(standard, code));
         }
     }
 
@@ -56,14 +56,9 @@ public class PinyinTable
     {
         final List<Group> group = new ArrayList<>();
 
-        public Line(Map<String, List<List<String>>> data, String code)
+        public Line(List<List<String>> data, String code)
         {
-            var standards = data.get("standard");
-            var keyboards = data.get("keyboard");
-            int size = ObjectTool.assertEqual(standards.size(), keyboards.size());
-
-            for (int i = 0; i < size; i++)
-                group.add(new Group(standards.get(i), keyboards.get(i), code));
+            for (List<String> standard : data) group.add(new Group(standard, code));
         }
     }
 
@@ -71,14 +66,14 @@ public class PinyinTable
     @Data
     static class Grid
     {
-        ScTcText name;     // 区域名称，如：声母，韵母
+        String name;     // 区域名称，如：声母，韵母
         String code;
         List<Line> line;
 
-        public Grid(Pair<Map<String, String>, List<Map<String, List<List<String>>>>> data)
+        public Grid(Pair<Map<String, String>, List<List<List<String>>>> data, Language l)
         {
             var gridData = data.getLeft();
-            name = new ScTcText(gridData.get("name-sc"), gridData.get("name-tc"));
+            name = ScTcText.get(gridData.get("name-tc"), gridData.get("name-sc"), l);
             code = gridData.get("code");
             line = ListTool.mapping(data.getRight(), i -> new Line(i, code));
         }
@@ -87,13 +82,13 @@ public class PinyinTable
     private final List<Grid> table;
 
     @JsonCreator
-    public PinyinTable(Dialect d)
+    public PinyinTable(Dialect d, Language l)
     {
         var data = readJson(
                 KV.get("pinyin-table-display-json:" + d),
-                new TypeReference<List<Pair<Map<String, String>, List<Map<String, List<List<String>>>>>>>() {}
+                new TypeReference<List<Pair<Map<String, String>, List<List<List<String>>>>>>() {}
         );
 
-        table = ListTool.mapping(data, Grid::new);
+        table = ListTool.mapping(data, i -> new Grid(i, l));
     }
 }
