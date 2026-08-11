@@ -2,11 +2,8 @@ package com.shuowen.yuzong.util.text;
 
 import com.hankcs.hanlp.HanLP;
 import com.shuowen.yuzong.Tool.DataVersionCtrl.UStringCompareUtil;
-import com.shuowen.yuzong.util.ext.map.MapTool;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.util.tuple.Twin;
-
-import java.util.*;
 
 /**
  * 一个古籍简繁和格式管理工具类
@@ -46,9 +43,9 @@ public class ProofreadTool
 
         // 是否更换的标准取决于charset规则
         var ans = UString.of();
-        for (int i=0;i<text.length();i++)
+        for (int i = 0; i < text.length(); i++)
         {
-            ans.append(charset.choose(text.uCharAt(i),tmp.uCharAt(i)));
+            ans.append(charset.choose(text.uCharAt(i), tmp.uCharAt(i)));
         }
         return ans;
     }
@@ -56,7 +53,7 @@ public class ProofreadTool
     /**
      * 在不干扰不变区域的情况下对修改部分新增，防止全量更新导致的已经编辑的简体字部分在繁体更新后被覆盖
      */
-    public static Map<String, UString> retainContextTranslate(
+    public static ScTcText retainContextTranslate(
             UString oldTc, UString newTc, UString oldSc, final OrthoCharset charset)
     {
         // 长度相等才能共用索引
@@ -118,6 +115,26 @@ public class ProofreadTool
                 获得的临时简体字符串：%s
                 """, oldTc, oldSc, newTc, newSc, newScTmp));
 
-        return MapTool.orderMapOf("sc", newSc, "tc", newTc);
+        return new ScTcText(newTc, newSc);
+    }
+
+    public static String translate(String text, String from, String to)
+    {
+        return switch (from + "->" + to)
+        {
+            case "sc->tc" -> HanLP.s2t(text);
+            case "sc->tw" -> HanLP.s2tw(text);
+            case "sc->hk" -> HanLP.s2hk(text);
+            case "tc->sc" -> HanLP.t2s(text);
+            case "tc->tw" -> HanLP.t2tw(text);
+            case "tc->hk" -> HanLP.t2hk(text);
+            case "tw->sc" -> HanLP.tw2s(text);
+            case "tw->tc" -> HanLP.tw2t(text);
+            case "tw->hk" -> HanLP.tw2hk(text);
+            case "hk->sc" -> HanLP.hk2s(text);
+            case "hk->tc" -> HanLP.hk2t(text);
+            case "hk->tw" -> HanLP.hk2tw(text);
+            default -> throw new IllegalArgumentException("");
+        };
     }
 }

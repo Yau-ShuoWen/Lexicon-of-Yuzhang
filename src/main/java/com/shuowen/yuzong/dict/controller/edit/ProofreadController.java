@@ -4,34 +4,27 @@ import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
-import com.shuowen.yuzong.util.text.OrthoCharset;
-import com.shuowen.yuzong.util.text.ProofreadTool;
-import com.shuowen.yuzong.util.text.RichTextUtil;
-import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.text.*;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Trio;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping ("/api/proofread")
 public class ProofreadController
 {
     @PostMapping ("sc-tc-translate/{d}")
-    public APIResponse<Map<String, UString>> translate(
+    public APIResponse<ScTcText> translate(
             @PathVariable Dialect d,
-            @RequestBody Trio<String> text
+            @RequestBody Trio<UString> text
     )
     {
         try
         {
-            var UText = text.map(UString::of); // 转字符串
-
             return APIResponse.success(ProofreadTool.retainContextTranslate(
-                    UText.getLeft(), UText.getMiddle(), UText.getRight(),
+                    text.getLeft(), text.getMiddle(), text.getRight(),
                     OrthoCharset.of(d))
             );
         } catch (Exception e)
@@ -49,5 +42,17 @@ public class ProofreadController
     {
         var str = RichTextUtil.format(text, new PinyinConfig(l, d), true, Maybe.uncertain(dict), false);
         return Pair.of(RichTextUtil.checkWarning(str), str);
+    }
+
+    @PostMapping ("/translate")
+    public APIResponse<String> translate(@RequestParam String from, @RequestParam String to, @RequestBody String text)
+    {
+        try
+        {
+            return APIResponse.success(ProofreadTool.translate(text, from, to));
+        } catch (Exception e)
+        {
+            return APIResponse.failure(e.getMessage());
+        }
     }
 }
