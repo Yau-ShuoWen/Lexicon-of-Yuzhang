@@ -2,19 +2,21 @@ package com.shuowen.yuzong.dict.data.domain.Reference;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.util.ext.sort.FractionIndex;
+import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;
+import com.shuowen.yuzong.dict.service.Reference.ProofTool;
 import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.ext.sort.FractionIndex;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 
 import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
@@ -94,6 +96,14 @@ public class RefProof extends Page
     public static RefProof of(List<RefEntity> list)
     {
         return new RefProof(list);
+    }
+
+    public void replace()
+    {
+        for (var i : contents)
+        {
+            i.source.handle(str -> ProofTool.proof(dictionary, str));
+        }
     }
 
     public Pair<Twin<RefEntity>, List<RefEntity>> transfer()

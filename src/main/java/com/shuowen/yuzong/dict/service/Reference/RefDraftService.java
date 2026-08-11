@@ -1,16 +1,14 @@
 package com.shuowen.yuzong.dict.service.Reference;
 
-import com.shuowen.yuzong.util.ext.sort.FractionIndex;
-import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.domain.Reference.RefDraft;
 import com.shuowen.yuzong.dict.data.mapper.Reference.RefMapper;
 import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;
+import com.shuowen.yuzong.util.ext.sort.FractionIndex;
+import com.shuowen.yuzong.util.tuple.Twin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.*;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
@@ -18,14 +16,6 @@ public class RefDraftService
 {
     @Autowired
     private RefMapper ck;
-
-    /**
-     * 根据sort获得整页的内容
-     */
-    private List<RefEntity> getPageInfo(DictCode dict, FractionIndex sort)
-    {
-        return ck.getPageBySort(dict.getCode(), sort.toString());
-    }
 
     /**
      * @param before 插入页在当前页面的位置
