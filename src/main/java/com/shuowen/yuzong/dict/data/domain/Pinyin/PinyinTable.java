@@ -32,8 +32,8 @@ public class PinyinTable
         private Item(String standard, String code)
         {
             this.exist = !"-".equals(standard);
-            this.standard = exist ? String.format("[%s]", PinyinCommon.e_A_G(standard)) : "-";
-            this.id = exist ? code + "-" + standard : "-";
+            this.standard = exist ? String.format("[%s]", PinyinCommon.e_A_G(standard)) : "";
+            this.id = exist ? code + "-" + standard : "";
         }
     }
 

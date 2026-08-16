@@ -8,11 +8,10 @@ import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.linguistics.Mandarin.HanPinyin;
+import com.shuowen.yuzong.linguistics.util.PinyinBlock;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,7 +91,7 @@ public class TextPinyinIPA
         }
         m.appendTail(sb);
 
-        return sb.toString().replace("]  [", "] [");//作用就是化学实验前后都要洗一次，但是一定有一次是多余的
+        return sb.toString();//.replace("]  [", "] [");//作用就是化学实验前后都要洗一次，但是一定有一次是多余的
     }
 
     /**
@@ -108,6 +107,12 @@ public class TextPinyinIPA
             boolean developer, Maybe<DictCode> dict, boolean isfromDB)
     {
         Language l = data.getLanguage();
+
+        if (pinyin.type == PinyinType.DIALECT)
+        {
+            return handle(pinyin.body, data, developer, dict, isfromDB).toTheString(l);
+        }
+
         if (pinyin.body.contains(" "))
         {
             var str = new StringBuilder();
@@ -168,85 +173,6 @@ public class TextPinyinIPA
                         pinyin.body.substring(0, idx), pinyin.body.substring(idx + 1), false);
                 return String.format(" [%s] ", ipa); // ipa不是是 "[内容]"的格式
             }
-            case DIALECT ->
-            {
-                try
-                {
-                    var pyText = pinyin.body;
-                    var py = isfromDB ? d.trustedCreatePinyin(pyText) : d.checkAndCreatePinyin(pyText);
-                    var dictGroup = DictGroup.of(d);
-
-                    if (developer)
-                    {
-                        var block = py.format(PinyinMode.STANDARD);
-
-                        if (!dict.isEmpty()) // 没有字典上下文，就是标准模式，不处理
-                        {
-                            var ipa = data.searchIPA(py, dict.getValue()).getValueOrDefault("？");
-                            String dictName = dictGroup.getName(dict.getValue(), Language.TC);
-
-                            block.setTitle(ipa);
-                            block.addFirst(dictName, ipa);
-                        }
-                        return block.toTheString(l);
-                    }
-                    else
-                    {
-                        var block = py.format(data.getPinyinMode());
-
-                        switch (data.getPinyinMode())
-                        {
-                            case STANDARD ->
-                            {
-                                var dictCode = d.getDefaultDict();
-                                var ipa = data.searchIPA(py, dictCode);
-                                String dictName = DictGroup.of(d).getName(dictCode, Language.TC);
-
-                                if (ipa.isValid())
-                                {
-                                    // 标准版的普通拼音，如果有拼音，加这个，但是放在最后
-                                    if (dict.isEmpty()) block.add(dictName, ipa.getValue());
-                                        // 标准版的字典拼音，如果有拼音，放在最前面和标题
-                                    else block.addFirst(dictName, ipa.getValue());
-                                }
-                            }
-                            // 专业版把国际音标放在最前面，并且放在首位
-                            case PROFESSIONAL ->
-                            {
-                                if (dict.isEmpty())
-                                {
-                                    for (var i : dictGroup.getKeySet())
-                                    {
-                                        var ipa = data.searchIPA(py, i);
-                                        String dictName = dictGroup.getName(i, Language.TC);
-                                        if (ipa.isValid()) block.add(dictName, ipa.getValue());
-                                    }
-                                }
-                                else
-                                {
-                                    for (var i : dictGroup.getKeySet())
-                                    {
-                                        var ipa = data.searchIPA(py, i);
-                                        String dictName = dictGroup.getName(i, Language.TC);
-                                        if (ipa.isValid())
-                                        {
-                                            block.add(dictName, ipa.getValue());
-                                            if (i.equals(dict.getValue()))
-                                                block.setTitle(ipa.getValue());
-                                        }
-                                    }
-                                }
-                            }
-                            // 初学者在哪，叫一声，有回应吗？
-                        }
-
-                        return String.format(block.toTheString(l));
-                    }
-                } catch (InvalidPinyinException e)
-                {
-                    return ScTcText.get("【無效拼音】", "【无效拼音】", l);
-                }
-            }
             case CUSTOM ->
             {
                 try
@@ -286,6 +212,100 @@ public class TextPinyinIPA
         }
     }
 
+    private static PinyinBlock handle(
+            String pyText, PinyinConfig data,
+            boolean developer, Maybe<DictCode> dict, boolean isfromDB
+    )
+    {
+        Dialect d = data.getDialect();
+
+        if (pyText.contains(" "))
+        {
+            PinyinBlock block = new PinyinBlock();
+            for (var i : pyText.trim().split("\\s+"))
+            {
+                block.merge(handle(i, data, developer, dict, isfromDB));
+            }
+            return block;
+        }
+
+        try
+        {
+            var py = isfromDB ? d.trustedCreatePinyin(pyText) : d.checkAndCreatePinyin(pyText);
+            var dictGroup = DictGroup.of(d);
+
+            if (developer)
+            {
+                var block = py.format(PinyinMode.STANDARD);
+
+                if (!dict.isEmpty()) // 没有字典上下文，就是标准模式，不处理
+                {
+                    var ipa = data.searchIPA(py, dict.getValue()).getValueOrDefault("？");
+                    String dictName = dictGroup.getName(dict.getValue(), Language.TC);
+
+                    block.setTitle(ipa);
+                    block.addFirst(dictName, ipa);
+                }
+                return block;
+            }
+            else
+            {
+                var block = py.format(data.getPinyinMode());
+
+                switch (data.getPinyinMode())
+                {
+                    case STANDARD ->
+                    {
+                        var dictCode = d.getDefaultDict();
+                        var ipa = data.searchIPA(py, dictCode);
+                        String dictName = DictGroup.of(d).getName(dictCode, Language.TC);
+
+                        if (ipa.isValid())
+                        {
+                            // 标准版的普通拼音，如果有拼音，加这个，但是放在最后
+                            if (dict.isEmpty()) block.add(dictName, ipa.getValue());
+                                // 标准版的字典拼音，如果有拼音，放在最前面和标题
+                            else block.addFirst(dictName, ipa.getValue());
+                        }
+                    }
+                    // 专业版把国际音标放在最前面，并且放在首位
+                    case PROFESSIONAL ->
+                    {
+                        if (dict.isEmpty())
+                        {
+                            for (var i : dictGroup.getKeySet())
+                            {
+                                var ipa = data.searchIPA(py, i);
+                                String dictName = dictGroup.getName(i, Language.TC);
+                                if (ipa.isValid()) block.add(dictName, ipa.getValue());
+                            }
+                        }
+                        else
+                        {
+                            for (var i : dictGroup.getKeySet())
+                            {
+                                var ipa = data.searchIPA(py, i);
+                                String dictName = dictGroup.getName(i, Language.TC);
+                                if (ipa.isValid())
+                                {
+                                    block.add(dictName, ipa.getValue());
+                                    if (i.equals(dict.getValue()))
+                                        block.setTitle(ipa.getValue());
+                                }
+                            }
+                        }
+                    }
+                    // 初学者在哪，叫一声，有回应吗？
+                }
+
+                return block;
+            }
+        } catch (InvalidPinyinException e)
+        {
+            return new PinyinBlock();
+        }
+    }
+
     /**
      * 工具类入口：把展示和存储的内容相互转化
      */
@@ -313,7 +333,6 @@ public class TextPinyinIPA
 
         if (pinyin.body.contains(" "))
         {
-            List<String> list = new ArrayList<>();
             var str = new StringBuilder();
             for (String s : pinyin.body.split("\\s+"))
             {
