@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.dict.data.model.Account;
+package com.shuowen.yuzong.user.data.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

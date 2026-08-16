@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.authority;
+package com.shuowen.yuzong.user.utils;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.user.data.mapper.UserTokenMapper">
+
+    <insert id="insert" parameterType="com.shuowen.yuzong.user.data.model.UserTokenEntity">
+        INSERT INTO NC.user_token
+        (token, username, expire_at)
+        VALUES (#{token}, #{username}, #{expireAt})
+    </insert>
+
+    <select id="selectUsername" resultType="java.lang.String">
+        SELECT username
+        FROM NC.user_token
+        WHERE token = #{token}
+          AND expire_at &gt; NOW()
+        LIMIT 1
+    </select>
+
+    <delete id="deleteByToken">
+        DELETE FROM NC.user_token
+        WHERE token = #{token}
+    </delete>
+
+    <delete id="deleteByUsername">
+        DELETE FROM NC.user_token
+        WHERE username = #{username}
+    </delete>
+
+    <update id="refresh">
+        UPDATE NC.user_token
+        SET expire_at = DATE_ADD(NOW(), INTERVAL #{seconds} SECOND)
+        WHERE token = #{token}
+          AND expire_at &gt; NOW()
+    </update>
+
+</mapper>

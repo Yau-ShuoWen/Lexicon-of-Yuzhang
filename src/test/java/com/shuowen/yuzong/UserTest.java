@@ -1,6 +1,6 @@
-package com.shuowen.yuzong.Auth;
+package com.shuowen.yuzong;
 
-import com.shuowen.yuzong.dict.controller.setting.AuthController;
+import com.shuowen.yuzong.user.controller.AuthController;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

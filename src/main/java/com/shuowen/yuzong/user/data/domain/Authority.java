@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.dict.data.domain.Account;
+package com.shuowen.yuzong.user.data.domain;
 
 public enum Authority
 {

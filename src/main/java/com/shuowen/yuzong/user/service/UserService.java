@@ -1,15 +1,15 @@
-package com.shuowen.yuzong.dict.service.Account;
+package com.shuowen.yuzong.user.service;
 
-import com.shuowen.yuzong.dict.data.mapper.Account.UserMapper;
-import com.shuowen.yuzong.dict.data.model.Account.UserEntity;
+import com.shuowen.yuzong.user.data.mapper.UserMapper;
+import com.shuowen.yuzong.user.data.model.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 
-import static com.shuowen.yuzong.authority.PasswordUtil.encodePassword;
-import static com.shuowen.yuzong.authority.PasswordUtil.isPasswordEqual;
+import static com.shuowen.yuzong.user.utils.PasswordUtil.encodePassword;
+import static com.shuowen.yuzong.user.utils.PasswordUtil.isPasswordEqual;
 import static com.shuowen.yuzong.util.ext.other.NullTool.assertNotNull;
 
 @Service

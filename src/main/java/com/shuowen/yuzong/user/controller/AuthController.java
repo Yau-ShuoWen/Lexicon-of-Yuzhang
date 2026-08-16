@@ -1,7 +1,7 @@
-package com.shuowen.yuzong.dict.controller.setting;
+package com.shuowen.yuzong.user.controller;
 
-import com.shuowen.yuzong.dict.service.Account.TokenService;
-import com.shuowen.yuzong.dict.service.Account.UserService;
+import com.shuowen.yuzong.user.service.TokenService;
+import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;

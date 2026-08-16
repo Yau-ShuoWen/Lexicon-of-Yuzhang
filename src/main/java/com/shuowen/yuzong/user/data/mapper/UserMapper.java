@@ -1,6 +1,6 @@
-package com.shuowen.yuzong.dict.data.mapper.Account;
+package com.shuowen.yuzong.user.data.mapper;
 
-import com.shuowen.yuzong.dict.data.model.Account.UserEntity;
+import com.shuowen.yuzong.user.data.model.UserEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper

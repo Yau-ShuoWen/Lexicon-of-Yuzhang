@@ -2,26 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.dict.data.mapper.Account.UserMapper">
+<mapper namespace="com.shuowen.yuzong.user.data.mapper.UserMapper">
 
-    <select id="getUserByName" resultType="com.shuowen.yuzong.dict.data.model.Account.UserEntity">
+    <select id="getUserByName" resultType="com.shuowen.yuzong.user.data.model.UserEntity">
         SELECT * FROM NC.user
         WHERE username = #{username}
     </select>
 
-    <insert id="insertUser" parameterType="com.shuowen.yuzong.dict.data.model.Account.UserEntity">
+    <insert id="insertUser" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
         INSERT INTO NC.user
         (username, password, authority)
         values (#{username}, #{password}, #{authority})
     </insert>
 
-    <update id="updateUsername" parameterType="com.shuowen.yuzong.dict.data.model.Account.UserEntity">
+    <update id="updateUsername" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
         UPDATE NC.user
         SET username = #{username}
         WHERE id = #{id}
     </update>
 
-    <update id="updatePassword" parameterType="com.shuowen.yuzong.dict.data.model.Account.UserEntity">
+    <update id="updatePassword" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
         UPDATE NC.user
         SET password = #{password}
         WHERE id = #{id}
