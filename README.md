@@ -1,43 +1,27 @@
 <div style="text-align: center">
 <h1>📖 豫章词 —— 方言是我们能听见的历史</h1>
-<img src="docs/yuzhangci.svg" width="30%" height="auto" alt="项目创建时间">
+<img src="docs/yuzhangci-icon.svg" width="30%" height="auto" alt="项目创建时间">
 </div>
-
-
 
 ## 介绍
 
-[网站链接：yuzhangci.com](https://yuzhangci.com)
+### [网站链接：yuzhangci.com](https://yuzhangci.com)
 
 ## 开发进度
 
-| 功能     | 状态      |
-|--------|---------|
-| 简繁体支持  | ✅ 已完成   |
-| 方言拼音   | ✅ 已完成   |
-| 汉字查询   | 🔄 数据录入 |
-| 词语查询   | 🔄 数据录入 |
-| 方言词典查询 | 🔄 数据录入 |
-| 方言发音   | 🧭 规划中  |
-| 支持多门方言 | 🧭 规划中  |
-| 方言学习🐦 | 🔄 数据录入 |
+| 功能   | 南昌话  | 成都话  | 
+|------|------|------|
+| 方言拼音 | ✅完成  | ✅完成  | 
+| 汉字查询 | ✅完成  | ⌨️录入 | 
+| 词语查询 | ✅完成  | ⌨️录入 | 
+| 方言辞书 | ✅完成  | ⌨️录入 | 
+| 方言发音 | 🔄开发 | 🔄开发 |
+| 方言学习 | 🧭规划 | 🧭规划 |
 
 ## 代码
 
-| 相关仓库：正在开发，诚邀协助                                                                                    |
-|---------------------------------------------------------------------------------------------------|
-| <a href="https://github.com/Yau-ShuoWen/Lexicon-of-Yuzhang-Web" target="_blank">🌐 网站前端</a>       |
-| <a href="https://github.com/Yau-ShuoWen/Lexicon-of-Yuzhang-Android" target="_blank">🤖 安卓应用程序</a> |
-
-## 文档
-
-| 分类       | 列表                       |
-|----------|--------------------------|
-| 📜️ 代码结构 | [代码目录](docs/命名/代码包结构.md) |
-| 📜️ 代码结构 | [结构和命名](./docs/命名)       |
-| 🎨 设计思路  | [数据库设计](./docs/数据库)      |
-| 🎨 设计思路  | [类的设计](./docs/类描述)       |
-| 🕰️ 历程   | [历史版本演进](./docs/历史.md)   |
+- ### [🌐 网站前端](https://github.com/Yau-ShuoWen/Lexicon-of-Yuzhang-Web)
+- ### [🤖 安卓应用程序](https://github.com/Yau-ShuoWen/Lexicon-of-Yuzhang-Android)
 
 ## 支持
 
