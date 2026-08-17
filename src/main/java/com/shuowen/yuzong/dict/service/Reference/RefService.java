@@ -8,7 +8,7 @@ import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.Tool.format.ObfString;
+import com.shuowen.yuzong.util.obfuscate.ObfString;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.dict.data.mapper.Reference.RefMapper;
 import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;

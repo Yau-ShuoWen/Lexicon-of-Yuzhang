@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.dict.service.Character;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.dict.data.domain.Character.MdrTool;
 import com.shuowen.yuzong.dict.data.mapper.Character.PronunMapper;
 import com.shuowen.yuzong.dict.data.model.Character.MdrChar;

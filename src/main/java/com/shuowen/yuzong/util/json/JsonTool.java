@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.format;
+package com.shuowen.yuzong.util.json;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

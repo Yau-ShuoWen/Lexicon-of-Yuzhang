@@ -8,7 +8,7 @@ import lombok.Getter;
 
 import java.util.*;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
 
 /**
  * 音段领域模型类

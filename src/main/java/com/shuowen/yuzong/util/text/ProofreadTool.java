@@ -1,14 +1,14 @@
 package com.shuowen.yuzong.util.text;
 
 import com.hankcs.hanlp.HanLP;
-import com.shuowen.yuzong.Tool.DataVersionCtrl.UStringCompareUtil;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.version.UStringCompareUtil;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.tuple.Twin;
 
 /**
  * 一个古籍简繁和格式管理工具类
  *
- * @see com.shuowen.yuzong.Tool.DataVersionCtrl.UStringCompareUtil
+ * @see UStringCompareUtil
  * @see UString
  */
 public class ProofreadTool

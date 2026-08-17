@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.dict.controller.edit;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.util.text.*;

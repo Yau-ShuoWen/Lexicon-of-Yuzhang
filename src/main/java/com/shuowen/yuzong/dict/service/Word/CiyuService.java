@@ -1,15 +1,15 @@
 package com.shuowen.yuzong.dict.service.Word;
 
-import com.shuowen.yuzong.Tool.DataVersionCtrl.SetCompareUtil;
+import com.shuowen.yuzong.util.version.SetCompareUtil;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.list.UniqueList;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.Tool.format.JsonTool;
-import com.shuowen.yuzong.Tool.format.ObfInt;
+import com.shuowen.yuzong.util.json.JsonTool;
+import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.domain.Word.CiyuCreate;
 import com.shuowen.yuzong.dict.data.domain.Word.CiyuItem;

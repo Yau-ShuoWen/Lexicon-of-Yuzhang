@@ -3,7 +3,7 @@ package com.shuowen.yuzong.dict.data.domain.Reference;
 import com.shuowen.yuzong.util.ext.sort.FractionIndex;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;

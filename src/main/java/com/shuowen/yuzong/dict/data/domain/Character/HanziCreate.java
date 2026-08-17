@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.dict.data.domain.Character;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.dict.data.model.Character.HanziEntity;
 import com.shuowen.yuzong.dict.data.model.Character.HanziPinyin;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyin;

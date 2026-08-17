@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.dataStructure.option;
+package com.shuowen.yuzong.dict.data.domain.setting;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

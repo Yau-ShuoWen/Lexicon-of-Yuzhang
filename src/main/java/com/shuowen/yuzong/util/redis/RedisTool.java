@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.redis;
+package com.shuowen.yuzong.util.redis;
 
 
 import jakarta.annotation.Resource;

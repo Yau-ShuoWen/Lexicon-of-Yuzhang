@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.dict.controller.edit;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.dict.service.IPA.PinyinService;
 import com.shuowen.yuzong.util.text.ScTcText;
 import org.springframework.beans.factory.annotation.Autowired;

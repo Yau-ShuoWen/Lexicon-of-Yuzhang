@@ -3,7 +3,7 @@ package com.shuowen.yuzong.util.ext.sort;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.util.tuple.Pair;
-import com.shuowen.yuzong.Tool.format.ObfString;
+import com.shuowen.yuzong.util.obfuscate.ObfString;
 import lombok.Data;
 
 import java.math.*;

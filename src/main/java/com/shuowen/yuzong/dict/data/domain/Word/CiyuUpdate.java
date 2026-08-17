@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.dict.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.NoteTag;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.dict.data.domain.setting.NoteTag;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyinList;
@@ -18,8 +18,8 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
-import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.toJson;
 
 @Data
 @NoArgsConstructor

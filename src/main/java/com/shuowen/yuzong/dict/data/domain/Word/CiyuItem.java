@@ -1,9 +1,9 @@
 package com.shuowen.yuzong.dict.data.domain.Word;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.Tool.dataStructure.option.NoteTag;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.dict.data.domain.setting.NoteTag;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar;
 import com.shuowen.yuzong.linguistics.util.RPinyins;
@@ -18,7 +18,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
 
 /**
  * 词语的词条类，从数据库取出来之后直接转换而成

@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.dict.data.domain.Word;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyinList;
 import com.shuowen.yuzong.util.ext.list.ListTool;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
+import static com.shuowen.yuzong.util.json.JsonTool.toJson;
 
 @Data
 @NoArgsConstructor

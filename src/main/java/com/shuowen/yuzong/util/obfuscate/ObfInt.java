@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.format;
+package com.shuowen.yuzong.util.obfuscate;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -8,13 +8,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
 
 /**
- * 对字符串做简单的62进制编码
+ * 对整数做简单的62进制编码
  */
 @EqualsAndHashCode
-public class ObfString
+public class ObfInt
 {
     private final char[] CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
     private final BigInteger BASE = BigInteger.valueOf(62);
@@ -22,37 +21,38 @@ public class ObfString
     @Getter
     private final String code;
 
-    private ObfString(String input, boolean encode)
+    private ObfInt(int input)
     {
-        if (encode)
-        {
-            byte[] bytes = input.getBytes(StandardCharsets.UTF_8);
+        input = 13331 + input * 7;
+        BigInteger num = BigInteger.valueOf(input);
 
-            BigInteger num = new BigInteger(1, bytes); // 1 = 正数
-            if (num.equals(BigInteger.ZERO)) code = "0";
-            else
+        if (num.equals(BigInteger.ZERO)) code = "0";
+        else
+        {
+            StringBuilder sb = new StringBuilder();
+            while (num.compareTo(BigInteger.ZERO) > 0)
             {
-                StringBuilder sb = new StringBuilder();
-                while (num.compareTo(BigInteger.ZERO) > 0)
-                {
-                    BigInteger[] divRem = num.divideAndRemainder(BASE);
-                    sb.append(CHARSET[divRem[1].intValue()]);
-                    num = divRem[0];
-                }
-                code = sb.reverse().toString();
+                BigInteger[] divRem = num.divideAndRemainder(BASE);
+                sb.append(CHARSET[divRem[1].intValue()]);
+                num = divRem[0];
             }
+            code = sb.reverse().toString();
         }
-        else this.code = input;
+    }
+
+    private ObfInt(String code)
+    {
+        this.code = code;
     }
 
     /**
      * Spring Boot框架、Jackson库和手动反序列化入口
      */
     @JsonCreator
-    public static ObfString valueOf(String code)
+    public static ObfInt valueOf(String code)
     {
         validate(code);
-        return new ObfString(code, false);
+        return new ObfInt(code);
     }
 
     private static void validate(String code)
@@ -72,9 +72,9 @@ public class ObfString
     /**
      * 后端的编码
      */
-    public static ObfString encode(String input)
+    public static ObfInt encode(int input)
     {
-        return new ObfString(input, true);
+        return new ObfInt(input);
     }
 
     /**
@@ -88,15 +88,16 @@ public class ObfString
     }
 
     /**
-     * 解码为字符串
+     * 解码为整数
      */
-    public String decode()
+    public int decode()
     {
         BigInteger num = BigInteger.ZERO;
 
         for (char c : this.code.toCharArray())
         {
             int val = -1;
+
             if (Range.close('0', '9').contains(c)) val = c - '0';
             if (Range.close('A', 'Z').contains(c)) val = c - 'A' + 10;
             if (Range.close('a', 'z').contains(c)) val = c - 'a' + 36;
@@ -104,15 +105,10 @@ public class ObfString
             num = num.multiply(BASE).add(BigInteger.valueOf(val));
         }
 
-        byte[] bytes = num.toByteArray();
+        if (num.bitLength() > 31)
+            throw new IllegalArgumentException("解码结果超过 int 范围: " + num);
 
-        if (bytes.length > 1 && bytes[0] == 0)
-        {
-            byte[] tmp = new byte[bytes.length - 1];
-            System.arraycopy(bytes, 1, tmp, 0, tmp.length);
-            bytes = tmp;
-        }
-
-        return new String(bytes, StandardCharsets.UTF_8);
+        return (num.intValue() - 13331) / 7;
     }
+
 }

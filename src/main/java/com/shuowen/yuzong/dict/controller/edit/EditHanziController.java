@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.dict.controller.edit;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.format.ObfInt;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.dict.data.domain.Character.HanziCreate;
 import com.shuowen.yuzong.dict.data.domain.Character.HanziUpdate;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;

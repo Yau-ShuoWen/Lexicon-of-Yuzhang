@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.dict.controller.search;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.dict.data.domain.Character.HanziShow;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;

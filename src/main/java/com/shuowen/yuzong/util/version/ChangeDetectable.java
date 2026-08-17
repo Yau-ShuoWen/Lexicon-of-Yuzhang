@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.DataVersionCtrl;
+package com.shuowen.yuzong.util.version;
 
 
 import java.util.List;

@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
-import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.toJson;
 
 /**
  * 音节领域模型类

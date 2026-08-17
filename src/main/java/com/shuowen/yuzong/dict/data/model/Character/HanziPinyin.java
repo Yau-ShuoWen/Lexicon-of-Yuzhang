@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.dict.data.model.Character;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.shuowen.yuzong.Tool.DataVersionCtrl.ChangeDetectable;
+import com.shuowen.yuzong.util.version.ChangeDetectable;
 import lombok.Data;
 
 import java.util.ArrayList;

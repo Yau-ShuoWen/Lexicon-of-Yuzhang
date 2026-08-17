@@ -1,12 +1,12 @@
 package com.shuowen.yuzong.dict.data.model.Reference;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.DataVersionCtrl.ChangeDetectable;
+import com.shuowen.yuzong.util.version.ChangeDetectable;
 import com.shuowen.yuzong.util.ext.sort.FractionIndex;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.Tool.format.JsonTool;
+import com.shuowen.yuzong.util.json.JsonTool;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.domain.Reference.Keyword;
 import lombok.Data;

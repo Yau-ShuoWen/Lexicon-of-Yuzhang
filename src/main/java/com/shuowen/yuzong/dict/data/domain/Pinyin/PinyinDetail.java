@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.dict.data.domain.Pinyin;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCodeExt;
 import com.shuowen.yuzong.dict.data.model.IPA.IPAItem;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
 
 @Data
 public class PinyinDetail

@@ -9,7 +9,7 @@ import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;
 import lombok.Data;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
 
 /**
  * 参考资料条目

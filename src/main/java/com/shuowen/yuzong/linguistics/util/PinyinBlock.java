@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.linguistics.util;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.text.ScTcText;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.redis;
+package com.shuowen.yuzong.util.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

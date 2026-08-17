@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.dict.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.dict.data.model.Character.HanziEntity;
 import com.shuowen.yuzong.dict.data.model.Character.HanziPinyin;
 import com.shuowen.yuzong.dict.data.model.Character.HanziSimilar;
@@ -21,8 +21,8 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 import java.util.Map;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
-import static com.shuowen.yuzong.Tool.format.JsonTool.toJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.toJson;
 
 @Data
 public class HanziUpdate

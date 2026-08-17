@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.Tool.DataVersionCtrl;
+package com.shuowen.yuzong.util.version;
 
 import com.github.difflib.DiffUtils;
 import com.github.difflib.patch.AbstractDelta;

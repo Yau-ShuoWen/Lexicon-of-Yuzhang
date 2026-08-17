@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.util.text;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
-import com.shuowen.yuzong.Tool.format.JsonTool;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.json.JsonTool;
 import com.shuowen.yuzong.util.map.KV;
 
 import java.util.Collection;

@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.dict.data.domain.Character;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.dict.data.model.Character.HanziEntity;
 import com.shuowen.yuzong.linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.util.ext.list.ListTool;
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
 
 /**
  * 格式化的汉字主体
