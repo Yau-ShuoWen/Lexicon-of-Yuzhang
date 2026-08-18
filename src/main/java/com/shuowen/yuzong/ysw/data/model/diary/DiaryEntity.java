@@ -15,6 +15,7 @@ public class DiaryEntity
    private String abridge;
 
    private Integer id;
+   private Integer sort;
    private LocalDateTime createdTime;
    private LocalDateTime updatedTime;
 }

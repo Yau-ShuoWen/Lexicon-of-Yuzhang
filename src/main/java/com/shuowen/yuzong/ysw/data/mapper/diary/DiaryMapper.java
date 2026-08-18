@@ -49,7 +49,7 @@ public interface DiaryMapper
                     AND date <![CDATA[ <= ]]> #{endDate}
                 </if>
             </where>
-            ORDER BY date DESC, id DESC
+            ORDER BY date DESC, sort DESC
             LIMIT #{limit}
             </script>
             """)
@@ -61,6 +61,17 @@ public interface DiaryMapper
             @Param ("limit") Integer limit
     );
 
-    @Select ("SELECT * FROM NC.ysw_diary ORDER BY date DESC, id DESC LIMIT #{limit}")
+    @Select ("SELECT * FROM NC.ysw_diary ORDER BY date DESC, sort DESC LIMIT #{limit}")
     List<DiaryEntity> getRecent(int limit);
+
+    @Select("SELECT * FROM ysw_diary " +
+            "WHERE (date, sort) < (SELECT date, sort FROM ysw_diary WHERE id = #{id}) " +
+            "ORDER BY date DESC, sort DESC LIMIT 1")
+    DiaryEntity selectPrev(@Param("id") Integer id);
+
+
+    @Select("SELECT * FROM ysw_diary " +
+            "WHERE (date, sort) > (SELECT date, sort FROM ysw_diary WHERE id = #{id}) " +
+            "ORDER BY date ASC, sort ASC LIMIT 1")
+    DiaryEntity selectNext(@Param("id") Integer id);
 }

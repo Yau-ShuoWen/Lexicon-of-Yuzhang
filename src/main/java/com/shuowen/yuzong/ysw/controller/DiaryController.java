@@ -1,21 +1,19 @@
 package com.shuowen.yuzong.ysw.controller;
 
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryCatalog;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryDigest;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryText;
 import com.shuowen.yuzong.ysw.service.DiaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Diary 模块的只读接口。
@@ -179,33 +177,9 @@ public class DiaryController
         return s.getDiaryById(id, l);
     }
 
-    /**
-     * 按业务日期查询完整日记。
-     * <p>
-     * 请求示例：
-     * GET /api/diary/item/sc/date/2026-07-03
-     * <p>
-     * 用途：
-     * 1. 如果前端路由天然以日期为主，例如 /diary/2026-07-03
-     * 2. 适合从日历页、归档页直接跳详情
-     * <p>
-     * 与按 id 查询的区别：
-     * 1. 按 id 更适合系统内部跳转
-     * 2. 按 date 更适合对用户可读的 URL
-     * <p>
-     * 返回结构：
-     * 与 /item/{l}/id/{id} 相同，都是 Maybe<DiaryText>。
-     * <p>
-     * 前端建议：
-     * 1. 日期路由页优先调用这个接口。
-     * 2. 如果你希望 URL 稳定且可读，详情页推荐直接使用 date 路由。
-     */
-    @GetMapping ("/item/{l}/date/{date}")
-    public Maybe<DiaryText> getByDate(
-            @PathVariable Language l,
-            @PathVariable @DateTimeFormat (iso = DateTimeFormat.ISO.DATE) LocalDate date
-    )
+    @GetMapping ("/item/nearby/{id}")
+    public Twin<Maybe<Map>> getNearby(@PathVariable Integer id)
     {
-        return s.getDiaryByDate(date, l);
+        return s.getNearby(id);
     }
 }

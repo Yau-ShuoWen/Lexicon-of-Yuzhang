@@ -1,8 +1,9 @@
 package com.shuowen.yuzong.ysw.service;
 
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryCatalog;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryDigest;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryText;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class DiaryService
@@ -29,7 +31,7 @@ public class DiaryService
     {
         checkMonth(month);
         checkDateRange(startDate, endDate);
-        var list=ListTool.mapping(
+        var list = ListTool.mapping(
                 m.query(year, month, startDate, endDate, normalizeLimit(limit)),
                 item -> new DiaryDigest(item, l)
         );
@@ -47,9 +49,16 @@ public class DiaryService
         return Maybe.uncertain(m.getDiaryById(id)).handleIfExist(item -> new DiaryText(item, l));
     }
 
-    public Maybe<DiaryText> getDiaryByDate(LocalDate date, Language l)
+    public Twin<Maybe<Map>> getNearby(Integer id)
     {
-        return Maybe.uncertain(m.getDiaryByDate(date)).handleIfExist(item -> new DiaryText(item, l));
+        var nearby = Twin.of(Maybe.uncertain(m.selectPrev(id)), Maybe.uncertain(m.selectNext(id)));
+
+        return nearby.map(i -> i.handleIfExist(
+                entity -> Map.of("id", entity.getId(),
+                        "date", entity.getDate(),
+                        "sort", entity.getSort()
+                )
+        ));
     }
 
     private Integer normalizeLimit(Integer limit)
