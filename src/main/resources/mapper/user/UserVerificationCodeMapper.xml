@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.user.data.mapper.UserVerificationCodeMapper">
+
+    <insert id="insert" parameterType="com.shuowen.yuzong.user.data.model.UserVerificationCodeEntity">
+        INSERT INTO NC.user_verification_code
+        (phone, code, purpose, used, expired_at, used_at)
+        VALUES (#{phone}, #{code}, #{purpose}, #{used}, #{expiredAt}, #{usedAt})
+    </insert>
+
+    <select id="selectLatestByPhone" resultType="com.shuowen.yuzong.user.data.model.UserVerificationCodeEntity">
+        SELECT *
+        FROM NC.user_verification_code
+        WHERE phone = #{phone}
+          AND purpose = #{purpose}
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectValidByPhoneAndCode" resultType="com.shuowen.yuzong.user.data.model.UserVerificationCodeEntity">
+        SELECT *
+        FROM NC.user_verification_code
+        WHERE phone = #{phone}
+          AND code = #{code}
+          AND purpose = #{purpose}
+          AND used = 0
+          AND expired_at &gt; NOW()
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
+    <update id="markUsed">
+        UPDATE NC.user_verification_code
+        SET used = 1,
+            used_at = NOW()
+        WHERE id = #{id}
+          AND used = 0
+    </update>
+
+    <delete id="deleteExpired">
+        DELETE FROM NC.user_verification_code
+        WHERE expired_at &lt;= NOW()
+    </delete>
+
+    <select id="listRecentByPhone" resultType="com.shuowen.yuzong.user.data.model.UserVerificationCodeEntity">
+        SELECT *
+        FROM NC.user_verification_code
+        WHERE phone = #{phone}
+        ORDER BY id DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

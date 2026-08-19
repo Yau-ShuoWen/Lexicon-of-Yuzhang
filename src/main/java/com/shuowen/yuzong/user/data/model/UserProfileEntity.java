@@ -5,11 +5,11 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class UserEntity
+public class UserProfileEntity
 {
     private Integer id;
     private String username;
     private String phone;
-    private String password;
     private String authority;
+    private boolean admin;
 }
