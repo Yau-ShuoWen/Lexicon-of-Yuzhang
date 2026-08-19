@@ -1,0 +1,12 @@
+通用变量
+dialect 方言代码
+
+拼音表音频：
+audio/{dialect}/pinyin/{拼音类型}-{键}/pronunciation.mp3
+
+汉字音频：
+存的不是汉字，而是汉字发音的那个拼音，所以一个拼音只需要录一次
+audio/{方言代码}/hanzi/{pinyin}
+
+词语音频：
+
