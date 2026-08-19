@@ -22,7 +22,7 @@ public enum NoteTag
     NoteTag(String code, String name)
     {
         this.code = code;
-        this.name = ScTcText.forEnum(name);
+        this.name = ScTcText.offline(name);
     }
 
     @JsonCreator

@@ -55,7 +55,7 @@ public enum Dialect
             String defaultDict, int initialLength
     )
     {
-        this.name = ScTcText.forEnum(name);
+        this.name = ScTcText.offline(name);
         this.code = code;
         this.creatorFromSplitedPinyin = creatorFromSplitedPinyin;
         this.creatorFromKeyboardPinyin = creatorFromKeyboardPinyin;

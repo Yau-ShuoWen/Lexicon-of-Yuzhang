@@ -37,7 +37,7 @@ public class ExtractHighUnicode
 
             // 翻译出来的简体字也算（依赖项目工具类）
             System.out.println("正在进行简繁转换...");
-            content += ScTcText.forEnum(content);
+            content += ScTcText.offline(content);
 
             HashSet<String> result = new HashSet<>();
 

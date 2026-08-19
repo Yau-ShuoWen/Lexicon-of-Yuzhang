@@ -3,21 +3,22 @@ package com.shuowen.yuzong.util.text;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.shuowen.yuzong.util.ext.other.NullTool;
-import com.shuowen.yuzong.util.err.IllegalStringException;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.util.err.IllegalStringException;
+import com.shuowen.yuzong.util.ext.other.NullTool;
 import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 
+import java.util.Scanner;
 import java.util.function.Function;
 
+import static com.shuowen.yuzong.util.json.JsonTool.toJson;
 import static com.shuowen.yuzong.util.text.ProofreadTool.escapeCharTraslate;
 import static com.shuowen.yuzong.util.text.ProofreadTool.useHanlpTranslate;
 
 /**
- * 简体繁体对<br>
- * 有的时候没有别的事情，单纯校验一下，并且少写一个三元表达式
+ * 简体繁体对
  */
 @Data
 public class ScTcText
@@ -36,11 +37,11 @@ public class ScTcText
         this.sc = UString.of(sc);
         this.tc = UString.of(tc);
         if (this.sc.length() != this.tc.length()) throw new IllegalStringException(String.format("""
-                        文本框錯誤：
-                        繁體：%s
-                        簡體：%s
-                        简体、繁体體文本長度不等
-                        提交的之前請保證每一個簡繁框都是✅
+                        文本框错误：
+                        繁体：%s
+                        简体：%s
+                        简体、繁体体文本长度不等
+                        提交的之前请保证每一个简繁框都是✅
                         使用Ctrl+Enter提交
                         """,
                 StringTool.limitLength(tc, 15, "……"),
@@ -74,9 +75,9 @@ public class ScTcText
     }
 
     /**
-     * 在枚举初始化的时候，KV用不了，这时候自定义OrthoChaset会出错，所以用常规机翻
+     * 在枚举类初始化、单独开一个main函数测试的时候，数据库用不了，这时候任何形式的OrthoChaset会出错，所以用常规机翻
      */
-    public static ScTcText forEnum(String tc)
+    public static ScTcText offline(String tc)
     {
         return new ScTcText(useHanlpTranslate(tc, Language.TC), tc);
     }
@@ -103,7 +104,7 @@ public class ScTcText
     }
 
     /**
-     * 对于最简单的硬编码字符，不需要机翻，甚至不需要转UString
+     * 对于最简单的硬编码字符，不需要机翻，甚至不需要转UString，这是为了节约其他地方的三元表达式
      */
     public static String get(String tc, String sc, Language l)
     {
@@ -137,5 +138,18 @@ public class ScTcText
     public <T> Twin<T> mapToOther(Function<String, T> fun)
     {
         return Twin.of(fun.apply(sc.toString()), fun.apply(tc.toString()));
+    }
+
+    // 手动构造数据使用，但是不推荐，因为没有任何数据优化
+    public static void main(String[] args)
+    {
+        while (true)
+        {
+            Scanner sc = new Scanner(System.in);
+            String pyText = sc.nextLine();
+            if (pyText.equals("exit")) return;
+
+            System.out.println(toJson(ScTcText.offline(pyText)));
+        }
     }
 }
