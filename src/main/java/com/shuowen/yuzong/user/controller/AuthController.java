@@ -55,13 +55,8 @@ public class AuthController
     {
         try
         {
-            if (phone == null || phone.trim().isEmpty())
-                throw new IllegalArgumentException("手机号不能为空");
-            if (code == null || code.trim().isEmpty())
-                throw new IllegalArgumentException("验证码不能为空");
-
-            verificationCode.verifyLoginCode(phone.trim(), code.trim());
-            UserEntity u = user.loginOrRegisterByPhoneCode(phone.trim());
+            verificationCode.verifyLoginCode(phone, code);
+            UserEntity u = user.loginOrRegisterByPhoneCode(phone);
             return APIResponse.success(token.generateAndSaveToken(u.getUsername()));
         } catch (Exception e)
         {

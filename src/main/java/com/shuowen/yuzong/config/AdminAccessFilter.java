@@ -25,6 +25,7 @@ public class AdminAccessFilter extends OncePerRequestFilter
             "/api/pinyin/audio",
             "/api/audio",
             "/api/user/update-username",
+            "/api/admin/",
             "/upload",
             "/oss"
     );

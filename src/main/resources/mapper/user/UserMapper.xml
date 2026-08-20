@@ -9,10 +9,15 @@
         WHERE username = #{username}
     </select>
 
+    <select id="getUserByPhone" resultType="com.shuowen.yuzong.user.data.model.UserEntity">
+        SELECT * FROM NC.user
+        WHERE phone = #{phone}
+    </select>
+
     <insert id="insertUser" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
         INSERT INTO NC.user
-        (username, password, authority)
-        values (#{username}, #{password}, #{authority})
+        (username, phone, password, authority)
+        values (#{username}, #{phone}, #{password}, #{authority})
     </insert>
 
     <update id="updateUsername" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
@@ -24,6 +29,12 @@
     <update id="updatePassword" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
         UPDATE NC.user
         SET password = #{password}
+        WHERE id = #{id}
+    </update>
+
+    <update id="updatePhone" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
+        UPDATE NC.user
+        SET phone = #{phone}
         WHERE id = #{id}
     </update>
 

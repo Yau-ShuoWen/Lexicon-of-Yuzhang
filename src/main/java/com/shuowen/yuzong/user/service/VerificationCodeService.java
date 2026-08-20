@@ -24,6 +24,11 @@ public class VerificationCodeService
 
     public UserVerificationCodeEntity createLoginCode(String phone)
     {
+        if (phone == null || phone.trim().isEmpty())
+        {
+            throw new IllegalArgumentException("手机号不能为空");
+        }
+        phone = phone.trim();
         mapper.deleteExpired();
         var code = generateCode();
         var entity = new UserVerificationCodeEntity(
@@ -42,6 +47,16 @@ public class VerificationCodeService
 
     public UserVerificationCodeEntity verifyLoginCode(String phone, String code)
     {
+        if (phone == null || phone.trim().isEmpty())
+        {
+            throw new IllegalArgumentException("手机号不能为空");
+        }
+        if (code == null || code.trim().isEmpty())
+        {
+            throw new IllegalArgumentException("验证码不能为空");
+        }
+        phone = phone.trim();
+        code = code.trim();
         var record = mapper.selectValidByPhoneAndCode(phone, code, PURPOSE_LOGIN);
         if (record == null)
         {
@@ -55,11 +70,13 @@ public class VerificationCodeService
 
     public UserVerificationCodeEntity getLatestLoginCode(String phone)
     {
+        phone = phone == null ? null : phone.trim();
         return mapper.selectLatestByPhone(phone, PURPOSE_LOGIN);
     }
 
     public List<UserVerificationCodeEntity> listRecentLoginCodes(String phone, int limit)
     {
+        phone = phone == null ? null : phone.trim();
         return mapper.listRecentByPhone(phone, Math.max(1, Math.min(limit, 20)));
     }
 

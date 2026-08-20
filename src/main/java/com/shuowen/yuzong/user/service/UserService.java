@@ -34,6 +34,7 @@ public class UserService
      */
     public UserEntity checkIdentityByUsername(String username, String password)
     {
+        username = normalize(username);
         var u = assertNotNull(user.getUserByName(username), new NoSuchElementException("用户不存在"));
         if (!isPasswordEqual(password, u.getPassword()))
             throw new IllegalArgumentException("用户名或者密码错误");
@@ -42,6 +43,7 @@ public class UserService
 
     public UserEntity checkIdentityByPhone(String phone, String password)
     {
+        phone = normalize(phone);
         var u = assertNotNull(user.getUserByPhone(phone), new NoSuchElementException("手机号不存在"));
         if (!isPasswordEqual(password, u.getPassword()))
             throw new IllegalArgumentException("手机号或者密码错误");
@@ -50,6 +52,7 @@ public class UserService
 
     public UserEntity loginOrRegisterByPhoneCode(String phone)
     {
+        phone = normalize(phone);
         var existing = user.getUserByPhone(phone);
         if (existing != null)
         {
@@ -57,7 +60,13 @@ public class UserService
         }
 
         var username = generateGuestUsername(phone);
-        var newUser = new UserEntity(null, username, phone, encodePassword(generateTemporaryPassword(phone)), DEFAULT_AUTHORITY);
+        var newUser = new UserEntity(
+                null,
+                username,
+                phone,
+                encodePassword(generateTemporaryPassword(phone)),
+                DEFAULT_AUTHORITY
+        );
         user.insertUser(newUser);
         return assertNotNull(user.getUserByPhone(phone), new NoSuchElementException("手机号注册失败"));
     }
@@ -73,6 +82,15 @@ public class UserService
 
     public void createUser(String username, String password)
     {
+        username = normalize(username);
+        if (username == null)
+        {
+            throw new IllegalArgumentException("用户名不能为空");
+        }
+        if (password == null || password.trim().isEmpty())
+        {
+            throw new IllegalArgumentException("密码不能为空");
+        }
         if (user.getUserByName(username) != null) throw new IllegalArgumentException("用户名重复");
         user.insertUser(
                 new UserEntity(null, username, null, encodePassword(password), DEFAULT_AUTHORITY)
@@ -82,6 +100,11 @@ public class UserService
     public void updateUsername(String t, String newUsername)
     {
         var u = getUserByToken(t);
+        newUsername = normalize(newUsername);
+        if (newUsername == null)
+        {
+            throw new IllegalArgumentException("新用户名不能为空");
+        }
         if (user.getUserByName(newUsername) != null) throw new IllegalArgumentException("用户名重复");
         u.setUsername(newUsername);
         user.updateUsername(u);
@@ -92,6 +115,10 @@ public class UserService
     public void updatePassword(String t, String oldPassword, String newPassword)
     {
         var u = getUserByToken(t);
+        if (newPassword == null || newPassword.trim().isEmpty())
+        {
+            throw new IllegalArgumentException("新密码不能为空");
+        }
 
         if (isPasswordEqual(oldPassword,u.getPassword()))
         {
@@ -104,7 +131,7 @@ public class UserService
 
     public UserEntity getUserByPhone(String phone)
     {
-        return user.getUserByPhone(phone);
+        return user.getUserByPhone(normalize(phone));
     }
 
     public UserProfileEntity getUserProfileByToken(String t)
@@ -148,5 +175,15 @@ public class UserService
     private String generateTemporaryPassword(String phone)
     {
         return "phone-login:" + phone + ":" + UUID.randomUUID();
+    }
+
+    private String normalize(String value)
+    {
+        if (value == null)
+        {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }
