@@ -7,12 +7,16 @@ import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryCatalog;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryDigest;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryText;
+import com.shuowen.yuzong.ysw.data.domain.diary.DiaryViewMode;
 import com.shuowen.yuzong.ysw.data.mapper.diary.DiaryMapper;
+import com.shuowen.yuzong.ysw.data.model.diary.DiaryCatalogEntity;
+import com.shuowen.yuzong.ysw.data.model.diary.DiaryEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,59 +28,185 @@ public class DiaryService
 
     public DiaryCatalog getCatalog()
     {
-        return new DiaryCatalog(m.getCatalog());
+        return getCatalog(DiaryViewMode.STRANGER, DiaryViewMode.STRANGER);
     }
 
-    public List<DiaryDigest> query(Language l, Integer year, Integer month, LocalDate startDate, LocalDate endDate, Integer limit)
+    public DiaryCatalog getCatalog(DiaryViewMode requestedView, DiaryViewMode allowedView)
     {
-        checkMonth(month);
-        checkDateRange(startDate, endDate);
-        var list = ListTool.mapping(
-                m.query(year, month, startDate, endDate, normalizeLimit(limit)),
-                item -> new DiaryDigest(item, l)
+        var view = DiaryViewMode.clamp(requestedView, allowedView);
+        return new DiaryCatalog(m.getCatalog(view.name()));
+    }
+
+    public List<DiaryDigest> query(Language l, Integer year, Integer month)
+    {
+        return query(l, year, month, DiaryViewMode.STRANGER, DiaryViewMode.STRANGER);
+    }
+
+    public List<DiaryDigest> query(Language l, Integer year, Integer month, DiaryViewMode requestedView, DiaryViewMode allowedView)
+    {
+        if ((year == null) != (month == null))
+        {
+            throw new IllegalArgumentException("year 和 month 必须同时传或同时不传");
+        }
+
+        var view = DiaryViewMode.clamp(requestedView, allowedView);
+
+        if (year == null)
+        {
+            return getRecent(l, view, view);
+        }
+
+        return ListTool.mapping(
+                m.query(year, month, view.name()),
+                item -> new DiaryDigest(item, l, resolveBody(item, view))
         );
-        Collections.reverse(list);
-        return list;
     }
 
-    public List<DiaryDigest> getRecent(Language l, Integer limit)
+    public List<DiaryDigest> getRecent(Language l)
     {
-        return ListTool.mapping(m.getRecent(normalizeLimit(limit)), item -> new DiaryDigest(item, l));
+        return getRecent(l, DiaryViewMode.STRANGER, DiaryViewMode.STRANGER);
+    }
+
+    public List<DiaryDigest> getRecent(Language l, DiaryViewMode requestedView, DiaryViewMode allowedView)
+    {
+        var view = DiaryViewMode.clamp(requestedView, allowedView);
+        return ListTool.mapping(m.getRecent(view.name()), item -> new DiaryDigest(item, l, resolveBody(item, view)));
     }
 
     public Maybe<DiaryText> getDiaryById(Integer id, Language l)
     {
-        return Maybe.uncertain(m.getDiaryById(id)).handleIfExist(item -> new DiaryText(item, l));
+        return getDiaryById(id, l, DiaryViewMode.STRANGER, DiaryViewMode.STRANGER);
+    }
+
+    public Maybe<DiaryText> getDiaryById(Integer id, Language l, DiaryViewMode requestedView, DiaryViewMode allowedView)
+    {
+        var item = m.getDiaryById(id);
+        if (item == null)
+        {
+            return Maybe.nothing();
+        }
+
+        var availableViews = getAvailableViews(item);
+        var view = resolveEffectiveView(requestedView, allowedView, availableViews);
+        if (view == null)
+        {
+            return Maybe.nothing();
+        }
+
+        return Maybe.exist(new DiaryText(item, l, resolveBody(item, view), view.name().toLowerCase(), availableViews));
     }
 
     public Twin<Maybe<Map>> getNearby(Integer id)
     {
-        var nearby = Twin.of(Maybe.uncertain(m.selectPrev(id)), Maybe.uncertain(m.selectNext(id)));
-
-        return nearby.map(i -> i.handleIfExist(
-                entity -> Map.of("id", entity.getId(),
-                        "date", entity.getDate(),
-                        "sort", entity.getSort()
-                )
-        ));
+        return getNearby(id, DiaryViewMode.STRANGER, DiaryViewMode.STRANGER);
     }
 
-    private Integer normalizeLimit(Integer limit)
+    public Twin<Maybe<Map>> getNearby(Integer id, DiaryViewMode requestedView, DiaryViewMode allowedView)
     {
-        if (limit == null) return 20;
-        if (limit < 1) throw new IllegalArgumentException("limit 不能小于 1");
-        return Math.min(limit, 100);
+        var item = m.getDiaryById(id);
+        if (item == null)
+        {
+            return Twin.of(Maybe.nothing(), Maybe.nothing());
+        }
+
+        var availableViews = getAvailableViews(item);
+        var view = resolveEffectiveView(requestedView, allowedView, availableViews);
+        if (view == null)
+        {
+            return Twin.of(Maybe.nothing(), Maybe.nothing());
+        }
+
+        Maybe<Map> prev = Maybe.uncertain(m.selectPrev(id, view.name())).handleIfExist(this::toNearbyMap);
+        Maybe<Map> next = Maybe.uncertain(m.selectNext(id, view.name())).handleIfExist(this::toNearbyMap);
+
+        return Twin.of(prev, next);
     }
 
-    private void checkMonth(Integer month)
+    private String resolveBody(DiaryEntity item, DiaryViewMode view)
     {
-        if (month == null) return;
-        if (month < 1 || month > 12) throw new IllegalArgumentException("month 必须在 1-12 之间");
+        if (item == null)
+        {
+            return null;
+        }
+
+        return switch (view)
+        {
+            case SELF -> item.getContent();
+            case FRIEND -> item.getForFriend() != null ? item.getForFriend() : item.getForStranger();
+            case STRANGER -> item.getForStranger();
+        };
     }
 
-    private void checkDateRange(LocalDate startDate, LocalDate endDate)
+    private List<String> getAvailableViews(DiaryEntity item)
     {
-        if (startDate == null || endDate == null) return;
-        if (startDate.isAfter(endDate)) throw new IllegalArgumentException("startDate 不能晚于 endDate");
+        List<String> views = new ArrayList<>(3);
+        if (item.getContent() != null)
+        {
+            views.add(DiaryViewMode.SELF.name().toLowerCase());
+        }
+        if (item.getForFriend() != null)
+        {
+            views.add(DiaryViewMode.FRIEND.name().toLowerCase());
+        }
+        if (item.getForStranger() != null)
+        {
+            views.add(DiaryViewMode.STRANGER.name().toLowerCase());
+        }
+        return views;
+    }
+
+    private DiaryViewMode resolveEffectiveView(DiaryViewMode requestedView, DiaryViewMode allowedView, List<String> availableViews)
+    {
+        List<DiaryViewMode> candidates = new ArrayList<>();
+        for (String view : availableViews)
+        {
+            var mode = DiaryViewMode.of(view);
+            if (rank(mode) <= rank(allowedView))
+            {
+                candidates.add(mode);
+            }
+        }
+
+        if (candidates.isEmpty())
+        {
+            return null;
+        }
+
+        var requested = DiaryViewMode.clamp(requestedView, allowedView);
+        if (candidates.contains(requested))
+        {
+            return requested;
+        }
+
+        return candidates.stream()
+                .min((left, right) -> {
+                    int leftDistance = Math.abs(rank(left) - rank(requested));
+                    int rightDistance = Math.abs(rank(right) - rank(requested));
+                    if (leftDistance != rightDistance)
+                    {
+                        return Integer.compare(leftDistance, rightDistance);
+                    }
+                    return Integer.compare(rank(right), rank(left));
+                })
+                .orElse(candidates.get(0));
+    }
+
+    private int rank(DiaryViewMode view)
+    {
+        return switch (view)
+        {
+            case SELF -> 3;
+            case FRIEND -> 2;
+            case STRANGER -> 1;
+        };
+    }
+
+    private Map<String, Object> toNearbyMap(DiaryEntity item)
+    {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", item.getId());
+        map.put("date", item.getDate());
+        map.put("sort", item.getSort());
+        return map;
     }
 }

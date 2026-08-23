@@ -26,7 +26,7 @@ public class TokenService
     {
         // 生成Token
         String token = UUID.randomUUID().toString().replace("-", "");
-        // 交给存储层保存；存储层内部保证"单用户登录"（该用户旧Token会被作废）
+        // 交给存储层保存；同一用户可同时持有多个有效 Token
         tokenStore.save(token, username, TOKEN_EXPIRE_TIME);
         return token;
     }

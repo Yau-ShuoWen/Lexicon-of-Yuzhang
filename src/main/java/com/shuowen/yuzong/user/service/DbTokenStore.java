@@ -26,8 +26,6 @@ public class DbTokenStore implements TokenStore
     @Transactional (rollbackFor = {Exception.class})
     public void save(String token, String username, long expireSeconds)
     {
-        // 单用户登录：先作废该用户已有的旧 Token，再写入新 Token
-        mapper.deleteByUsername(username);
         mapper.insert(new UserTokenEntity(
                 token,
                 username,

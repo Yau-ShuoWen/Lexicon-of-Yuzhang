@@ -1,38 +1,51 @@
 package com.shuowen.yuzong.user.data.domain;
 
+import java.util.Locale;
+
 public enum Authority
 {
-
-    /*
-     * 编辑词条权限
-     * 审核词条权限
-     * 争议词汇查看权限
-     * 提交反馈权限
-     * 校对文档权限
-     * 管理员权限
-     * */
-
-
-    EDIT("edit"),
-    AUDIT("audit"),
-    SENSITIVE("sensitive"),
-    FEEDBACK("feecback"),
-    PROOFREAD("proofread"),
+    BLOG_READ_PUBLIC("blog.read.public"),
+    BLOG_READ_FRIENDS("blog.read.friends"),
+    BLOG_READ_PRIVATE("blog.read.private"),
+    DEV_ACCESS("dev.access"),
+    DICT_EDIT_VIEW("dict.edit.view"),
+    DICT_EDIT_WRITE("dict.edit.write"),
+    DICT_ACCESS_LAC("dialect.lac.access"),
+    DICT_ACCESS_CED("dialect.ced.access"),
+    ADMIN_ACCESS("admin.access"),
     ADMIN("admin"),
-    STUDY("study"),
     NO("no");
 
-    private String code;
+    private final String code;
 
     Authority(String code)
     {
-        this.code = code.trim().toLowerCase();
+        this.code = code.trim().toLowerCase(Locale.ROOT);
+    }
+
+    public String code()
+    {
+        return code;
+    }
+
+    public boolean matches(String value)
+    {
+        return value != null && code.equals(value.trim().toLowerCase(Locale.ROOT));
     }
 
     public static Authority of(String code)
     {
-        for (var i:values())
-            if(i.code.equals(code)) return i;
+        if (code == null)
+        {
+            return NO;
+        }
+        for (var i : values())
+        {
+            if (i.matches(code))
+            {
+                return i;
+            }
+        }
         return NO;
     }
 }

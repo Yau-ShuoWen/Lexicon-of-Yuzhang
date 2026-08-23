@@ -22,20 +22,16 @@ public class RedisTokenStore implements TokenStore
 
     /** Token -> 用户 的键前缀 */
     private static final String TOKEN_PREFIX = "token:";
-    /** 用户 -> Token 的键前缀（用于单用户登录） */
-    private static final String USER_TOKEN_PREFIX = "user_token:";
+    /** 用户 -> Token 集合 的键前缀（用于批量下线） */
+    private static final String USER_TOKENS_PREFIX = "user_tokens:";
 
     @Override
     public void save(String token, String username, long expireSeconds)
     {
         redisTool.set(TOKEN_PREFIX + token, username, expireSeconds, TimeUnit.SECONDS);
-
-        // 单用户登录：作废该用户旧 Token
-        String userTokenKey = USER_TOKEN_PREFIX + username;
-        String oldToken = (String) redisTool.get(userTokenKey);
-        if (oldToken != null) redisTool.del(TOKEN_PREFIX + oldToken);
-
-        redisTool.set(userTokenKey, token, expireSeconds, TimeUnit.SECONDS);
+        String userTokensKey = USER_TOKENS_PREFIX + username;
+        redisTool.sadd(userTokensKey, token);
+        redisTool.expire(userTokensKey, expireSeconds, TimeUnit.SECONDS);
     }
 
     @Override
@@ -52,19 +48,22 @@ public class RedisTokenStore implements TokenStore
         if (username != null)
         {
             redisTool.del(tokenKey);
-            redisTool.del(USER_TOKEN_PREFIX + username);
+            redisTool.srem(USER_TOKENS_PREFIX + username, token);
         }
     }
 
     @Override
     public void deleteByUsername(String username)
     {
-        String userTokenKey = USER_TOKEN_PREFIX + username;
-        String token = (String) redisTool.get(userTokenKey);
-        if (token != null)
+        String userTokensKey = USER_TOKENS_PREFIX + username;
+        for (Object token : redisTool.smembers(userTokensKey))
         {
-            deleteByToken(token);
+            if (token != null)
+            {
+                redisTool.del(TOKEN_PREFIX + token);
+            }
         }
+        redisTool.del(userTokensKey);
     }
 
     @Override
@@ -75,7 +74,7 @@ public class RedisTokenStore implements TokenStore
         if (username != null)
         {
             redisTool.expire(tokenKey, expireSeconds, TimeUnit.SECONDS);
-            redisTool.expire(USER_TOKEN_PREFIX + username, expireSeconds, TimeUnit.SECONDS);
+            redisTool.expire(USER_TOKENS_PREFIX + username, expireSeconds, TimeUnit.SECONDS);
         }
     }
 }

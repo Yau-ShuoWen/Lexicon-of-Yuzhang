@@ -8,13 +8,13 @@ package com.shuowen.yuzong.user.service;
  *     <li>{@code db}    ：数据库存储（默认，缺省配置时也使用本实现）</li>
  *     <li>{@code redis} ：Redis 存储</li>
  * </ul>
- * 各实现内部保证"单用户登录"（同一用户的新 Token 会使旧 Token 作废）与过期语义一致，
- * 因此上层（TokenService / 控制器）无需感知存储介质。
+ * 各实现内部保证多会话登录与过期语义一致，因此上层（TokenService / 控制器）
+ * 无需感知存储介质。
  */
 public interface TokenStore
 {
     /**
-     * 保存新 Token，并作废该用户已存在的旧 Token（单用户登录）。
+     * 保存新 Token。
      *
      * @param token         新 Token
      * @param username      所属用户
@@ -38,7 +38,7 @@ public interface TokenStore
     void deleteByToken(String token);
 
     /**
-     * 删除指定用户的全部 Token（强制下线 / 改名 / 改密后作废旧登录）。
+     * 删除指定用户的全部 Token（强制下线 / 改名 / 改密后作废全部登录）。
      *
      * @param username 用户名
      */

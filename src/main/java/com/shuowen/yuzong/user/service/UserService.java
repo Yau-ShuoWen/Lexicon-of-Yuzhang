@@ -2,13 +2,19 @@ package com.shuowen.yuzong.user.service;
 
 import com.shuowen.yuzong.user.data.mapper.UserMapper;
 import com.shuowen.yuzong.user.data.domain.Authority;
+import com.shuowen.yuzong.user.data.domain.AuthorityCode;
 import com.shuowen.yuzong.user.data.model.UserEntity;
 import com.shuowen.yuzong.user.data.model.UserProfileEntity;
+import com.shuowen.yuzong.util.json.JsonTool;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -100,6 +106,7 @@ public class UserService
     public void updateUsername(String t, String newUsername)
     {
         var u = getUserByToken(t);
+        String oldUsername = u.getUsername();
         newUsername = normalize(newUsername);
         if (newUsername == null)
         {
@@ -108,7 +115,7 @@ public class UserService
         if (user.getUserByName(newUsername) != null) throw new IllegalArgumentException("用户名重复");
         u.setUsername(newUsername);
         user.updateUsername(u);
-        token.removeToken(t);
+        token.forceLogout(oldUsername);
     }
 
 
@@ -124,7 +131,7 @@ public class UserService
         {
             u.setPassword(encodePassword(newPassword));
             user.updatePassword(u);
-            token.removeToken(t);
+            token.forceLogout(u.getUsername());
         }
         else throw new IllegalArgumentException("密码错误");
     }
@@ -142,23 +149,45 @@ public class UserService
                 u.getUsername(),
                 u.getPhone(),
                 u.getAuthority(),
+                List.copyOf(getAuthorityCodes(u.getAuthority())),
                 hasAdminAuthority(u.getAuthority())
         );
     }
 
     public boolean hasAdminAuthority(String authority)
     {
-        if (authority == null || authority.trim().isEmpty())
+        return hasAuthority(authority, AuthorityCode.ADMIN_ACCESS);
+    }
+
+    public boolean canReadBlogPublic(String authority)
+    {
+        return hasAuthority(authority, AuthorityCode.BLOG_READ_PUBLIC)
+                || hasAuthority(authority, AuthorityCode.BLOG_READ_FRIENDS)
+                || hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
+    }
+
+    public boolean canReadBlogFriends(String authority)
+    {
+        return hasAuthority(authority, AuthorityCode.BLOG_READ_FRIENDS)
+                || hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
+    }
+
+    public boolean canReadBlogPrivate(String authority)
+    {
+        return hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
+    }
+
+    public boolean hasPermission(String authority, String permission)
+    {
+        if (permission == null || permission.trim().isEmpty())
         {
             return false;
         }
-        if (authority.toLowerCase().contains(Authority.ADMIN.name().toLowerCase()))
+        if (hasAdminAuthority(authority))
         {
             return true;
         }
-        return authority.toLowerCase().contains("\"admin\"")
-                || authority.toLowerCase().contains("'admin'")
-                || Authority.of(authority) == Authority.ADMIN;
+        return hasAuthority(authority, permission);
     }
 
     private String generateGuestUsername(String phone)
@@ -185,5 +214,48 @@ public class UserService
         }
         String trimmed = value.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private boolean hasAuthority(String authority, String permission)
+    {
+        return getAuthorityCodes(authority).contains(permission.trim().toLowerCase());
+    }
+
+    private Set<String> getAuthorityCodes(String authority)
+    {
+        Set<String> codes = new LinkedHashSet<>();
+        if (authority == null || authority.trim().isEmpty())
+        {
+            return codes;
+        }
+
+        var list = JsonTool.readJson(authority, new TypeReference<List<String>>() {});
+        if (list != null && !list.isEmpty())
+        {
+            for (String item : list)
+            {
+                if (item != null && !item.trim().isEmpty())
+                {
+                    codes.add(item.trim().toLowerCase());
+                }
+            }
+            return codes;
+        }
+
+        String normalized = authority.toLowerCase();
+        for (Authority item : Authority.values())
+        {
+            if (item == Authority.NO)
+            {
+                continue;
+            }
+            if (normalized.contains("\"" + item.code() + "\"")
+                    || normalized.contains("'" + item.code() + "'")
+                    || normalized.contains(item.code()))
+            {
+                codes.add(item.code());
+            }
+        }
+        return codes;
     }
 }

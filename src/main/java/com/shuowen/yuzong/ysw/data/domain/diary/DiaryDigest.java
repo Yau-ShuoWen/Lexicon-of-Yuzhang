@@ -21,8 +21,14 @@ public class DiaryDigest
 
     public DiaryDigest(DiaryEntity d, Language l)
     {
+        this(d, l, d.getContent());
+    }
+
+    public DiaryDigest(DiaryEntity d, Language l, String body)
+    {
         date = d.getDate();
-        intro = ScTcText.get(d.getContent().split("\\R\\R+", 2)[0].replace(" ", "   "), l);
+        String text = body == null ? "" : body;
+        intro = ScTcText.get(text.split("\\R\\R+", 2)[0].replace(" ", "   "), l);
         startDate = d.getStartDate();
         finalizeDate = d.getFinalizeDate();
         id = d.getId();

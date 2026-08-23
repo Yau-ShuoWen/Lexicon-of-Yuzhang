@@ -9,6 +9,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class DiaryText
@@ -24,12 +25,24 @@ public class DiaryText
     private Integer id;
     private LocalDateTime createdTime;
     private LocalDateTime updatedTime;
+    private String viewMode;
+    private List<String> availableViews;
 
     public DiaryText(DiaryEntity d, Language l)
     {
+        this(d, l, d.getContent(), null, null);
+    }
+
+    public DiaryText(DiaryEntity d, Language l, String body)
+    {
+        this(d, l, body, null, null);
+    }
+
+    public DiaryText(DiaryEntity d, Language l, String body, String viewMode, List<String> availableViews)
+    {
         date = d.getDate();
 
-        var text = initTitle(d.getContent());
+        var text = initTitle(body);
 
         title = text.getLeft().get(l);
         content = text.getRight().get(l);
@@ -40,10 +53,16 @@ public class DiaryText
         id = d.getId();
         createdTime = d.getCreatedTime();
         updatedTime = d.getUpdatedTime();
+        this.viewMode = viewMode;
+        this.availableViews = availableViews;
     }
 
     private Twin<ScTcText> initTitle(String text)
     {
+        if (text == null)
+        {
+            text = "";
+        }
         String[] split = text.split("\\R\\R+", 2);
 
         String title, content;
