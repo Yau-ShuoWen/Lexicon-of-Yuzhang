@@ -1,10 +1,10 @@
 package com.shuowen.yuzong.ysw.linguistic;
 
-import com.shuowen.yuzong.Linguistics.Mandarin.Zhuyin;
-import com.shuowen.yuzong.Linguistics.util.PinyinCommon;
-import com.shuowen.yuzong.Linguistics.util.RPinyin;
-import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.linguistics.Mandarin.Zhuyin;
+import com.shuowen.yuzong.linguistics.util.PinyinCommon;
+import com.shuowen.yuzong.linguistics.util.RPinyin;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Pair;
 
 import java.util.LinkedHashMap;
@@ -216,7 +216,7 @@ public class MdrPYSceme
     {
         return switch (d)
         {
-            case Wade, ZhuyinII, TYPinyin -> CACHE.get(d);
+            case Wade, BoPoMoFo2, TYPinyin -> CACHE.get(d);
             default -> throw new InvalidPinyinException("");
         };
     }
@@ -248,8 +248,8 @@ public class MdrPYSceme
     // 初始化
     static
     {
-        CACHE.put(Alphabet.ZhuyinII, new MdrPYSceme(
-                Alphabet.ZhuyinII,
+        CACHE.put(Alphabet.BoPoMoFo2, new MdrPYSceme(
+                Alphabet.BoPoMoFo2,
                 "jr chr shr r tz tsz sz",
                 "b p m f d t n l g k h j ch sh j ch sh r tz ts s",
                 "a o e e ai ei au ou an en ang eng er yi/i ya/ia yo/io ye/ie yau/iao you/iou yan/ian yin/in yang/iang ying/ing wu/u wa/ua wo/uo wai/uai wei/uei wan/uan wen/uen wang/uang weng/ung yu/iu yue/iue yuan/iuan yun/iun yung/iung",

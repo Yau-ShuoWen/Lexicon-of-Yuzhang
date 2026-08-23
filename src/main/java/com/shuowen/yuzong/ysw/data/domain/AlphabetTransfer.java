@@ -1,10 +1,12 @@
 package com.shuowen.yuzong.ysw.data.domain;
 
-import com.shuowen.yuzong.Linguistics.Mandarin.*;
+import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.linguistics.Mandarin.HanPinyin;
+import com.shuowen.yuzong.linguistics.Mandarin.Zhuyin;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.tuple.Range;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.ysw.linguistic.JapanScheme;
 import com.shuowen.yuzong.ysw.linguistic.MdrPYSceme;
 import com.shuowen.yuzong.ysw.linguistic.Romatzyh;
 
@@ -81,7 +83,7 @@ public class AlphabetTransfer
             }
 
             // 基于汉语拼音替换的拼音方案
-            case Wade, ZhuyinII, TYPinyin ->
+            case Wade, BoPoMoFo2, TYPinyin ->
             {
                 var tool = MdrPYSceme.of(a);
 
@@ -105,6 +107,12 @@ public class AlphabetTransfer
             case SuZhouCode, RomanNumber, NumberSystem ->
             {
                 return NumberTransfer.format(a, l, funName, s);
+            }
+
+            // 日语
+            case HiRaGaNa, KaTaKaNa ->
+            {
+                return JapanScheme.format(funName, s);
             }
 
             default -> throw new RuntimeException("");

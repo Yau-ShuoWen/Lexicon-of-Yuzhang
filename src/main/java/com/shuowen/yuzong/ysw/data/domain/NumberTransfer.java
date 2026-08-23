@@ -3,7 +3,7 @@ package com.shuowen.yuzong.ysw.data.domain;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Range;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.text.ScTcText;
 
 import java.math.BigInteger;

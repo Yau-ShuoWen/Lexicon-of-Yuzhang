@@ -1,19 +1,20 @@
-package com.shuowen.yuzong.ysw.data.domain;
+package com.shuowen.yuzong.ysw.data.domain.alphabet;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
-import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.ysw.linguistic.Alphabet;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
 import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Pair;
-import com.shuowen.yuzong.service.impl.KV;
+import com.shuowen.yuzong.ysw.linguistic.Alphabet;
 import lombok.Data;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-import static com.shuowen.yuzong.Tool.format.JsonTool.readJson;
+import static com.shuowen.yuzong.util.json.JsonTool.readJson;
 
 @Data
 public class AlphabetTable
@@ -36,7 +37,6 @@ public class AlphabetTable
 
             // d 暂时不用
         }
-
     }
 
     // 一组里有最多四个格子，用于最小宽度的换行
@@ -45,7 +45,6 @@ public class AlphabetTable
     static class Group
     {
         final List<Item> item = new ArrayList<>();
-
 
         public Group(List<String> standards, String code, Alphabet d)
         {
@@ -77,7 +76,6 @@ public class AlphabetTable
         String code;
         List<Line> line;
 
-
         public Grid(Pair<Map<String, String>, List<List<List<String>>>> data, Alphabet d,Language l)
         {
             var gridData = data.getLeft();
@@ -89,12 +87,9 @@ public class AlphabetTable
 
     private final List<Grid> table;
 
-    public AlphabetTable(Alphabet d, Language l)
+    public AlphabetTable(String json,Alphabet a,Language l)
     {
-        var data = readJson(
-                KV.get("alphabet-table-json:" + d.toString()),
-                new TypeReference<List<Pair<Map<String, String>, List<List<List<String>>>>>>() {}
-        );
-        table = ListTool.mapping(data, i -> new Grid(i, d,l));
+        var data=readJson(json,new TypeReference<List<Pair<Map<String, String>, List<List<List<String>>>>>>() {});
+        table = ListTool.mapping(data,i -> new Grid(i, a, l));
     }
 }

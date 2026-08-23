@@ -2,21 +2,23 @@ package com.shuowen.yuzong.ysw.linguistic;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.Tool.dataStructure.option.Language;
-import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.tuple.Pair;
-import lombok.Data;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.List;
 
 @Getter
 @JsonFormat (shape = JsonFormat.Shape.OBJECT)
 public enum Alphabet
 {
+    //
+    ScAndTc("简体繁体", "sc-tc", Type.HanYu, true, List.of()),
+
     // 汉语标注方案：当代
     PinYin("漢語拼音", "pinyin", Type.HanYu, true, List.of("文字標註讀音|format")),
     BoPoMoFo("注音符號", "bopomofo", Type.HanYu, false, List.of("文字標註讀音|format")),
@@ -28,7 +30,7 @@ public enum Alphabet
     LatinXua("北方話拉丁化新文字", "latinxua", Type.HanYu, true, List.of()),
 
     // 汉语标注方案：拉中拉
-    ZhuyinII("注音第二式", "bopomofo2", Type.HanYu, true, List.of("文字標註讀音|format")),
+    BoPoMoFo2("注音第二式", "bopomofo2", Type.HanYu, true, List.of("文字標註讀音|format")),
     TYPinyin("通用拼音", "typinyin", Type.HanYu, true, List.of("文字標註讀音|format")),
 
     // 汉语标注方案：外國
@@ -58,8 +60,8 @@ public enum Alphabet
     // 四川話拉丁化新文字
 
     // 日语
-    HiRaGaNa("日語平假名", "hiragana", Type.CJKV, false, List.of()),
-    KaTaKaNa("日語片假名", "katakana", Type.CJKV, false, List.of()),
+    HiRaGaNa("日語平假名", "hiragana", Type.CJKV, false, List.of("羅馬字→平假名|romaji-to-hiragana", "片假名→平假名|katakana-to-hiragana")),
+    KaTaKaNa("日語片假名", "katakana", Type.CJKV, false, List.of("羅馬字→片假名|romaji-to-katakana", "平假名→片假名|hiragana-to-katakana")),
     GaiRaiGo("片假名外來語擴展", "gairaigo", Type.CJKV, false, List.of()),
 
     // 韩语
@@ -103,14 +105,14 @@ public enum Alphabet
 
     Alphabet(String name, String code, Type type, Boolean latin, List<String> trans)
     {
-        this.name = ScTcText.forEnum(name);
+        this.name = ScTcText.offline(name);
         this.code = code;
         this.type = type;
         this.latin = latin;
         this.trans = ListTool.mapping(trans, str ->
         {
             String[] s = str.split("\\|");
-            return Pair.of(ScTcText.forEnum(s[0]), s[1]);
+            return Pair.of(ScTcText.offline(s[0]), s[1]);
         });
     }
 
@@ -135,20 +137,8 @@ public enum Alphabet
         return code;
     }
 
-    @Data
-    public static class AlphabetT
+    public List<Pair<UString,String>> getTrans(Language l)
     {
-        private UString name;
-        private String code;
-        private List<Pair<UString, String>> trans;
-    }
-
-    public AlphabetT toTrans(Language l)
-    {
-        AlphabetT ans = new AlphabetT();
-        ans.name = name.get(l);
-        ans.code = code;
-        ans.trans = ListTool.mapping(trans, i -> Pair.of(i.getLeft().get(l), i.getRight()));
-        return ans;
+        return ListTool.mapping(trans, i -> Pair.of(i.getLeft().get(l), i.getRight()));
     }
 }

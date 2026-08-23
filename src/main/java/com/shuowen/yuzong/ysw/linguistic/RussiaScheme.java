@@ -1,4 +1,4 @@
-//package com.shuowen.yuzong.Linguistics.Mandarin;
+//package com.shuowen.yuzong.linguistics.Mandarin;
 //
 //import com.shuowen.yuzong.util.tuple.Pair;
 //
