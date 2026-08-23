@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -15,10 +14,25 @@ public interface DiaryMapper
     @Select ("SELECT * FROM NC.ysw_diary WHERE id = #{id}")
     DiaryEntity getDiaryById(int id);
 
-    @Select ("SELECT * FROM NC.ysw_diary WHERE date = #{date}")
-    DiaryEntity getDiaryByDate(LocalDate date);
+    @Select ("""
+            <script>
+            SELECT * FROM NC.ysw_diary
+            WHERE id = #{id}
+              AND
+              <choose>
+                  <when test='view == "SELF"'>content IS NOT NULL</when>
+                  <when test='view == "FRIEND"'>(for_friend IS NOT NULL OR for_stranger IS NOT NULL)</when>
+                  <otherwise>for_stranger IS NOT NULL</otherwise>
+              </choose>
+            </script>
+            """)
+    DiaryEntity getDiaryByIdVisible(@Param("id") Integer id, @Param("view") String view);
+
+    @Select ("SELECT * FROM NC.ysw_diary ORDER BY date DESC, sort DESC")
+    List<DiaryEntity> listAll();
 
     @Select ("""
+            <script>
             SELECT
                 YEAR(date) AS year,
                 MONTH(date) AS month,
@@ -26,52 +40,88 @@ public interface DiaryMapper
                 MIN(date) AS start_date,
                 MAX(date) AS end_date
             FROM NC.ysw_diary
+            WHERE
+            <choose>
+                <when test='view == "SELF"'>content IS NOT NULL</when>
+                <when test='view == "FRIEND"'>(for_friend IS NOT NULL OR for_stranger IS NOT NULL)</when>
+                <otherwise>for_stranger IS NOT NULL</otherwise>
+            </choose>
             GROUP BY YEAR(date), MONTH(date)
             ORDER BY YEAR(date) DESC, MONTH(date) DESC
+            </script>
             """)
-    List<DiaryCatalogEntity> getCatalog();
+    List<DiaryCatalogEntity> getCatalog(@Param("view") String view);
 
     @Select ("""
             <script>
-            SELECT *
-            FROM NC.ysw_diary
-            <where>
-                <if test='year != null'>
-                    AND YEAR(date) = #{year}
-                </if>
-                <if test='month != null'>
-                    AND MONTH(date) = #{month}
-                </if>
-                <if test='startDate != null'>
-                    AND date <![CDATA[ >= ]]> #{startDate}
-                </if>
-                <if test='endDate != null'>
-                    AND date <![CDATA[ <= ]]> #{endDate}
-                </if>
-            </where>
-            ORDER BY date DESC, sort DESC
-            LIMIT #{limit}
+            SELECT * FROM NC.ysw_diary
+            WHERE YEAR(date) = #{year}
+              AND MONTH(date) = #{month}
+              AND
+              <choose>
+                  <when test='view == "SELF"'>content IS NOT NULL</when>
+                  <when test='view == "FRIEND"'>(for_friend IS NOT NULL OR for_stranger IS NOT NULL)</when>
+                  <otherwise>for_stranger IS NOT NULL</otherwise>
+              </choose>
+            ORDER BY date ASC, sort ASC
             </script>
             """)
-    List<DiaryEntity> query(
-            @Param ("year") Integer year,
-            @Param ("month") Integer month,
-            @Param ("startDate") LocalDate startDate,
-            @Param ("endDate") LocalDate endDate,
-            @Param ("limit") Integer limit
-    );
+    List<DiaryEntity> query(@Param ("year") Integer year, @Param ("month") Integer month, @Param("view") String view);
 
-    @Select ("SELECT * FROM NC.ysw_diary ORDER BY date DESC, sort DESC LIMIT #{limit}")
-    List<DiaryEntity> getRecent(int limit);
+    @Select ("""
+            <script>
+            SELECT * FROM NC.ysw_diary
+            WHERE
+            <choose>
+                <when test='view == "SELF"'>content IS NOT NULL</when>
+                <when test='view == "FRIEND"'>(for_friend IS NOT NULL OR for_stranger IS NOT NULL)</when>
+                <otherwise>for_stranger IS NOT NULL</otherwise>
+            </choose>
+            ORDER BY date DESC, sort DESC
+            LIMIT 20
+            </script>
+            """)
+    List<DiaryEntity> getRecent(@Param("view") String view);
 
-    @Select("SELECT * FROM ysw_diary " +
-            "WHERE (date, sort) < (SELECT date, sort FROM ysw_diary WHERE id = #{id}) " +
-            "ORDER BY date DESC, sort DESC LIMIT 1")
-    DiaryEntity selectPrev(@Param("id") Integer id);
+    @Select("""
+            <script>
+            SELECT * FROM NC.ysw_diary
+            WHERE (date, sort) &lt; (
+                SELECT date, sort FROM NC.ysw_diary WHERE id = #{id}
+            )
+              AND
+              <choose>
+                  <when test='view == "SELF"'>content IS NOT NULL</when>
+                  <when test='view == "FRIEND"'>(for_friend IS NOT NULL OR for_stranger IS NOT NULL)</when>
+                  <otherwise>for_stranger IS NOT NULL</otherwise>
+              </choose>
+            ORDER BY date DESC, sort DESC
+            LIMIT 1
+            </script>
+            """)
+    DiaryEntity selectPrev(@Param("id") Integer id, @Param("view") String view);
 
 
-    @Select("SELECT * FROM ysw_diary " +
-            "WHERE (date, sort) > (SELECT date, sort FROM ysw_diary WHERE id = #{id}) " +
-            "ORDER BY date ASC, sort ASC LIMIT 1")
-    DiaryEntity selectNext(@Param("id") Integer id);
+    @Select("""
+            <script>
+            SELECT * FROM NC.ysw_diary
+            WHERE (date, sort) &gt; (
+                SELECT date, sort FROM NC.ysw_diary WHERE id = #{id}
+            )
+              AND
+              <choose>
+                  <when test='view == "SELF"'>content IS NOT NULL</when>
+                  <when test='view == "FRIEND"'>(for_friend IS NOT NULL OR for_stranger IS NOT NULL)</when>
+                  <otherwise>for_stranger IS NOT NULL</otherwise>
+              </choose>
+            ORDER BY date ASC, sort ASC
+            LIMIT 1
+            </script>
+            """)
+    DiaryEntity selectNext(@Param("id") Integer id, @Param("view") String view);
+
+//    @Select("""
+//            SELECT * FROM ysw_diary WHERE content like concat('%',#{query},'%')
+//            """)
+//    List<DiaryEntity>
 }
