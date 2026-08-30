@@ -5,6 +5,7 @@ import com.shuowen.yuzong.ysw.data.model.diary.DiaryEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.util.List;
 
@@ -13,6 +14,19 @@ public interface DiaryMapper
 {
     @Select ("SELECT * FROM NC.ysw_diary WHERE id = #{id}")
     DiaryEntity getDiaryById(int id);
+
+    @Update("""
+            UPDATE NC.ysw_diary
+            SET date = #{date},
+                sort = #{sort},
+                content = #{content},
+                for_friend = #{forFriend},
+                for_stranger = #{forStranger},
+                start_date = #{startDate},
+                finalize_date = #{finalizeDate}
+            WHERE id = #{id}
+            """)
+    int updateForEdit(DiaryEntity diary);
 
     @Select ("""
             <script>

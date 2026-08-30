@@ -6,8 +6,11 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryCatalog;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryDigest;
+import com.shuowen.yuzong.ysw.data.domain.diary.DiaryEditVisibility;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryText;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryViewMode;
+import com.shuowen.yuzong.ysw.data.dto.diary.DiaryEditData;
+import com.shuowen.yuzong.ysw.data.dto.diary.DiaryEditRequest;
 import com.shuowen.yuzong.ysw.data.mapper.diary.DiaryMapper;
 import com.shuowen.yuzong.ysw.data.model.diary.DiaryCatalogEntity;
 import com.shuowen.yuzong.ysw.data.model.diary.DiaryEntity;
@@ -71,6 +74,57 @@ public class DiaryService
     {
         var view = DiaryViewMode.clamp(requestedView, allowedView);
         return ListTool.mapping(m.getRecent(view.name()), item -> new DiaryDigest(item, l, resolveBody(item, view)));
+    }
+
+    public DiaryEditData getForEdit(Integer id)
+    {
+        var diary = m.getDiaryById(id);
+        if (diary == null)
+        {
+            throw new IllegalArgumentException("日记不存在");
+        }
+        return DiaryEditData.of(diary);
+    }
+
+    public DiaryEditData updateForEdit(Integer id, DiaryEditRequest request)
+    {
+        if (request == null)
+        {
+            throw new IllegalArgumentException("编辑内容不能为空");
+        }
+        if (request.date() == null)
+        {
+            throw new IllegalArgumentException("日期不能为空");
+        }
+        if (request.sort() == null || request.sort() <= 0)
+        {
+            throw new IllegalArgumentException("sort 必须大于 0");
+        }
+        if (request.content() == null)
+        {
+            throw new IllegalArgumentException("正文不能为空");
+        }
+
+        var visibility = DiaryEditVisibility.of(request.visibility());
+        var diary = m.getDiaryById(id);
+        if (diary == null)
+        {
+            throw new IllegalArgumentException("日记不存在");
+        }
+
+        diary.setDate(request.date());
+        diary.setSort(request.sort());
+        diary.setContent(request.content());
+        diary.setStartDate(request.startDate());
+        diary.setFinalizeDate(request.finalizeDate());
+        diary.setForFriend(visibility == DiaryEditVisibility.PRIVATE ? null : request.forFriend());
+        diary.setForStranger(visibility == DiaryEditVisibility.STRANGER ? request.forStranger() : null);
+
+        if (m.updateForEdit(diary) != 1)
+        {
+            throw new IllegalStateException("日记保存失败");
+        }
+        return DiaryEditData.of(diary);
     }
 
     public Maybe<DiaryText> getDiaryById(Integer id, Language l)
