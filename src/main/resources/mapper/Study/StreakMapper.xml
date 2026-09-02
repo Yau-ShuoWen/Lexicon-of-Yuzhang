@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.study.data.mapper.StreakMapper">
+    <select id="findByUserAndRange" resultType="com.shuowen.yuzong.study.data.model.StreakRecordEntity">
+        SELECT id, user_id, study_date, status
+        FROM NC.study_streak_record
+        WHERE user_id = #{userId}
+          AND study_date BETWEEN #{from} AND #{to}
+        ORDER BY study_date
+    </select>
+
+    <select id="findAllByUser" resultType="com.shuowen.yuzong.study.data.model.StreakRecordEntity">
+        SELECT id, user_id, study_date, status
+        FROM NC.study_streak_record
+        WHERE user_id = #{userId}
+        ORDER BY study_date
+    </select>
+
+    <select id="findByUserAndDate" resultType="com.shuowen.yuzong.study.data.model.StreakRecordEntity">
+        SELECT id, user_id, study_date, status
+        FROM NC.study_streak_record
+        WHERE user_id = #{userId} AND study_date = #{studyDate}
+        LIMIT 1
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO NC.study_streak_record (user_id, study_date, status)
+        VALUES (#{userId}, #{studyDate}, #{status})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE NC.study_streak_record
+        SET status = #{status}, updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = #{userId} AND study_date = #{studyDate}
+    </update>
+
+    <select id="findProtectionBalance" resultType="int">
+        SELECT protection_count
+        FROM NC.study_streak_protection
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertProtectionBalance">
+        INSERT INTO NC.study_streak_protection (user_id, protection_count)
+        VALUES (#{userId}, #{balance})
+    </insert>
+
+    <update id="consumeProtection">
+        UPDATE NC.study_streak_protection
+        SET protection_count = protection_count - 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = #{userId} AND protection_count > 0
+    </update>
+
+    <delete id="deleteByUser">
+        DELETE FROM NC.study_streak_record WHERE user_id = #{userId}
+    </delete>
+
+    <update id="resetProtectionBalance">
+        UPDATE NC.study_streak_protection
+        SET protection_count = 0, updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="addProtection">
+        UPDATE NC.study_streak_protection
+        SET protection_count = protection_count + #{amount},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = #{userId}
+    </update>
+</mapper>
