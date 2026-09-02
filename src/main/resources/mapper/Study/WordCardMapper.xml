@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.study.data.mapper.WordCardMapper">
+    <select id="findRandom" resultType="com.shuowen.yuzong.study.data.model.WordCardEntity">
+        SELECT id, dialect, putonghua, word, pinyin
+        FROM study_word_card
+        WHERE dialect = #{dialect}
+        ORDER BY RAND()
+        LIMIT #{limit}
+    </select>
+
+    <select id="findAll" resultType="com.shuowen.yuzong.study.data.model.WordCardEntity">
+        SELECT id, dialect, putonghua, word, pinyin
+        FROM study_word_card
+        WHERE dialect = #{dialect}
+        ORDER BY id
+    </select>
+
+    <select id="findById" resultType="com.shuowen.yuzong.study.data.model.WordCardEntity">
+        SELECT id, dialect, putonghua, word, pinyin
+        FROM study_word_card
+        WHERE id = #{id} AND dialect = #{dialect}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO study_word_card (dialect, putonghua, word, pinyin)
+        VALUES (#{dialect}, #{putonghua}, #{word}, #{pinyin})
+    </insert>
+
+    <update id="update">
+        UPDATE study_word_card
+        SET putonghua = #{putonghua}, word = #{word}, pinyin = #{pinyin}
+        WHERE id = #{id} AND dialect = #{dialect}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM study_word_card
+        WHERE id = #{id} AND dialect = #{dialect}
+    </delete>
+</mapper>
