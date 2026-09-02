@@ -1,6 +1,6 @@
 <div style="text-align: center">
 <h1>📖 豫章词 —— 方言是我们能听见的历史</h1>
-<img src="docs/yuzhangci-icon.svg" width="30%" height="auto" alt="项目创建时间">
+<img src="docs/图标/v2/yuzhangci2-transparent.svg" width="30%" height="auto" alt="项目创建时间">
 </div>
 
 ## 介绍
