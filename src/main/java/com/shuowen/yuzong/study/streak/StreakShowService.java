@@ -1,9 +1,8 @@
-package com.shuowen.yuzong.study.service;
+package com.shuowen.yuzong.study.streak;
 
-import com.shuowen.yuzong.study.data.dto.StreakOverview;
-import com.shuowen.yuzong.study.data.dto.StreakRecord;
-import com.shuowen.yuzong.study.data.mapper.StreakMapper;
-import com.shuowen.yuzong.study.data.model.StreakRecordEntity;
+import com.shuowen.yuzong.study.streak.data.StreakOverview;
+import com.shuowen.yuzong.study.streak.data.StreakRecord;
+import com.shuowen.yuzong.study.streak.data.StreakRecordEntity;
 import com.shuowen.yuzong.user.data.model.UserEntity;
 import com.shuowen.yuzong.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class StreakService
+public class StreakShowService
 {
     @Autowired
     private StreakMapper mapper;
@@ -29,10 +28,21 @@ public class StreakService
     public StreakOverview getOverview(String token, LocalDate from, LocalDate to)
     {
         UserEntity user = userService.getUserByToken(token);
-        settleExpiredDays(user.getId(), LocalDate.now());
-        List<StreakRecordEntity> records = mapper.findByUserAndRange(user.getId(), from, to);
-        List<StreakRecordEntity> allRecords = mapper.findAllByUser(user.getId());
-        return buildOverview(records, allRecords, LocalDate.now(), protectionBalance(user.getId()));
+        return getOverviewForUser(user.getId(), from, to);
+    }
+
+    public StreakOverview getOverviewForUser(Integer userId, LocalDate from, LocalDate to)
+    {
+        if (userId == null) throw new IllegalArgumentException("用户编号不能为空");
+        if (from == null || to == null || from.isAfter(to))
+        {
+            throw new IllegalArgumentException("日期范围无效");
+        }
+        LocalDate today = LocalDate.now();
+        settleExpiredDays(userId, today);
+        List<StreakRecordEntity> records = mapper.findByUserAndRange(userId, from, to);
+        List<StreakRecordEntity> allRecords = mapper.findAllByUser(userId);
+        return buildOverview(records, allRecords, today, protectionBalance(userId));
     }
 
     public void markStudyCompleted(String token)

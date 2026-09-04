@@ -1,7 +1,6 @@
-package com.shuowen.yuzong.study.controller;
+package com.shuowen.yuzong.study.streak;
 
-import com.shuowen.yuzong.study.data.dto.StreakOverview;
-import com.shuowen.yuzong.study.service.StreakService;
+import com.shuowen.yuzong.study.streak.data.StreakOverview;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,10 +9,10 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/study/streak")
-public class StreakController
+public class StreakShowController
 {
     @Autowired
-    private StreakService service;
+    private StreakShowService service;
 
     @GetMapping
     public APIResponse<StreakOverview> overview(

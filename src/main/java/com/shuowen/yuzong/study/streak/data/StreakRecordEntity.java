@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.study.data.model;
+package com.shuowen.yuzong.study.streak.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

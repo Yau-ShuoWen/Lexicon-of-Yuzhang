@@ -1,6 +1,6 @@
-package com.shuowen.yuzong.study.data.mapper;
+package com.shuowen.yuzong.study.streak;
 
-import com.shuowen.yuzong.study.data.model.StreakRecordEntity;
+import com.shuowen.yuzong.study.streak.data.StreakRecordEntity;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
