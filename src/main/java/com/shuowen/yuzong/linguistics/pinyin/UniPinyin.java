@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.linguistics.pinyin;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.linguistics.IPA.IPinyin;
 import com.shuowen.yuzong.linguistics.util.*;

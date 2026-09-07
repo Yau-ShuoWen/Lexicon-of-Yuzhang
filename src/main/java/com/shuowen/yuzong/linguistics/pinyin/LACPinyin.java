@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.linguistics.pinyin;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
 import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.linguistics.util.*;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.text.StringTool;
@@ -282,7 +282,7 @@ public class LACPinyin extends UniPinyin
     @Override
     public RPinyin toRPinyin()
     {
-        return RPinyin.of(LACDisplay.format(this));
+        return RPinyin.of(PinyinCommon.e_A_G(LACDisplay.format(this)));
     }
 
     @Override
@@ -375,6 +375,8 @@ public class LACPinyin extends UniPinyin
             s = PinyinCommon.e_JQX_Ü_V_Yu_U(s);
             s = PinyinCommon.e_Ü_V_Yu(s);
 
+            // r->l 问题
+            s = s.replace("r", "l");
 
             // 双韵母的模糊处理
             // 匹配：普通话常见但是不符合的： ao->au  iau->ieu  ou->eu  iou->iu uei->ui
@@ -469,14 +471,14 @@ public class LACPinyin extends UniPinyin
                 // i ->yi it->yit iu->yiu in->yin
                 if (ObjectTool.existEqual(s, "i", "it", "in"))
                     s = "y" + s;
-                else if (s.equals("iu")) s = "yi+wu";
+                else if (s.equals("iu")) s = "yiu";
                 else s = "y" + s.substring(1);
             }
             if (c == 'u')
             {
                 if (s.length() >= 2 && ObjectTool.existEqual(s.charAt(1), 'a', 'o'))
                     s = "w" + s.substring(1);
-                else if (s.equals("ui")) s = "wu+yi";
+                else if (s.equals("ui")) s = "wi";
                 else s = "w" + s;
             }
             return s;
