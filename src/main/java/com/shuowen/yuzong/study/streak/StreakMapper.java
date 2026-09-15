@@ -21,9 +21,10 @@ public interface StreakMapper
 
     void insert(StreakRecordEntity record);
 
-    void updateStatus(@Param("userId") Integer userId,
+    void updateRecord(@Param("userId") Integer userId,
                       @Param("studyDate") LocalDate studyDate,
-                      @Param("status") String status);
+                      @Param("status") String status,
+                      @Param("recordSource") String recordSource);
 
     Integer findProtectionBalance(@Param("userId") Integer userId);
 

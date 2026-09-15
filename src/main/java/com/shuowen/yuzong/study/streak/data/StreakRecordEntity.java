@@ -15,4 +15,5 @@ public class StreakRecordEntity
     private Integer userId;
     private LocalDate studyDate;
     private String status;
+    private String recordSource;
 }

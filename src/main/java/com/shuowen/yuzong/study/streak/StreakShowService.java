@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class StreakShowService
 {
+    private static final String NATURAL_SOURCE = "natural";
+
     @Autowired
     private StreakMapper mapper;
 
@@ -54,11 +56,11 @@ public class StreakShowService
         StreakRecordEntity existing = mapper.findByUserAndDate(user.getId(), today);
         if (existing == null)
         {
-            mapper.insert(new StreakRecordEntity(null, user.getId(), today, status));
+            mapper.insert(new StreakRecordEntity(null, user.getId(), today, status, NATURAL_SOURCE));
         }
-        else if (!"completed".equals(existing.getStatus()))
+        else
         {
-            mapper.updateStatus(user.getId(), today, status);
+            mapper.updateRecord(user.getId(), today, status, NATURAL_SOURCE);
         }
     }
 
@@ -110,7 +112,7 @@ public class StreakShowService
         int completedDays = (int) allRecords.stream().filter(item -> "completed".equals(item.getStatus())).count();
         int protectedDays = (int) allRecords.stream().filter(item -> "protected".equals(item.getStatus())).count();
         List<StreakRecord> result = records.stream()
-                .map(item -> new StreakRecord(item.getStudyDate(), item.getStatus()))
+                .map(item -> new StreakRecord(item.getStudyDate(), item.getStatus(), item.getRecordSource()))
                 .toList();
         return new StreakOverview(currentStreak, longestStreak, completedDays,
                 completedDays, protectedDays, protectionBalance, todayStatus, result);
@@ -139,11 +141,11 @@ public class StreakShowService
             {
                 if (mapper.consumeProtection(userId) > 0)
                 {
-                    mapper.insert(new StreakRecordEntity(null, userId, cursor, "protected"));
+                    mapper.insert(new StreakRecordEntity(null, userId, cursor, "protected", NATURAL_SOURCE));
                 }
                 else
                 {
-                    mapper.insert(new StreakRecordEntity(null, userId, cursor, "missed"));
+                    mapper.insert(new StreakRecordEntity(null, userId, cursor, "missed", NATURAL_SOURCE));
                 }
             }
             cursor = cursor.plusDays(1);

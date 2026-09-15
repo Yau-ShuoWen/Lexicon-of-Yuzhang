@@ -17,6 +17,7 @@ import java.util.List;
 public class StreakAdminService
 {
     private static final List<String> VALID_STATUSES = List.of("completed", "protected", "missed");
+    private static final String ADMIN_SOURCE = "admin";
 
     private final StreakMapper streakMapper;
     private final UserService userService;
@@ -75,11 +76,11 @@ public class StreakAdminService
         StreakRecordEntity existing = streakMapper.findByUserAndDate(userId, request.getDate());
         if (existing == null)
         {
-            streakMapper.insert(new StreakRecordEntity(null, userId, request.getDate(), request.getStatus()));
+            streakMapper.insert(new StreakRecordEntity(null, userId, request.getDate(), request.getStatus(), ADMIN_SOURCE));
         }
-        else if (!request.getStatus().equals(existing.getStatus()))
+        else
         {
-            streakMapper.updateStatus(userId, request.getDate(), request.getStatus());
+            streakMapper.updateRecord(userId, request.getDate(), request.getStatus(), ADMIN_SOURCE);
         }
     }
 

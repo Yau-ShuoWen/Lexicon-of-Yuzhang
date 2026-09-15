@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.study.loadingtext.LoadingTextMapper">
+    <select id="findAll" resultType="com.shuowen.yuzong.study.loadingtext.data.LoadingTextEntity">
+        SELECT id, tip, tag, created_time, updated_time
+        FROM study_loading_text
+        ORDER BY id
+    </select>
+
+    <select id="findById" resultType="com.shuowen.yuzong.study.loadingtext.data.LoadingTextEntity">
+        SELECT id, tip, tag, created_time, updated_time
+        FROM study_loading_text
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO study_loading_text (tip, tag)
+        VALUES (#{tip}, #{tag})
+    </insert>
+
+    <update id="update">
+        UPDATE study_loading_text
+        SET tip = #{tip}, tag = #{tag}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM study_loading_text
+        WHERE id = #{id}
+    </delete>
+</mapper>
