@@ -47,7 +47,7 @@ public enum Alphabet
 
     // 古代汉语标注方案
     MiddleChinese("中古漢語", "middle-chinese", Type.History, false, List.of()),
-
+    JianTuan("尖團音", "jian-tuan", Type.History, true, List.of("判斷尖團音|format")),
 
     // 方言拼音方案
     LanCong("南昌話拼音", "lac", Type.Dialect, true, List.of()),
@@ -137,7 +137,7 @@ public enum Alphabet
         return code;
     }
 
-    public List<Pair<UString,String>> getTrans(Language l)
+    public List<Pair<UString, String>> getTrans(Language l)
     {
         return ListTool.mapping(trans, i -> Pair.of(i.getLeft().get(l), i.getRight()));
     }

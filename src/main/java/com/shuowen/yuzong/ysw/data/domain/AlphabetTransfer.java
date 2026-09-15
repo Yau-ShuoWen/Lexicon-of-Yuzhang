@@ -6,6 +6,7 @@ import com.shuowen.yuzong.linguistics.Mandarin.Zhuyin;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.tuple.Range;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
+import com.shuowen.yuzong.ysw.linguistic.JianTuan;
 import com.shuowen.yuzong.ysw.linguistic.JapanScheme;
 import com.shuowen.yuzong.ysw.linguistic.MdrPYSceme;
 import com.shuowen.yuzong.ysw.linguistic.Romatzyh;
@@ -113,6 +114,12 @@ public class AlphabetTransfer
             case HiRaGaNa, KaTaKaNa ->
             {
                 return JapanScheme.format(funName, s);
+            }
+
+            // 尖团音判断表
+            case JianTuan ->
+            {
+                return JianTuan.format(s);
             }
 
             default -> throw new RuntimeException("");
