@@ -1,9 +1,9 @@
 package com.shuowen.yuzong.ysw.controller;
 
+import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryCatalog;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryDigest;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryText;
@@ -224,15 +224,15 @@ public class DiaryController
                 return DiaryViewMode.STRANGER;
             }
             String authority = user.getAuthority();
-            if (userService.canReadBlogPrivate(authority))
+            if (userService.canReadDiaryPrivate(authority))
             {
                 return DiaryViewMode.SELF;
             }
-            if (userService.canReadBlogFriends(authority))
+            if (userService.canReadDiaryFriends(authority))
             {
                 return DiaryViewMode.FRIEND;
             }
-            if (userService.canReadBlogPublic(authority))
+            if (userService.canReadDiaryPublic(authority))
             {
                 return DiaryViewMode.STRANGER;
             }

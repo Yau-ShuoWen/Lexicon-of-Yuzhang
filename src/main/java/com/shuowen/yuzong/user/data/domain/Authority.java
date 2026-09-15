@@ -5,9 +5,10 @@ import java.util.Locale;
 public enum Authority
 {
     DIARY_READ_PUBLIC("diary.read.public"),
-    DIARY_READ_FRIENDS("diary.read.friends"),
+    DIARY_READ_PROTECTED("diary.read.protected"),
     DIARY_READ_PRIVATE("diary.read.private"),
-    BLOG_EDIT("diary.edit"),
+    DIARY_EDIT("diary.edit"),
+
     DEV_ACCESS("dev.access"),
     DICT_EDIT_VIEW("dict.edit.view"),
     DICT_EDIT_WRITE("dict.edit.write"),

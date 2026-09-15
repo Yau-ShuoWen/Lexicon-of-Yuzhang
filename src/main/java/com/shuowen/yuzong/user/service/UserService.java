@@ -173,20 +173,20 @@ public class UserService
 
     public boolean canReadDiaryPublic(String authority)
     {
-        return hasAuthority(authority, AuthorityCode.BLOG_READ_PUBLIC)
-                || hasAuthority(authority, AuthorityCode.BLOG_READ_FRIENDS)
-                || hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
+        return hasAuthority(authority, AuthorityCode.DIARY_READ_PUBLIC)
+                || hasAuthority(authority, AuthorityCode.DIARY_READ_PROTECTED)
+                || hasAuthority(authority, AuthorityCode.DIARY_READ_PRIVATE);
     }
 
     public boolean canReadDiaryFriends(String authority)
     {
-        return hasAuthority(authority, AuthorityCode.BLOG_READ_FRIENDS)
-                || hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
+        return hasAuthority(authority, AuthorityCode.DIARY_READ_PROTECTED)
+                || hasAuthority(authority, AuthorityCode.DIARY_READ_PRIVATE);
     }
 
     public boolean canReadDiaryPrivate(String authority)
     {
-        return hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
+        return hasAuthority(authority, AuthorityCode.DIARY_READ_PRIVATE);
     }
 
     public boolean hasPermission(String authority, String permission)
