@@ -1,21 +1,17 @@
 package com.shuowen.yuzong.user.service;
 
-import com.shuowen.yuzong.user.data.mapper.UserMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.user.data.domain.Authority;
 import com.shuowen.yuzong.user.data.domain.AuthorityCode;
+import com.shuowen.yuzong.user.data.mapper.UserMapper;
 import com.shuowen.yuzong.user.data.model.UserEntity;
 import com.shuowen.yuzong.user.data.model.UserProfileEntity;
 import com.shuowen.yuzong.util.json.JsonTool;
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.shuowen.yuzong.user.utils.PasswordUtil.encodePassword;
@@ -86,13 +82,20 @@ public class UserService
         return assertNotNull(user.getUserByName(name), new NoSuchElementException("用户不存在"));
     }
 
+    public UserEntity getUserById(Integer id)
+    {
+        return user.getUserById(id);
+    }
+
+    public List<UserEntity> searchUsers(String keyword)
+    {
+        return user.searchUsers(normalize(keyword));
+    }
+
     public void createUser(String username, String password)
     {
         username = normalize(username);
-        if (username == null)
-        {
-            throw new IllegalArgumentException("用户名不能为空");
-        }
+        validateUsername(username);
         if (password == null || password.trim().isEmpty())
         {
             throw new IllegalArgumentException("密码不能为空");
@@ -108,14 +111,23 @@ public class UserService
         var u = getUserByToken(t);
         String oldUsername = u.getUsername();
         newUsername = normalize(newUsername);
-        if (newUsername == null)
-        {
-            throw new IllegalArgumentException("新用户名不能为空");
-        }
+        validateUsername(newUsername);
         if (user.getUserByName(newUsername) != null) throw new IllegalArgumentException("用户名重复");
         u.setUsername(newUsername);
         user.updateUsername(u);
         token.forceLogout(oldUsername);
+    }
+
+    private void validateUsername(String username)
+    {
+        if (username == null)
+        {
+            throw new IllegalArgumentException("用户名不能为空");
+        }
+        if (username.matches("\\d+"))
+        {
+            throw new IllegalArgumentException("用户名不能为纯数字");
+        }
     }
 
 
@@ -159,20 +171,20 @@ public class UserService
         return hasAuthority(authority, AuthorityCode.ADMIN_ACCESS);
     }
 
-    public boolean canReadBlogPublic(String authority)
+    public boolean canReadDiaryPublic(String authority)
     {
         return hasAuthority(authority, AuthorityCode.BLOG_READ_PUBLIC)
                 || hasAuthority(authority, AuthorityCode.BLOG_READ_FRIENDS)
                 || hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
     }
 
-    public boolean canReadBlogFriends(String authority)
+    public boolean canReadDiaryFriends(String authority)
     {
         return hasAuthority(authority, AuthorityCode.BLOG_READ_FRIENDS)
                 || hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
     }
 
-    public boolean canReadBlogPrivate(String authority)
+    public boolean canReadDiaryPrivate(String authority)
     {
         return hasAuthority(authority, AuthorityCode.BLOG_READ_PRIVATE);
     }

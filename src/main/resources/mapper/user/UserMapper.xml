@@ -4,6 +4,11 @@
 
 <mapper namespace="com.shuowen.yuzong.user.data.mapper.UserMapper">
 
+    <select id="getUserById" resultType="com.shuowen.yuzong.user.data.model.UserEntity">
+        SELECT * FROM NC.user
+        WHERE id = #{id}
+    </select>
+
     <select id="getUserByName" resultType="com.shuowen.yuzong.user.data.model.UserEntity">
         SELECT * FROM NC.user
         WHERE username = #{username}
@@ -12,6 +17,15 @@
     <select id="getUserByPhone" resultType="com.shuowen.yuzong.user.data.model.UserEntity">
         SELECT * FROM NC.user
         WHERE phone = #{phone}
+    </select>
+
+    <select id="searchUsers" resultType="com.shuowen.yuzong.user.data.model.UserEntity">
+        SELECT id, username, phone, password, authority
+        FROM NC.user
+        WHERE username LIKE CONCAT('%', #{keyword}, '%')
+           OR phone LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY id
+        LIMIT 20
     </select>
 
     <insert id="insertUser" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
