@@ -1,10 +1,11 @@
 package com.shuowen.yuzong.ysw.data.domain;
 
+import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.RichTextTable;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Range;
 import com.shuowen.yuzong.ysw.linguistic.Alphabet;
-import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.util.text.ScTcText;
 
 import java.math.BigInteger;
 import java.util.HashMap;
@@ -177,27 +178,14 @@ public class NumberTransfer
                 return ScTcText.get("數字格式錯誤", "数字格式错误", l);
             }
 
-            String table = ScTcText.get(
-                    """
-                            |---|---|
-                            |二進制|%s|
-                            |八進制|%s|
-                            |十進制|%s|
-                            |十六進制|%s|""",
-                    """
-                            |---|---|
-                            |二进制|%s|
-                            |八进制|%s|
-                            |十进制|%s|
-                            |十六进制|%s|""",
-                    l);
-
-            return String.format(table,
-                    val.toString(2),
-                    val.toString(8),
-                    val.toString(10),
-                    val.toString(16).toUpperCase()
-            );
+            return new RichTextTable()
+                    .addColumn(RichTextTable.Alignment.CENTER, RichTextTable.Width.NOWRAP)
+                    .addColumn(RichTextTable.Alignment.LEFT, RichTextTable.Width.LONG)
+                    .addRow(ScTcText.get("二進制", "二进制", l), val.toString(2))
+                    .addRow(ScTcText.get("八進制", "八进制", l), val.toString(8))
+                    .addRow(ScTcText.get("十進制", "十进制", l), val.toString(10))
+                    .addRow(ScTcText.get("十六進制", "十六进制", l), val.toString(16).toUpperCase())
+                    .toString();
         }
 
 
