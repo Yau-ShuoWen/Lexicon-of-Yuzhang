@@ -1,15 +1,16 @@
 package com.shuowen.yuzong.study.loadingtext;
 
-import com.shuowen.yuzong.study.loadingtext.data.LoadingTextEntity;
 import com.shuowen.yuzong.study.loadingtext.data.LoadingTextBatchItem;
+import com.shuowen.yuzong.study.loadingtext.data.LoadingTextEntity;
 import com.shuowen.yuzong.study.loadingtext.data.LoadingTextUpdate;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.util.text.UString;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -26,16 +27,16 @@ public class LoadingTextService
     /**
      * 根据当前方言随机获取一条提示语。空 tag 表示对所有方言有效。
      */
-    public String randomText(Language language, Dialect dialect)
+    public UString randomText(Language language, Dialect dialect)
     {
         List<LoadingTextEntity> candidates = mapper.findAll().stream()
                 .filter(entity -> isCandidate(entity, dialect))
                 .toList();
 
-        if (candidates.isEmpty()) return "";
+        if (candidates.isEmpty()) return UString.of();
 
         LoadingTextEntity entity = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
-        return LoadingTextUpdate.readTip(entity.getTip()).get(language).toString();
+        return LoadingTextUpdate.readTip(entity.getTip()).get(language);
     }
 
     public List<LoadingTextUpdate> findAll()
@@ -62,7 +63,7 @@ public class LoadingTextService
     /**
      * 统一提交编辑页的全部草稿。校验通过后才开始写库，整个操作由事务保证原子性。
      */
-    public void saveBatch(List<LoadingTextBatchItem> items)
+    public List<LoadingTextUpdate> saveBatch(List<LoadingTextBatchItem> items)
     {
         if (items == null) throw new IllegalArgumentException("提交内容不能为空");
 
@@ -90,6 +91,9 @@ public class LoadingTextService
             if (entity.getId() == null || entity.getId() <= 0) mapper.insert(entity);
             else mapper.update(entity);
         }
+
+        // 返回写入后的数据，尤其是让新增行拿到数据库生成的 id，前端无需重新加载整张表。
+        return saving.stream().map(LoadingTextUpdate::new).toList();
     }
 
     private boolean appliesTo(LoadingTextEntity entity, Dialect dialect)

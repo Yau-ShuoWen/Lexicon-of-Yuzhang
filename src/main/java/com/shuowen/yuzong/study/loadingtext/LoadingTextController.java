@@ -4,6 +4,7 @@ import com.shuowen.yuzong.study.loadingtext.data.LoadingTextBatchItem;
 import com.shuowen.yuzong.study.loadingtext.data.LoadingTextUpdate;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +22,7 @@ public class LoadingTextController
     }
 
     @GetMapping("/{language}/{dialect}")
-    public APIResponse<String> randomText(
+    public APIResponse<UString> randomText(
             @PathVariable Language language,
             @PathVariable Dialect dialect)
     {
@@ -76,12 +77,11 @@ public class LoadingTextController
     }
 
     @PostMapping("/manage/batch")
-    public APIResponse<Void> saveBatch(@RequestBody List<LoadingTextBatchItem> items)
+    public APIResponse<List<LoadingTextUpdate>> saveBatch(@RequestBody List<LoadingTextBatchItem> items)
     {
         try
         {
-            service.saveBatch(items);
-            return APIResponse.success();
+            return APIResponse.success(service.saveBatch(items));
         }
         catch (Exception e)
         {
