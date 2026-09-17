@@ -1,14 +1,14 @@
-package com.shuowen.yuzong.dict.controller.edit;
+package com.shuowen.yuzong.dict.hanzi;
 
-import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.obfuscate.ObfInt;
-import com.shuowen.yuzong.dict.data.domain.Character.HanziCreate;
-import com.shuowen.yuzong.dict.data.domain.Character.HanziUpdate;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
-import com.shuowen.yuzong.dict.data.model.Character.MdrChar;
-import com.shuowen.yuzong.dict.service.Character.HanziService;
-import com.shuowen.yuzong.dict.service.Character.PronunService;
+import com.shuowen.yuzong.dict.hanzi.domain.HanziCreate;
+import com.shuowen.yuzong.dict.hanzi.domain.HanziUpdate;
+import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
+import com.shuowen.yuzong.dict.hanzi.service.HanziService;
+import com.shuowen.yuzong.dict.hanzi.service.PronunService;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
+import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Twin;

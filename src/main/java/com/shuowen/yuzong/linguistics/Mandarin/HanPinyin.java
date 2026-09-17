@@ -30,8 +30,14 @@ public class HanPinyin
 
     private HanPinyin(String syll, Maybe<String> tone)
     {
-        split = SplitedPinyin.of(syll, tone);
-        read = topMark();
+        try
+        {
+            split = SplitedPinyin.of(syll, tone);
+            read = topMark();
+        } catch (Exception e)
+        {
+            throw new InvalidPinyinException(e.getMessage());
+        }
     }
 
     public String getSyll()

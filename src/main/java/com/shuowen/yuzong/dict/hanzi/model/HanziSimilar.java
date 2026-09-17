@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.dict.data.model.Character;
+package com.shuowen.yuzong.dict.hanzi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shuowen.yuzong.util.version.ChangeDetectable;
@@ -19,7 +19,7 @@ import java.util.Objects;
 public class HanziSimilar implements ChangeDetectable<HanziSimilar>
 {
     Integer id;     // 新增的内容id设置为0
-    Integer charId; // 永远不可以在前端修改
+    Integer hanziId; // 永远不可以在前端修改
     String sc;
     String tc;
 

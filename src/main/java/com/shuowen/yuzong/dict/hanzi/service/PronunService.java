@@ -1,10 +1,11 @@
-package com.shuowen.yuzong.dict.service.Character;
+package com.shuowen.yuzong.dict.hanzi.service;
 
-import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.dict.data.domain.Character.MdrTool;
-import com.shuowen.yuzong.dict.data.mapper.Character.PronunMapper;
-import com.shuowen.yuzong.dict.data.model.Character.MdrChar;
+import com.shuowen.yuzong.dict.hanzi.domain.HanziPronunciation;
+import com.shuowen.yuzong.dict.hanzi.domain.MdrTool;
+import com.shuowen.yuzong.dict.hanzi.mapper.PronunMapper;
+import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
 import com.shuowen.yuzong.linguistics.Mandarin.HanPinyin;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.UChar;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -52,39 +54,30 @@ public class PronunService
      */
     public List<MdrChar> getHanziMenu(String sc, String tc, Dialect d)
     {
-        var list = m.getInfoByScTc(sc, tc, d.toString());
+        var list = getRawCandidates(sc, tc);
         ListTool.handle(list, i -> i.setInfo(MdrTool.initWithPinyin(i.getInfo())));
         return list;
     }
 
-    /**
-     * 通过主键获得已经选择了的内容
-     */
-    public List<MdrChar> getHanziSelected(int id, Dialect d)
+    public List<MdrChar> getRawCandidates(String sc, String tc)
     {
-        var list = m.getInfoByDialectId(id, d.toString());
-        ListTool.handle(list, i -> i.setInfo(MdrTool.initWithPinyin(i.getInfo())));
-        return list;
+        return m.getInfoByScTc(sc, tc);
     }
 
-    /**
-     * 处理编辑
-     */
-    public void handleEdit(List<MdrChar> ch, Dialect d)
+    /** 校验内嵌映射：ID 存在、当前汉字内不重复、没有被其他汉字占用。 */
+    public void validateMappings(List<HanziPronunciation> pinyin, Integer hanziId,
+                                 String sc, String tc, Dialect d)
     {
-        if (ch.isEmpty()) return;
-
-        m.clearMapByDialectId(ch.get(0).getDialectId(), d.toString());
-
-        var conflict = m.getInfoByMandarinId(ListTool.mapping(ch, MdrChar::getMandarinId), false, d.toString());
-        if (!conflict.isEmpty())
-        {
-            var info = String.join("、", ListTool.mapping(conflict, i -> MdrTool.showWithPinyin(i.getInfo())));
-            throw new IllegalArgumentException("普通话信息" + info + "和已有的重复了");
-        }
-
-        var data = ListTool.mapping(ch, i -> Pair.of(i.getMandarinId(), i.getDialectId()));
-        m.insertMap(data, d.toString());
+        var ids = pinyin.stream().flatMap(i -> i.getMandarin().stream()).toList();
+        if (ids.isEmpty()) return;
+        if (new HashSet<>(ids).size() != ids.size())
+            throw new IllegalArgumentException("同一个普通话读音不能分配给多个方言拼音");
+        var candidateIds = new HashSet<>(ListTool.mapping(m.getInfoByScTc(sc, tc), MdrChar::getMandarinId));
+        if (!candidateIds.containsAll(ids))
+            throw new IllegalArgumentException("普通话读音不属于当前汉字");
+        int excludeId = hanziId == null ? -1 : hanziId;
+        if (!m.getMappedMandarinIds(ids, excludeId, d.toString()).isEmpty())
+            throw new IllegalArgumentException("普通话读音已经被其他汉字拼音占用");
     }
 
     public List<Pair<HanPinyin, List<UChar>>> getHanzisByPinyin(String text)

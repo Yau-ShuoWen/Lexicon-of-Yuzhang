@@ -1,16 +1,16 @@
 package com.shuowen.yuzong.dict.controller.search;
 
-import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.dict.data.domain.Character.HanziShow;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.domain.Word.CiyuShow;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
-import com.shuowen.yuzong.dict.service.Character.HanziService;
+import com.shuowen.yuzong.dict.hanzi.domain.HanziShow;
+import com.shuowen.yuzong.dict.hanzi.service.HanziService;
 import com.shuowen.yuzong.dict.service.Word.CiyuService;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UChar;

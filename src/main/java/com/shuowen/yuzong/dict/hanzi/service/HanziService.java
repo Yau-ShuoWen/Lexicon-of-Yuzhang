@@ -1,26 +1,23 @@
-package com.shuowen.yuzong.dict.service.Character;
+package com.shuowen.yuzong.dict.hanzi.service;
 
-import com.shuowen.yuzong.util.version.SetCompareUtil;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.ext.list.UniqueList;
-import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.text.UChar;
-import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.util.json.JsonTool;
-import com.shuowen.yuzong.util.obfuscate.ObfInt;
-import com.shuowen.yuzong.dict.data.domain.Character.HanziCreate;
-import com.shuowen.yuzong.dict.data.domain.Character.HanziUpdate;
-import com.shuowen.yuzong.dict.data.domain.Character.HanziGroup;
-import com.shuowen.yuzong.dict.data.domain.Character.HanziShow;
 import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
-import com.shuowen.yuzong.dict.data.mapper.Character.HanziMapper;
 import com.shuowen.yuzong.dict.data.mapper.LogMapper;
-import com.shuowen.yuzong.dict.data.model.Character.HanziEntity;
+import com.shuowen.yuzong.dict.hanzi.domain.*;
+import com.shuowen.yuzong.dict.hanzi.mapper.HanziMapper;
+import com.shuowen.yuzong.dict.hanzi.model.HanziEntity;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.ext.list.UniqueList;
+import com.shuowen.yuzong.util.json.JsonTool;
+import com.shuowen.yuzong.util.obfuscate.ObfInt;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.UChar;
+import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.Twin;
+import com.shuowen.yuzong.util.version.SetCompareUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -76,7 +73,8 @@ public class HanziService
                 HanziGroup.listOf(hz.findHanziByScOrTc(hanzi.toString(), l.toString(), d.toString()), l, d),
                 "not found 未找到汉字", "not unique 汉字不唯一"
         );
-        return HanziShow.of(item, op);
+        var chars = item.getData().get(0).getHanzis();
+        return HanziShow.of(item, op, mdr.getRawCandidates(chars.getSc().toString(), chars.getTc().toString()));
     }
 
 
@@ -97,7 +95,10 @@ public class HanziService
                 // 相同显示一个："文" ，不同显示两个："车 / 車"
                 tmp.setTitle(Objects.equals(i.getSc(), i.getTc()) ?
                         i.getSc() : i.getSc() + " / " + i.getTc());
-                tmp.setExplain(i.getMainPy());
+                var pinyin = JsonTool.readJson(i.getPinyin(),
+                        new com.fasterxml.jackson.core.type.TypeReference<List<HanziPronunciation>>() {});
+                tmp.setExplain(String.join("/", ListTool.mapping(pinyin,
+                        py -> d.trustedCreatePinyin(py.getPinyin().toString()).toRPinyin().toString())));
                 tmp.setTag("");
                 tmp.setInfo(Map.of("query", ObfInt.encode(i.getId())));
 
@@ -112,21 +113,21 @@ public class HanziService
      */
     public HanziUpdate getHanziById(int id, Dialect d)
     {
-        return new HanziUpdate(d,
-                hz.findHanziByCharId(id, d.toString()),
-                hz.findHanziSimilarByCharId(id, d.toString()),
-                hz.findHanziPinyinByCharId(id, d.toString()),
-                mdr.getHanziSelected(id, d)
-        );
+        var entity = hz.findHanziByCharId(id, d.toString());
+        if (entity == null) return null;
+        return new HanziUpdate(d, entity, hz.findHanziSimilarByCharId(id, d.toString()));
     }
 
 
     @Transactional (rollbackFor = {Exception.class})
     public void editHanzi(HanziUpdate he, Dialect d)
     {
+        var before = getHanziById(he.getId(), d);
+        var candidates = mdr.getRawCandidates(he.getHanzi().getSc().toString(), he.getHanzi().getTc().toString());
+        if (he.getPinyin().size() == 1 && candidates.size() == 1)
+            he.getPinyin().get(0).setMandarin(new ArrayList<>());
         var data = he.checkAndTransfer(d);
-
-        var ch = data.getFirst();
+        var ch = data.getLeft();
         int id = ch.getId();
 
         // 通过唯一键寻找数据库里是否也有
@@ -141,12 +142,12 @@ public class HanziService
                     数据重复：
                     简体：%s
                     繁体：%s
-                    拼音：%s
-                    已经有另外一条数据，这三段内容和这个完全相同了。
+                    已经有另外一条相同简繁体的汉字数据。
                     请在那一条数据里修改。
-                    """, ch.getSc(), ch.getTc(), ch.getMainPy()
+                    """, ch.getSc(), ch.getTc()
             ));
 
+        mdr.validateMappings(he.getPinyin(), id, ch.getSc(), ch.getTc(), d);
         // 主表更新
         hz.updateCharById(ch, d.toString());
 
@@ -154,7 +155,7 @@ public class HanziService
          * 1. 统一设置id
          * 2. 比较并且处理
          * */
-        var sim = data.getSecond();
+        var sim = data.getRight();
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziSimilarByCharId(id, d.toString())),
                 new HashSet<>(sim)))
@@ -167,23 +168,7 @@ public class HanziService
             }
         }
 
-        var py = data.getThird();
-        for (var i : SetCompareUtil.compare(
-                new HashSet<>(hz.findHanziPinyinByCharId(id, d.toString())),
-                new HashSet<>(py)))
-        {
-            switch (i.getChangeType())
-            {
-                case ADDED -> hz.insertCharPinyin(i.getNewItem(), d.toString());
-                case MODIFIED -> hz.updateCharPinyinById(i.getNewItem(), d.toString());
-                case DELETED -> hz.deleteCharPinyinById(i.getOldItem().getId(), d.toString());
-            }
-        }
-
-        // 普通话对应字段，给专门的类处理
-        mdr.handleEdit(data.getFourth(), d);
-
-        log.insertChar(d.toString(), JsonTool.toJson(getHanziById(id, d)), JsonTool.toJson(data), "U");
+        log.insertChar(d.toString(), JsonTool.toJson(before), JsonTool.toJson(getHanziById(id, d)), "U");
     }
 
     public Twin<Maybe<ObfInt>> getNearBy(int id, Dialect d)
@@ -201,22 +186,14 @@ public class HanziService
     public void createHanzi(HanziCreate he, Dialect d)
     {
         var model = he.checkAndTransfer(d);
-
-        var pyModel = model.getRight();
-
-        for (var i : model.getLeft())
+        for (var i : model)
         {
             if (Maybe.uncertain(hz.findByUniqueKey(i, d.toString())).isEmpty())
             {
                 try
                 {
                     hz.insertChar(i, d.toString());
-                    int id = i.getId();
-
-                    pyModel.setCharId(id);
-                    hz.insertCharPinyin(pyModel, d.toString());
-
-                    log.insertWord(d.toString(), null, JsonTool.toJson(i), "C");
+                    log.insertChar(d.toString(), null, JsonTool.toJson(i), "C");
                 } catch (DuplicateKeyException ignored)//幂等
                 {
                 }

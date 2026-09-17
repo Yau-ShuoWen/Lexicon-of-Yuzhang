@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.dict.data.model.Character;
+package com.shuowen.yuzong.dict.hanzi.model;
 
 import lombok.Data;
 
@@ -10,13 +10,11 @@ public class HanziEntity
     private Integer id;
     private String sc;
     private String tc;
-    private String mainPy;
-    private String pyCode;
+    /** 数据库 JSON；结构化转换统一放在 domain 层。 */
+    private String pinyin;
     private Integer special;
 
     private String similar;
-    private String variantPy;
-    private String mdrInfo;
     private String note;
 
     private LocalDateTime createdAt;
