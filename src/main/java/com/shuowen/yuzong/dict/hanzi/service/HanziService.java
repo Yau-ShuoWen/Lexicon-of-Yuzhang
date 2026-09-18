@@ -6,6 +6,7 @@ import com.shuowen.yuzong.dict.data.mapper.LogMapper;
 import com.shuowen.yuzong.dict.hanzi.domain.*;
 import com.shuowen.yuzong.dict.hanzi.mapper.HanziMapper;
 import com.shuowen.yuzong.dict.hanzi.model.HanziEntity;
+import com.shuowen.yuzong.linguistics.pinyin.UniPinyin;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
@@ -33,6 +34,9 @@ public class HanziService
 
     @Autowired
     private PronunService mdr;
+
+    @Autowired
+    private HanziWordService hanziWords;
 
     @Autowired
     private LogMapper log;
@@ -74,7 +78,9 @@ public class HanziService
                 "not found 未找到汉字", "not unique 汉字不唯一"
         );
         var chars = item.getData().get(0).getHanzis();
-        return HanziShow.of(item, op, mdr.getRawCandidates(chars.getSc().toString(), chars.getTc().toString()));
+        return HanziShow.of(item, op,
+                mdr.getRawCandidates(chars.getSc().toString(), chars.getTc().toString()),
+                hanziWords.findUsages(chars, l, d));
     }
 
 
@@ -116,6 +122,43 @@ public class HanziService
         var entity = hz.findHanziByCharId(id, d.toString());
         if (entity == null) return null;
         return new HanziUpdate(d, entity, hz.findHanziSimilarByCharId(id, d.toString()));
+    }
+
+    /** 根据词语里的逐字读音，给出当前汉字尚未收录的只读建议。 */
+    public List<HanziPinyinSuggestion> getWordPinyinSuggestions(int id, Language language, Dialect dialect)
+    {
+        HanziUpdate hanzi = getHanziById(id, dialect);
+        if (hanzi == null) throw new NoSuchElementException("未找到汉字");
+
+        List<UniPinyin> recorded = ListTool.mapping(hanzi.getPinyin(), item ->
+                dialect.<UniPinyin>trustedCreatePinyin(item.getPinyin().toString()));
+        List<HanziPinyinSuggestion> suggestions = new ArrayList<>();
+        List<UniPinyin> suggestionPinyins = new ArrayList<>();
+
+        for (var usage : hanziWords.findUsages(hanzi.getHanzi(), language, dialect))
+        {
+            var wordPinyin = usage.getCharacterPinyin();
+            if (recorded.stream().anyMatch(item -> item.matches(wordPinyin))) continue;
+
+            int index = -1;
+            for (int i = 0; i < suggestionPinyins.size(); i++)
+                if (suggestionPinyins.get(i).matches(wordPinyin))
+                {
+                    index = i;
+                    break;
+                }
+            if (index < 0)
+            {
+                suggestionPinyins.add(wordPinyin);
+                suggestions.add(new HanziPinyinSuggestion(wordPinyin.toRPinyin()));
+                index = suggestions.size() - 1;
+            }
+
+            var words = suggestions.get(index).getWords();
+            if (words.stream().noneMatch(item -> item.getId().equals(usage.getWordId())))
+                words.add(HanziShow.Word.of(usage));
+        }
+        return suggestions;
     }
 
 

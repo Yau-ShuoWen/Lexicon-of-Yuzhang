@@ -3,11 +3,13 @@ package com.shuowen.yuzong.dict.hanzi;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.dict.hanzi.domain.HanziCreate;
 import com.shuowen.yuzong.dict.hanzi.domain.HanziUpdate;
+import com.shuowen.yuzong.dict.hanzi.domain.HanziPinyinSuggestion;
 import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
 import com.shuowen.yuzong.dict.hanzi.service.HanziService;
 import com.shuowen.yuzong.dict.hanzi.service.PronunService;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -96,6 +98,20 @@ public class EditHanziController
         try
         {
             return APIResponse.success(hz.getNearBy(id.decode(), d));
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
+    @GetMapping ("/get-word-suggestions/{d}")
+    public APIResponse<List<HanziPinyinSuggestion>> getWordSuggestions(
+            @PathVariable Dialect d, @RequestParam ObfInt id, @RequestParam Language language)
+    {
+        try
+        {
+            return APIResponse.success(hz.getWordPinyinSuggestions(id.decode(), language, d));
         } catch (Exception e)
         {
             e.printStackTrace();

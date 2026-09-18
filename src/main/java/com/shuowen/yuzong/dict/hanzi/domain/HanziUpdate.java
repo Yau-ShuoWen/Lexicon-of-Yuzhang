@@ -3,6 +3,7 @@ package com.shuowen.yuzong.dict.hanzi.domain;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.dict.hanzi.model.HanziEntity;
 import com.shuowen.yuzong.dict.hanzi.model.HanziSimilar;
+import com.shuowen.yuzong.dict.data.domain.setting.NoteTag;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
@@ -12,13 +13,11 @@ import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Range;
-import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -29,7 +28,7 @@ public class HanziUpdate
     private List<HanziPronunciation> pinyin;
     private Integer special;
     private List<Similar> similar;
-    private List<Twin<ScTcText>> note;
+    private List<Pair<String, ScTcText>> note;
     private Integer status;
 
     @Data
@@ -66,9 +65,9 @@ public class HanziUpdate
                 item.getCode(), item.getTag(), item.getMandarin()));
         special = entity.getSpecial();
         this.similar = ListTool.mapping(similar, Similar::new);
-        note = ListTool.mapping(
-                JsonTool.readJson(entity.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}),
-                i -> Twin.of(i.get("tag"), i.get("content").map(str -> TextPinyinIPA.transferPinyin(str, dialect, true))));
+        note = ListTool.mapping(HanziNoteTool.readForEdit(entity.getNote()),
+                i -> Pair.of(i.getLeft(),
+                        i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, dialect, true))));
         status = entity.getStatus();
     }
 
@@ -89,9 +88,10 @@ public class HanziUpdate
         entity.setPinyin(JsonTool.toJson(normalized, "[]"));
         ObjectTool.asserts(Range.close(0, 4).contains(special), "特殊性标记无效");
         entity.setSpecial(special);
-        entity.setNote(JsonTool.toJson(ListTool.mapping(note, i -> Map.of(
-                "tag", i.getLeft(),
-                "content", i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, dialect, false))
+        List<Pair<NoteTag, ScTcText>> normalizedNotes = HanziNoteTool.normalize(note);
+        entity.setNote(JsonTool.toJson(ListTool.mapping(normalizedNotes, i -> Pair.of(
+                i.getLeft(),
+                i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, dialect, false))
         )), "[]"));
         entity.setStatus(status);
 

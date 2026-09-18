@@ -6,7 +6,6 @@ import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.json.JsonTool;
 import com.shuowen.yuzong.util.text.ScTcChar;
-import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Twin;
@@ -14,7 +13,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Data
 public class HanziItem
@@ -39,9 +37,7 @@ public class HanziItem
         similar = ListTool.mapping(
                 JsonTool.readJson(entity.getSimilar(), new TypeReference<List<ScTcChar>>() {}),
                 i -> i.get(language));
-        note = ListTool.mapping(
-                JsonTool.readJson(entity.getNote(), new TypeReference<List<Map<String, ScTcText>>>() {}),
-                i -> Twin.of(i.get("tag").get(language), i.get("content").get(language)));
+        note = HanziNoteTool.readForShow(entity.getNote(), language);
         createdAt = entity.getCreatedAt();
         updatedAt = entity.getUpdatedAt();
     }

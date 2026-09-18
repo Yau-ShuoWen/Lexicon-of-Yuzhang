@@ -5,6 +5,7 @@ import com.shuowen.yuzong.dict.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
 import com.shuowen.yuzong.dict.service.Reference.RefReadService;
 import com.shuowen.yuzong.linguistics.util.RPinyin;
+import com.shuowen.yuzong.linguistics.pinyin.UniPinyin;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.util.text.UChar;
@@ -33,6 +34,20 @@ public class HanziShow
         private RPinyin pinyin;
         private UString tag;
         private List<MandarinPronunciation> mandarin;
+        private final List<Word> words = new ArrayList<>();
+    }
+
+    @Data
+    public static class Word
+    {
+        private final Integer id;
+        private final UString word;
+        private final com.shuowen.yuzong.linguistics.util.RPinyins pinyin;
+
+        public static Word of(HanziWordUsage usage)
+        {
+            return new Word(usage.getWordId(), usage.getWord(), usage.getPinyin());
+        }
     }
 
     @Data
@@ -42,12 +57,14 @@ public class HanziShow
         private final String zhuyin;
     }
 
-    public static HanziShow of(HanziGroup group, PinyinConfig config, List<MdrChar> candidates)
+    public static HanziShow of(HanziGroup group, PinyinConfig config, List<MdrChar> candidates,
+                               List<HanziWordUsage> wordUsages)
     {
-        return new HanziShow(group.getData(), config, candidates);
+        return new HanziShow(group.getData(), config, candidates, wordUsages);
     }
 
-    private HanziShow(List<HanziItem> items, PinyinConfig config, List<MdrChar> candidates)
+    private HanziShow(List<HanziItem> items, PinyinConfig config, List<MdrChar> candidates,
+                      List<HanziWordUsage> wordUsages)
     {
         var first = items.get(0);
         hanzi = first.getHanzi();
@@ -84,6 +101,14 @@ public class HanziShow
                                         MdrTool.showWithPinyin(i.getInfo()),
                                         MdrTool.showWithZhuyin(i.getInfo()))));
                 value.mandarin = new ArrayList<>(uniqueMandarin.values());
+
+                Set<Integer> addedWordIds = new HashSet<>();
+                UniPinyin hanziPinyin = dialect.trustedCreatePinyin(source.getPinyin().toString());
+                wordUsages.stream()
+                        .filter(usage -> hanziPinyin.matches(usage.getCharacterPinyin()))
+                        .filter(usage -> addedWordIds.add(usage.getWordId()))
+                        .map(Word::of)
+                        .forEach(value.words::add);
                 pinyin.add(value);
             }
         }
