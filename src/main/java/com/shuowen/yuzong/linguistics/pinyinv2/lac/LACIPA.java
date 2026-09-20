@@ -1,15 +1,18 @@
-package com.shuowen.yuzong.linguistics.pinyinv2;
+package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
+import com.shuowen.yuzong.linguistics.pinyinv2.DictionaryRegistry;
+import com.shuowen.yuzong.linguistics.pinyinv2.PronunciationDictionary;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
 /**
- * 南昌话拼音到国际音标的转换。
+ * 南昌话拼音到国际音标的过渡入口。
  * <p>
- * 各资料的静态音值保存在 {@code linguistics/lac-ipa.csv}，这里仅负责根据已经结构化的拼音选择并组合数据。
+ * 已迁移的辞书交给各自实现；尚未迁移的辞书暂时保留旧资源表路径。
  */
 public final class LACIPA
 {
@@ -55,6 +58,11 @@ public final class LACIPA
             IPAToneStyle toneStyle
     )
     {
+        Maybe<PronunciationDictionary> dictionary = DictionaryRegistry.findIpaDictionary(dict);
+        if (dictionary.isValid())
+            return dictionary.getValue().transcribe(pinyin, syllStyle, toneStyle);
+
+        // 尚未迁移的辞书暂时保留旧表路径，迁移一部就从这里减少一列。
         if (dict == DictCode.NCDIALSTD) return Maybe.nothing();
 
         Maybe<String> rawSyllable = pinyin.yinjie.fold(

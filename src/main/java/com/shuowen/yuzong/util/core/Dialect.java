@@ -3,7 +3,7 @@ package com.shuowen.yuzong.util.core;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
-import com.shuowen.yuzong.linguistics.pinyinv2.LACPinyin;
+import com.shuowen.yuzong.linguistics.pinyinv2.lac.LACPinyin;
 import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyin;
 import com.shuowen.yuzong.linguistics.util.SplitedPinyin;
