@@ -15,9 +15,9 @@ import lombok.Data;
 public class SplitedPinyin
 {
     private final String syll;
-    private final Maybe<String> tone;
+    private final Maybe<Integer> tone;
 
-    private SplitedPinyin(String syll, Maybe<String> tone)
+    private SplitedPinyin(String syll, Maybe<Integer> tone)
     {
         this.syll = syll;
         this.tone = tone;
@@ -33,15 +33,14 @@ public class SplitedPinyin
     {
         if (!StringTool.isTrimValid(text))
             throw new InvalidPinyinException("缺少拼音");
-        if (text.contains(" ")) throw new InvalidPinyinException(
-                String.format("%s拼音里不能包含空格", text)
-        );
+        if (text.contains(" "))
+            throw new InvalidPinyinException(String.format("%s拼音里不能包含空格", text));
 
         var tmp = trySplit(text);
         return new SplitedPinyin(tmp.getLeft(), tmp.getRight());
     }
 
-    public static SplitedPinyin of(String syll, Maybe<String> tone)
+    public static SplitedPinyin of(String syll, Maybe<Integer> tone)
     {
         return new SplitedPinyin(syll, tone);
     }
@@ -56,13 +55,22 @@ public class SplitedPinyin
     /**
      * 尝试将一个字符串拆成声母和声调，如果没有音调补0，所有拼音都可以通用
      */
-    private static Pair<String, Maybe<String>> trySplit(String text)
+    protected static Pair<String, Maybe<Integer>> trySplit(String text)
     {
         StringTool.checkTrimValid(text); // 如果是空的，取最后一个会报错
 
-        String[] parts = text.split("(?=\\d)", 2);
+        String[] parts = text.split("(?=\\d)", 4);
 
         if (parts.length == 1) return Pair.of(text, Maybe.nothing());
-        else return Pair.of(parts[0], Maybe.exist(parts[1]));
+        else
+        {
+            try
+            {
+                return Pair.of(parts[0], Maybe.exist(Integer.parseInt(parts[1])));
+            } catch (NumberFormatException e)
+            {
+                throw new InvalidPinyinException("音调不是纯数字");
+            }
+        }
     }
 }

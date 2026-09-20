@@ -5,16 +5,17 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.tuple.Pair;
 import lombok.Data;
+
+import static com.shuowen.yuzong.linguistics.util.SplitedPinyin.trySplit;
 
 @Data
 public class KeyboardPinyin
 {
     private final String syll;
-    private final Maybe<String> tone;
+    private final Maybe<Integer> tone;
 
-    private KeyboardPinyin(String syll, Maybe<String> tone)
+    private KeyboardPinyin(String syll, Maybe<Integer> tone)
     {
         this.syll = syll;
         this.tone = tone;
@@ -38,7 +39,7 @@ public class KeyboardPinyin
         return new KeyboardPinyin(tmp.getLeft(), tmp.getRight());
     }
 
-    public static KeyboardPinyin of(String syll, Maybe<String> tone)
+    public static KeyboardPinyin of(String syll, Maybe<Integer> tone)
     {
         return new KeyboardPinyin(syll, tone);
     }
@@ -48,18 +49,5 @@ public class KeyboardPinyin
     public String toString()
     {
         return syll + (tone.isValid() ? tone.getValue() : "");
-    }
-
-    /**
-     * 尝试将一个字符串拆成声母和声调，如果没有音调补0，所有拼音都可以通用
-     */
-    private static Pair<String, Maybe<String>> trySplit(String text)
-    {
-        StringTool.checkTrimValid(text); // 如果是空的，取最后一个会报错
-
-        String[] parts = text.split("(?=\\d)", 2);
-
-        if (parts.length == 1) return Pair.of(text, Maybe.nothing());
-        else return Pair.of(parts[0], Maybe.exist(parts[1]));
     }
 }

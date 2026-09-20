@@ -28,7 +28,7 @@ public class HanPinyin
     @JsonValue
     private final RPinyin read;
 
-    private HanPinyin(String syll, Maybe<String> tone)
+    private HanPinyin(String syll, Maybe<Integer> tone)
     {
         try
         {
@@ -69,7 +69,7 @@ public class HanPinyin
             var tone = p.getTone();
             if (tone == 5) tone = 0;  //HanLP使用5表示轻声
 
-            return Maybe.exist(new HanPinyin(syll, Maybe.exist(String.valueOf(tone))));
+            return Maybe.exist(new HanPinyin(syll, Maybe.exist(tone)));
         } catch (InvalidPinyinException e)
         {
             return Maybe.nothing();

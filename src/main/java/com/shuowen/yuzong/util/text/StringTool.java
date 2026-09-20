@@ -1,10 +1,11 @@
 package com.shuowen.yuzong.util.text;
 
+import com.shuowen.yuzong.util.err.IllegalStringException;
 import com.shuowen.yuzong.util.ext.other.NullTool;
 import com.shuowen.yuzong.util.tuple.Range;
-import com.shuowen.yuzong.util.err.IllegalStringException;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 字符串的扩展函数
@@ -150,6 +151,16 @@ public class StringTool
      * 安全的字符串剪裁，无效的会返回空
      */
     public static String substring(String source, int beginIndex, int endIndex)
+    {
+        if ((isValid(source) &&
+                isIndexValid(source, true, beginIndex) &&
+                isIndexValid(source, false, endIndex) &&
+                beginIndex < endIndex)
+        ) return source.substring(beginIndex, endIndex);
+        else return "";
+    }
+
+    public static String subOrEmpty(String source, int beginIndex, int endIndex)
     {
         if ((isValid(source) &&
                 isIndexValid(source, true, beginIndex) &&
