@@ -1,9 +1,9 @@
 package com.shuowen.yuzong.linguistics.pinyin;
 
-import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.linguistics.IPA.IPinyin;
 import com.shuowen.yuzong.linguistics.util.*;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import lombok.EqualsAndHashCode;
@@ -30,7 +30,7 @@ abstract public class UniPinyin implements IPinyin
     protected UniPinyin(SplitedPinyin s,Dialect d)
     {
         syll = s.getSyll();
-        tone = initTone(s.getTone());
+        tone = initTone(s.getTone().handleIfExist(Object::toString));
 
         code = initCode(); // 1. 编码的过程是否顺利？ initCode()，如果正常，把结果赋值code，否则抛出异常
         checkEncodable();  // 2. 获得的编码是否可逆？ encodeable()，不可逆在函数里会抛出异常
@@ -68,6 +68,15 @@ abstract public class UniPinyin implements IPinyin
     public abstract int initCorner();
 
     public abstract String initWeight();
+
+    /**
+     * 判断两个方言读音在词语关联场景中是否视为同一个读音。
+     * 当前保持严格相等；各方言拼音类以后可以按需重写，实现自己的模糊匹配规则。
+     */
+    public boolean matches(UniPinyin other)
+    {
+        return other != null && equals(other);
+    }
 
     // 转字符串
 

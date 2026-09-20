@@ -3,10 +3,8 @@ package com.shuowen.yuzong.util.core;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
-import com.shuowen.yuzong.linguistics.pinyin.CEDPinyin;
-import com.shuowen.yuzong.linguistics.pinyin.LACPinyin;
-import com.shuowen.yuzong.linguistics.pinyin.UniPinyin;
-import com.shuowen.yuzong.linguistics.pinyin.WUHPinyin;
+import com.shuowen.yuzong.linguistics.pinyinv2.LACPinyin;
+import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyin;
 import com.shuowen.yuzong.linguistics.util.SplitedPinyin;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
@@ -24,8 +22,8 @@ import java.util.function.Function;
 public enum Dialect
 {
     LAC("南昌話", "lac", LACPinyin::tryOf, LACPinyin::tryOf, "ncdict", 2),
-    CED("成都話", "ced", CEDPinyin::tryOf, CEDPinyin::tryOf, "cddict", 2),
-    WUH("武漢話", "wuh", WUHPinyin::tryOf, WUHPinyin::tryOf, "whdict", 2),
+//    CED("成都話", "ced", CEDPinyin::tryOf, CEDPinyin::tryOf, "cddict", 2),
+//    WUH("武漢話", "wuh", WUHPinyin::tryOf, WUHPinyin::tryOf, "whdict", 2),
     //JIN("濟南話", "jin", null, null, null, "jndict", 0),
     //HGZ("濟南話", "hgz", null, null, null, "hzdict", 0),
     ;
