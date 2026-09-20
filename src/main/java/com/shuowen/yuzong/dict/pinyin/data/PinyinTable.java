@@ -1,10 +1,10 @@
-package com.shuowen.yuzong.dict.data.domain.Pinyin;
+package com.shuowen.yuzong.dict.pinyin.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.linguistics.util.PinyinCommon;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.linguistics.util.PinyinCommon;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.map.KV;
 import com.shuowen.yuzong.util.text.ScTcText;

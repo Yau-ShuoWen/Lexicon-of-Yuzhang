@@ -1,15 +1,14 @@
-package com.shuowen.yuzong.dict.data.domain.Pinyin;
+package com.shuowen.yuzong.dict.pinyin.data;
 
-import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.dict.data.domain.IPA.IPACache;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCodeExt;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictGroup;
-import com.shuowen.yuzong.linguistics.IPA.IPinyin;
+import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import lombok.Getter;
 
@@ -43,9 +42,18 @@ public class PinyinConfig
         dictGroup = DictGroup.of(d);
     }
 
-    public Maybe<String> searchIPA(IPinyin pinyin, DictCode dict)
+    public Maybe<String> searchIPA(UniPinyin pinyin, DictCode dict)
     {
-        return IPACache.get(pinyin,dict,this);
+        try
+        {
+            var newDict = com.shuowen.yuzong.linguistics.pinyinv2.DictCode.of(dict.toString());
+            return pinyin.searchIPA(newDict, syllStyle, toneStyle)
+                    .handleIfExist(ipa -> String.format("[%s]", ipa));
+        }
+        catch (IllegalArgumentException ignored)
+        {
+            return Maybe.nothing();
+        }
     }
 
     public String getDictName(DictCode dict)

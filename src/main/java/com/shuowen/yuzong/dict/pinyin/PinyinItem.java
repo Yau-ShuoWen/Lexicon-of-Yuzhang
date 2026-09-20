@@ -1,9 +1,9 @@
-package com.shuowen.yuzong.dict.data.model.IPA;
+package com.shuowen.yuzong.dict.pinyin;
 
 import lombok.Data;
 
 @Data
-public class IPAItem
+public class PinyinItem
 {
     String url;
     String title;

@@ -1,12 +1,12 @@
-package com.shuowen.yuzong.dict.data.domain.Pinyin;
+package com.shuowen.yuzong.dict.pinyin.data;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCodeExt;
-import com.shuowen.yuzong.dict.data.model.IPA.IPAItem;
-import com.shuowen.yuzong.dict.service.IPA.IPAService;
+import com.shuowen.yuzong.dict.pinyin.PinyinItem;
+import com.shuowen.yuzong.dict.pinyin.PinyinService;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UString;
@@ -38,7 +38,7 @@ public class PinyinDetail
         TreeMap<String, String> ipa = new TreeMap<>();
         UString note;
 
-        public Info(IPAItem item, final PinyinConfig data)
+        public Info(PinyinItem item, final PinyinConfig data)
         {
             Language l = data.getLanguage();
 
@@ -81,7 +81,7 @@ public class PinyinDetail
 
         var ipaData = new PinyinConfig(l, d);
         System.out.println(key);
-        info = ListTool.mapping(IPAService.getTableItem(d, key), i -> new Info(i, ipaData));
+        info = ListTool.mapping(PinyinService.getTableItem(d, key), i -> new Info(i, ipaData));
 
         if (!info.isEmpty())
         {

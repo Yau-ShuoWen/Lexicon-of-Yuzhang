@@ -1,10 +1,10 @@
-package com.shuowen.yuzong.dict.controller.search;
+package com.shuowen.yuzong.dict.pinyin.controller;
 
+import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
+import com.shuowen.yuzong.dict.pinyin.data.PinyinDetail;
+import com.shuowen.yuzong.dict.pinyin.data.PinyinTable;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinDetail;
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinTable;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
