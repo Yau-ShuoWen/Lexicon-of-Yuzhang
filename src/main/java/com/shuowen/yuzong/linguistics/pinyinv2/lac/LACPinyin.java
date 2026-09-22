@@ -1,13 +1,15 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
-import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
+import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.linguistics.util.*;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.util.text.StringRef;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Either;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -20,19 +22,6 @@ import java.util.function.Function;
 
 public class LACPinyin extends UniPinyin
 {
-
-    @AllArgsConstructor
-    @Data
-    protected static class PYString
-    {
-        String s;
-
-        public String toString()
-        {
-            return s;
-        }
-    }
-
     @AllArgsConstructor
     protected enum ShengMu
     {
@@ -59,7 +48,7 @@ public class LACPinyin extends UniPinyin
         final String name;
         final String code;
 
-        public static ShengMu of(PYString pinyin)
+        public static ShengMu of(StringRef pinyin)
         {
             String s = pinyin.s;
             for (var i : values())
@@ -88,7 +77,7 @@ public class LACPinyin extends UniPinyin
         final String name;
         final String code;
 
-        public static JieMu of(PYString pinyin)
+        public static JieMu of(StringRef pinyin)
         {
             String s = pinyin.s;
 
@@ -127,7 +116,7 @@ public class LACPinyin extends UniPinyin
             this.code = code;
         }
 
-        public static YunMu of(PYString pinyin)
+        public static YunMu of(StringRef pinyin)
         {
             for (var i : values())
             {
@@ -153,7 +142,7 @@ public class LACPinyin extends UniPinyin
         final String name;
         final String code;
 
-        public static YunWei of(PYString pinyin)
+        public static YunWei of(StringRef pinyin)
         {
             for (var i : YunWei.values())
             {
@@ -172,19 +161,21 @@ public class LACPinyin extends UniPinyin
     @AllArgsConstructor
     protected enum YinDiao
     {
-        $(-1, ""),
-        t0(0, ""),
-        t1(1, "̀"),
-        t2(2, "́"),
-        t3(3, "̌"),
-        t4(4, "̄"),
-        t5(5, "̉"),
-        t6(6, "̋"),
-        t7(7, "̏");
+        $(-1, "", ""),
+        t0(0, "", ""),
+        t1(1, "̀", "↘"),
+        t2(2, "́", "↗"),
+        t3(3, "̌", "↘↗"),
+        t4(4, "̄", "→"),
+        t5(5, "̉", "↓"),
+        t6(6, "̋", "↑↑"),
+        t7(7, "̏", "↓↓");
 
         final Integer code;
         @Getter
         final String mark;
+        @Getter
+        final String arrow;
 
         public static YinDiao of(Maybe<Integer> tone)
         {
@@ -214,13 +205,15 @@ public class LACPinyin extends UniPinyin
     @AllArgsConstructor
     protected enum BianDiao
     {
-        t33(33, "́"),
-        t55(55, "́"),
-        t77(77, "́");
+        t33(33, "́", "↗"),
+        t55(55, "́", "↗"),
+        t77(77, "́", "↗");
 
         final Integer code;
         @Getter
         final String mark;
+        @Getter
+        final String arrow;
 
         public static BianDiao of(Integer tone)
         {
@@ -328,7 +321,7 @@ public class LACPinyin extends UniPinyin
     {
         try
         {
-            PYString syll = new PYString(s.getSyll());
+            StringRef syll = new StringRef(s.getSyll());
             var tone = s.getTone();
 
             yinjie = Either.firstNonNull(
@@ -360,6 +353,11 @@ public class LACPinyin extends UniPinyin
     private String getMark()
     {
         return yindiao.fold(YinDiao::getMark, BianDiao::getMark);
+    }
+
+    private String getArrow()
+    {
+        return yindiao.fold(YinDiao::getArrow, BianDiao::getArrow);
     }
 
     @Override
@@ -394,11 +392,7 @@ public class LACPinyin extends UniPinyin
     }
 
     @Override
-    public Maybe<String> searchIPA(
-            DictCode dict,
-            IPASyllStyle syllStyle,
-            IPAToneStyle toneStyle
-    )
+    public Maybe<String> searchIPA(DictCode dict, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
     {
         return LACIPA.query(this, dict, syllStyle, toneStyle);
     }
@@ -412,14 +406,14 @@ public class LACPinyin extends UniPinyin
 
         String display = fun.apply(LACDisplay.format(this));
         String keyboard = fun.apply(LACKeyboard.format(this));
-        // String introduce = fun.apply(       LACIntro.format(this));
+        String introduce = fun.apply(LACIntro.format(this));
 
         switch (md)
         {
             case INTRODUCE ->
             {
-                //   block.setTitle(introduce);
-                //  block.add("就像普通話的", introduce);
+                block.setTitle(introduce);
+                block.add("就像普通話的", introduce);
                 block.add("標準寫法", display);
             }
             case STANDARD, PROFESSIONAL ->
@@ -429,9 +423,6 @@ public class LACPinyin extends UniPinyin
                 block.add("鍵盤輸入", keyboard);
             }
         }
-
-
-//        block.add("調錯", syll + tone.handleIfExistAndGet(Object::toString, ""));
         return block;
     }
 
@@ -559,6 +550,63 @@ public class LACPinyin extends UniPinyin
             }
 
             return SplitedPinyin.of(s, t);
+        }
+    }
+
+    /**
+     * 简化拼音
+     */
+    private static class LACIntro
+    {
+        public static String format(LACPinyin p)
+        {
+            String s = p.getSyll();
+
+            s = s.replace("ien", "ian").replace("üon", "üan");
+            s = s.replaceAll("[tk]$", ""); // 删除入声韵尾
+            s = handleYW(s);
+            s = PinyinCommon.d_Yu_display(s);
+            s = s.replace("ẹ", "e");
+            s = s.replace("ọ", "o");
+            s = PinyinCommon.d_ZCSR(s);
+            s = PinyinCommon.d_Ng(s);
+
+            // 标音调
+            String t = p.getMark();
+            String a = p.getArrow();
+
+            if (s.contains("iu")) return s.replace("u", "u" + t) + a;
+
+            for (String i : "aoọeẹiuü".split(""))
+                if (s.contains(i)) return s.replace(i, i + t) + a;
+
+            // 例外：没有主元音m n ng，只有ng要特殊处理
+            if ("ng".equals(s)) return StringTool.insert(s, 1, t) + a;
+            else return s + t + a;
+        }
+
+        /**
+         * 合理添加yw，使得看起来更符合普通话规律
+         */
+        private static String handleYW(String s)
+        {
+            char c = s.charAt(0);
+            if (c == 'i')
+            {
+                // i ->yi it->yit iu->yiu in->yin
+                if (ObjectTool.existEqual(s, "i", "it", "in"))
+                    s = "y" + s;
+                else if (s.equals("iu")) s = "yiu";
+                else s = "y" + s.substring(1);
+            }
+            if (c == 'u')
+            {
+                if (s.length() >= 2 && ObjectTool.existEqual(s.charAt(1), 'a', 'o'))
+                    s = "w" + s.substring(1);
+                else if (s.equals("ui")) s = "wi";
+                else s = "w" + s;
+            }
+            return s;
         }
     }
 }

@@ -3,23 +3,41 @@ package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
-/** 《南昌话音档》的记音规则。 */
+/**
+ * 《南昌话音档》的记音规则。
+ */
 public final class Dict_NanchanghuaYindang extends LACZuheCidian
 {
     public static final Dict_NanchanghuaYindang INSTANCE = new Dict_NanchanghuaYindang();
-    private Dict_NanchanghuaYindang() {}
-    @Override public DictCode code() { return DictCode.NCRECORD; }
 
-    @Override protected boolean supports(LACPinyin.YinJie y)
+    private Dict_NanchanghuaYindang()
+    {
+    }
+
+    @Override
+    public DictCode code()
+    {
+        return DictCode.NCRECORD;
+    }
+
+    @Override
+    protected boolean supports(LACPinyin.YinJie y)
     {
         return Dict_NanchangFangyanCidian.INSTANCE.supports(y) && !"oi".equals(y.getYun()) && !"ei".equals(y.getYun());
     }
 
-    @Override protected String handleYun(LACPinyin.YinJie y)
+    @Override
+    protected String handleYun(LACPinyin.YinJie y)
     {
-        if (y.getJiemu() == LACPinyin.JieMu.u && y.getYunmu() == LACPinyin.YunMu.$ && y.getYunwei() == LACPinyin.YunWei.t)
-            return "uɨʔ";
-        return handleJieMu(y.getJiemu()) + handleYunMu(y.getJiemu(), y.getYunmu(), y.getYunwei()) + handleYunWei(y.getYunwei());
+        // @formatter:off
+        if (LACPinyin.JieMu.u == y.getJiemu() &&
+            LACPinyin.YunMu.$ == y.getYunmu() &&
+           LACPinyin.YunWei.t == y.getYunwei()
+        ) return "uɨʔ";
+        return handleJieMu(y.getJiemu()) +
+                handleYunMu(y.getJiemu(), y.getYunmu(), y.getYunwei()) +
+                handleYunWei(y.getYunwei());
+        // @formatter:on
     }
 
     private String handleYunMu(LACPinyin.JieMu j, LACPinyin.YunMu m, LACPinyin.YunWei w)
@@ -29,22 +47,26 @@ public final class Dict_NanchanghuaYindang extends LACZuheCidian
             case $ -> ""; case ı -> "ɿ";
             case a -> w == LACPinyin.YunWei.i || w == LACPinyin.YunWei.n || w == LACPinyin.YunWei.t ||
                     j == LACPinyin.JieMu.u && w != LACPinyin.YunWei.ŋ && w != LACPinyin.YunWei.k ? "a" : "ɑ";
-            case o -> switch (w) {
+            case o -> switch (w)
+            {
                 case n, t -> "ɵ"; case ŋ, k -> "ɔ"; default -> "o";
             };
-            case e -> switch (w) {
+            case e -> switch (w)
+            {
                 case u, n, t -> "ε"; default -> "e";
             };
             case ẹ -> "ɨ"; case ọ -> "ɵ"; case u -> "u";
         };
     }
 
-    @Override protected String handleYunWei(LACPinyin.YunWei w)
+    @Override
+    protected String handleYunWei(LACPinyin.YunWei w)
     {
         return w == LACPinyin.YunWei.t ? "ʔ" : super.handleYunWei(w);
     }
 
-    @Override protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
+    @Override
+    protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
     {
         return Maybe.exist(switch (tone)
         {

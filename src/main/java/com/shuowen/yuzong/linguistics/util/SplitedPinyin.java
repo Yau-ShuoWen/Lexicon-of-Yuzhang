@@ -59,7 +59,7 @@ public class SplitedPinyin
     {
         StringTool.checkTrimValid(text); // 如果是空的，取最后一个会报错
 
-        String[] parts = text.split("(?=\\d)", 4);
+        String[] parts = text.split("(?=\\d)", 2);
 
         if (parts.length == 1) return Pair.of(text, Maybe.nothing());
         else

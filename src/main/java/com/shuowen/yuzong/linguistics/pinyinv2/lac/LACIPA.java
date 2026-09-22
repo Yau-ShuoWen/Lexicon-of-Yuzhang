@@ -1,6 +1,5 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
-import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
@@ -10,9 +9,7 @@ import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
 /**
- * 南昌话拼音到国际音标的过渡入口。
- * <p>
- * 已迁移的辞书交给各自实现；尚未迁移的辞书暂时保留旧资源表路径。
+ * 南昌话拼音到各辞书记音规则的入口。
  */
 public final class LACIPA
 {
@@ -59,59 +56,8 @@ public final class LACIPA
     )
     {
         Maybe<PronunciationDictionary> dictionary = DictionaryRegistry.findIpaDictionary(dict);
-        if (dictionary.isValid())
-            return dictionary.getValue().transcribe(pinyin, syllStyle, toneStyle);
-
-        // 尚未迁移的辞书暂时保留旧表路径，迁移一部就从这里减少一列。
-        if (dict == DictCode.NCDIALSTD) return Maybe.nothing();
-
-        Maybe<String> rawSyllable = pinyin.yinjie.fold(
-                dandu -> find("dandu", dandu.toString(), "", dict),
-                yinjie -> join(
-                        find("initial", yinjie.getShengmu().name, "", dict),
-                        find("final", yinjie.getYun(), "", dict)
-                )
-        );
-        if (rawSyllable.isEmpty()) return Maybe.nothing();
-
-        String syllable = IPAFormatter.formatSyllable(rawSyllable.getValue(), syllStyle);
-        return pinyin.yindiao.fold(
-                tone -> applyTone(dict, tone, toneStyle, syllable),
-                ignored -> Maybe.nothing()
-        );
-    }
-
-    private static Maybe<String> applyTone(
-            DictCode dict,
-            LACPinyin.YinDiao tone,
-            IPAToneStyle toneStyle,
-            String syllable
-    )
-    {
-        if (tone == LACPinyin.YinDiao.$) return Maybe.exist(syllable);
-
-        Maybe<String> template = find("tone", tone.code.toString(), styleKey(toneStyle), dict);
-        return template.handleIfExist(value -> value.replace("{syllable}", syllable));
-    }
-
-    private static String styleKey(IPAToneStyle style)
-    {
-        return switch (style)
-        {
-            case FIVE_DEGREE_LINE -> "five_degree_line";
-            case FIVE_DEGREE_NUM -> "five_degree_num";
-            case FOUR_CORNER -> "four_corner";
-        };
-    }
-
-    private static Maybe<String> join(Maybe<String> left, Maybe<String> right)
-    {
-        if (left.isEmpty() || right.isEmpty()) return Maybe.nothing();
-        return Maybe.exist(left.getValue() + right.getValue());
-    }
-
-    private static Maybe<String> find(String type, String standard, String style, DictCode dict)
-    {
-        return LACIPATable.find(type, standard, style, dict);
+        return dictionary.isValid()
+                ? dictionary.getValue().transcribe(pinyin, syllStyle, toneStyle)
+                : Maybe.nothing();
     }
 }

@@ -6,15 +6,22 @@ import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
-/** 《南昌音系》的严式记音规则。 */
+/**
+ * 《南昌音系》的严式记音规则。
+ */
 public final class Dict_NanchangYinxiYanshiBiaoyin extends LACDictionary
 {
     public static final Dict_NanchangYinxiYanshiBiaoyin INSTANCE = new Dict_NanchangYinxiYanshiBiaoyin();
 
-    private Dict_NanchangYinxiYanshiBiaoyin() {}
+    private Dict_NanchangYinxiYanshiBiaoyin()
+    {
+    }
 
     @Override
-    public DictCode code() { return DictCode.NCPHON_Y; }
+    public DictCode code()
+    {
+        return DictCode.NCPHON_Y;
+    }
 
     @Override
     protected Maybe<String> transcribe(LACPinyin pinyin, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
@@ -54,7 +61,9 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACDictionary
         };
     }
 
-    /** 严式记音中的介母会受主元音和韵尾影响，所以三个部分一起处理。 */
+    /**
+     * 严式记音中的介母会受主元音和韵尾影响，所以三个部分一起处理。
+     */
     protected String handleYun(LACPinyin.YinJie yinjie)
     {
         return switch (yinjie.getJiemu())
@@ -71,18 +80,22 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACDictionary
         return switch (m)
         {
             case ı -> w == LACPinyin.YunWei.$ ? "ï" : null;
-            case a -> switch (w) {
+            case a -> switch (w)
+            {
                 case $ -> "ᴀ"; case i -> "aɪ"; case u -> "ɑo"; case n -> "æn";
                 case ŋ -> "ᴀŋ"; case t -> "ᴀt"; case k -> "aʔ"; default -> null;
             };
-            case o -> switch (w) {
+            case o -> switch (w)
+            {
                 case $ -> "o"; case n -> "on"; case ŋ -> "ɔːŋ";
                 case t -> "œt"; case k -> "oʔ"; default -> null;
             };
-            case e -> switch (w) {
+            case e -> switch (w)
+            {
                 case u -> "εʊ"; case n -> "en"; case t -> "εt"; case k -> "εʔ"; default -> null;
             };
-            case ẹ -> switch (w) {
+            case ẹ -> switch (w)
+            {
                 case u -> "ĕʊ"; case n -> "ən"; case t -> "ət"; default -> null;
             };
             case ọ -> w == LACPinyin.YunWei.$ ? "ø" : null;
@@ -94,19 +107,24 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACDictionary
     {
         return switch (m)
         {
-            case $ -> switch (w) {
+            case $ -> switch (w)
+            {
                 case $ -> "i"; case u -> "ɪu"; case n -> "ɪn"; case t -> "ɪt"; default -> null;
             };
-            case a -> switch (w) {
+            case a -> switch (w)
+            {
                 case $ -> "ɪᴀ"; case ŋ -> "ɪᴀŋ"; case k -> "ɪaʔ"; default -> null;
             };
-            case o -> switch (w) {
+            case o -> switch (w)
+            {
                 case ŋ -> "ɪɔːŋ"; case k -> "ɪoʔ"; default -> null;
             };
-            case e -> switch (w) {
+            case e -> switch (w)
+            {
                 case $ -> "ɪᴇ"; case u -> "ɪeʊ"; case n -> "ien"; case t -> "ɪᴇ"; default -> null;
             };
-            case u -> switch (w) {
+            case u -> switch (w)
+            {
                 case ŋ -> "yʊŋ"; case k -> "yuʔ"; default -> null;
             };
             default -> null;
@@ -117,15 +135,18 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACDictionary
     {
         return switch (m)
         {
-            case $ -> switch (w) {
+            case $ -> switch (w)
+            {
                 case $ -> "u"; case i -> "uɪ"; case n -> "uən"; case ŋ -> "ʊŋ";
                 case t -> "ʊət"; case k -> "uʔ"; case l -> "ʊəl"; default -> null;
             };
-            case a -> switch (w) {
+            case a -> switch (w)
+            {
                 case $ -> "ʊɑ"; case i -> "ʊaɪ"; case n -> "ʊæn";
                 case ŋ -> "ʊᴀŋ"; case t -> "ʊat"; default -> null;
             };
-            case o -> switch (w) {
+            case o -> switch (w)
+            {
                 case $ -> "ʊo"; case n -> "ʊon"; case k -> "ʊoʔ"; default -> null;
             };
             case e -> w == LACPinyin.YunWei.t ? "ʊεt" : null;
@@ -137,11 +158,13 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACDictionary
     {
         return switch (m)
         {
-            case $ -> switch (w) {
+            case $ -> switch (w)
+            {
                 case $ -> "y"; case n -> "yɪn"; case t -> "yt"; default -> null;
             };
             case a -> w == LACPinyin.YunWei.$ ? "yᴀ" : null;
-            case e -> switch (w) {
+            case e -> switch (w)
+            {
                 case n -> "yen"; case t -> "yᴇt"; default -> null;
             };
             default -> null;
@@ -159,11 +182,13 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACDictionary
 
         String value = switch (style)
         {
-            case FIVE_DEGREE_LINE -> switch (tone) {
+            case FIVE_DEGREE_LINE -> switch (tone)
+            {
                 case t1 -> syllable + "_˧˩"; case t3 -> syllable + "_˧˩˧";
                 case t6 -> syllable + "_˥˥˥"; default -> throw new IllegalStateException("已由标准声调规则处理");
             };
-            case FIVE_DEGREE_NUM -> switch (tone) {
+            case FIVE_DEGREE_NUM -> switch (tone)
+            {
                 case t1 -> syllable + "³¹"; case t3 -> syllable + "³¹³";
                 case t6 -> syllable + "⁵⁵"; default -> throw new IllegalStateException("已由标准声调规则处理");
             };

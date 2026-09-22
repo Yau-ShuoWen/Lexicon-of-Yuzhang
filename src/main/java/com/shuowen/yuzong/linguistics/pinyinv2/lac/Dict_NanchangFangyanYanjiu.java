@@ -3,19 +3,31 @@ package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
-/** 《南昌方言研究》的记音规则。 */
+/**
+ * 《南昌方言研究》的记音规则。
+ */
 public final class Dict_NanchangFangyanYanjiu extends LACZuheCidian
 {
     public static final Dict_NanchangFangyanYanjiu INSTANCE = new Dict_NanchangFangyanYanjiu();
-    private Dict_NanchangFangyanYanjiu() {}
-    @Override public DictCode code() { return DictCode.NCSTUDY; }
 
-    @Override protected boolean supports(LACPinyin.YinJie y)
+    private Dict_NanchangFangyanYanjiu()
+    {
+    }
+
+    @Override
+    public DictCode code()
+    {
+        return DictCode.NCSTUDY;
+    }
+
+    @Override
+    protected boolean supports(LACPinyin.YinJie y)
     {
         return Dict_NanchangFangyanCidian.INSTANCE.supports(y);
     }
 
-    @Override protected String handleYun(LACPinyin.YinJie y)
+    @Override
+    protected String handleYun(LACPinyin.YinJie y)
     {
         return handleJieMu(y.getJiemu()) + handleYunMu(y.getYunmu(), y.getYunwei()) + handleYunWei(y.getYunwei());
     }
@@ -26,7 +38,8 @@ public final class Dict_NanchangFangyanYanjiu extends LACZuheCidian
         return Dict_NanchangFangyanCidian.INSTANCE.handleYunMu(m, w);
     }
 
-    @Override protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
+    @Override
+    protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
     {
         return Maybe.exist(switch (tone)
         {

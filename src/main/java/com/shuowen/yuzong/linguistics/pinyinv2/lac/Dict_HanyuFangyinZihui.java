@@ -3,19 +3,31 @@ package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
-/** 《汉语方音字汇（第二版）》的记音规则。 */
+/**
+ * 《汉语方音字汇（第二版）》的记音规则。
+ */
 public final class Dict_HanyuFangyinZihui extends LACZuheCidian
 {
     public static final Dict_HanyuFangyinZihui INSTANCE = new Dict_HanyuFangyinZihui();
-    private Dict_HanyuFangyinZihui() {}
-    @Override public DictCode code() { return DictCode.CNDIALDICT; }
 
-    @Override protected boolean supports(LACPinyin.YinJie y)
+    private Dict_HanyuFangyinZihui()
+    {
+    }
+
+    @Override
+    public DictCode code()
+    {
+        return DictCode.CNDIALDICT;
+    }
+
+    @Override
+    protected boolean supports(LACPinyin.YinJie y)
     {
         return Dict_NanchangFangyanCidian.INSTANCE.supports(y) && !"oi".equals(y.getYun()) && !"ei".equals(y.getYun());
     }
 
-    @Override protected String handleYun(LACPinyin.YinJie y)
+    @Override
+    protected String handleYun(LACPinyin.YinJie y)
     {
         return handleJieMu(y.getJiemu()) + handleYunMu(y.getYunmu()) + handleYunWei(y.getYunwei());
     }
@@ -29,12 +41,14 @@ public final class Dict_HanyuFangyinZihui extends LACZuheCidian
         };
     }
 
-    @Override protected String handleYunWei(LACPinyin.YunWei w)
+    @Override
+    protected String handleYunWei(LACPinyin.YunWei w)
     {
         return w == LACPinyin.YunWei.k ? "k" : super.handleYunWei(w);
     }
 
-    @Override protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
+    @Override
+    protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
     {
         return Maybe.exist(switch (tone)
         {

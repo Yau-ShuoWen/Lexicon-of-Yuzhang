@@ -6,7 +6,9 @@ import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
-/** 《南昌方言词典》的记音规则。 */
+/**
+ * 《南昌方言词典》的记音规则。
+ */
 public final class Dict_NanchangFangyanCidian extends LACDictionary
 {
     public static final Dict_NanchangFangyanCidian INSTANCE = new Dict_NanchangFangyanCidian();
