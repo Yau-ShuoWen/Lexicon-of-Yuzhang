@@ -68,8 +68,8 @@ public class DiaryText
         String title, content;
         if (split.length == 1)
         {
-            title = "";
-            content = split[0];
+            title = split[0].replace(" ", "   ");
+            content = "";
         }
         else
         {

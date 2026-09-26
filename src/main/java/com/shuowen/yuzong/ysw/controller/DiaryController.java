@@ -159,6 +159,26 @@ public class DiaryController
     }
 
     /**
+     * 在当前权限可见的日记正文中做简繁模糊搜索。
+     * <p>
+     * 示例：GET /api/diary/search/sc?q=斗牛
+     * <p>
+     * 未登录时只搜索公开版本；朋友和本人权限分别搜索对应可见版本。
+     */
+    @GetMapping("/search/{l}")
+    public List<DiaryDigest> search(
+            @PathVariable Language l,
+            @RequestParam("q") String keyword,
+            @RequestParam(required = false) String view,
+            @RequestParam(required = false) String t
+    )
+    {
+        var requested = DiaryViewMode.of(view);
+        var allowed = resolveAllowedView(t);
+        return s.search(l, keyword, requested, allowed);
+    }
+
+    /**
      * 按数据库主键查询完整日记。
      * <p>
      * 请求示例：

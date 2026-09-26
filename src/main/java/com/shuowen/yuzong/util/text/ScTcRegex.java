@@ -4,16 +4,7 @@ import com.hankcs.hanlp.HanLP;
 import lombok.AccessLevel;
 import lombok.Getter;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -358,6 +349,7 @@ public class ScTcRegex
             鹇<=>鷴鷳
             复<=>復複
             厂<=>厂廠
+            剩<=>剩賸
             
             系<=>系係繫
             只<=>只隻衹

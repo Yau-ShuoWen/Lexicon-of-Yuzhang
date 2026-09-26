@@ -2,7 +2,9 @@ package com.shuowen.yuzong.ysw.data.mapper.diary;
 
 import com.shuowen.yuzong.ysw.data.model.diary.DiaryCatalogEntity;
 import com.shuowen.yuzong.ysw.data.model.diary.DiaryEntity;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -12,6 +14,13 @@ import java.util.List;
 @Mapper
 public interface DiaryMapper
 {
+    @Insert("""
+            INSERT INTO NC.ysw_diary (date, sort, content, for_friend, for_stranger)
+            VALUES (#{date}, #{sort}, #{content}, #{forFriend}, #{forStranger})
+            """)
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    int insert(DiaryEntity diary);
+
     @Select ("SELECT * FROM NC.ysw_diary WHERE id = #{id}")
     DiaryEntity getDiaryById(int id);
 
@@ -96,6 +105,23 @@ public interface DiaryMapper
             </script>
             """)
     List<DiaryEntity> getRecent(@Param("view") String view);
+
+    /**
+     * 只在请求者当前可见的正文版本中搜索，避免通过命中结果泄露更高权限文本。
+     */
+    @Select("""
+            <script>
+            SELECT * FROM NC.ysw_diary
+            WHERE
+            <choose>
+                <when test='view == "SELF"'>content REGEXP #{regex}</when>
+                <when test='view == "FRIEND"'>COALESCE(for_friend, for_stranger) REGEXP #{regex}</when>
+                <otherwise>for_stranger REGEXP #{regex}</otherwise>
+            </choose>
+            ORDER BY date DESC, sort DESC
+            </script>
+            """)
+    List<DiaryEntity> search(@Param("regex") String regex, @Param("view") String view);
 
     @Select("""
             <script>

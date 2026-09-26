@@ -6,6 +6,7 @@ import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.version.TextDiffRequest;
 import com.shuowen.yuzong.util.version.TextDiffResponse;
 import com.shuowen.yuzong.util.version.TextDiffService;
+import com.shuowen.yuzong.ysw.data.dto.diary.DiaryCreateRequest;
 import com.shuowen.yuzong.ysw.data.dto.diary.DiaryEditData;
 import com.shuowen.yuzong.ysw.data.dto.diary.DiaryEditRequest;
 import com.shuowen.yuzong.ysw.service.DiaryService;
@@ -35,6 +36,23 @@ public class DiaryEditController
         {
             requireEditPermission(t, headerToken);
             return APIResponse.success(diaryService.getForEdit(id));
+        }
+        catch (Exception e)
+        {
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
+    @PostMapping
+    public APIResponse<DiaryEditData> create(
+            @RequestBody DiaryCreateRequest request,
+            @RequestParam(required = false) String t,
+            @RequestHeader(value = "X-Auth-Token", required = false) String headerToken)
+    {
+        try
+        {
+            requireEditPermission(t, headerToken);
+            return APIResponse.success(diaryService.createForEdit(request));
         }
         catch (Exception e)
         {
