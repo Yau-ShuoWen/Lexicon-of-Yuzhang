@@ -1,8 +1,8 @@
-package com.shuowen.yuzong.dict.data.domain.Word;
+package com.shuowen.yuzong.dict.ciyu.data;
 
-import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyinList;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UString;

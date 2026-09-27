@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.dict.hanzi.service;
 
-import com.shuowen.yuzong.dict.data.domain.Word.CiyuItem;
-import com.shuowen.yuzong.dict.data.mapper.Word.CiyuMapper;
+import com.shuowen.yuzong.dict.ciyu.CiyuMapper;
+import com.shuowen.yuzong.dict.ciyu.data.CiyuItem;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.dict.hanzi.domain.HanziWordUsage;
 import com.shuowen.yuzong.util.core.Dialect;

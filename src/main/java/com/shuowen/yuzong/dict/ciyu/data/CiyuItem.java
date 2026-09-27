@@ -1,13 +1,13 @@
-package com.shuowen.yuzong.dict.data.domain.Word;
+package com.shuowen.yuzong.dict.ciyu.data;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.dict.data.domain.setting.NoteTag;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar;
 import com.shuowen.yuzong.linguistics.util.RPinyins;
 import com.shuowen.yuzong.linguistics.util.SplitedPinyin;
+import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UString;

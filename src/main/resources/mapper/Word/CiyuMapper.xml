@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.dict.data.mapper.Word.CiyuMapper">
+<mapper namespace="com.shuowen.yuzong.dict.ciyu.CiyuMapper">
 
 
     <sql id="allIn">
@@ -30,6 +30,15 @@
         )
         AND special &lt; 5
         GROUP BY main.id
+    </select>
+
+    <select id="findCiyuContainingHanzi" resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuEntity">
+        SELECT
+        <include refid="allIn"/>
+        WHERE (main.sc LIKE CONCAT('%', #{sc}, '%') OR main.tc LIKE CONCAT('%', #{tc}, '%'))
+        AND main.special &lt; 5
+        GROUP BY main.id
+        ORDER BY main.id
     </select>
 
     <!-- 使用模糊识别，查询包含该内容的词语 -->

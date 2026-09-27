@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.dict.hanzi.domain;
 
-import com.shuowen.yuzong.dict.data.domain.Word.CiyuItem;
-import com.shuowen.yuzong.linguistics.pinyin.UniPinyin;
+import com.shuowen.yuzong.dict.ciyu.data.CiyuItem;
+import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.linguistics.util.RPinyins;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.text.UString;

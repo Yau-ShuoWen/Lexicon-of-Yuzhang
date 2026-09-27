@@ -1,13 +1,16 @@
 package com.shuowen.yuzong.dict.hanzi.domain;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.dict.data.domain.setting.NoteTag;
 import com.shuowen.yuzong.dict.hanzi.model.HanziEntity;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.json.JsonTool;
 import com.shuowen.yuzong.util.text.ScTcChar;
+import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 
@@ -37,7 +40,10 @@ public class HanziItem
         similar = ListTool.mapping(
                 JsonTool.readJson(entity.getSimilar(), new TypeReference<List<ScTcChar>>() {}),
                 i -> i.get(language));
-        note = HanziNoteTool.readForShow(entity.getNote(), language);
+        note = ListTool.mapping(
+                JsonTool.readJson(entity.getNote(), new TypeReference<List<Pair<NoteTag, ScTcText>>>() {}),
+                i -> Twin.of(i.getLeft().getName().get(language), i.getRight().get(language))
+        );
         createdAt = entity.getCreatedAt();
         updatedAt = entity.getUpdatedAt();
     }

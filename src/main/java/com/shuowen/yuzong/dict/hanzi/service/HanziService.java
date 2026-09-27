@@ -1,12 +1,12 @@
 package com.shuowen.yuzong.dict.hanzi.service;
 
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.dict.data.mapper.LogMapper;
 import com.shuowen.yuzong.dict.hanzi.domain.*;
 import com.shuowen.yuzong.dict.hanzi.mapper.HanziMapper;
 import com.shuowen.yuzong.dict.hanzi.model.HanziEntity;
-import com.shuowen.yuzong.linguistics.pinyin.UniPinyin;
+import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
+import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;

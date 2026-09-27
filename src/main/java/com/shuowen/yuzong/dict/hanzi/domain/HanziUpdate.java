@@ -28,7 +28,7 @@ public class HanziUpdate
     private List<HanziPronunciation> pinyin;
     private Integer special;
     private List<Similar> similar;
-    private List<Pair<String, ScTcText>> note;
+    private List<Pair<NoteTag, ScTcText>> note;
     private Integer status;
 
     @Data
@@ -65,9 +65,13 @@ public class HanziUpdate
                 item.getCode(), item.getTag(), item.getMandarin()));
         special = entity.getSpecial();
         this.similar = ListTool.mapping(similar, Similar::new);
-        note = ListTool.mapping(HanziNoteTool.readForEdit(entity.getNote()),
-                i -> Pair.of(i.getLeft(),
-                        i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, dialect, true))));
+        note = ListTool.mapping(
+                JsonTool.readJson(entity.getNote(), new TypeReference<List<Pair<NoteTag, ScTcText>>>() {}),
+                i -> Pair.of(
+                        i.getLeft(),
+                        i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, dialect, true))
+                )
+        );
         status = entity.getStatus();
     }
 
@@ -88,8 +92,7 @@ public class HanziUpdate
         entity.setPinyin(JsonTool.toJson(normalized, "[]"));
         ObjectTool.asserts(Range.close(0, 4).contains(special), "特殊性标记无效");
         entity.setSpecial(special);
-        List<Pair<NoteTag, ScTcText>> normalizedNotes = HanziNoteTool.normalize(note);
-        entity.setNote(JsonTool.toJson(ListTool.mapping(normalizedNotes, i -> Pair.of(
+        entity.setNote(JsonTool.toJson(ListTool.mapping(note, i -> Pair.of(
                 i.getLeft(),
                 i.getRight().map(str -> TextPinyinIPA.transferPinyin(str, dialect, false))
         )), "[]"));

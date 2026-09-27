@@ -1,12 +1,11 @@
-package com.shuowen.yuzong.dict.controller.edit;
+package com.shuowen.yuzong.dict.ciyu;
 
+import com.shuowen.yuzong.dict.ciyu.data.CiyuCreate;
+import com.shuowen.yuzong.dict.ciyu.data.CiyuUpdate;
+import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.obfuscate.ObfInt;
-import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
-import com.shuowen.yuzong.dict.data.domain.Word.CiyuCreate;
-import com.shuowen.yuzong.dict.data.domain.Word.CiyuUpdate;
-import com.shuowen.yuzong.dict.data.dto.SearchResult;
-import com.shuowen.yuzong.dict.service.Word.CiyuService;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.Maybe;

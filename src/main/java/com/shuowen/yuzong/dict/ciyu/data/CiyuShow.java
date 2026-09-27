@@ -1,10 +1,11 @@
-package com.shuowen.yuzong.dict.data.domain.Word;
+package com.shuowen.yuzong.dict.ciyu.data;
 
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.domain.Reference.RefItem;
+import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import com.shuowen.yuzong.dict.service.Reference.RefReadService;
 import com.shuowen.yuzong.linguistics.util.RPinyins;
 import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -20,6 +21,7 @@ import java.util.List;
 @Data
 public class CiyuShow
 {
+    private final ObfInt id;
     private final UString ciyu;
     private final Integer special;
     private final RPinyins mainPy;
@@ -37,6 +39,7 @@ public class CiyuShow
         var l = data.getLanguage();
         var d = data.getDialect();
 
+        id = ObfInt.encode(cy.getId());
         ciyu = cy.getCiyus().get(l);
         special = cy.getSpecial();
 

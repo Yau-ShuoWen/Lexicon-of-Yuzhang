@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.dict.data.mapper.Word;
+package com.shuowen.yuzong.dict.ciyu;
 
 import com.shuowen.yuzong.dict.data.model.Word.CiyuEntity;
 import com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar;
@@ -27,6 +27,10 @@ public interface CiyuMapper
      * 使用简繁体句子寻找词语
      */
     List<CiyuEntity> findCiyuByScTcInRange(String ciyu, String dialect);
+
+    /** 查询主词形中包含指定简体或繁体汉字的词语，不包含相似词语。 */
+    List<CiyuEntity> findCiyuContainingHanzi(
+            @Param ("sc") String sc, @Param ("tc") String tc, @Param ("dialect") String dialect);
 
     List<CiyuEntity> getAllCiyu(String dialect);
 

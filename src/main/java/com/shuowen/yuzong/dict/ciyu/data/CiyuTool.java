@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.dict.data.domain.Word;
+package com.shuowen.yuzong.dict.ciyu.data;
 
 public class CiyuTool
 {
