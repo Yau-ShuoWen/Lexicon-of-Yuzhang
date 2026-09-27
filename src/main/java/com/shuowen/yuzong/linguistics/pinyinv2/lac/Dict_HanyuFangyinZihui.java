@@ -36,8 +36,13 @@ public final class Dict_HanyuFangyinZihui extends LACZuheCidian
     {
         return switch (m)
         {
-            case $ -> ""; case ı -> "ɿ"; case a -> "a"; case o -> "ɔ"; case e -> "ε";
-            case ẹ, ọ -> "ə"; case u -> "u";
+            case $ -> "";
+            case ı -> "ɿ";
+            case a -> "a";
+            case o -> "ɔ";
+            case e -> "ε";
+            case ẹ, ọ -> "ə";
+            case u -> "u";
         };
     }
 
@@ -52,8 +57,14 @@ public final class Dict_HanyuFangyinZihui extends LACZuheCidian
     {
         return Maybe.exist(switch (tone)
         {
-            case t0 -> "0"; case t1 -> "42"; case t2 -> "24"; case t3 -> "213";
-            case t4 -> "45"; case t5 -> "21"; case t6 -> "5"; case t7 -> "21";
+            case t0 -> "0";
+            case t1 -> "42";
+            case t2 -> "24";
+            case t3 -> "213";
+            case t4 -> "45";
+            case t5 -> "21";
+            case t6 -> "5";
+            case t7 -> "21";
             case $ -> throw new IllegalStateException();
         });
     }

@@ -43,8 +43,14 @@ public final class Dict_NanchangFangyanYanjiu extends LACZuheCidian
     {
         return Maybe.exist(switch (tone)
         {
-            case t0 -> "0"; case t1 -> "42"; case t2 -> "24"; case t3 -> "213";
-            case t4 -> "44"; case t5 -> "21"; case t6 -> "5"; case t7 -> "1";
+            case t0 -> "0";
+            case t1 -> "42";
+            case t2 -> "24";
+            case t3 -> "213";
+            case t4 -> "44";
+            case t5 -> "21";
+            case t6 -> "5";
+            case t7 -> "1";
             case $ -> throw new IllegalStateException();
         });
     }

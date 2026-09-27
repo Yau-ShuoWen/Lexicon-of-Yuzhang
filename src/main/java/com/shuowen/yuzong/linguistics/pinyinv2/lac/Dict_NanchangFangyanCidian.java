@@ -1,15 +1,12 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
-import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
-import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
-import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
 /**
  * 《南昌方言词典》的记音规则。
  */
-public final class Dict_NanchangFangyanCidian extends LACDictionary
+public final class Dict_NanchangFangyanCidian extends LACZuheCidian
 {
     public static final Dict_NanchangFangyanCidian INSTANCE = new Dict_NanchangFangyanCidian();
 
@@ -21,32 +18,6 @@ public final class Dict_NanchangFangyanCidian extends LACDictionary
     public DictCode code()
     {
         return DictCode.NCDICT;
-    }
-
-    @Override
-    protected Maybe<String> transcribe(
-            LACPinyin pinyin,
-            IPASyllStyle syllStyle,
-            IPAToneStyle toneStyle
-    )
-    {
-        Maybe<String> rawSyllable = pinyin.yinjie.fold(
-                dandu -> value(handleDandu(dandu)),
-                this::syllable
-        );
-        if (rawSyllable.isEmpty()) return Maybe.nothing();
-
-        String syllable = IPAFormatter.formatSyllable(rawSyllable.getValue(), syllStyle);
-        return pinyin.yindiao.fold(
-                tone -> applyTone(syllable, tone, toneStyle),
-                ignored -> Maybe.nothing()
-        );
-    }
-
-    private Maybe<String> syllable(LACPinyin.YinJie syllable)
-    {
-        if (!supports(syllable)) return Maybe.nothing();
-        return Maybe.exist(handleShengMu(syllable.getShengmu()) + handleYun(syllable));
     }
 
     // Dandu  ：标准实现
@@ -72,7 +43,8 @@ public final class Dict_NanchangFangyanCidian extends LACDictionary
         };
     }
 
-    String handleYun(LACPinyin.YinJie yinjie)
+    @Override
+    protected String handleYun(LACPinyin.YinJie yinjie)
     {
         return handleJieMu(yinjie.getJiemu()) +
                 handleYunMu(yinjie.getYunmu(), yinjie.getYunwei()) +
@@ -82,7 +54,8 @@ public final class Dict_NanchangFangyanCidian extends LACDictionary
     /**
      * 收录范围和音值计算分开：这里只回答本辞书有没有这个韵母。
      */
-    boolean supports(LACPinyin.YinJie syllable)
+    @Override
+    protected boolean supports(LACPinyin.YinJie syllable)
     {
         return switch (syllable.getYun())
         {
@@ -98,57 +71,20 @@ public final class Dict_NanchangFangyanCidian extends LACDictionary
         };
     }
 
-    Maybe<String> applyTone(
-            String syllable,
-            LACPinyin.YinDiao tone,
-            IPAToneStyle style
-    )
+    @Override
+    protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
     {
-        if (tone == LACPinyin.YinDiao.$) return Maybe.exist(syllable);
-
-        String value = switch (style)
+        return Maybe.exist(switch (tone)
         {
-            case FIVE_DEGREE_LINE -> switch (tone)
-            {
-                case t0 -> "·" + syllable + "_";
-                case t1 -> syllable + "_˦˨";
-                case t2 -> syllable + "_˨˦";
-                case t3 -> syllable + "_˨˩˧";
-                case t4 -> syllable + "_˧˥";
-                case t5 -> syllable + "_˩˩˩";
-                case t6 -> syllable + "_˥";
-                case t7 -> syllable + "_˨";
-                case $ -> syllable;
-            };
-            case FIVE_DEGREE_NUM -> switch (tone)
-            {
-                case t0 -> syllable + "⁰";
-                case t1 -> syllable + "⁴²";
-                case t2 -> syllable + "²⁴";
-                case t3 -> syllable + "²¹³";
-                case t4 -> syllable + "³⁵";
-                case t5 -> syllable + "¹¹";
-                case t6 -> syllable + "⁵";
-                case t7 -> syllable + "²";
-                case $ -> syllable;
-            };
-            case FOUR_CORNER -> switch (tone)
-            {
-                case t0, $ -> syllable;
-                case t1 -> "꜀" + syllable;
-                case t2 -> "꜁" + syllable;
-                case t3 -> "꜂" + syllable;
-                case t4 -> syllable + "꜄";
-                case t5 -> syllable + "꜅";
-                case t6 -> syllable + "꜆";
-                case t7 -> syllable + "꜇";
-            };
-        };
-        return Maybe.exist(value);
-    }
-
-    private Maybe<String> value(String value)
-    {
-        return value == null ? Maybe.nothing() : Maybe.exist(value);
+            case t0 -> "0";
+            case t1 -> "42";
+            case t2 -> "24";
+            case t3 -> "213";
+            case t4 -> "35";
+            case t5 -> "11";
+            case t6 -> "5";
+            case t7 -> "2";
+            case $ -> throw new IllegalStateException("无声调不需要调值");
+        });
     }
 }

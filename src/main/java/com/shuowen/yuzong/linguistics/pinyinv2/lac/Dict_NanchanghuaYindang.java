@@ -35,8 +35,8 @@ public final class Dict_NanchanghuaYindang extends LACZuheCidian
            LACPinyin.YunWei.t == y.getYunwei()
         ) return "uɨʔ";
         return handleJieMu(y.getJiemu()) +
-                handleYunMu(y.getJiemu(), y.getYunmu(), y.getYunwei()) +
-                handleYunWei(y.getYunwei());
+               handleYunMu(y.getJiemu(), y.getYunmu(), y.getYunwei()) +
+               handleYunWei(y.getYunwei());
         // @formatter:on
     }
 
@@ -70,8 +70,14 @@ public final class Dict_NanchanghuaYindang extends LACZuheCidian
     {
         return Maybe.exist(switch (tone)
         {
-            case t0 -> "0"; case t1 -> "42"; case t2 -> "24"; case t3 -> "213";
-            case t4 -> "45"; case t5 -> "21"; case t6 -> "5"; case t7 -> "2";
+            case t0 -> "0";
+            case t1 -> "42";
+            case t2 -> "24";
+            case t3 -> "213";
+            case t4 -> "45";
+            case t5 -> "21";
+            case t6 -> "5";
+            case t7 -> "2";
             case $ -> throw new IllegalStateException();
         });
     }

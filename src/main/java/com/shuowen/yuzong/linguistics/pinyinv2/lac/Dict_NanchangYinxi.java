@@ -76,12 +76,12 @@ public final class Dict_NanchangYinxi extends LACZuheCidian
     @Override
     protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
     {
-        if (tone == LACPinyin.YinDiao.t7) return Maybe.nothing();
         return Maybe.exist(switch (tone)
         {
             case t0 -> "0"; case t1 -> "31"; case t2 -> "24"; case t3 -> "313";
             case t4 -> "35"; case t5 -> "11"; case t6 -> "55";
-            case $, t7 -> throw new IllegalStateException();
+            case $ -> throw new IllegalStateException("无声调不需要调值");
+            case t7 -> throw new IllegalArgumentException("《南昌音系》未收录第七调");
         });
     }
 }

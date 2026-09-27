@@ -107,14 +107,14 @@ public abstract class LACDictionary implements PronunciationDictionary
     /**
      * 各辞书只提供调值；三种显示格式的机械转换统一放在这里。
      */
-    protected Maybe<String> formatTone(
+    protected String formatTone(
             String syllable,
             LACPinyin.YinDiao tone,
             IPAToneStyle style,
             String toneValue
     )
     {
-        if (tone == LACPinyin.YinDiao.$) return Maybe.exist(syllable);
+        if (tone == LACPinyin.YinDiao.$) return syllable;
         int corner = switch (tone)
         {
             case t0 -> 0;
@@ -125,14 +125,14 @@ public abstract class LACDictionary implements PronunciationDictionary
             case t5 -> 6;
             case t6 -> 7;
             case t7 -> 8;
-            case $ -> throw new IllegalStateException("无声调不需要格式化");
+            case $ -> throw new IllegalStateException("已经在前面流程中处理，请查看是否多余");
         };
-        return Maybe.exist(switch (style)
+        return switch (style)
         {
             case FIVE_DEGREE_LINE -> IPAFormatter.mergeFiveDegree(syllable, toneValue, false);
             case FIVE_DEGREE_NUM -> IPAFormatter.mergeFiveDegree(syllable, toneValue, true);
             case FOUR_CORNER -> IPAFormatter.mergeFourCorner(syllable, corner);
-        });
+        };
     }
 
 }

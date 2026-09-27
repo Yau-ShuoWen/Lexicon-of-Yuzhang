@@ -19,7 +19,9 @@ public final class LACIPA
 
     public static String handle(LACPinyin pinyin)
     {
-        return handle(DictCode.NCDICT, pinyin);
+        Maybe<String> result = query(pinyin);
+        if (result.isEmpty()) throw new InvalidPinyinException("默认方案没有记录南昌话拼音：" + pinyin);
+        return result.getValue();
     }
 
     public static String handle(DictCode dict, LACPinyin pinyin)
@@ -34,10 +36,12 @@ public final class LACIPA
 
     public static Maybe<String> query(LACPinyin pinyin)
     {
-        return query(
-                pinyin, DictCode.NCDICT,
-                IPASyllStyle.CHINESE_SPECIAL, IPAToneStyle.FIVE_DEGREE_LINE
-        );
+        Maybe<PronunciationDictionary> dictionary = DictionaryRegistry.defaultIpaDictionary(pinyin.getDialect());
+        return dictionary.isValid()
+                ? dictionary.getValue().transcribe(
+                        pinyin, IPASyllStyle.CHINESE_SPECIAL, IPAToneStyle.FIVE_DEGREE_LINE
+                )
+                : Maybe.nothing();
     }
 
     public static Maybe<String> query(LACPinyin pinyin, DictCode dict)

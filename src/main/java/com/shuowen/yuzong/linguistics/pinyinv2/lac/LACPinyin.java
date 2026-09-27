@@ -298,7 +298,7 @@ public class LACPinyin extends UniPinyin
         }
     }
 
-    protected final Either<DanDu, YinJie> yinjie;
+    protected final Either<DanDu, YinJie> yinjieOrDandu;
     protected final Either<YinDiao, BianDiao> yindiao;
 
     public static Maybe<LACPinyin> tryOf(SplitedPinyin p)
@@ -324,7 +324,7 @@ public class LACPinyin extends UniPinyin
             StringRef syll = new StringRef(s.getSyll());
             var tone = s.getTone();
 
-            yinjie = Either.firstNonNull(
+            yinjieOrDandu = Either.firstNonNull(
                     () -> DanDu.of(syll.s),
                     () -> new YinJie(ShengMu.of(syll), JieMu.of(syll), YunWei.of(syll), YunMu.of(syll))
             ).getValueDirectly("拼音无效");
@@ -341,7 +341,7 @@ public class LACPinyin extends UniPinyin
     @Override
     public String getSyll()
     {
-        return yinjie.fold(DanDu::toString, YinJie::toString);
+        return yinjieOrDandu.fold(DanDu::toString, YinJie::toString);
     }
 
     @Override
@@ -363,7 +363,7 @@ public class LACPinyin extends UniPinyin
     @Override
     public String getWeight()
     {
-        return yinjie.fold(DanDu::getWeight, YinJie::getWeight) +
+        return yinjieOrDandu.fold(DanDu::getWeight, YinJie::getWeight) +
                 yindiao.fold(YinDiao::getWeight, BianDiao::getWeight);
     }
 
@@ -415,6 +415,7 @@ public class LACPinyin extends UniPinyin
                 block.setTitle(introduce);
                 block.add("就像普通話的", introduce);
                 block.add("標準寫法", display);
+                block.add("鍵盤輸入", keyboard);
             }
             case STANDARD, PROFESSIONAL ->
             {

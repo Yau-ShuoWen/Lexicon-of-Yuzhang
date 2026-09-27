@@ -36,9 +36,14 @@ public final class Dict_GanFangyanGaiyao extends LACZuheCidian
     {
         return switch (m)
         {
-            case $ -> ""; case ı -> "ɿ"; case a -> "a"; case o -> "o"; case e -> "e";
+            case $ -> "";
+            case ı -> "ɿ";
+            case a -> "a";
+            case o -> "o";
+            case e -> "e";
             case ẹ -> w == LACPinyin.YunWei.i ? "ə" : "ɪ";
-            case ọ -> "ə"; case u -> "u";
+            case ọ -> "ə";
+            case u -> "u";
         };
     }
 

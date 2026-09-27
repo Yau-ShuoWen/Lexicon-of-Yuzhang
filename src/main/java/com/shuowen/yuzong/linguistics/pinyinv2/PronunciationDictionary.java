@@ -20,7 +20,7 @@ public interface PronunciationDictionary
 
     default ScTcText name()
     {
-        return code().getBookname();
+        return code().centralDictionary().getBookname();
     }
 
     default Language language()
