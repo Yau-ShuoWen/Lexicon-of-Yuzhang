@@ -1,32 +1,18 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
+import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.dict.service.IPA.IPAService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class TestIPA
 {
-    @Autowired
-    IPAService ipa;
-
     @Test
     void check()
     {
-        if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
-
-        System.out.println(ipa.checkIPA(Dialect.LAC).toString());
-    }
-
-    @Test
-    void update()
-    {
-        if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
-
-        ipa.updateIPA(Dialect.LAC);
-        System.out.println(ipa.checkIPA(Dialect.LAC));
+        UniPinyin pinyin = Dialect.LAC.trustedCreatePinyin("zi1");
+        assertEquals("tsɿ_˦˨", pinyin.searchIPA(DictCode.NCDICT).getValue());
     }
 }

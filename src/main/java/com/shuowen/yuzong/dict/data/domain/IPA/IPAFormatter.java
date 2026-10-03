@@ -18,6 +18,11 @@ public class IPAFormatter
 
             if (tone.equals("0")) return "·" + syllable + "_";
             else return syllable + "_" + (tone
+                    .replace("$1","꜒")
+                    .replace("$2","꜓")
+                    .replace("$3","꜔")
+                    .replace("$4","꜕")
+                    .replace("$5","꜖")
                     .replace('1', '˩')
                     .replace('2', '˨')
                     .replace('3', '˧')

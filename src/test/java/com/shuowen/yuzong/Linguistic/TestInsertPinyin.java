@@ -1,29 +1,18 @@
 package com.shuowen.yuzong.Linguistic;
 
+import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
+import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.dict.service.IPA.IPAService;
-import com.shuowen.yuzong.linguistics.util.SplitedPinyin;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class TestInsertPinyin
 {
-    @Autowired
-    IPAService ipaService;
-
     @Test
-    void contextLoads()
+    void unsupportedIpaIsEmpty()
     {
-     //   if (ObjectTool.unchecked(true)) return;
-
-        Dialect d = Dialect.LAC;
-        String[] py = {"uok"};
-
-        for (var i : py)
-        {
-            ipaService.insertSyllable(d.trustedCreatePinyin(SplitedPinyin.of(i)), d);
-        }
+        UniPinyin pinyin = Dialect.LAC.trustedCreatePinyin("zi1");
+        assertTrue(pinyin.searchIPA(DictCode.NCDIALSTD).isEmpty());
     }
 }
