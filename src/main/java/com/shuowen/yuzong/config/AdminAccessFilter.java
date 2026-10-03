@@ -26,6 +26,8 @@ public class AdminAccessFilter extends OncePerRequestFilter
             "/api/pinyin/audio",
             "/api/audio",
             "/api/image",
+            "/api/study/loading-text/manage",
+            "/api/study/curriculum/manage",
             "/api/user/update-username",
             "/api/admin/",
             "/upload",

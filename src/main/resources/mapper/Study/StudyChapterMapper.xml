@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.study.curriculum.StudyChapterMapper">
+    <select id="findByPartId" resultType="com.shuowen.yuzong.study.curriculum.data.StudyChapterEntity">
+        SELECT id, part_id, chapter_order, title, description, created_time, updated_time
+        FROM NC.study_chapter
+        WHERE part_id = #{partId}
+        ORDER BY chapter_order, id
+    </select>
+
+    <select id="countByPartId" resultType="int">
+        SELECT COUNT(*) FROM NC.study_chapter WHERE part_id = #{partId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO NC.study_chapter (part_id, chapter_order, title, description)
+        VALUES (#{partId}, #{chapterOrder}, #{title}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE NC.study_chapter
+        SET chapter_order = #{chapterOrder}, title = #{title}, description = #{description}
+        WHERE id = #{id} AND part_id = #{partId}
+    </update>
+
+    <update id="updateOrder">
+        UPDATE NC.study_chapter SET chapter_order = #{chapterOrder}
+        WHERE id = #{id} AND part_id = #{partId}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM NC.study_chapter WHERE id = #{id} AND part_id = #{partId}
+    </delete>
+</mapper>

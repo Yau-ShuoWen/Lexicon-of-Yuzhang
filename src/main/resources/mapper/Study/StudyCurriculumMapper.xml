@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.study.curriculum.StudyPartMapper">
+    <select id="findAll" resultType="com.shuowen.yuzong.study.curriculum.data.StudyPartEntity">
+        SELECT id, dialect, part_order, title, description, created_time, updated_time
+        FROM NC.study_part
+        WHERE dialect = #{dialect}
+        ORDER BY part_order, id
+    </select>
+
+    <select id="findById" resultType="com.shuowen.yuzong.study.curriculum.data.StudyPartEntity">
+        SELECT id, dialect, part_order, title, description, created_time, updated_time
+        FROM NC.study_part
+        WHERE id = #{id} AND dialect = #{dialect}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO NC.study_part (dialect, part_order, title, description)
+        VALUES (#{dialect}, #{partOrder}, #{title}, #{description})
+    </insert>
+
+    <update id="update">
+        UPDATE NC.study_part
+        SET part_order = #{partOrder}, title = #{title}, description = #{description}
+        WHERE id = #{id} AND dialect = #{dialect}
+    </update>
+
+    <update id="updateOrder">
+        UPDATE NC.study_part
+        SET part_order = #{partOrder}
+        WHERE id = #{id} AND dialect = #{dialect}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM NC.study_part
+        WHERE id = #{id} AND dialect = #{dialect}
+          AND NOT EXISTS (SELECT 1 FROM NC.study_chapter WHERE part_id = #{id})
+    </delete>
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.study.curriculum.StudyLevelMapper">
+    <select id="findByPartId" resultType="com.shuowen.yuzong.study.curriculum.data.StudyLevelEntity">
+        SELECT l.id, l.part_id, l.level_order, l.title, l.description, l.question_type,
+               l.question_count, l.pair_count, l.card_ids, l.status, l.created_time, l.updated_time
+        FROM NC.study_level l
+        WHERE l.part_id = #{partId}
+        ORDER BY l.level_order, l.id
+    </select>
+
+    <select id="findPublishedByPartId" resultType="com.shuowen.yuzong.study.curriculum.data.StudyLevelEntity">
+        SELECT l.id, l.part_id, l.level_order, l.title, l.description, l.question_type,
+               l.question_count, l.pair_count, l.card_ids, l.status, l.created_time, l.updated_time
+        FROM NC.study_level l
+        WHERE l.part_id = #{partId} AND l.status = 1
+        ORDER BY l.level_order, l.id
+    </select>
+
+    <select id="findById" resultType="com.shuowen.yuzong.study.curriculum.data.StudyLevelEntity">
+        SELECT l.id, l.part_id, l.level_order, l.title, l.description, l.question_type,
+               l.question_count, l.pair_count, l.card_ids, l.status, l.created_time, l.updated_time
+        FROM NC.study_level l
+        INNER JOIN NC.study_part p ON p.id = l.part_id
+        WHERE l.id = #{id} AND p.dialect = #{dialect}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO NC.study_level
+            (part_id, level_order, title, description, question_type, question_count, pair_count, card_ids, status)
+        VALUES
+            (#{partId}, #{levelOrder}, #{title}, #{description}, #{questionType}, #{questionCount}, #{pairCount}, #{cardIds}, #{status})
+    </insert>
+
+    <update id="update">
+        UPDATE NC.study_level
+        SET part_id = #{partId}, level_order = #{levelOrder}, title = #{title}, description = #{description},
+            question_type = #{questionType}, question_count = #{questionCount}, pair_count = #{pairCount},
+            card_ids = #{cardIds}, status = #{status}
+        WHERE id = #{id}
+    </update>
+</mapper>
