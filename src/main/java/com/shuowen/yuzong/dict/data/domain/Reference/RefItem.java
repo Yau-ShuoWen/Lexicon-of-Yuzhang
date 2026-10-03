@@ -1,12 +1,12 @@
 package com.shuowen.yuzong.dict.data.domain.Reference;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.util.text.RichTextUtil;
-import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;
+import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
+import com.shuowen.yuzong.util.text.RichTextUtil;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import lombok.Data;
 
 import static com.shuowen.yuzong.util.json.JsonTool.readJson;

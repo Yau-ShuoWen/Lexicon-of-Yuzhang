@@ -1,9 +1,9 @@
 package com.shuowen.yuzong.dict.controller.info;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.dict.data.mapper.Character.HanziMapper;
+import com.shuowen.yuzong.dict.ciyu.CiyuMapper;
 import com.shuowen.yuzong.dict.data.mapper.Reference.RefMapper;
-import com.shuowen.yuzong.dict.data.mapper.Word.CiyuMapper;
+import com.shuowen.yuzong.dict.hanzi.mapper.HanziMapper;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;

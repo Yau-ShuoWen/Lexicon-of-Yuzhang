@@ -80,7 +80,6 @@ public class PinyinDetail
         };
 
         var ipaData = new PinyinConfig(l, d);
-        System.out.println(key);
         info = ListTool.mapping(PinyinService.getTableItem(d, key), i -> new Info(i, ipaData));
 
         if (!info.isEmpty())

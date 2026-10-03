@@ -1,9 +1,9 @@
 package com.shuowen.yuzong.dict.service.Reference;
 
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.dict.data.mapper.Reference.RefMapper;
+import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

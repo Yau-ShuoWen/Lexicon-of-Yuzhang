@@ -1,13 +1,13 @@
 package com.shuowen.yuzong.Linguistic;
 
-import com.shuowen.yuzong.util.ext.other.ObjectTool;
-import com.shuowen.yuzong.util.text.RichTextUtil;
-import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
-import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
+import com.shuowen.yuzong.util.ext.other.ObjectTool;
+import com.shuowen.yuzong.util.text.RichTextUtil;
+import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.tuple.Maybe;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 

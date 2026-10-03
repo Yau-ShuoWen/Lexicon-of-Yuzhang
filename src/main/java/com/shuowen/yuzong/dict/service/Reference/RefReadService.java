@@ -1,19 +1,22 @@
 package com.shuowen.yuzong.dict.service.Reference;
 
-import com.shuowen.yuzong.util.ext.set.SetTool;
-import com.shuowen.yuzong.util.ext.list.UniqueList;
-import com.shuowen.yuzong.util.text.ScTcText;
-import com.shuowen.yuzong.dict.data.domain.Pinyin.PinyinConfig;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.domain.Reference.RefItem;
 import com.shuowen.yuzong.dict.data.mapper.Reference.RefMapper;
 import com.shuowen.yuzong.dict.data.model.Reference.RefEntity;
+import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
+import com.shuowen.yuzong.util.ext.list.UniqueList;
+import com.shuowen.yuzong.util.ext.set.SetTool;
+import com.shuowen.yuzong.util.text.ScTcText;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
