@@ -10,7 +10,13 @@ public record TextDiffDelta(
         int targetStart,
         int targetEnd,
         String sourceText,
-        String targetText
+        String targetText,
+        int hunkIndex,
+        ChangeType hunkType,
+        int sourceLineStart,
+        int sourceLineEnd,
+        int targetLineStart,
+        int targetLineEnd
 )
 {
 }
