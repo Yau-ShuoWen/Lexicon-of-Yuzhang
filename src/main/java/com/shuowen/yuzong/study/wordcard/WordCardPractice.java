@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.study.data.dto;
+package com.shuowen.yuzong.study.wordcard;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

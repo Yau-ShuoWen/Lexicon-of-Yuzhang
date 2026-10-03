@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.study.data.mapper.WordCardMapper">
-    <select id="findRandom" resultType="com.shuowen.yuzong.study.data.model.WordCardEntity">
+<mapper namespace="com.shuowen.yuzong.study.wordcard.WordCardMapper">
+    <select id="findRandom" resultType="com.shuowen.yuzong.study.wordcard.WordCardEntity">
         SELECT id, dialect, putonghua, word, pinyin
         FROM study_word_card
         WHERE dialect = #{dialect}
@@ -11,14 +11,14 @@
         LIMIT #{limit}
     </select>
 
-    <select id="findAll" resultType="com.shuowen.yuzong.study.data.model.WordCardEntity">
+    <select id="findAll" resultType="com.shuowen.yuzong.study.wordcard.WordCardEntity">
         SELECT id, dialect, putonghua, word, pinyin
         FROM study_word_card
         WHERE dialect = #{dialect}
         ORDER BY id
     </select>
 
-    <select id="findById" resultType="com.shuowen.yuzong.study.data.model.WordCardEntity">
+    <select id="findById" resultType="com.shuowen.yuzong.study.wordcard.WordCardEntity">
         SELECT id, dialect, putonghua, word, pinyin
         FROM study_word_card
         WHERE id = #{id} AND dialect = #{dialect}

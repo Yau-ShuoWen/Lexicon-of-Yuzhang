@@ -1,6 +1,5 @@
-package com.shuowen.yuzong.study.data.mapper;
+package com.shuowen.yuzong.study.wordcard;
 
-import com.shuowen.yuzong.study.data.model.WordCardEntity;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

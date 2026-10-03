@@ -1,8 +1,5 @@
-package com.shuowen.yuzong.study.service;
+package com.shuowen.yuzong.study.wordcard;
 
-import com.shuowen.yuzong.study.data.domain.WordCardUpdate;
-import com.shuowen.yuzong.study.data.mapper.WordCardMapper;
-import com.shuowen.yuzong.study.data.model.WordCardEntity;
 import com.shuowen.yuzong.util.core.Dialect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

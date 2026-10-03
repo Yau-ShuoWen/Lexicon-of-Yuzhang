@@ -1,8 +1,7 @@
-package com.shuowen.yuzong.study.data.domain;
+package com.shuowen.yuzong.study.wordcard;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyinList;
-import com.shuowen.yuzong.study.data.model.WordCardEntity;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;

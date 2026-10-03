@@ -1,9 +1,6 @@
-package com.shuowen.yuzong.study.service;
+package com.shuowen.yuzong.study.wordcard;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.study.data.dto.WordCardPractice;
-import com.shuowen.yuzong.study.data.mapper.WordCardMapper;
-import com.shuowen.yuzong.study.data.model.WordCardEntity;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.json.JsonTool;
