@@ -39,14 +39,20 @@ public class StreakAdminService
         if (normalized.isEmpty()) throw new IllegalArgumentException("请输入用户名、手机号或用户编号");
 
         UserEntity exact = findById(normalized);
-        List<UserEntity> users = exact == null
-                ? userService.searchUsers(normalized)
-                : List.of(exact);
-        if (users == null) users = List.of();
-        return users.stream()
-                .filter(user -> user != null)
-                .map(user -> new StreakUserSummary(user.getId(), user.getUsername(), user.getPhone()))
-                .toList();
+        if (exact == null)
+        {
+            List<UserEntity> users = userService.searchUsers(normalized);
+            if (users != null)
+            {
+                exact = users.stream()
+                        .filter(user -> user != null
+                                && (normalized.equals(user.getUsername()) || normalized.equals(user.getPhone())))
+                        .findFirst()
+                        .orElse(null);
+            }
+        }
+        if (exact == null) return List.of();
+        return List.of(new StreakUserSummary(exact.getId(), exact.getUsername(), exact.getPhone()));
     }
 
     public StreakOverview getOverview(String token, Integer userId, LocalDate from, LocalDate to)
