@@ -1,6 +1,6 @@
 package com.shuowen.yuzong.media.audio;
 
-import com.shuowen.yuzong.Tool.dataStructure.option.Dialect;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +27,7 @@ public class PinyinAudioController
     private AudioService audioService;
 
     /**
-     * 上传拼音音频（测试/管理用）。<br>
+     * 上传拼音音频（重复上传即替换）。<br>
      * <br>
      * 请求示例：<br>
      * POST /api/pinyin/audio/upload?dialect=lac&code=initial-b<br>
@@ -37,8 +37,10 @@ public class PinyinAudioController
      * 2. code: 拼音 key，如 initial-b、last-iung（与编辑器 keyList、详情页 item.key 一致）<br>
      * 3. file: 音频文件（mp3/wav/aac/m4a/ogg/flac，最大 50MB）<br>
      * <br>
-     * 说明：不管原始文件名是什么，落盘后统一命名为 pronunciation.{ext}，
-     * 即 OSS key = audio/{dialect}/pinyin/{code}/pronunciation.{ext}。<br>
+     * 说明：<br>
+     * - 不管原始文件名是什么，落盘后统一命名为 pronunciation.{ext}，<br>
+     *   即 OSS key = audio/{dialect}/pinyin/{code}/pronunciation.{ext}。<br>
+     * - 同一拼音只保留一条音频：上传前自动删除该路径下旧音频（替换式上传）。<br>
      * <br>
      * 返回：落库后的 Audio（含 id、objectName）。
      */
@@ -50,7 +52,7 @@ public class PinyinAudioController
     ) throws Exception
     {
         String folderPath = dialect + "/pinyin/" + code;
-        return audioService.upload(file, folderPath, "pronunciation");
+        return audioService.replace(file, folderPath, "pronunciation");
     }
 
     /**

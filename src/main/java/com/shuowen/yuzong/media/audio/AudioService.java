@@ -87,6 +87,29 @@ public class AudioService
     }
 
     /**
+     * 替换式上传：同一虚拟路径下只保留一条音频记录。
+     * <p>
+     * 用于"一个拼音只允许一段录音"的场景：上传前先清理该路径下已有的旧音频
+     * （删除 OSS 对象 + 软删数据库记录），再落盘新音频，保证 list/check 结果唯一。
+     *
+     * @param file       音频文件
+     * @param folderPath 虚拟文件夹路径，例如 "lac/pinyin/initial-b"；传 null 或空串则放 audio/ 根目录
+     * @param fixedName  固定文件名主体（不含扩展名）
+     * @return 落库后的 Audio，含 id 与 objectName
+     */
+    public Audio replace(MultipartFile file, String folderPath, String fixedName) throws Exception
+    {
+        // 1. 先清理旧音频：同路径下的历史记录全部删除（删 OSS + 软删 DB）
+        for (AudioVO vo : list(folderPath))
+        {
+            delete(vo.getId());
+        }
+
+        // 2. 再按固定名上传新音频
+        return upload(file, folderPath, fixedName);
+    }
+
+    /**
      * 按虚拟文件夹查询音频列表（folder 为空查全部）。
      */
     public List<AudioVO> list(String folderPath)
