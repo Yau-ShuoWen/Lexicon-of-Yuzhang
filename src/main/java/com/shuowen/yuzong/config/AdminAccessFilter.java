@@ -22,8 +22,10 @@ public class AdminAccessFilter extends OncePerRequestFilter
     private static final List<String> PROTECTED_PREFIXES = List.of(
             "/api/edit/",
             "/api/ref/",
+            "/api/tool/",
             "/api/pinyin/audio",
             "/api/audio",
+            "/api/image",
             "/api/user/update-username",
             "/api/admin/",
             "/upload",
