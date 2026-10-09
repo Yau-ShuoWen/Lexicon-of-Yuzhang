@@ -23,12 +23,12 @@ public class StudyController
     private WordCardEditService editService;
 
     @GetMapping("/word-cards/{language}/{dialect}")
-    public List<WordCardPractice> getWordCards(
+    public APIResponse<List<WordCardPractice>> getWordCards(
             @PathVariable Language language,
             @PathVariable Dialect dialect
     )
     {
-        return service.getRandomCards(dialect, language);
+        return APIResponse.success(service.getRandomCards(dialect, language));
     }
 
     @GetMapping("/edit/{dialect}")
