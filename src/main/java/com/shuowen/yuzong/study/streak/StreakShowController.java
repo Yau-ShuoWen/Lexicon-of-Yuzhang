@@ -2,10 +2,12 @@ package com.shuowen.yuzong.study.streak;
 
 import com.shuowen.yuzong.study.streak.data.StreakOverview;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/study/streak")
@@ -30,7 +32,7 @@ public class StreakShowController
         }
         catch (Exception e)
         {
-            return APIResponse.failure(e.getMessage());
+            return failure(e);
         }
     }
 
@@ -38,7 +40,16 @@ public class StreakShowController
     public APIResponse<Void> complete(@RequestParam String t)
     {
         try { service.markStudyCompleted(t); return APIResponse.success(); }
-        catch (Exception e) { return APIResponse.failure(e.getMessage()); }
+        catch (Exception e) { return failure(e); }
+    }
+
+    private <T> APIResponse<T> failure(Exception exception)
+    {
+        if (exception instanceof NoSuchElementException)
+        {
+            return APIResponse.failure(HTTPCode.NotLogin, exception.getMessage());
+        }
+        return APIResponse.failure(exception.getMessage());
     }
 
 }

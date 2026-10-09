@@ -7,6 +7,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum HTTPCode
 {
+    NotLogin(401),
+    NoPermission(403),
+    OK(200),
+
     InvalidPinyin(49001),
     InvalidScTcText(49002);
 

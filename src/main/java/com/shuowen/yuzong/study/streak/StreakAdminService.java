@@ -109,7 +109,7 @@ public class StreakAdminService
         UserEntity operator = userService.getUserByToken(token);
         if (!userService.hasAdminAuthority(operator.getAuthority()))
         {
-            throw new IllegalArgumentException("管理员权限不足");
+            throw new SecurityException("管理员权限不足");
         }
     }
 }

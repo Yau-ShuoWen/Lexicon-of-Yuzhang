@@ -3,6 +3,7 @@ package com.shuowen.yuzong.ysw.controller;
 import com.shuowen.yuzong.user.data.domain.AuthorityCode;
 import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import com.shuowen.yuzong.util.version.TextDiffRequest;
 import com.shuowen.yuzong.util.version.TextDiffResponse;
 import com.shuowen.yuzong.util.version.TextDiffService;
@@ -12,6 +13,8 @@ import com.shuowen.yuzong.ysw.data.dto.diary.DiaryEditRequest;
 import com.shuowen.yuzong.ysw.service.DiaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/diary/edit")
@@ -39,7 +42,7 @@ public class DiaryEditController
         }
         catch (Exception e)
         {
-            return APIResponse.failure(e.getMessage());
+            return authFailure(e);
         }
     }
 
@@ -56,7 +59,7 @@ public class DiaryEditController
         }
         catch (Exception e)
         {
-            return APIResponse.failure(e.getMessage());
+            return authFailure(e);
         }
     }
 
@@ -74,7 +77,7 @@ public class DiaryEditController
         }
         catch (Exception e)
         {
-            return APIResponse.failure(e.getMessage());
+            return authFailure(e);
         }
     }
 
@@ -91,7 +94,7 @@ public class DiaryEditController
         }
         catch (Exception e)
         {
-            return APIResponse.failure(e.getMessage());
+            return authFailure(e);
         }
     }
 
@@ -100,13 +103,26 @@ public class DiaryEditController
         String token = queryToken == null || queryToken.trim().isEmpty() ? headerToken : queryToken;
         if (token == null || token.trim().isEmpty())
         {
-            throw new IllegalArgumentException("请先登录");
+            throw new NoSuchElementException("请先登录");
         }
 
         var user = userService.getUserByToken(token);
         if (!userService.hasPermission(user.getAuthority(), AuthorityCode.DIARY_EDIT))
         {
-            throw new IllegalArgumentException("没有日记编辑权限");
+            throw new SecurityException("没有日记编辑权限");
         }
+    }
+
+    private <T> APIResponse<T> authFailure(Exception exception)
+    {
+        if (exception instanceof NoSuchElementException)
+        {
+            return APIResponse.failure(HTTPCode.NotLogin, exception.getMessage());
+        }
+        if (exception instanceof SecurityException)
+        {
+            return APIResponse.failure(HTTPCode.NoPermission, exception.getMessage());
+        }
+        return APIResponse.failure(exception.getMessage());
     }
 }

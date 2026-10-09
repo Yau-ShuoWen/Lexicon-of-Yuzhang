@@ -4,6 +4,7 @@ import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.user.service.TokenService;
 import com.shuowen.yuzong.user.data.model.UserProfileEntity;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -29,7 +30,7 @@ public class AdminController
             UserProfileEntity profile = userService.getUserProfileByToken(t);
             if (!profile.isAdmin())
             {
-                return APIResponse.failure("管理员权限不足");
+                return APIResponse.failure(HTTPCode.NoPermission, "管理员权限不足");
             }
 
             return APIResponse.success(Map.of(

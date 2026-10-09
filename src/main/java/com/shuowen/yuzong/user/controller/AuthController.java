@@ -6,9 +6,12 @@ import com.shuowen.yuzong.user.service.VerificationCodeService;
 import com.shuowen.yuzong.user.data.model.UserEntity;
 import com.shuowen.yuzong.user.data.model.UserProfileEntity;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping ("/api/user")
@@ -89,7 +92,7 @@ public class AuthController
         } catch (Exception e)
         {
             e.printStackTrace();
-            return APIResponse.failure("登陆状态无效。Invalid login status.");
+            return APIResponse.failure(HTTPCode.NotLogin, "登陆状态无效。Invalid login status.");
         }
     }
 
@@ -100,6 +103,9 @@ public class AuthController
         {
             user.updateUsername(t, newUsername);
             return APIResponse.success();
+        } catch (NoSuchElementException e)
+        {
+            return APIResponse.failure(HTTPCode.NotLogin, e.getMessage());
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -114,6 +120,9 @@ public class AuthController
         {
             user.updatePassword(t, oldPassword, newPassword);
             return APIResponse.success();
+        } catch (NoSuchElementException e)
+        {
+            return APIResponse.failure(HTTPCode.NotLogin, e.getMessage());
         } catch (Exception e)
         {
             e.printStackTrace();
@@ -141,6 +150,10 @@ public class AuthController
         try
         {
             return APIResponse.success(user.getUserProfileByToken(t));
+        }
+        catch (NoSuchElementException e)
+        {
+            return APIResponse.failure(HTTPCode.NotLogin, e.getMessage());
         }
         catch (Exception e)
         {
