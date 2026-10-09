@@ -16,6 +16,7 @@ import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,9 +38,9 @@ public class SearchController
      * 适用于搜索时候整合所有信息列成一个列表供选择，所以这里的结果集是可插拔的
      */
     @GetMapping ("{l}/{d}/query")
-    public List<List<SearchResult>> search(@PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query)
+    public APIResponse<List<List<SearchResult>>> search(@PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query)
     {
-        if (query.contentEquals("random")) return List.of(c.getCiyuRandom(l, d));
+        if (query.contentEquals("random")) return APIResponse.success(List.of(c.getCiyuRandom(l, d)));
 
         var hanzi = h.getHanziSearchInfo(query, l, d);
         var ciyu = c.getCiyuSearchInfo(query, l, d);
@@ -48,7 +49,7 @@ public class SearchController
         ans.add(ListTool.merge(hanzi, ciyu.getLeft()));
         ans.add(ciyu.getRight());
 
-        return ans;
+        return APIResponse.success(ans);
     }
 
     /**
@@ -70,7 +71,7 @@ public class SearchController
         } catch (Exception e)
         {
             if (e instanceof NoSuchElementException)
-                return APIResponse.failure(ScTcText.get("沒有查到漢字", l).toString());
+                return APIResponse.failure(HTTPCode.NotFound, ScTcText.get("沒有查到漢字", l).toString());
 
             e.printStackTrace();
             return APIResponse.failure(ScTcText.get("查找漢字失敗", l).toString());
@@ -94,7 +95,7 @@ public class SearchController
         } catch (Exception e)
         {
             if (e instanceof NoSuchElementException)
-                return APIResponse.failure(ScTcText.get("沒有查到詞語 not found", l).toString());
+                return APIResponse.failure(HTTPCode.NotFound, ScTcText.get("沒有查到詞語", l).toString());
 
             e.printStackTrace();
             return APIResponse.failure(ScTcText.get("查找詞語失敗", l).toString());

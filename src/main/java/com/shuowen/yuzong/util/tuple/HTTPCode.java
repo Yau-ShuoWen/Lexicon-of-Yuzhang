@@ -9,6 +9,7 @@ public enum HTTPCode
 {
     NotLogin(401),
     NoPermission(403),
+    NotFound(404),
     OK(200),
 
     InvalidPinyin(49001),
