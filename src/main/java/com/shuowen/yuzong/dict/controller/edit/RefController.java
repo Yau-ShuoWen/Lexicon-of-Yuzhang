@@ -12,9 +12,9 @@ import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.ext.sort.FractionIndex;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.APIResponse;
-import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
+import com.shuowen.yuzong.util.tuple.NearbyResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +34,9 @@ public class RefController
      * 获取词典列表
      */
     @GetMapping ("/get-dictionaries/{d}")
-    public List<Pair<UString, DictCode>> getDictionaries(@PathVariable Dialect d)
+    public APIResponse<List<Pair<UString, DictCode>>> getDictionaries(@PathVariable Dialect d)
     {
-        return dict.getDictionaryMenu(d);
+        return APIResponse.success(dict.getDictionaryMenu(d));
     }
 
     /**
@@ -150,12 +150,12 @@ public class RefController
     }
 
     @PostMapping ("/get-nearby/{dict}")
-    public APIResponse<Twin<Maybe<FractionIndex>>> getNearBy(
+    public APIResponse<NearbyResponse<FractionIndex>> getNearBy(
             @PathVariable DictCode dict, @RequestBody Twin<FractionIndex> sorts)
     {
         try
         {
-            return APIResponse.success(ck.getNearBy(dict, sorts));
+            return APIResponse.success(NearbyResponse.from(ck.getNearBy(dict, sorts)));
         } catch (Exception e)
         {
             e.printStackTrace();

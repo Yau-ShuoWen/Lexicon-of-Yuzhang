@@ -3,6 +3,7 @@ package com.shuowen.yuzong.dict.pinyin.controller;
 import com.shuowen.yuzong.dict.pinyin.PinyinService;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.tuple.APIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,21 +17,22 @@ public class EditPinyinController
     PinyinService py;
 
     @GetMapping ("/filter/{d}")
-    public List<String> filter(@PathVariable Dialect d)
+    public APIResponse<List<String>> filter(@PathVariable Dialect d)
     {
-        return py.getKey(d);
+        return APIResponse.success(py.getKey(d));
     }
 
     @GetMapping ("/get-note/{d}")
-    public ScTcText getNote(@PathVariable Dialect d, @RequestParam String key)
+    public APIResponse<ScTcText> getNote(@PathVariable Dialect d, @RequestParam String key)
     {
-        return py.getNote(d, key);
+        return APIResponse.success(py.getNote(d, key));
     }
 
     @PostMapping ("/update-note/{d}")
-    public void updateNote(@PathVariable Dialect d,
+    public APIResponse<Void> updateNote(@PathVariable Dialect d,
                            @RequestParam String key, @RequestBody ScTcText note)
     {
         py.updateNote(d, key, note);
+        return APIResponse.success();
     }
 }
