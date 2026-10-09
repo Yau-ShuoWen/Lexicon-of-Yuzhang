@@ -52,4 +52,9 @@ public class APIResponse<T>
     {
         return new APIResponse<>(false, code, "错误：" + msg, null);
     }
+
+    public static <T> APIResponse<T> failure(HTTPCode code, String msg)
+    {
+        return failure(code.getCode(), msg);
+    }
 }
