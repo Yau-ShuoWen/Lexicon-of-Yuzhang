@@ -11,6 +11,7 @@ import com.shuowen.yuzong.util.map.KV;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Twin;
+import com.shuowen.yuzong.util.tuple.APIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,8 +27,7 @@ import java.util.Map;
 import static com.shuowen.yuzong.util.json.JsonTool.readJson;
 
 /**
- * 获得字典信息<br>
- * 不用{@code APIResponse}的原因是，接收一个常量都失败的话，前端有没有那个报错信息都无所谓了
+ * 获得字典信息。
  */
 @RestController
 @RequestMapping ("/api/info")
@@ -43,15 +43,15 @@ public class GetInfoController
     private RefMapper ck;
 
     @GetMapping ("/get-text/{d}/{l}/{code}")
-    public UString welcome(@PathVariable Dialect d, @PathVariable Language l,
+    public APIResponse<UString> welcome(@PathVariable Dialect d, @PathVariable Language l,
                            @PathVariable String code)
     {
 
-        if (code.equals("welcome")) return ScTcText.get(KV.get("website-greeting:" + d), d, l);
+        if (code.equals("welcome")) return APIResponse.success(ScTcText.get(KV.get("website-greeting:" + d), d, l));
 
-        if (code.contains("explain")) return ScTcText.get(KV.get(code), l);
+        if (code.contains("explain")) return APIResponse.success(ScTcText.get(KV.get(code), l));
 
-        return UString.of("-");
+        return APIResponse.success(UString.of("-"));
     }
 
     /**
@@ -64,7 +64,7 @@ public class GetInfoController
      * </ul>
      */
     @GetMapping ("/about-page/{d}/{l}")
-    public Map<String, Object> about(@PathVariable Dialect d, @PathVariable Language l)
+    public APIResponse<Map<String, Object>> about(@PathVariable Dialect d, @PathVariable Language l)
     {
         Map<String, Object> map = new HashMap<>();
 
@@ -77,7 +77,7 @@ public class GetInfoController
 
         map.put("statistic", aboutStats(d, l));
 
-        return map;
+        return APIResponse.success(map);
     }
 
     private UString aboutText(Dialect d, Language l)
