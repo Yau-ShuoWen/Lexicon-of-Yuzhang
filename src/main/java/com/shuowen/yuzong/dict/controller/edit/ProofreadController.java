@@ -35,13 +35,13 @@ public class ProofreadController
     }
 
     @PostMapping ("/check/{l}/{d}")
-    public Pair<Boolean, UString> check(@PathVariable Dialect d, @PathVariable Language l,
+    public APIResponse<Pair<Boolean, UString>> check(@PathVariable Dialect d, @PathVariable Language l,
                                         @RequestParam (required = false) DictCode dict,
                                         @RequestParam UString text
     )
     {
         var str = RichTextUtil.format(text, new PinyinConfig(l, d), true, Maybe.uncertain(dict), false);
-        return Pair.of(RichTextUtil.checkWarning(str), str);
+        return APIResponse.success(Pair.of(RichTextUtil.checkWarning(str), str));
     }
 
     @PostMapping ("/translate")
