@@ -2,12 +2,10 @@ package com.shuowen.yuzong.study.streak;
 
 import com.shuowen.yuzong.study.streak.data.StreakOverview;
 import com.shuowen.yuzong.util.tuple.APIResponse;
-import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/study/streak")
@@ -23,33 +21,16 @@ public class StreakShowController
             @RequestParam(required = false) LocalDate to
     )
     {
-        try
-        {
-            LocalDate end = to == null ? LocalDate.now().plusDays(6) : to;
-            LocalDate start = from == null ? LocalDate.now().minusDays(14) : from;
-            if (start.isAfter(end)) throw new IllegalArgumentException("日期范围无效");
-            return APIResponse.success(service.getOverview(t, start, end));
-        }
-        catch (Exception e)
-        {
-            return failure(e);
-        }
+        LocalDate end = to == null ? LocalDate.now().plusDays(6) : to;
+        LocalDate start = from == null ? LocalDate.now().minusDays(14) : from;
+        if (start.isAfter(end)) throw new IllegalArgumentException("日期范围无效");
+        return APIResponse.success(service.getOverview(t, start, end));
     }
 
     @PostMapping("/activity/complete")
     public APIResponse<Void> complete(@RequestParam String t)
     {
-        try { service.markStudyCompleted(t); return APIResponse.success(); }
-        catch (Exception e) { return failure(e); }
+        service.markStudyCompleted(t);
+        return APIResponse.success();
     }
-
-    private <T> APIResponse<T> failure(Exception exception)
-    {
-        if (exception instanceof NoSuchElementException)
-        {
-            return APIResponse.failure(HTTPCode.NotLogin, exception.getMessage());
-        }
-        return APIResponse.failure(exception.getMessage());
-    }
-
 }

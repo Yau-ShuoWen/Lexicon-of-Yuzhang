@@ -5,7 +5,9 @@ import com.shuowen.yuzong.study.loadingtext.data.LoadingTextEntity;
 import com.shuowen.yuzong.study.loadingtext.data.LoadingTextUpdate;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.util.err.APIException;
 import com.shuowen.yuzong.util.text.UString;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,7 +49,7 @@ public class LoadingTextService
     public LoadingTextUpdate findById(Integer id)
     {
         LoadingTextEntity entity = mapper.findById(id);
-        if (entity == null) throw new IllegalArgumentException("没有找到这条加载提示语");
+        if (entity == null) throw new APIException(HTTPCode.NotFound, "没有找到这条加载提示语");
         return new LoadingTextUpdate(entity);
     }
 

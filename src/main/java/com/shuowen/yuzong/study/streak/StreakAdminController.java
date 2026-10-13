@@ -4,12 +4,10 @@ import com.shuowen.yuzong.study.streak.data.StreakOverview;
 import com.shuowen.yuzong.study.streak.data.StreakRecordUpdateRequest;
 import com.shuowen.yuzong.study.streak.data.StreakUserSummary;
 import com.shuowen.yuzong.util.tuple.APIResponse;
-import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api/admin/study/streak")
@@ -26,8 +24,7 @@ public class StreakAdminController
     public APIResponse<List<StreakUserSummary>> searchUsers(@RequestParam String t,
                                                             @RequestParam String keyword)
     {
-        try { return APIResponse.success(service.searchUsers(t, keyword)); }
-        catch (Exception e) { return failure(e); }
+        return APIResponse.success(service.searchUsers(t, keyword));
     }
 
     @GetMapping("/{userId}/overview")
@@ -36,8 +33,7 @@ public class StreakAdminController
                                                 @RequestParam LocalDate from,
                                                 @RequestParam LocalDate to)
     {
-        try { return APIResponse.success(service.getOverview(t, userId, from, to)); }
-        catch (Exception e) { return failure(e); }
+        return APIResponse.success(service.getOverview(t, userId, from, to));
     }
 
     @PatchMapping("/{userId}/record")
@@ -45,31 +41,7 @@ public class StreakAdminController
                                           @PathVariable Integer userId,
                                           @RequestBody StreakRecordUpdateRequest request)
     {
-        try
-        {
-            service.updateRecord(t, userId, request);
-            return APIResponse.success();
-        }
-        catch (Exception e) { return failure(e); }
-    }
-
-    private <T> APIResponse<T> failure(Exception exception)
-    {
-        if (exception instanceof NoSuchElementException)
-        {
-            return APIResponse.failure(HTTPCode.NotLogin, errorMessage(exception));
-        }
-        if (exception instanceof SecurityException)
-        {
-            return APIResponse.failure(HTTPCode.NoPermission, errorMessage(exception));
-        }
-        return APIResponse.failure(errorMessage(exception));
-    }
-
-    private String errorMessage(Exception e)
-    {
-        e.printStackTrace();
-        String message = e.getMessage();
-        return message == null || message.isBlank() ? e.getClass().getSimpleName() : message;
+        service.updateRecord(t, userId, request);
+        return APIResponse.success();
     }
 }
