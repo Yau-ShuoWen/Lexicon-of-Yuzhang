@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.media.audio;
 
+import com.shuowen.yuzong.util.tuple.APIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,12 +35,12 @@ public class AudioController
      * 其中 url 是 30 分钟有效期的签名链接，可直接用于播放。
      */
     @PostMapping ("/upload")
-    public Audio upload(
+    public APIResponse<Audio> upload(
             @RequestParam (required = false) String folder,
             MultipartFile file
     ) throws Exception
     {
-        return audioService.upload(file, folder);
+        return APIResponse.success(audioService.upload(file, folder));
     }
 
     /**
@@ -54,9 +55,9 @@ public class AudioController
      * 返回：List&lt;AudioVO&gt;，每项含 id/name/format/size/folderPath/url。
      */
     @GetMapping ("/list")
-    public List<AudioVO> list(@RequestParam (required = false) String folder)
+    public APIResponse<List<AudioVO>> list(@RequestParam (required = false) String folder)
     {
-        return audioService.list(folder);
+        return APIResponse.success(audioService.list(folder));
     }
 
     /**
@@ -66,9 +67,9 @@ public class AudioController
      * GET /api/audio/{id}
      */
     @GetMapping ("/{id}")
-    public AudioVO get(@PathVariable Long id)
+    public APIResponse<AudioVO> get(@PathVariable Long id)
     {
-        return audioService.get(id);
+        return APIResponse.success(audioService.get(id));
     }
 
     /**
@@ -80,10 +81,10 @@ public class AudioController
      * 返回：success
      */
     @DeleteMapping ("/{id}")
-    public String delete(@PathVariable Long id)
+    public APIResponse<Void> delete(@PathVariable Long id)
     {
         audioService.delete(id);
-        return "success";
+        return APIResponse.success();
     }
 
 }

@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.media.image;
 
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -52,8 +53,9 @@ public class ImageController
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<APIResponse<Void>> invalid(IllegalArgumentException exception)
     {
-        HttpStatus status = "图片不存在".equals(exception.getMessage())
-                ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
-        return ResponseEntity.status(status).body(APIResponse.failure(exception.getMessage()));
+        boolean notFound = "图片不存在".equals(exception.getMessage());
+        HttpStatus status = notFound ? HttpStatus.NOT_FOUND : HttpStatus.BAD_REQUEST;
+        HTTPCode code = notFound ? HTTPCode.NotFound : HTTPCode.BadRequest;
+        return ResponseEntity.status(status).body(APIResponse.failure(code, exception.getMessage()));
     }
 }

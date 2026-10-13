@@ -24,8 +24,7 @@ public class StreakAdminController
     public APIResponse<List<StreakUserSummary>> searchUsers(@RequestParam String t,
                                                             @RequestParam String keyword)
     {
-        try { return APIResponse.success(service.searchUsers(t, keyword)); }
-        catch (Exception e) { return APIResponse.failure(errorMessage(e)); }
+        return APIResponse.success(service.searchUsers(t, keyword));
     }
 
     @GetMapping("/{userId}/overview")
@@ -34,8 +33,7 @@ public class StreakAdminController
                                                 @RequestParam LocalDate from,
                                                 @RequestParam LocalDate to)
     {
-        try { return APIResponse.success(service.getOverview(t, userId, from, to)); }
-        catch (Exception e) { return APIResponse.failure(errorMessage(e)); }
+        return APIResponse.success(service.getOverview(t, userId, from, to));
     }
 
     @PatchMapping("/{userId}/record")
@@ -43,18 +41,7 @@ public class StreakAdminController
                                           @PathVariable Integer userId,
                                           @RequestBody StreakRecordUpdateRequest request)
     {
-        try
-        {
-            service.updateRecord(t, userId, request);
-            return APIResponse.success();
-        }
-        catch (Exception e) { return APIResponse.failure(errorMessage(e)); }
-    }
-
-    private String errorMessage(Exception e)
-    {
-        e.printStackTrace();
-        String message = e.getMessage();
-        return message == null || message.isBlank() ? e.getClass().getSimpleName() : message;
+        service.updateRecord(t, userId, request);
+        return APIResponse.success();
     }
 }

@@ -19,63 +19,35 @@ public class VerificationCodeController
     @RequestMapping("/create")
     public APIResponse<UserVerificationCodeEntity> create(String phone)
     {
-        try
-        {
-            if (phone == null || phone.trim().isEmpty())
-                throw new IllegalArgumentException("手机号不能为空");
-            return APIResponse.success(codeService.createLoginCode(phone.trim()));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        if (phone == null || phone.trim().isEmpty())
+            throw new IllegalArgumentException("手机号不能为空");
+        return APIResponse.success(codeService.createLoginCode(phone.trim()));
     }
 
     @RequestMapping("/latest")
     public APIResponse<UserVerificationCodeEntity> latest(String phone)
     {
-        try
-        {
-            if (phone == null || phone.trim().isEmpty())
-                throw new IllegalArgumentException("手机号不能为空");
-            return APIResponse.success(codeService.getLatestLoginCode(phone.trim()));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        if (phone == null || phone.trim().isEmpty())
+            throw new IllegalArgumentException("手机号不能为空");
+        return APIResponse.success(codeService.getLatestLoginCode(phone.trim()));
     }
 
     @RequestMapping("/recent")
     public APIResponse<List<UserVerificationCodeEntity>> recent(String phone, Integer limit)
     {
-        try
-        {
-            if (phone == null || phone.trim().isEmpty())
-                throw new IllegalArgumentException("手机号不能为空");
-            return APIResponse.success(codeService.listRecentLoginCodes(phone.trim(), limit == null ? 5 : limit));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        if (phone == null || phone.trim().isEmpty())
+            throw new IllegalArgumentException("手机号不能为空");
+        return APIResponse.success(codeService.listRecentLoginCodes(phone.trim(), limit == null ? 5 : limit));
     }
 
     @RequestMapping("/verify")
     public APIResponse<Boolean> verify(String phone, String code)
     {
-        try
-        {
-            if (phone == null || phone.trim().isEmpty())
-                throw new IllegalArgumentException("手机号不能为空");
-            if (code == null || code.trim().isEmpty())
-                throw new IllegalArgumentException("验证码不能为空");
-            codeService.verifyLoginCode(phone.trim(), code.trim());
-            return APIResponse.success(true);
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        if (phone == null || phone.trim().isEmpty())
+            throw new IllegalArgumentException("手机号不能为空");
+        if (code == null || code.trim().isEmpty())
+            throw new IllegalArgumentException("验证码不能为空");
+        codeService.verifyLoginCode(phone.trim(), code.trim());
+        return APIResponse.success(true);
     }
 }

@@ -2,8 +2,9 @@ package com.shuowen.yuzong.ysw.controller;
 
 import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.util.tuple.Maybe;
-import com.shuowen.yuzong.util.tuple.Twin;
+import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.MaybeAPIResponse;
+import com.shuowen.yuzong.util.tuple.NearbyResponse;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryCatalog;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryDigest;
 import com.shuowen.yuzong.ysw.data.domain.diary.DiaryText;
@@ -64,14 +65,14 @@ public class DiaryController
      * 2. 点击某个月后，再调用 /query/{l}?year=xxxx&month=xx 获取该月列表。
      */
     @GetMapping ("/catalog")
-    public DiaryCatalog getCatalog(
+    public APIResponse<DiaryCatalog> getCatalog(
             @RequestParam(required = false) String view,
             @RequestParam(required = false) String t
     )
     {
         var requested = DiaryViewMode.of(view);
         var allowed = resolveAllowedView(t);
-        return s.getCatalog(requested, allowed);
+        return APIResponse.success(s.getCatalog(requested, allowed));
     }
 
     /**
@@ -112,7 +113,7 @@ public class DiaryController
      * 3. 当前接口没有分页。
      */
     @GetMapping ("/query/{l}")
-    public List<DiaryDigest> query(
+    public APIResponse<List<DiaryDigest>> query(
             @PathVariable Language l,
             @RequestParam (required = false) Integer year,
             @RequestParam (required = false) Integer month,
@@ -122,7 +123,7 @@ public class DiaryController
     {
         var requested = DiaryViewMode.of(view);
         var allowed = resolveAllowedView(t);
-        return s.query(l, year, month, requested, allowed);
+        return APIResponse.success(s.query(l, year, month, requested, allowed));
     }
 
     /**
@@ -147,7 +148,7 @@ public class DiaryController
      * 1. 这个接口适合轻量展示，不建议把它当成完整列表页接口长期使用。
      */
     @GetMapping ("/recent/{l}")
-    public List<DiaryDigest> recent(
+    public APIResponse<List<DiaryDigest>> recent(
             @PathVariable Language l,
             @RequestParam(required = false) String view,
             @RequestParam(required = false) String t
@@ -155,7 +156,7 @@ public class DiaryController
     {
         var requested = DiaryViewMode.of(view);
         var allowed = resolveAllowedView(t);
-        return s.getRecent(l, requested, allowed);
+        return APIResponse.success(s.getRecent(l, requested, allowed));
     }
 
     /**
@@ -166,7 +167,7 @@ public class DiaryController
      * 未登录时只搜索公开版本；朋友和本人权限分别搜索对应可见版本。
      */
     @GetMapping("/search/{l}")
-    public List<DiaryDigest> search(
+    public APIResponse<List<DiaryDigest>> search(
             @PathVariable Language l,
             @RequestParam("q") String keyword,
             @RequestParam(required = false) String view,
@@ -175,7 +176,7 @@ public class DiaryController
     {
         var requested = DiaryViewMode.of(view);
         var allowed = resolveAllowedView(t);
-        return s.search(l, keyword, requested, allowed);
+        return APIResponse.success(s.search(l, keyword, requested, allowed));
     }
 
     /**
@@ -189,9 +190,8 @@ public class DiaryController
      * 2. 适合前端内部跳转，因为列表接口已经能拿到 id
      * <p>
      * 返回结构说明：
-     * 1. 返回 Maybe<DiaryText>
-     * 2. 如果 empty=false，value 就是完整日记内容
-     * 3. 如果 empty=true，说明该 id 不存在
+     * 1. 查询成功时 data 是完整日记内容。
+     * 2. 该 id 不存在时返回 404 业务状态码。
      * <p>
      * DiaryText 关键字段：
      * 1. date: 主题日期
@@ -201,11 +201,10 @@ public class DiaryController
      * 5. id / createdTime / updatedTime: 元信息
      * <p>
      * 前端建议：
-     * 1. 不要假设一定查得到，需处理 empty=true 的空态页面。
-     * 2. content 和 abridge 都是 Maybe，需要先判断 empty。
+     * 1. 不要假设一定查得到，需处理 404 空态页面。
      */
     @GetMapping ("/item/{l}/id/{id}")
-    public Maybe<DiaryText> getById(
+    public APIResponse<DiaryText> getById(
             @PathVariable Language l,
             @PathVariable Integer id,
             @RequestParam(required = false) String view,
@@ -214,11 +213,14 @@ public class DiaryController
     {
         var requested = DiaryViewMode.of(view);
         var allowed = resolveAllowedView(t);
-        return s.getDiaryById(id, l, requested, allowed);
+        return MaybeAPIResponse.of(
+                s.getDiaryById(id, l, requested, allowed),
+                "没有找到日记"
+        );
     }
 
     @GetMapping ("/item/nearby/{id}")
-    public Twin<Maybe<Map>> getNearby(
+    public APIResponse<NearbyResponse<Map>> getNearby(
             @PathVariable Integer id,
             @RequestParam(required = false) String view,
             @RequestParam(required = false) String t
@@ -226,7 +228,7 @@ public class DiaryController
     {
         var requested = DiaryViewMode.of(view);
         var allowed = resolveAllowedView(t);
-        return s.getNearby(id, requested, allowed);
+        return APIResponse.success(NearbyResponse.from(s.getNearby(id, requested, allowed)));
     }
 
     private DiaryViewMode resolveAllowedView(String token)

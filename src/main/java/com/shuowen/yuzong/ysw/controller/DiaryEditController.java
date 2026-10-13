@@ -2,7 +2,9 @@ package com.shuowen.yuzong.ysw.controller;
 
 import com.shuowen.yuzong.user.data.domain.AuthorityCode;
 import com.shuowen.yuzong.user.service.UserService;
+import com.shuowen.yuzong.util.err.APIException;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import com.shuowen.yuzong.util.version.TextDiffRequest;
 import com.shuowen.yuzong.util.version.TextDiffResponse;
 import com.shuowen.yuzong.util.version.TextDiffService;
@@ -32,15 +34,8 @@ public class DiaryEditController
             @RequestParam(required = false) String t,
             @RequestHeader(value = "X-Auth-Token", required = false) String headerToken)
     {
-        try
-        {
-            requireEditPermission(t, headerToken);
-            return APIResponse.success(diaryService.getForEdit(id));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        requireEditPermission(t, headerToken);
+        return APIResponse.success(diaryService.getForEdit(id));
     }
 
     @PostMapping
@@ -49,15 +44,8 @@ public class DiaryEditController
             @RequestParam(required = false) String t,
             @RequestHeader(value = "X-Auth-Token", required = false) String headerToken)
     {
-        try
-        {
-            requireEditPermission(t, headerToken);
-            return APIResponse.success(diaryService.createForEdit(request));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        requireEditPermission(t, headerToken);
+        return APIResponse.success(diaryService.createForEdit(request));
     }
 
     @PutMapping("/{id}")
@@ -67,15 +55,8 @@ public class DiaryEditController
             @RequestParam(required = false) String t,
             @RequestHeader(value = "X-Auth-Token", required = false) String headerToken)
     {
-        try
-        {
-            requireEditPermission(t, headerToken);
-            return APIResponse.success(diaryService.updateForEdit(id, request));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        requireEditPermission(t, headerToken);
+        return APIResponse.success(diaryService.updateForEdit(id, request));
     }
 
     @PostMapping("/diff")
@@ -84,15 +65,8 @@ public class DiaryEditController
             @RequestParam(required = false) String t,
             @RequestHeader(value = "X-Auth-Token", required = false) String headerToken)
     {
-        try
-        {
-            requireEditPermission(t, headerToken);
-            return APIResponse.success(textDiffService.compare(request));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        requireEditPermission(t, headerToken);
+        return APIResponse.success(textDiffService.compare(request));
     }
 
     private void requireEditPermission(String queryToken, String headerToken)
@@ -100,13 +74,13 @@ public class DiaryEditController
         String token = queryToken == null || queryToken.trim().isEmpty() ? headerToken : queryToken;
         if (token == null || token.trim().isEmpty())
         {
-            throw new IllegalArgumentException("请先登录");
+            throw new APIException(HTTPCode.NotLogin, "请先登录");
         }
 
         var user = userService.getUserByToken(token);
         if (!userService.hasPermission(user.getAuthority(), AuthorityCode.DIARY_EDIT))
         {
-            throw new IllegalArgumentException("没有日记编辑权限");
+            throw new APIException(HTTPCode.NoPermission, "没有日记编辑权限");
         }
     }
 }

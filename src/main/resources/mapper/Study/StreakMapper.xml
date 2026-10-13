@@ -2,37 +2,39 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.shuowen.yuzong.study.data.mapper.StreakMapper">
-    <select id="findByUserAndRange" resultType="com.shuowen.yuzong.study.data.model.StreakRecordEntity">
-        SELECT id, user_id, study_date, status
+<mapper namespace="com.shuowen.yuzong.study.streak.StreakMapper">
+    <select id="findByUserAndRange" resultType="com.shuowen.yuzong.study.streak.data.StreakRecordEntity">
+        SELECT id, user_id, study_date, status, record_source
         FROM NC.study_streak_record
         WHERE user_id = #{userId}
           AND study_date BETWEEN #{from} AND #{to}
         ORDER BY study_date
     </select>
 
-    <select id="findAllByUser" resultType="com.shuowen.yuzong.study.data.model.StreakRecordEntity">
-        SELECT id, user_id, study_date, status
+    <select id="findAllByUser" resultType="com.shuowen.yuzong.study.streak.data.StreakRecordEntity">
+        SELECT id, user_id, study_date, status, record_source
         FROM NC.study_streak_record
         WHERE user_id = #{userId}
         ORDER BY study_date
     </select>
 
-    <select id="findByUserAndDate" resultType="com.shuowen.yuzong.study.data.model.StreakRecordEntity">
-        SELECT id, user_id, study_date, status
+    <select id="findByUserAndDate" resultType="com.shuowen.yuzong.study.streak.data.StreakRecordEntity">
+        SELECT id, user_id, study_date, status, record_source
         FROM NC.study_streak_record
         WHERE user_id = #{userId} AND study_date = #{studyDate}
         LIMIT 1
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO NC.study_streak_record (user_id, study_date, status)
-        VALUES (#{userId}, #{studyDate}, #{status})
+        INSERT INTO NC.study_streak_record (user_id, study_date, status, record_source)
+        VALUES (#{userId}, #{studyDate}, #{status}, #{recordSource})
     </insert>
 
-    <update id="updateStatus">
+    <update id="updateRecord">
         UPDATE NC.study_streak_record
-        SET status = #{status}, updated_at = CURRENT_TIMESTAMP
+        SET status = #{status},
+            record_source = #{recordSource},
+            updated_at = CURRENT_TIMESTAMP
         WHERE user_id = #{userId} AND study_date = #{studyDate}
     </update>
 

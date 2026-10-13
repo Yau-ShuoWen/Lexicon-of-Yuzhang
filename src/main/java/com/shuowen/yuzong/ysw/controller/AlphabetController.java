@@ -8,6 +8,7 @@ import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
+import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.ysw.data.domain.AlphabetTransfer;
 import com.shuowen.yuzong.ysw.data.domain.alphabet.AlphabetTable;
 import com.shuowen.yuzong.ysw.data.mapper.AlphabetMapper;
@@ -26,38 +27,38 @@ public class AlphabetController
     AlphabetMapper m;
 
     @GetMapping ("/introduce/{a}/{l}")
-    public Twin<UString> getIntroduce(@PathVariable Alphabet a, @PathVariable Language l)
+    public APIResponse<Twin<UString>> getIntroduce(@PathVariable Alphabet a, @PathVariable Language l)
     {
-        return Twin.of(a.getName().get(l), ScTcText.get(m.getIntroduce(a.getCode()), l));
+        return APIResponse.success(Twin.of(a.getName().get(l), ScTcText.get(m.getIntroduce(a.getCode()), l)));
     }
 
     @GetMapping ("/table/new/{a}/{l}")
-    public AlphabetTable getTheTable(@PathVariable Alphabet a, @PathVariable Language l)
+    public APIResponse<AlphabetTable> getTheTable(@PathVariable Alphabet a, @PathVariable Language l)
     {
-        return new AlphabetTable(m.getPinyinTable(a.getCode()), a, l);
+        return APIResponse.success(new AlphabetTable(m.getPinyinTable(a.getCode()), a, l));
     }
 
     @GetMapping ("/trans/{a}/{l}")
-    public List<Pair<UString, String>> getTrans(@PathVariable Alphabet a, @PathVariable Language l)
+    public APIResponse<List<Pair<UString, String>>> getTrans(@PathVariable Alphabet a, @PathVariable Language l)
     {
-        return a.getTrans(l);
+        return APIResponse.success(a.getTrans(l));
     }
 
     @GetMapping ("/transfer/{alphabet}/{l}")
-    public String transfer(@PathVariable Alphabet alphabet, @PathVariable Language l,
+    public APIResponse<String> transfer(@PathVariable Alphabet alphabet, @PathVariable Language l,
                            @RequestParam String funName, @RequestParam String s
     )
     {
-        return AlphabetTransfer.format(alphabet, l, funName, s);
+        return APIResponse.success(AlphabetTransfer.format(alphabet, l, funName, s));
     }
 
     @GetMapping ("/catalog/{l}")
-    public List<Pair<String, List<Map<String, String>>>> getCatalog(@PathVariable Language l)
+    public APIResponse<List<Pair<String, List<Map<String, String>>>>> getCatalog(@PathVariable Language l)
     {
         List<Pair<String, List<Map<String, String>>>> list =
                 JsonTool.readJson(m.getPinyinTable("alphabet-catalog"), new TypeReference<>() {});
 
-        return ListTool.mapping(list, i ->
+        return APIResponse.success(ListTool.mapping(list, i ->
         {
             var left = ScTcText.get(i.getLeft(), l);
             var right = ListTool.mapping(i.getRight(), item ->
@@ -68,6 +69,6 @@ public class AlphabetController
                     )
             );
             return Pair.of(left.toString(), right);
-        });
+        }));
     }
 }

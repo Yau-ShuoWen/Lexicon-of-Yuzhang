@@ -3,6 +3,7 @@ package com.shuowen.yuzong.media.image;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.util.ext.sort.FractionIndex;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,6 @@ public class ReferencePageImageController
     public ResponseEntity<APIResponse<Void>> invalid(IllegalArgumentException exception)
     {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(APIResponse.failure(exception.getMessage()));
+                .body(APIResponse.failure(HTTPCode.BadRequest, exception.getMessage()));
     }
 }

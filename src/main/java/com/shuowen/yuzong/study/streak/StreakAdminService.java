@@ -6,6 +6,8 @@ import com.shuowen.yuzong.study.streak.data.StreakRecordUpdateRequest;
 import com.shuowen.yuzong.study.streak.data.StreakUserSummary;
 import com.shuowen.yuzong.user.data.model.UserEntity;
 import com.shuowen.yuzong.user.service.UserService;
+import com.shuowen.yuzong.util.err.APIException;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,7 +102,7 @@ public class StreakAdminService
     {
         if (userId == null) throw new IllegalArgumentException("用户编号不能为空");
         UserEntity user = userService.getUserById(userId);
-        if (user == null) throw new IllegalArgumentException("用户不存在");
+        if (user == null) throw new APIException(HTTPCode.NotFound, "用户不存在");
         return user;
     }
 
@@ -109,7 +111,7 @@ public class StreakAdminService
         UserEntity operator = userService.getUserByToken(token);
         if (!userService.hasAdminAuthority(operator.getAuthority()))
         {
-            throw new IllegalArgumentException("管理员权限不足");
+            throw new SecurityException("管理员权限不足");
         }
     }
 }

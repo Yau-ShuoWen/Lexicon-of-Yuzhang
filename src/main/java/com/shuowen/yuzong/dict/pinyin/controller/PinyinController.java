@@ -8,6 +8,8 @@ import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.MaybeAPIResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,25 +17,25 @@ import org.springframework.web.bind.annotation.*;
 public class PinyinController
 {
     @GetMapping ("/preview/{d}/{l}")
-    public UString preview(@PathVariable Dialect d, @PathVariable Language l, String pinyin)
+    public APIResponse<UString> preview(@PathVariable Dialect d, @PathVariable Language l, String pinyin)
     {
         String py = String.format("[%s]", pinyin);
         String ans = TextPinyinIPA.format(py, new PinyinConfig(l, d), false,
                 Maybe.nothing(), false);
-        return UString.of(ans);
+        return APIResponse.success(UString.of(ans));
     }
 
     @GetMapping ("/table/{d}/{l}")
-    public PinyinTable getTable(@PathVariable Dialect d, @PathVariable Language l)
+    public APIResponse<PinyinTable> getTable(@PathVariable Dialect d, @PathVariable Language l)
     {
-        return new PinyinTable(d,l);
+        return APIResponse.success(new PinyinTable(d,l));
     }
 
     @GetMapping ("/pinyin-detail/{d}/{l}")
-    public Maybe<PinyinDetail> getPinyinDetail(
+    public APIResponse<PinyinDetail> getPinyinDetail(
             @PathVariable Dialect d, @PathVariable Language l,
             @RequestParam String key)
     {
-        return PinyinDetail.of(key, d, l);
+        return MaybeAPIResponse.of(PinyinDetail.of(key, d, l), "没有找到拼音详情");
     }
 }

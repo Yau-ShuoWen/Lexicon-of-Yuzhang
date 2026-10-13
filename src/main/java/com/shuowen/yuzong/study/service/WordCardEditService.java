@@ -4,6 +4,8 @@ import com.shuowen.yuzong.study.data.domain.WordCardUpdate;
 import com.shuowen.yuzong.study.data.mapper.WordCardMapper;
 import com.shuowen.yuzong.study.data.model.WordCardEntity;
 import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.err.APIException;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +29,7 @@ public class WordCardEditService
     public WordCardUpdate findById(Integer id, Dialect dialect)
     {
         WordCardEntity entity = mapper.findById(id, dialect.toString());
-        if (entity == null) throw new IllegalArgumentException("没有找到词卡");
+        if (entity == null) throw new APIException(HTTPCode.NotFound, "没有找到词卡");
         return new WordCardUpdate(entity, dialect);
     }
 

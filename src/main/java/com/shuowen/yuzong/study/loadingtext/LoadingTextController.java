@@ -26,66 +26,31 @@ public class LoadingTextController
             @PathVariable Language language,
             @PathVariable Dialect dialect)
     {
-        try
-        {
-            return APIResponse.success(service.randomText(language, dialect));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(service.randomText(language, dialect));
     }
 
     @GetMapping("/manage")
     public APIResponse<List<LoadingTextUpdate>> findAll()
     {
-        try
-        {
-            return APIResponse.success(service.findAll());
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(service.findAll());
     }
 
     @GetMapping("/manage/{id}")
     public APIResponse<LoadingTextUpdate> findById(@PathVariable Integer id)
     {
-        try
-        {
-            return APIResponse.success(service.findById(id));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(service.findById(id));
     }
 
     @PostMapping("/manage")
     public APIResponse<Void> save(@RequestBody LoadingTextUpdate edit)
     {
-        try
-        {
-            service.save(edit);
-            return APIResponse.success();
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        service.save(edit);
+        return APIResponse.success();
     }
 
     @PostMapping("/manage/batch")
     public APIResponse<List<LoadingTextUpdate>> saveBatch(@RequestBody List<LoadingTextBatchItem> items)
     {
-        try
-        {
-            return APIResponse.success(service.saveBatch(items));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(service.saveBatch(items));
     }
 }
