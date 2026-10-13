@@ -103,7 +103,7 @@ public class AdminAccessFilter extends OncePerRequestFilter
 
     private void writeFailure(HttpServletResponse response, HTTPCode code, String message) throws IOException
     {
-        response.setStatus(code.getCode());
+        response.setStatus(code.getHttpStatus());
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         objectMapper.writeValue(
