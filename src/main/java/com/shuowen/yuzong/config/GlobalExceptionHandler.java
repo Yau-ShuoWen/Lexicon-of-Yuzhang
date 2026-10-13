@@ -2,6 +2,7 @@ package com.shuowen.yuzong.config;
 
 import com.shuowen.yuzong.util.err.IllegalStringException;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
+import com.shuowen.yuzong.util.err.APIException;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,12 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
+    @ExceptionHandler(APIException.class)
+    public ResponseEntity<APIResponse<Void>> handleAPIException(APIException exception)
+    {
+        return failure(exception.getCode(), exception.getMessage());
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<APIResponse<Void>> handleJsonError(HttpMessageNotReadableException exception)
     {

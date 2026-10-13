@@ -5,6 +5,7 @@ import com.shuowen.yuzong.user.data.model.UserEntity;
 import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.HTTPCode;
+import com.shuowen.yuzong.util.err.APIException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,7 +18,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
@@ -89,9 +89,15 @@ public class AdminAccessFilter extends OncePerRequestFilter
         {
             return userService.getUserByToken(token);
         }
-        catch (NoSuchElementException exception)
+        catch (APIException exception)
         {
-            writeNotLogin(response);
+            writeFailure(response, exception.getCode(), exception.getMessage());
+            return null;
+        }
+        catch (Exception exception)
+        {
+            exception.printStackTrace();
+            writeFailure(response, HTTPCode.InternalError, "服务暂时不可用，请稍后重试");
             return null;
         }
     }

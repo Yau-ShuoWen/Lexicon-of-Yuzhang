@@ -4,7 +4,6 @@ import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.user.service.TokenService;
 import com.shuowen.yuzong.user.data.model.UserProfileEntity;
 import com.shuowen.yuzong.util.tuple.APIResponse;
-import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,42 +24,28 @@ public class AdminController
     @RequestMapping("/dashboard")
     public APIResponse<Map<String, Object>> dashboard(String t)
     {
-        try
+        UserProfileEntity profile = userService.getUserProfileByToken(t);
+        if (!profile.isAdmin())
         {
-            UserProfileEntity profile = userService.getUserProfileByToken(t);
-            if (!profile.isAdmin())
-            {
-                return APIResponse.failure(HTTPCode.NoPermission, "管理员权限不足");
-            }
+            throw new SecurityException("管理员权限不足");
+        }
 
-            return APIResponse.success(Map.of(
-                    "profile", profile,
-                    "modules", List.of(
-                            "用户管理",
-                            "验证码审计",
-                            "权限管理",
-                            "登录记录",
-                            "内容审核"
-                    )
-            ));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(Map.of(
+                "profile", profile,
+                "modules", List.of(
+                        "用户管理",
+                        "验证码审计",
+                        "权限管理",
+                        "登录记录",
+                        "内容审核"
+                )
+        ));
     }
 
     @RequestMapping("/logout")
     public APIResponse<Void> forceLogout(String username)
     {
-        try
-        {
-            tokenService.forceLogout(username);
-            return APIResponse.success();
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        tokenService.forceLogout(username);
+        return APIResponse.success();
     }
 }
