@@ -8,7 +8,6 @@ import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
 import com.shuowen.yuzong.dict.hanzi.service.HanziService;
 import com.shuowen.yuzong.dict.hanzi.service.PronunService;
 import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.tuple.APIResponse;
@@ -47,17 +46,10 @@ public class EditHanziController
     public APIResponse<HanziUpdate> hanzifind(@PathVariable Dialect d, @RequestParam ObfInt id
     )
     {
-        try
-        {
-            return MaybeAPIResponse.of(
-                    Maybe.uncertain(hz.getHanziById(id.decode(), d)),
-                    "没有找到汉字"
-            );
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return MaybeAPIResponse.of(
+                Maybe.uncertain(hz.getHanziById(id.decode(), d)),
+                "没有找到汉字"
+        );
     }
 
 
@@ -67,19 +59,8 @@ public class EditHanziController
     @PostMapping ("/submit/{d}")
     public APIResponse<Void> edit(@PathVariable Dialect d, @RequestBody HanziUpdate he)
     {
-        try
-        {
-            hz.editHanzi(he, d);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            if (e instanceof InvalidPinyinException)
-            {
-
-            }
-            else e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        hz.editHanzi(he, d);
+        return APIResponse.success();
     }
 
 
@@ -99,43 +80,22 @@ public class EditHanziController
     @GetMapping ("/get-nearby/{d}")
     public APIResponse<NearbyResponse<ObfInt>> getNearBy(@PathVariable Dialect d, @RequestParam ObfInt id)
     {
-        try
-        {
-            return APIResponse.success(NearbyResponse.from(hz.getNearBy(id.decode(), d)));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(NearbyResponse.from(hz.getNearBy(id.decode(), d)));
     }
 
     @GetMapping ("/get-word-suggestions/{d}")
     public APIResponse<List<HanziPinyinSuggestion>> getWordSuggestions(
             @PathVariable Dialect d, @RequestParam ObfInt id, @RequestParam Language language)
     {
-        try
-        {
-            return APIResponse.success(hz.getWordPinyinSuggestions(id.decode(), language, d));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(hz.getWordPinyinSuggestions(id.decode(), language, d));
     }
 
     @PostMapping ("/create/{d}")
     public APIResponse<Void> createHanzi(@PathVariable Dialect d, @RequestBody HanziCreate he
     )
     {
-        try
-        {
-            hz.createHanzi(he, d);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        hz.createHanzi(he, d);
+        return APIResponse.success();
     }
 
     @GetMapping ("/get-character/{d}")

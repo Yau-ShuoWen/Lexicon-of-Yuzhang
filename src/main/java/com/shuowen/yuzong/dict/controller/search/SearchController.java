@@ -12,6 +12,7 @@ import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.err.APIException;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.text.UString;
@@ -68,13 +69,9 @@ public class SearchController
             return APIResponse.success(h.getHanziDetailInfo(
                     query, l, d, new PinyinConfig(l, d, phonogram, syllableStyle, toneStyle)
             ));
-        } catch (Exception e)
+        } catch (NoSuchElementException e)
         {
-            if (e instanceof NoSuchElementException)
-                return APIResponse.failure(HTTPCode.NotFound, ScTcText.get("沒有查到漢字", l).toString());
-
-            e.printStackTrace();
-            return APIResponse.failure(ScTcText.get("查找漢字失敗", l).toString());
+            throw new APIException(HTTPCode.NotFound, ScTcText.get("沒有查到漢字", l).toString());
         }
     }
 
@@ -92,13 +89,9 @@ public class SearchController
                     query, l, d,
                     new PinyinConfig(l, d, phonogram, syllableStyle, toneStyle)
             ));
-        } catch (Exception e)
+        } catch (NoSuchElementException e)
         {
-            if (e instanceof NoSuchElementException)
-                return APIResponse.failure(HTTPCode.NotFound, ScTcText.get("沒有查到詞語", l).toString());
-
-            e.printStackTrace();
-            return APIResponse.failure(ScTcText.get("查找詞語失敗", l).toString());
+            throw new APIException(HTTPCode.NotFound, ScTcText.get("沒有查到詞語", l).toString());
         }
     }
 }

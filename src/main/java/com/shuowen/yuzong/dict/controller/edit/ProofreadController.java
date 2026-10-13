@@ -21,17 +21,10 @@ public class ProofreadController
             @RequestBody Trio<UString> text
     )
     {
-        try
-        {
-            return APIResponse.success(ProofreadTool.retainContextTranslate(
-                    text.getLeft(), text.getMiddle(), text.getRight(),
-                    OrthoCharset.of(d))
-            );
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(ProofreadTool.retainContextTranslate(
+                text.getLeft(), text.getMiddle(), text.getRight(),
+                OrthoCharset.of(d))
+        );
     }
 
     @PostMapping ("/check/{l}/{d}")
@@ -47,12 +40,6 @@ public class ProofreadController
     @PostMapping ("/translate")
     public APIResponse<String> translate(@RequestParam String from, @RequestParam String to, @RequestBody String text)
     {
-        try
-        {
-            return APIResponse.success(ProofreadTool.translate(text, from, to));
-        } catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(ProofreadTool.translate(text, from, to));
     }
 }

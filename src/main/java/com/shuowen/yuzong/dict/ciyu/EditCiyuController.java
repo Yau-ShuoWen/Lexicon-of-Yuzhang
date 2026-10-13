@@ -35,17 +35,10 @@ public class EditCiyuController
     public APIResponse<CiyuUpdate> ciyufind(@PathVariable Dialect d, @RequestParam ObfInt id
     )
     {
-        try
-        {
-            return MaybeAPIResponse.of(
-                    Maybe.uncertain(cy.getCiyuById(id.decode(), d)),
-                    "没有找到词语"
-            );
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return MaybeAPIResponse.of(
+                Maybe.uncertain(cy.getCiyuById(id.decode(), d)),
+                "没有找到词语"
+        );
     }
 
     /**
@@ -54,32 +47,15 @@ public class EditCiyuController
     @PostMapping ("/submit/{d}")
     public APIResponse<Void> edit(@PathVariable Dialect d, @RequestBody CiyuUpdate he)
     {
-        try
-        {
-            cy.editCiyu(he, d);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        cy.editCiyu(he, d);
+        return APIResponse.success();
     }
 
     @PostMapping ("/create/{d}")
     public APIResponse<Void> createCiyu(@PathVariable Dialect d, @RequestBody CiyuCreate ce)
     {
-        try
-        {
-            cy.createCiyu(ce, d);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            if (e instanceof IllegalArgumentException)
-            {
-            }
-            else e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        cy.createCiyu(ce, d);
+        return APIResponse.success();
     }
 
     @GetMapping ("/get-link/{d}/{dict}")
@@ -88,13 +64,6 @@ public class EditCiyuController
             @RequestParam UString ciyu
     )
     {
-        try
-        {
-            return MaybeAPIResponse.of(cy.getEditLinkIfExist(ciyu, d), "没有找到词语编辑链接");
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return MaybeAPIResponse.of(cy.getEditLinkIfExist(ciyu, d), "没有找到词语编辑链接");
     }
 }
