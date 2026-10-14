@@ -4,7 +4,6 @@ import com.shuowen.yuzong.dict.ciyu.CiyuService;
 import com.shuowen.yuzong.dict.ciyu.data.CiyuShow;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.dict.hanzi.domain.HanziShow;
 import com.shuowen.yuzong.dict.hanzi.service.HanziService;
@@ -59,7 +58,6 @@ public class SearchController
     @GetMapping ("{l}/{d}/hanzi")
     public APIResponse<HanziShow> hanziSearch(
             @PathVariable Dialect d, @PathVariable Language l, @RequestParam UChar query,
-            @RequestParam PinyinMode phonogram,
             @RequestParam IPASyllStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
     )
@@ -67,7 +65,7 @@ public class SearchController
         try
         {
             return APIResponse.success(h.getHanziDetailInfo(
-                    query, l, d, new PinyinConfig(l, d, phonogram, syllableStyle, toneStyle)
+                    query, l, d, new PinyinConfig(l, d, syllableStyle, toneStyle)
             ));
         } catch (NoSuchElementException e)
         {
@@ -78,7 +76,6 @@ public class SearchController
     @GetMapping ("{l}/{d}/ciyu")
     public APIResponse<CiyuShow> ciyuSearch(
             @PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query,
-            @RequestParam PinyinMode phonogram,
             @RequestParam IPASyllStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
     )
@@ -87,7 +84,7 @@ public class SearchController
         {
             return APIResponse.success(c.getCiyuDetailInfo(
                     query, l, d,
-                    new PinyinConfig(l, d, phonogram, syllableStyle, toneStyle)
+                    new PinyinConfig(l, d, syllableStyle, toneStyle)
             ));
         } catch (NoSuchElementException e)
         {

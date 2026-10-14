@@ -2,7 +2,6 @@ package com.shuowen.yuzong.linguistics.pinyinv2;
 
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.linguistics.util.DatabasePinyin;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyin;
 import com.shuowen.yuzong.linguistics.util.PinyinBlock;
@@ -56,7 +55,7 @@ abstract public class UniPinyin
         return other != null && equals(other);
     }
 
-    public abstract PinyinBlock format(PinyinMode md);
+    public abstract PinyinBlock format();
 
     public abstract RPinyin toRPinyin();
 

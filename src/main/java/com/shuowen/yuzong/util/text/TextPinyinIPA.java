@@ -1,7 +1,6 @@
 package com.shuowen.yuzong.util.text;
 
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
-import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictGroup;
 import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
@@ -155,7 +154,10 @@ public class TextPinyinIPA
                     // 创建音标，如果失败，返回警告
                     try
                     {
-                        return data.searchIPA(py, dict.getValueOrDefault(d.getDefaultDict())).getValue();
+                        var ipa = dict.isEmpty()
+                                ? data.searchDefaultIPA(py)
+                                : data.searchIPA(py, dict.getValue());
+                        return ipa.getValue();
                     } catch (Exception e)
                     {
                         return " 【无效国际音标】 ";
@@ -189,14 +191,7 @@ public class TextPinyinIPA
                     }
                     else
                     {
-                        return switch (data.getPinyinMode())
-                        {
-                            //DOTO
-                            case INTRODUCE, STANDARD ->
-                                    handle(new PinyinToken(PinyinType.IGNORE, py), data, false, dict, isfromDB);
-                            case PROFESSIONAL ->
-                                    handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, false, dict, isfromDB);
-                        };
+                        return handle(new PinyinToken(PinyinType.IGNORE, py), data, false, dict, isfromDB);
                     }
                 } catch (StringIndexOutOfBoundsException e)
                 {
@@ -236,7 +231,10 @@ public class TextPinyinIPA
 
             if (developer)
             {
-                var block = py.format(PinyinMode.STANDARD);
+                var block = py.format();
+                var defaultIPA = data.searchDefaultIPA(py);
+                if (defaultIPA.isValid())
+                    block.add("yzcIPA", "本詞典使用 IPA", defaultIPA.getValue());
 
                 if (!dict.isEmpty()) // 没有字典上下文，就是标准模式，不处理
                 {
@@ -244,58 +242,26 @@ public class TextPinyinIPA
                     String dictName = dictGroup.getName(dict.getValue(), Language.TC);
 
                     block.setTitle(ipa);
-                    block.addFirst(dictName, ipa);
+                    block.addFirst("dictIPA", dictName, ipa);
                 }
                 return block;
             }
             else
             {
-                var block = py.format(data.getPinyinMode());
+                var block = py.format();
+                var defaultIPA = data.searchDefaultIPA(py);
+                if (defaultIPA.isValid())
+                    block.add("yzcIPA", "本詞典使用 IPA", defaultIPA.getValue());
 
-                switch (data.getPinyinMode())
+                for (var i : dictGroup.getKeySet())
                 {
-                    case STANDARD ->
+                    var ipa = data.searchIPA(py, i);
+                    if (ipa.isValid())
                     {
-                        var dictCode = d.getDefaultDict();
-                        var ipa = data.searchIPA(py, dictCode);
-                        String dictName = DictGroup.of(d).getName(dictCode, Language.TC);
-
-                        if (ipa.isValid())
-                        {
-                            // 标准版的普通拼音，如果有拼音，加这个，但是放在最后
-                            if (dict.isEmpty()) block.add(dictName, ipa.getValue());
-                                // 标准版的字典拼音，如果有拼音，放在最前面和标题
-                            else block.addFirst(dictName, ipa.getValue());
-                        }
+                        String dictName = dictGroup.getName(i, Language.TC);
+                        block.add("dictIPA", dictName, ipa.getValue());
+                        if (!dict.isEmpty() && i.equals(dict.getValue())) block.setTitle(ipa.getValue());
                     }
-                    // 专业版把国际音标放在最前面，并且放在首位
-                    case PROFESSIONAL ->
-                    {
-                        if (dict.isEmpty())
-                        {
-                            for (var i : dictGroup.getKeySet())
-                            {
-                                var ipa = data.searchIPA(py, i);
-                                String dictName = dictGroup.getName(i, Language.TC);
-                                if (ipa.isValid()) block.add(dictName, ipa.getValue());
-                            }
-                        }
-                        else
-                        {
-                            for (var i : dictGroup.getKeySet())
-                            {
-                                var ipa = data.searchIPA(py, i);
-                                String dictName = dictGroup.getName(i, Language.TC);
-                                if (ipa.isValid())
-                                {
-                                    block.add(dictName, ipa.getValue());
-                                    if (i.equals(dict.getValue()))
-                                        block.setTitle(ipa.getValue());
-                                }
-                            }
-                        }
-                    }
-                    // 初学者在哪，叫一声，有回应吗？
                 }
 
                 return block;

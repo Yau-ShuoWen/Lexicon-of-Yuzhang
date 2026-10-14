@@ -2,7 +2,6 @@ package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.linguistics.util.*;
@@ -398,7 +397,7 @@ public class LACPinyin extends UniPinyin
     }
 
     @Override
-    public PinyinBlock format(PinyinMode md)
+    public PinyinBlock format()
     {
         PinyinBlock block = new PinyinBlock();
 
@@ -408,22 +407,10 @@ public class LACPinyin extends UniPinyin
         String keyboard = fun.apply(LACKeyboard.format(this));
         String introduce = fun.apply(LACIntro.format(this));
 
-        switch (md)
-        {
-            case INTRODUCE ->
-            {
-                block.setTitle(introduce);
-                block.add("就像普通話的", introduce);
-                block.add("標準寫法", display);
-                block.add("鍵盤輸入", keyboard);
-            }
-            case STANDARD, PROFESSIONAL ->
-            {
-                block.setTitle(display);
-                block.add("印刷和書寫", display);
-                block.add("鍵盤輸入", keyboard);
-            }
-        }
+        block.setTitle(display);
+        block.add("putonghua", "讀起來像普通話的", introduce);
+        block.add("standard", "標準寫法", display);
+        block.add("keyboard", "鍵盤輸入", keyboard);
         return block;
     }
 
