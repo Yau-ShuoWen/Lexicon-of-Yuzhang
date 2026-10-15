@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.linguistics.pinyinv2;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.linguistics.util.DatabasePinyin;
@@ -63,10 +64,10 @@ abstract public class UniPinyin
 
     public abstract DatabasePinyin toDatabasePinyin();
 
-    public abstract Maybe<String> searchIPA();
+    public abstract Maybe<IPA> searchIPA();
 
-    public abstract Maybe<String> searchIPA(DictCode dict);
+    public abstract Maybe<IPA> searchIPA(DictCode dict);
 
-    public abstract Maybe<String> searchIPA(DictCode dict, IPASyllStyle syllStyle, IPAToneStyle toneStyle);
+    public abstract Maybe<IPA> searchIPA(DictCode dict, IPASyllStyle syllStyle, IPAToneStyle toneStyle);
 
 }

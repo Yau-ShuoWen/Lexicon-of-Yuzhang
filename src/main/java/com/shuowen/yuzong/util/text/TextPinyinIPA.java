@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.util.text;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictGroup;
@@ -63,7 +64,7 @@ public class TextPinyinIPA
         // [*gon1]
         if (content.startsWith("*")) return new PinyinToken(PinyinType.IPA, content.substring(1));
 
-        // [-kɔŋ_42]
+        // [-kɔŋ42]
         if (content.startsWith("-")) return new PinyinToken(PinyinType.OUT_IPA, content.substring(1));
 
         //
@@ -157,7 +158,7 @@ public class TextPinyinIPA
                         var ipa = dict.isEmpty()
                                 ? data.searchDefaultIPA(py)
                                 : data.searchIPA(py, dict.getValue());
-                        return ipa.getValue();
+                        return ipa.getValue().toString();
                     } catch (Exception e)
                     {
                         return " 【无效国际音标】 ";
@@ -170,10 +171,8 @@ public class TextPinyinIPA
             }
             case OUT_IPA ->
             {
-                int idx = pinyin.body.indexOf('_');
-                var ipa = IPAFormatter.mergeFiveDegree(
-                        pinyin.body.substring(0, idx), pinyin.body.substring(idx + 1), false);
-                return String.format(" [%s] ", ipa); // ipa不是是 "[内容]"的格式
+                var ipa = IPAFormatter.mergeFiveDegree(pinyin.body);
+                return String.format(" %s ", new IPA(ipa));
             }
             case CUSTOM ->
             {
@@ -234,15 +233,16 @@ public class TextPinyinIPA
                 var block = py.format();
                 var defaultIPA = data.searchDefaultIPA(py);
                 if (defaultIPA.isValid())
-                    block.add("yzcIPA", "本詞典使用 IPA", defaultIPA.getValue());
+                    block.add("yzcIPA", "本詞典使用 IPA", defaultIPA.getValue().toString());
 
                 if (!dict.isEmpty()) // 没有字典上下文，就是标准模式，不处理
                 {
-                    var ipa = data.searchIPA(py, dict.getValue()).getValueOrDefault("？");
+                    var ipa = data.searchIPA(py, dict.getValue());
                     String dictName = dictGroup.getName(dict.getValue(), Language.TC);
 
-                    block.setTitle(ipa);
-                    block.addFirst("dictIPA", dictName, ipa);
+                    String ipaText = ipa.handleIfExistAndGet(Object::toString, "？");
+                    block.setTitle(ipaText);
+                    block.addFirst("dictIPA", dictName, ipaText);
                 }
                 return block;
             }
@@ -251,7 +251,7 @@ public class TextPinyinIPA
                 var block = py.format();
                 var defaultIPA = data.searchDefaultIPA(py);
                 if (defaultIPA.isValid())
-                    block.add("yzcIPA", "本詞典使用 IPA", defaultIPA.getValue());
+                    block.add("yzcIPA", "本詞典使用 IPA", defaultIPA.getValue().toString());
 
                 for (var i : dictGroup.getKeySet())
                 {
@@ -259,8 +259,8 @@ public class TextPinyinIPA
                     if (ipa.isValid())
                     {
                         String dictName = dictGroup.getName(i, Language.TC);
-                        block.add("dictIPA", dictName, ipa.getValue());
-                        if (!dict.isEmpty() && i.equals(dict.getValue())) block.setTitle(ipa.getValue());
+                        block.add("dictIPA", dictName, ipa.getValue().toString());
+                        if (!dict.isEmpty() && i.equals(dict.getValue())) block.setTitle(ipa.getValue().toString());
                     }
                 }
 

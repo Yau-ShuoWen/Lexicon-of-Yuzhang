@@ -16,8 +16,8 @@ public class IPAFormatter
             if (tone.length() == 2 && tone.charAt(0) == tone.charAt(1))
                 tone = tone + tone.charAt(1);
 
-            if (tone.equals("0")) return "·" + syllable + "_";
-            else return syllable + "_" + (tone
+            if (tone.equals("0")) return "·" + syllable;
+            else return syllable + (tone
                     .replace("$1","꜒")
                     .replace("$2","꜓")
                     .replace("$3","꜔")
@@ -29,6 +29,32 @@ public class IPAFormatter
                     .replace('4', '˦')
                     .replace('5', '˥'));
         }
+    }
+
+    /**
+     * 把内容中的五度调值直接替换成调号，不要求音节和调值分开传入。
+     */
+    public static String mergeFiveDegree(String content)
+    {
+        if (content.endsWith("0")) return "·" + content.substring(0, content.length() - 1);
+
+        String formatted = content
+                .replace("$1", "꜒")
+                .replace("$2", "꜓")
+                .replace("$3", "꜔")
+                .replace("$4", "꜕")
+                .replace("$5", "꜖")
+                .replace('1', '˩')
+                .replace('2', '˨')
+                .replace('3', '˧')
+                .replace('4', '˦')
+                .replace('5', '˥');
+
+        int length = formatted.length();
+        if (length >= 2 && "˥˦˧˨˩꜒꜓꜔꜕꜖".indexOf(formatted.charAt(length - 1)) >= 0
+                && formatted.charAt(length - 1) == formatted.charAt(length - 2))
+            formatted += formatted.charAt(length - 1);
+        return formatted;
     }
 
     /**

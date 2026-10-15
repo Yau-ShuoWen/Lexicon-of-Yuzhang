@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.dict.pinyin.data;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCodeExt;
 import com.shuowen.yuzong.dict.pinyin.PinyinItem;
@@ -54,7 +55,7 @@ public class PinyinDetail
                 {
                     String num = IPAFormatter.mergeFiveDegreeNum(i.getValue(), true);
                     String line = IPAFormatter.mergeFiveDegree("", i.getValue(), false);
-                    ipa.put(data.getDictName(i.getKey()), String.format("[%-4s][%s]", num, line));
+                    ipa.put(data.getDictName(i.getKey()), String.format("[%-4s]%s", num, new IPA(line)));
                 }
             }
             note = readJson(item.getNote(), new TypeReference<ScTcText>() {}).get(l);

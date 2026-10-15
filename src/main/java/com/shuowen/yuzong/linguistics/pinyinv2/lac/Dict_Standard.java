@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
@@ -17,7 +18,7 @@ public final class Dict_Standard extends LACDictionary
     }
 
     @Override
-    protected Maybe<String> transcribe(LACPinyin pinyin, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
+    protected Maybe<IPA> transcribe(LACPinyin pinyin, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
     {
         String raw = pinyin.yinjieOrDandu.fold(this::handleDandu, this::handleYinjie);
         String syllable = IPAFormatter.formatSyllable(raw, syllStyle);
@@ -31,7 +32,7 @@ public final class Dict_Standard extends LACDictionary
                     case t77 -> LACPinyin.YinDiao.t7;
                 }
         );
-        return Maybe.exist(formatTone(syllable, tone, toneStyle, handleYinDiao(pinyin.yindiao)));
+        return Maybe.exist(new IPA(formatTone(syllable, tone, toneStyle, handleYinDiao(pinyin.yindiao))));
     }
 
     protected String handleYinjie(LACPinyin.YinJie yinjie)

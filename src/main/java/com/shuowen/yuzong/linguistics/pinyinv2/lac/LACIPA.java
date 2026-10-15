@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
@@ -17,16 +18,16 @@ public final class LACIPA
     {
     }
 
-    public static String handle(LACPinyin pinyin)
+    public static IPA handle(LACPinyin pinyin)
     {
-        Maybe<String> result = query(pinyin);
+        Maybe<IPA> result = query(pinyin);
         if (result.isEmpty()) throw new InvalidPinyinException("默认方案没有记录南昌话拼音：" + pinyin);
         return result.getValue();
     }
 
-    public static String handle(DictCode dict, LACPinyin pinyin)
+    public static IPA handle(DictCode dict, LACPinyin pinyin)
     {
-        Maybe<String> result = query(
+        Maybe<IPA> result = query(
                 pinyin, dict, IPASyllStyle.CHINESE_SPECIAL, IPAToneStyle.FIVE_DEGREE_LINE
         );
         if (result.isEmpty())
@@ -34,7 +35,7 @@ public final class LACIPA
         return result.getValue();
     }
 
-    public static Maybe<String> query(LACPinyin pinyin)
+    public static Maybe<IPA> query(LACPinyin pinyin)
     {
         Maybe<PronunciationDictionary> dictionary = DictionaryRegistry.defaultIpaDictionary(pinyin.getDialect());
         return dictionary.isValid()
@@ -44,7 +45,7 @@ public final class LACIPA
                 : Maybe.nothing();
     }
 
-    public static Maybe<String> query(LACPinyin pinyin, DictCode dict)
+    public static Maybe<IPA> query(LACPinyin pinyin, DictCode dict)
     {
         return query(
                 pinyin, dict,
@@ -52,7 +53,7 @@ public final class LACIPA
         );
     }
 
-    public static Maybe<String> query(
+    public static Maybe<IPA> query(
             LACPinyin pinyin,
             DictCode dict,
             IPASyllStyle syllStyle,

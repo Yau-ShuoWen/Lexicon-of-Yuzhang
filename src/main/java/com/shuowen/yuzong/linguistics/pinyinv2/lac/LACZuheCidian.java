@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
@@ -9,7 +10,7 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 abstract class LACZuheCidian extends LACDictionary
 {
     @Override
-    protected Maybe<String> transcribe(LACPinyin pinyin, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
+    protected Maybe<IPA> transcribe(LACPinyin pinyin, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
     {
         try
         {
@@ -23,8 +24,8 @@ abstract class LACZuheCidian extends LACDictionary
             String syllable = IPAFormatter.formatSyllable(raw.getValue(), syllStyle);
             return pinyin.yindiao.fold(
                     tone -> tone == LACPinyin.YinDiao.$
-                            ? Maybe.exist(syllable)
-                            : toneValue(tone).handleIfExist(value -> formatTone(syllable, tone, toneStyle, value)),
+                            ? Maybe.exist(new IPA(syllable))
+                            : toneValue(tone).handleIfExist(value -> new IPA(formatTone(syllable, tone, toneStyle, value))),
                     ignored -> Maybe.nothing()
             );
         } catch (Exception ignored)

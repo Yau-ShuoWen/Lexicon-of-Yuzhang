@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
@@ -379,19 +380,19 @@ public class LACPinyin extends UniPinyin
     }
 
     @Override
-    public Maybe<String> searchIPA()
+    public Maybe<IPA> searchIPA()
     {
         return LACIPA.query(this);
     }
 
     @Override
-    public Maybe<String> searchIPA(DictCode dict)
+    public Maybe<IPA> searchIPA(DictCode dict)
     {
         return LACIPA.query(this, dict);
     }
 
     @Override
-    public Maybe<String> searchIPA(DictCode dict, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
+    public Maybe<IPA> searchIPA(DictCode dict, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
     {
         return LACIPA.query(this, dict, syllStyle, toneStyle);
     }

@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.dict.pinyin.data;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
@@ -38,13 +39,12 @@ public class PinyinConfig
         dictGroup = DictGroup.of(d);
     }
 
-    public Maybe<String> searchIPA(UniPinyin pinyin, DictCode dict)
+    public Maybe<IPA> searchIPA(UniPinyin pinyin, DictCode dict)
     {
         try
         {
             var newDict = com.shuowen.yuzong.linguistics.pinyinv2.DictCode.of(dict.toString());
-            return pinyin.searchIPA(newDict, syllStyle, toneStyle)
-                    .handleIfExist(ipa -> String.format("[%s]", ipa));
+            return pinyin.searchIPA(newDict, syllStyle, toneStyle);
         }
         catch (IllegalArgumentException ignored)
         {
@@ -55,9 +55,9 @@ public class PinyinConfig
     /**
      * 查询拼音体系自身采用的 IPA 方案，不代表任何一部辞书。
      */
-    public Maybe<String> searchDefaultIPA(UniPinyin pinyin)
+    public Maybe<IPA> searchDefaultIPA(UniPinyin pinyin)
     {
-        return pinyin.searchIPA().handleIfExist(ipa -> String.format("[%s]", ipa));
+        return pinyin.searchIPA();
     }
 
     public String getDictName(DictCode dict)
