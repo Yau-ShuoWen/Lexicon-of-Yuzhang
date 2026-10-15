@@ -5,10 +5,19 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 
 /**
  * 《南昌音系》的宽式记音规则。
+ * <br>
+ * 疯狂，但是我们不能苛责一个古人
  */
 public final class Dict_NanchangYinxi extends LACZuheCidian
 {
     public static final Dict_NanchangYinxi INSTANCE = new Dict_NanchangYinxi();
+
+    private static final YunSupport SUPPORT = Dict_NanchangFangyanCidian.SUPPORT
+            .add("üa").remove("e", "ue", "üe")       // a ia ua üa ie
+            .remove("oi", "ei", "ẹi")                // ai uai ui
+            .add("üen", "üet").remove("üon", "üot")  // 认为 üe 更贴近
+            .remove("uoŋ", "uot", "uak", "ek")
+            .add("ul");//神人
 
     private Dict_NanchangYinxi()
     {
@@ -25,19 +34,16 @@ public final class Dict_NanchangYinxi extends LACZuheCidian
     {
         return switch (d)
         {
-            case m -> super.handleDandu(d); case n -> null; case ŋ -> "ŋ̩";
+            case m -> "m̩";
+            case n -> null;
+            case ŋ -> "ŋ̩";
         };
     }
 
     @Override
     protected boolean supports(LACPinyin.YinJie y)
     {
-        return switch (y.getYun())
-        {
-            case "üa", "üen", "üet", "ek", "ul" -> true;
-            case "e", "ue", "üe", "oi", "ei", "ẹi", "üon", "uoŋ", "uot", "üot", "uak" -> false;
-            default -> Dict_NanchangFangyanCidian.INSTANCE.supports(y);
-        };
+        return SUPPORT.contains(y);
     }
 
     @Override
@@ -45,11 +51,18 @@ public final class Dict_NanchangYinxi extends LACZuheCidian
     {
         return switch (y.getYun())
         {
-            case "ọ" -> "ø";
-            case "üa" -> "ya";
+            // 特殊内容
             case "ı" -> "ï";
-            case "ẹu" -> "eu";
+            case "ọ" -> "ø";
+
+            // 无韵尾内容：允许一个新的韵尾
+            case "üa" -> "ya";
+
+            // 元音韵尾
+            case "eu" -> "eu";
             case "ieu" -> "ieu";
+            case "ẹu" -> "eu";
+
             case "en" -> "en";
             case "ẹn" -> "ən";
             case "ien" -> "ien";
@@ -73,15 +86,21 @@ public final class Dict_NanchangYinxi extends LACZuheCidian
         };
     }
 
+    // 六七声是一个入声
     @Override
     protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
     {
         return Maybe.exist(switch (tone)
         {
-            case t0 -> "0"; case t1 -> "31"; case t2 -> "24"; case t3 -> "313";
-            case t4 -> "35"; case t5 -> "11"; case t6 -> "55";
-            case $ -> throw new IllegalStateException("无声调不需要调值");
+            case t0 -> "0";
+            case t1 -> "31";
+            case t2 -> "24";
+            case t3 -> "313";
+            case t4 -> "35";
+            case t5 -> "11";
+            case t6 -> "55";
             case t7 -> throw new IllegalArgumentException("《南昌音系》未收录第七调");
+            case $ -> throw new IllegalStateException("无声调不需要调值");
         });
     }
 }

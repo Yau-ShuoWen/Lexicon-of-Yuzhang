@@ -5,10 +5,14 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 
 /**
  * 《汉语方音字汇（第二版）》的记音规则。
+ * <br>
+ * 拼音风格：大事化小，小事化了，使用最通用的IPA解决问题
  */
 public final class Dict_HanyuFangyinZihui extends LACZuheCidian
 {
     public static final Dict_HanyuFangyinZihui INSTANCE = new Dict_HanyuFangyinZihui();
+
+    private static final YunSupport SUPPORT = Dict_NanchangFangyanCidian.SUPPORT.remove("oi", "ei");
 
     private Dict_HanyuFangyinZihui()
     {
@@ -23,7 +27,7 @@ public final class Dict_HanyuFangyinZihui extends LACZuheCidian
     @Override
     protected boolean supports(LACPinyin.YinJie y)
     {
-        return Dict_NanchangFangyanCidian.INSTANCE.supports(y) && !"oi".equals(y.getYun()) && !"ei".equals(y.getYun());
+        return SUPPORT.contains(y);
     }
 
     @Override
@@ -32,6 +36,7 @@ public final class Dict_HanyuFangyinZihui extends LACZuheCidian
         return handleJieMu(y.getJiemu()) + handleYunMu(y.getYunmu()) + handleYunWei(y.getYunwei());
     }
 
+    // e=ε ɨ=ə ɵ=ə
     private String handleYunMu(LACPinyin.YunMu m)
     {
         return switch (m)
@@ -46,12 +51,15 @@ public final class Dict_HanyuFangyinZihui extends LACZuheCidian
         };
     }
 
+    // 韵尾除了喉塞音写作k，其他照旧，读音偏硬
     @Override
     protected String handleYunWei(LACPinyin.YunWei w)
     {
-        return w == LACPinyin.YunWei.k ? "k" : super.handleYunWei(w);
+        return w == LACPinyin.YunWei.k ?
+                "k" : super.handleYunWei(w);
     }
 
+    // 第五声和第七声依靠韵尾区分
     @Override
     protected Maybe<String> toneValue(LACPinyin.YinDiao tone)
     {
@@ -62,9 +70,8 @@ public final class Dict_HanyuFangyinZihui extends LACZuheCidian
             case t2 -> "24";
             case t3 -> "213";
             case t4 -> "45";
-            case t5 -> "21";
+            case t5, t7 -> "21";
             case t6 -> "5";
-            case t7 -> "21";
             case $ -> throw new IllegalStateException();
         });
     }

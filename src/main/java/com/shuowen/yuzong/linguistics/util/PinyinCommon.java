@@ -20,42 +20,43 @@ public class PinyinCommon
     {
     }
 
-    public static String e_ZCSR(String s)
+    public static String e_ZCS(String s)
     {
-        if (s.matches("^[zcsr]i$")) s = s.charAt(0) + "ı";
-        return s;
+        return s.replaceFirst("^([zcs])i", "$1ı");
     }
 
-    public static String d_ZCSR(String s)
+    public static String d_ZCS(String s)
     {
         return s.replace("ı", "i");
     }
 
-    public static String e_ZHCHSH(String s)
+    public static String e_ZHCHSHR(String s)
     {
-        s = s.replace("zh", "Z").replace("ch", "C").replace("sh", "S");
-        if (s.matches("^[zcs]hi$")) s = s.charAt(0) + s.charAt(1) + "I";
-        return s;
+        return s.
+                replace("zh", "ż").
+                replace("ch", "ċ").
+                replace("sh", "ṡ").
+                replaceFirst("^([żċṡr])i", "$1ï");
     }
 
-    public static String d_ZHCHSH(String s)
+    public static String d_ZHCHSHR(String s)
     {
         return s
-                .replace("Z", "zh")
-                .replace("C", "ch")
-                .replace("S", "sh")
-                .replace("I", "i");
+                .replace("ż", "zh")
+                .replace("ċ", "ch")
+                .replace("ṡ", "sh")
+                .replace("ï", "i");
     }
 
     public static String e_Nh(String s)
     {
-        if (s.startsWith("nh")) s = "N" + s.substring(2);
+        if (s.startsWith("nh")) s = "ṅ" + s.substring(2);
         return s;
     }
 
     public static String d_Nh(String s)
     {
-        if (s.startsWith("N")) s = "nh" + s.substring(1);
+        if (s.startsWith("ṅ")) s = "nh" + s.substring(1);
         return s;
     }
 
@@ -136,16 +137,9 @@ public class PinyinCommon
 }
 
 /*
- * 转义字母选择规则
- * 0. （前提）编译器字体显示得出来，因为要长期调试，看着难看的字体会严重影响青少年程序员的身心健康。
- * 1. 不会被NFD拆开，因为拆开错误识别就有风险，因为ToneParser里会抽走需要的NFD来自动不全音调，可能错误抽走了这里面的
- * 2. 2的例外，如果这个保证不会和拼音符号混淆，就允许：未来拼音里ToneParser规则永远不会加一个这个语义=一个声调并抽走
- *    比如ü（因为汉语使用者真的不会把  ̈ 当做声调）
- * 3. 3的补充，不可以选择上加点 ̇，因为会对i有未定义行为。
- *
- * 因为这个规则淘汰下的废稿方案
- *
- * （规则1）zh->ẑ ch->ĉ sh->ŝ 现在用ZCS
- * （规则1）nh->ñ 现在用N
- * （规则3）(zh)i->İ
+ * 转义字母选择
+ * 中文语境下，上加点和上加两点不会认为是新的音调，所以被NFD拆开之后会原样返回
+ * - 如果是i，可以变成ï；
+ * - 如果是j，没有其他变体；
+ * - 如果是其他字母，可以加 ̇或者 ̈的预组合字符
  * */

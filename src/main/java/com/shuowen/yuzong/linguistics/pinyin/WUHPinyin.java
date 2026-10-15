@@ -202,7 +202,7 @@
 ////            s = s.replaceAll("(iü)ë$", "$1e");
 ////            s = s.replace("ë", "ae");
 ////            s = PinyinCommon.d_Ao(s);
-////            s = PinyinCommon.d_ZCSR(s);
+////            s = PinyinCommon.d_ZCS(s);
 //////            s=PinyinCommon.
 ////
 ////          //  s.replace("")
@@ -252,7 +252,7 @@
 //            s = PinyinCommon.e_Wu(s);          // 丢掉开头的 w 和 wu 为 u
 //            s = PinyinCommon.e_JQX_Ü_V_Yu_U(s);// 丢掉JQX后的 ü v yu u 改为 yu
 //            s = PinyinCommon.e_Ü_V_Yu(s);      // 丢掉其他地方的 ü v yu 改为 yu
-//            s = PinyinCommon.e_ZCSR(s);        // 特殊编码 ZCS 后的 i
+//            s = PinyinCommon.e_ZCS(s);        // 特殊编码 ZCS 后的 i
 //            s = PinyinCommon.d_Ng(s);          //
 //            s = PinyinCommon.e_Ao(s);          // ao 转 au
 //

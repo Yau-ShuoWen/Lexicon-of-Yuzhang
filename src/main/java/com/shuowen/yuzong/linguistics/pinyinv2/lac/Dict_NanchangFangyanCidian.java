@@ -10,6 +10,25 @@ public final class Dict_NanchangFangyanCidian extends LACZuheCidian
 {
     public static final Dict_NanchangFangyanCidian INSTANCE = new Dict_NanchangFangyanCidian();
 
+    static final YunSupport SUPPORT = YunSupport.of(
+            "a", "o", "e", "ọ", "ı",
+            "i", "ia", "ie",
+            "u", "ua", "uo", "ue",
+            "ü", "üe",
+
+            "ai", "oi", "ẹi",
+            "ei", "ui", "uai",
+            "au", "iu", "eu", "ẹu", "ieu",
+
+            "an", "uan", "on", "uon", "üon",
+            "en", "ien", "ẹn", "in", "un", "ün",
+            "aŋ", "iaŋ", "uaŋ", "oŋ", "ioŋ", "uoŋ", "uŋ", "iuŋ",
+
+            "at", "uat", "ot", "uot", "üot",
+            "et", "iet", "uet", "ẹt", "it", "ut", "üt",
+            "ak", "iak", "uak", "ok", "iok", "uok", "uk", "iuk"
+    );
+
     private Dict_NanchangFangyanCidian()
     {
     }
@@ -57,18 +76,7 @@ public final class Dict_NanchangFangyanCidian extends LACZuheCidian
     @Override
     protected boolean supports(LACPinyin.YinJie syllable)
     {
-        return switch (syllable.getYun())
-        {
-            case "a", "o", "e", "i", "ia", "ie", "u", "ua", "uo", "ue",
-                 "ü", "üe", "ai", "oi", "ei", "ui", "uai", "au", "iu",
-                 "an", "on", "in", "un", "uan", "uon", "ün", "üon",
-                 "aŋ", "iaŋ", "iuŋ", "uŋ", "uaŋ", "at", "ot", "it", "ut",
-                 "uat", "uot", "üt", "üot", "ọ", "ı", "ẹi", "eu", "ẹu",
-                 "ieu", "en", "ẹn", "ien", "oŋ", "ioŋ", "uoŋ", "et", "ẹt",
-                 "iet", "uet", "ak", "ok", "iak", "iok", "iuk", "uk", "uak",
-                 "uok" -> true;
-            default -> false;
-        };
+        return SUPPORT.contains(syllable);
     }
 
     @Override

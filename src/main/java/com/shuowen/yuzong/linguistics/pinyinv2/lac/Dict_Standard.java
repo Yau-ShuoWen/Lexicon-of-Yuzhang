@@ -8,13 +8,21 @@ import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.util.tuple.Either;
 import com.shuowen.yuzong.util.tuple.Maybe;
 
-/** 南昌话拼音自身采用的默认 IPA 方案，不代表任何一部辞书。 */
+/**
+ * 南昌话拼音自身采用的默认 IPA 方案，是字典认为的
+ */
 public final class Dict_Standard extends LACDictionary
 {
     public static final Dict_Standard INSTANCE = new Dict_Standard();
 
     private Dict_Standard()
     {
+    }
+
+    @Override
+    public DictCode code()
+    {
+        return DictCode.STANDARD;
     }
 
     @Override
@@ -35,15 +43,59 @@ public final class Dict_Standard extends LACDictionary
         return Maybe.exist(new IPA(formatTone(syllable, tone, toneStyle, handleYinDiao(pinyin.yindiao))));
     }
 
-    protected String handleYinjie(LACPinyin.YinJie yinjie)
+    private String handleYinjie(LACPinyin.YinJie yinjie)
     {
-        return handleShengMu(yinjie.getShengmu()) +
+        return handleShengMu(yinjie.getShengmu(), yinjie.getJiemu()) +
                 handleJieMu(yinjie.getJiemu()) +
                 handleYunMu(yinjie.getYunmu(), yinjie.getYunwei()) +
                 handleYunWei(yinjie.getYunwei());
     }
 
-    protected String handleYinDiao(Either<LACPinyin.YinDiao, LACPinyin.BianDiao> tone)
+    private String handleShengMu(LACPinyin.ShengMu shengmu, LACPinyin.JieMu jiemu)
+    {
+        return (shengmu == LACPinyin.ShengMu.n) ?
+                switch (jiemu)
+                {
+                    case i, ü -> "ȵ";
+                    case $, u -> "n";
+                } :
+                super.handleShengMu(shengmu);
+    }
+
+    private String handleYunMu(LACPinyin.YunMu yunmu, LACPinyin.YunWei yunwei)
+    {
+        return switch (yunmu)
+        {
+            case $ -> "";
+            case ı -> "ɿ";
+            case a -> "a";
+            case o -> switch (yunwei)
+            {
+                case ŋ, k -> "ɔ";
+                default -> "o";
+            };
+            case e -> switch (yunwei)
+            {
+                case u, n, t -> "ε";
+                default -> "e";
+            };
+            case ẹ -> "ə";
+            case ọ -> "ɵ";
+            case u -> "u";
+        };
+    }
+
+    @Override
+    protected String handleYunWei(LACPinyin.YunWei yunwei)
+    {
+        return switch (yunwei)
+        {
+            case t, l -> "ɨʔ";
+            default -> super.handleYunWei(yunwei);
+        };
+    }
+
+    private String handleYinDiao(Either<LACPinyin.YinDiao, LACPinyin.BianDiao> tone)
     {
         if (tone.isLeft())
         {
@@ -67,40 +119,5 @@ public final class Dict_Standard extends LACDictionary
                 case t33, t77, t55 -> "213$2$4";
             };
         }
-    }
-
-    String handleYunMu(LACPinyin.YunMu yunmu, LACPinyin.YunWei yunwei)
-    {
-        return switch (yunmu)
-        {
-            case $ -> "";
-            case ı -> "ɿ";
-            case a -> "a";
-            case o -> yunwei == LACPinyin.YunWei.ŋ || yunwei == LACPinyin.YunWei.k ? "ɔ" : "o";
-            case e -> switch (yunwei)
-            {
-                case u, n, t -> "ε";
-                default -> "e";
-            };
-            case ẹ -> "ə";
-            case ọ -> "ɵ";
-            case u -> "u";
-        };
-    }
-
-    @Override
-    protected String handleYunWei(LACPinyin.YunWei yunwei)
-    {
-        return switch (yunwei)
-        {
-            case t, l -> "əʔ";
-            default -> super.handleYunWei(yunwei);
-        };
-    }
-
-    @Override
-    public DictCode code()
-    {
-        return DictCode.STANDARD;
     }
 }

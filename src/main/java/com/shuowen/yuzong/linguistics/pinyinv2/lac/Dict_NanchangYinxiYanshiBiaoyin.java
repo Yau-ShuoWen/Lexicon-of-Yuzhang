@@ -31,7 +31,7 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACZuheCidian
     {
         return switch (dandu)
         {
-            case m -> super.handleDandu(dandu);
+            case m -> "m̩";
             case n -> null;
             case ŋ -> "ŋ̩";
         };

@@ -10,6 +10,8 @@ public final class Dict_GanFangyanGaiyao extends LACZuheCidian
 {
     public static final Dict_GanFangyanGaiyao INSTANCE = new Dict_GanFangyanGaiyao();
 
+    private static final YunSupport SUPPORT = Dict_NanchangFangyanCidian.SUPPORT.remove("oi", "ei");
+
     private Dict_GanFangyanGaiyao()
     {
     }
@@ -23,7 +25,7 @@ public final class Dict_GanFangyanGaiyao extends LACZuheCidian
     @Override
     protected boolean supports(LACPinyin.YinJie y)
     {
-        return Dict_NanchangFangyanCidian.INSTANCE.supports(y) && !"oi".equals(y.getYun()) && !"ei".equals(y.getYun());
+        return SUPPORT.contains(y);
     }
 
     @Override

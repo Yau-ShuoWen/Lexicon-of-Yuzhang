@@ -443,7 +443,7 @@ public class LACPinyin extends UniPinyin
         {
             String s = p.getSyll();
 
-            s = PinyinCommon.d_ZCSR(s);
+            s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
 
             String t = p.getMark();
@@ -470,8 +470,8 @@ public class LACPinyin extends UniPinyin
 
             s = s.replace("ü", "yu");
             s = s.replace("ẹ", "ee");
-            s = s.replace("ọ", "oe");
-            s = PinyinCommon.d_ZCSR(s);
+            s = s.replace("ọ", "eo");
+            s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
 
             return s + p.getToneStr();
@@ -496,8 +496,9 @@ public class LACPinyin extends UniPinyin
 
             // 标准替换
             s = s.replace("ee", "ẹ");
-            s = s.replace("oe", "ọ");
-            s = PinyinCommon.e_ZCSR(s);
+            s = s.replace("eo", "ọ");
+            s = s.replace("oe", "ọ"); // 老版本兼容
+            s = PinyinCommon.e_ZCS(s);
             s = PinyinCommon.e_Ng(s);
 
             // i u ü 问题
@@ -557,7 +558,7 @@ public class LACPinyin extends UniPinyin
             s = PinyinCommon.d_Yu_display(s);
             s = s.replace("ẹ", "e");
             s = s.replace("ọ", "o");
-            s = PinyinCommon.d_ZCSR(s);
+            s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
 
             // 标音调

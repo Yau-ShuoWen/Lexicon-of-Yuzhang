@@ -207,7 +207,7 @@
 //                s = s.replace("ë", "e");
 //            }
 //            s = decodeYiWuFront(s);
-//            s = PinyinCommon.d_ZCSR(s);
+//            s = PinyinCommon.d_ZCS(s);
 //            s = PinyinCommon.d_Nh(s);
 //            s = PinyinCommon.d_Ng(s);
 //            s = PinyinCommon.d_Yu_display(s);
@@ -240,7 +240,7 @@
 //                s = s.replace("ë", "e");
 //            }
 //            s = decodeYiWuFront(s);
-//            s = PinyinCommon.d_ZCSR(s);
+//            s = PinyinCommon.d_ZCS(s);
 //            s = PinyinCommon.d_Nh(s);
 //            s = PinyinCommon.d_Ng(s);
 //            s = PinyinCommon.d_Yu_keyboard(s);
@@ -264,7 +264,7 @@
 //            String s = p.getSyll();
 //            var t = p.getTone();
 //
-//            s = PinyinCommon.e_ZCSR(s);
+//            s = PinyinCommon.e_ZCS(s);
 //            s = PinyinCommon.e_Nh(s);
 //            s = PinyinCommon.e_Ng(s);
 //            s = PinyinCommon.e_Yu(s);
@@ -331,7 +331,7 @@
 //
 //            s = s.replaceAll("([iuü])ë$", "$1e");
 //            s = decodeYiWuFront(s);
-//            s = PinyinCommon.d_ZCSR(s);
+//            s = PinyinCommon.d_ZCS(s);
 //            s = PinyinCommon.d_Nh(s);
 //            s = PinyinCommon.d_Ng(s);
 //            s = PinyinCommon.d_Yu_keyboard(s);

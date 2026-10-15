@@ -10,6 +10,8 @@ public final class Dict_NanchangFangyanYanjiu extends LACZuheCidian
 {
     public static final Dict_NanchangFangyanYanjiu INSTANCE = new Dict_NanchangFangyanYanjiu();
 
+    private static final YunSupport SUPPORT = Dict_NanchangFangyanCidian.SUPPORT;
+
     private Dict_NanchangFangyanYanjiu()
     {
     }
@@ -23,7 +25,7 @@ public final class Dict_NanchangFangyanYanjiu extends LACZuheCidian
     @Override
     protected boolean supports(LACPinyin.YinJie y)
     {
-        return Dict_NanchangFangyanCidian.INSTANCE.supports(y);
+        return SUPPORT.contains(y);
     }
 
     @Override
