@@ -6,7 +6,7 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 /**
  * 《南昌方言研究》的记音规则。
  */
-public final class Dict_NanchangFangyanYanjiu extends LACZuheCidian
+public final class Dict_NanchangFangyanYanjiu extends LACNormalDict
 {
     public static final Dict_NanchangFangyanYanjiu INSTANCE = new Dict_NanchangFangyanYanjiu();
 
@@ -53,7 +53,7 @@ public final class Dict_NanchangFangyanYanjiu extends LACZuheCidian
             case t5 -> "21";
             case t6 -> "5";
             case t7 -> "1";
-            case $ -> throw new IllegalStateException();
+            case $ -> throw new IllegalStateException("无声调的已经在之前处理过，此处为不应到达的位置");
         });
     }
 }

@@ -6,7 +6,7 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 /**
  * 《南昌方言词典》的记音规则。
  */
-public final class Dict_NanchangFangyanCidian extends LACZuheCidian
+public final class Dict_NanchangFangyanCidian extends LACNormalDict
 {
     public static final Dict_NanchangFangyanCidian INSTANCE = new Dict_NanchangFangyanCidian();
 
@@ -50,7 +50,12 @@ public final class Dict_NanchangFangyanCidian extends LACZuheCidian
             case $ -> "";
             case ı -> "ɿ";
             case a -> "a";
-            case o -> yunwei == LACPinyin.YunWei.ŋ || yunwei == LACPinyin.YunWei.k ? "ɔ" : "o";
+            case o -> switch (yunwei)
+            {
+                case ŋ, k -> "ɔ";
+                default -> "o";
+            };
+
             case e -> switch (yunwei)
             {
                 case u, n, t -> "ε";
@@ -92,7 +97,7 @@ public final class Dict_NanchangFangyanCidian extends LACZuheCidian
             case t5 -> "11";
             case t6 -> "5";
             case t7 -> "2";
-            case $ -> throw new IllegalStateException("无声调不需要调值");
+            case $ -> throw new IllegalStateException("无声调的已经在之前处理过，此处为不应到达的位置");
         });
     }
 }

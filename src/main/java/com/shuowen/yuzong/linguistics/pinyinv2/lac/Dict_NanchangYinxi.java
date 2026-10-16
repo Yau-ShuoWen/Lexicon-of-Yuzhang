@@ -8,13 +8,13 @@ import com.shuowen.yuzong.util.tuple.Maybe;
  * <br>
  * 疯狂，但是我们不能苛责一个古人
  */
-public final class Dict_NanchangYinxi extends LACZuheCidian
+public final class Dict_NanchangYinxi extends LACNormalDict
 {
     public static final Dict_NanchangYinxi INSTANCE = new Dict_NanchangYinxi();
 
     private static final YunSupport SUPPORT = Dict_NanchangFangyanCidian.SUPPORT
             .add("üa").remove("e", "ue", "üe")       // a ia ua üa ie
-            .remove("oi", "ei", "ẹi")                // ai uai ui
+            .remove("oi", "ei")                // ai uai ui
             .add("üen", "üet").remove("üon", "üot")  // 认为 üe 更贴近
             .remove("uoŋ", "uot", "uak", "ek")
             .add("ul");//神人
@@ -47,6 +47,16 @@ public final class Dict_NanchangYinxi extends LACZuheCidian
     }
 
     @Override
+    protected String handleShengMu(LACPinyin.ShengMu initial)
+    {
+        return switch (initial)
+        {
+            case f -> "ɸ";
+            default -> super.handleShengMu(initial);
+        };
+    }
+
+    @Override
     protected String handleYun(LACPinyin.YinJie y)
     {
         return switch (y.getYun())
@@ -62,6 +72,7 @@ public final class Dict_NanchangYinxi extends LACZuheCidian
             case "eu" -> "eu";
             case "ieu" -> "ieu";
             case "ẹu" -> "eu";
+            case "ẹi" -> "ui";
 
             case "en" -> "en";
             case "ẹn" -> "ən";
@@ -100,7 +111,7 @@ public final class Dict_NanchangYinxi extends LACZuheCidian
             case t5 -> "11";
             case t6 -> "55";
             case t7 -> throw new IllegalArgumentException("《南昌音系》未收录第七调");
-            case $ -> throw new IllegalStateException("无声调不需要调值");
+            case $ -> throw new IllegalStateException("无声调的已经在之前处理过，此处为不应到达的位置");
         });
     }
 }

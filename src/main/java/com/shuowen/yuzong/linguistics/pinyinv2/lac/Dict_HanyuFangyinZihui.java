@@ -8,7 +8,7 @@ import com.shuowen.yuzong.util.tuple.Maybe;
  * <br>
  * 拼音风格：大事化小，小事化了，使用最通用的IPA解决问题
  */
-public final class Dict_HanyuFangyinZihui extends LACZuheCidian
+public final class Dict_HanyuFangyinZihui extends LACNormalDict
 {
     public static final Dict_HanyuFangyinZihui INSTANCE = new Dict_HanyuFangyinZihui();
 
@@ -72,7 +72,7 @@ public final class Dict_HanyuFangyinZihui extends LACZuheCidian
             case t4 -> "45";
             case t5, t7 -> "21";
             case t6 -> "5";
-            case $ -> throw new IllegalStateException();
+            case $ -> throw new IllegalStateException("无声调的已经在之前处理过，此处为不应到达的位置");
         });
     }
 }

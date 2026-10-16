@@ -6,7 +6,7 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 /**
  * 《南昌音系》的严式记音规则。
  */
-public final class Dict_NanchangYinxiYanshiBiaoyin extends LACZuheCidian
+public final class Dict_NanchangYinxiYanshiBiaoyin extends LACNormalDict
 {
     public static final Dict_NanchangYinxiYanshiBiaoyin INSTANCE = new Dict_NanchangYinxiYanshiBiaoyin();
 
@@ -85,7 +85,11 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACZuheCidian
             };
             case ẹ -> switch (w)
             {
-                case u -> "ĕʊ"; case n -> "ən"; case t -> "ət"; default -> null;
+                case u -> "ĕʊ";
+                case n -> "ən";
+                case t -> "ət";
+                case i -> "ui";
+                default -> null;
             };
             case ọ -> w == LACPinyin.YunWei.$ ? "ø" : null;
             default -> null;
@@ -173,8 +177,8 @@ public final class Dict_NanchangYinxiYanshiBiaoyin extends LACZuheCidian
             case t4 -> "35";
             case t5 -> "11";
             case t6 -> "55";
-            case $ -> throw new IllegalStateException("无声调不需要调值");
             case t7 -> throw new IllegalArgumentException("《南昌音系》严式记音未收录第七调");
+            case $ -> throw new IllegalStateException("无声调的已经在之前处理过，此处为不应到达的位置");
         });
     }
 }

@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /** 适用于“声母 + 韵部 + 声调”流程的辞书骨架，不规定韵部内部怎样组合。 */
-abstract class LACZuheCidian extends LACDictionary
+abstract class LACNormalDict extends LACDictionary
 {
     /**
      * 辞书收录的韵部集合。支持以另一部辞书为基础增删韵部，避免在

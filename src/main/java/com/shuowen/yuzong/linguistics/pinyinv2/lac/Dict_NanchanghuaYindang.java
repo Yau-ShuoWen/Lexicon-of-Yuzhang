@@ -8,7 +8,7 @@ import com.shuowen.yuzong.util.tuple.Maybe;
  * <br>
  * 拼音风格：为了压缩韵尾不择手段，非常复杂
  */
-public final class Dict_NanchanghuaYindang extends LACZuheCidian
+public final class Dict_NanchanghuaYindang extends LACNormalDict
 {
     public static final Dict_NanchanghuaYindang INSTANCE = new Dict_NanchanghuaYindang();
 
@@ -34,23 +34,18 @@ public final class Dict_NanchanghuaYindang extends LACZuheCidian
     // at/ak  ɑʔ/aʔ
     // ot/ok  ɵʔ/ɔʔ
     // ut/uk  uɨʔ/uʔ 所以这里是最复杂的一个韵母
-    // @formatter:off
     @Override
     protected String handleYun(LACPinyin.YinJie y)
     {
-        if (LACPinyin.JieMu.u == y.getJiemu() &&
-            LACPinyin.YunMu.$ == y.getYunmu() &&
-           LACPinyin.YunWei.t == y.getYunwei()
-        ) return "uɨʔ";
+        if (y.getYun().equals("ut")) return "uɨʔ";
 
         return handleJieMu(y.getJiemu()) +
-               handleYunMu(y.getJiemu(), y.getYunmu(), y.getYunwei()) +
-               handleYunWei(y.getYunwei());
+                handleYunMu(y.getYunmu(), y.getYunwei()) +
+                handleYunWei(y.getYunwei());
     }
-    // @formatter:on
 
     // 原文后记写，合并了韵尾，用元音区别代替（a o u）
-    private String handleYunMu(LACPinyin.JieMu j, LACPinyin.YunMu m, LACPinyin.YunWei w)
+    private String handleYunMu(LACPinyin.YunMu m, LACPinyin.YunWei w)
     {
         return switch (m)
         {
@@ -120,7 +115,7 @@ public final class Dict_NanchanghuaYindang extends LACZuheCidian
             case t5 -> "21";
             case t6 -> "5"; // 原文P10写作 ʔ5 但是ʔ由韵尾提供
             case t7 -> "2"; //            ʔ2
-            case $ -> throw new IllegalStateException();
+            case $ -> throw new IllegalStateException("无声调的已经在之前处理过，此处为不应到达的位置");
         });
     }
 }
