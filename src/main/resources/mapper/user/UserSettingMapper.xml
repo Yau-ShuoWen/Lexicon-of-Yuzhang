@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.shuowen.yuzong.user.data.mapper.UserSettingMapper">
+    <select id="getLegacyPinyin" resultType="java.lang.String">
+        SELECT setting_value
+        FROM NC.user_setting
+        WHERE user_id = #{userId} AND setting_key = 'lacLegacyPinyinReadWrite'
+    </select>
+    <insert id="upsertLegacyPinyin">
+        INSERT INTO NC.user_setting (user_id, setting_key, setting_value)
+        VALUES (#{userId}, 'lacLegacyPinyinReadWrite', #{value})
+        ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
+    </insert>
+    <insert id="ensureVersion">
+        INSERT IGNORE INTO NC.user_setting_version (user_id, version) VALUES (#{userId}, 0)
+    </insert>
+    <select id="getVersion" resultType="java.lang.Long">
+        SELECT version FROM NC.user_setting_version WHERE user_id = #{userId}
+    </select>
+    <select id="lockVersion" resultType="java.lang.Long">
+        SELECT version FROM NC.user_setting_version WHERE user_id = #{userId} FOR UPDATE
+    </select>
+    <update id="incrementVersion">
+        UPDATE NC.user_setting_version SET version = version + 1 WHERE user_id = #{userId}
+    </update>
+</mapper>

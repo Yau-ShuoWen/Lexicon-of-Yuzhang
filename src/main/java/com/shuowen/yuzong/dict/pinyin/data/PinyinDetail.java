@@ -10,6 +10,7 @@ import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import lombok.Data;
@@ -58,7 +59,8 @@ public class PinyinDetail
                     ipa.put(data.getDictName(i.getKey()), String.format("[%-4s]%s", num, new IPA(line)));
                 }
             }
-            note = readJson(item.getNote(), new TypeReference<ScTcText>() {}).get(l);
+            var storedNote = readJson(item.getNote(), new TypeReference<ScTcText>() {}).get(l);
+            note = RichTextUtil.format(storedNote, data, false, Maybe.nothing(), true);
         }
     }
 

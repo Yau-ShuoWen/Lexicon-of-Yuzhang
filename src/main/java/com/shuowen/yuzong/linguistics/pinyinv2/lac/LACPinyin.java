@@ -22,6 +22,9 @@ import java.util.function.Function;
 
 public class LACPinyin extends UniPinyin
 {
+    public enum KeyboardScheme
+    {STANDARD, LEGACY}
+
     @AllArgsConstructor
     protected enum ShengMu
     {
@@ -314,7 +317,12 @@ public class LACPinyin extends UniPinyin
 
     public static Maybe<LACPinyin> tryOf(KeyboardPinyin p)
     {
-        return tryOf(LACKeyboard.normalize(p));
+        return tryOf(p, LacKeyboardSchemeContext.current());
+    }
+
+    public static Maybe<LACPinyin> tryOf(KeyboardPinyin p, KeyboardScheme scheme)
+    {
+        return tryOf(LACKeyboard.normalize(p, scheme));
     }
 
     protected LACPinyin(SplitedPinyin s)
@@ -405,7 +413,7 @@ public class LACPinyin extends UniPinyin
         Function<String, String> fun = s -> String.format("[%s]", PinyinCommon.e_A_G(s));
 
         String display = fun.apply(LACDisplay.format(this));
-        String keyboard = fun.apply(LACKeyboard.format(this));
+        String keyboard = fun.apply(toKeyboardPinyin().toOriginalString());
         String introduce = fun.apply(LACIntro.format(this));
 
         block.setTitle(display);
@@ -424,7 +432,12 @@ public class LACPinyin extends UniPinyin
     @Override
     public KeyboardPinyin toKeyboardPinyin()
     {
-        return KeyboardPinyin.of(LACPinyin.LACKeyboard.format(this));
+        return toKeyboardPinyin(LacKeyboardSchemeContext.current());
+    }
+
+    public KeyboardPinyin toKeyboardPinyin(KeyboardScheme scheme)
+    {
+        return KeyboardPinyin.of(LACKeyboard.format(this, scheme));
     }
 
     @Override
@@ -466,11 +479,18 @@ public class LACPinyin extends UniPinyin
     {
         public static String format(LACPinyin p)
         {
+            return format(p, KeyboardScheme.STANDARD);
+        }
+
+        public static String format(LACPinyin p, KeyboardScheme scheme)
+        {
             String s = p.getSyll();
 
             s = s.replace("ü", "yu");
-            s = s.replace("ẹ", "ee");
-            s = s.replace("ọ", "eo");
+            if (scheme == KeyboardScheme.LEGACY)
+                s = s.replace("ẹ", "ee").replace("ọ", "oe");
+            else
+                s = s.replace("e", "ee").replace("ẹ", "ir").replace("ọ", "eo");
             s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
 
@@ -489,15 +509,20 @@ public class LACPinyin extends UniPinyin
 
         public static SplitedPinyin normalize(KeyboardPinyin p)
         {
+            return normalize(p, KeyboardScheme.STANDARD);
+        }
+
+        public static SplitedPinyin normalize(KeyboardPinyin p, KeyboardScheme scheme)
+        {
             if (p.getTone().isEmpty())
                 p = ToneParser.parse(p.getSyll(), tones);
 
             String s = p.getSyll().toLowerCase();
 
-            // 标准替换
-            s = s.replace("ee", "ẹ");
-            s = s.replace("eo", "ọ");
-            s = s.replace("oe", "ọ"); // 老版本兼容
+            if (scheme == KeyboardScheme.LEGACY)
+                s = s.replace("ee", "ẹ").replace("oe", "ọ");
+            else
+                s = s.replace("ee", "e").replace("eo", "ọ").replace("oe", "ọ").replace("ir", "ẹ");
             s = PinyinCommon.e_ZCS(s);
             s = PinyinCommon.e_Ng(s);
 
