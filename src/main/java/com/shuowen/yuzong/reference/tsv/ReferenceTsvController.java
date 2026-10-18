@@ -22,6 +22,7 @@ import java.util.List;
 public class ReferenceTsvController
 {
     private final ReferenceTsvService service;
+    private final ReferenceTsvDiffService diffService;
 
     @PostMapping("/versions")
     public APIResponse<ReferenceTsvVersion> upload(@RequestParam("file") MultipartFile file,
@@ -57,6 +58,17 @@ public class ReferenceTsvController
 
     public record NameRequest(String name) {}
     public record LockRequest(boolean locked) {}
+
+    @GetMapping("/compare")
+    public APIResponse<ReferenceTsvDiffService.DiffPage> compare(
+            @RequestParam String from, @RequestParam String to,
+            @RequestParam(defaultValue = "changes") String type,
+            @RequestParam(defaultValue = "") String query,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "50") int size) throws IOException
+    {
+        return APIResponse.success(diffService.compare(from, to, type, query, page, size));
+    }
 
     @GetMapping("/versions/{id}/rows")
     public APIResponse<ReferenceTsvService.Page> rows(@PathVariable String id,

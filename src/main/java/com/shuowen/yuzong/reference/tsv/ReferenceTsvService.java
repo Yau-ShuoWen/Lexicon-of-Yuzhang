@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -31,10 +34,22 @@ public class ReferenceTsvService
     private static final String[] COLUMNS = {"本词", "国际音标", "方言拼音", "汉语拼音", "词汇属性",
             "对应官话词", "官话拼音", "词频", "同义词", "新旧标记"};
     private static final int MAX_BYTES = 20 * 1024 * 1024;
+    private static final long CACHE_MILLIS = 2 * 60 * 1000L;
 
     private final OSS oss;
     private final ObjectMapper objectMapper;
     private final String bucket;
+    // 原件按版本 ID 不再修改；短时缓存避免每次查询和翻页都重新下载整份 TSV。
+    private final Map<String, CachedSource> sourceCache = new LinkedHashMap<>(4, 0.75f, true)
+    {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, CachedSource> eldest)
+        {
+            return size() > 2;
+        }
+    };
+
+    private record CachedSource(byte[] bytes, long loadedAt) {}
 
     public ReferenceTsvService(OSS oss, ObjectMapper objectMapper,
                                @Value("${aliyun.oss.bucketName}") String bucket)
@@ -71,6 +86,10 @@ public class ReferenceTsvService
             try { oss.deleteObject(bucket, sourceKey); }
             catch (RuntimeException cleanupError) { error.addSuppressed(cleanupError); }
             throw error;
+        }
+        synchronized (sourceCache)
+        {
+            sourceCache.put(id, new CachedSource(bytes, System.currentTimeMillis()));
         }
         return version;
     }
@@ -138,6 +157,10 @@ public class ReferenceTsvService
         if (current.locked()) throw new IllegalArgumentException("请先解锁这个版本，再删除");
         // 原件删除失败时保留版本入口，管理员可以重试删除。
         oss.deleteObject(bucket, sourceKey(id));
+        synchronized (sourceCache)
+        {
+            sourceCache.remove(id);
+        }
         oss.deleteObject(bucket, metaKey(id));
     }
 
@@ -158,7 +181,6 @@ public class ReferenceTsvService
 
     public Page rows(String id, String column, String query, int page, int size) throws IOException
     {
-        version(id);
         if (page < 1 || size < 1 || size > 200) throw new IllegalArgumentException("分页参数无效");
         int columnIndex = -1;
         if (column != null && !column.isBlank() && !column.equals("all"))
@@ -166,23 +188,60 @@ public class ReferenceTsvService
             columnIndex = Arrays.asList(COLUMNS).indexOf(column);
             if (columnIndex < 0) throw new IllegalArgumentException("查询列无效");
         }
-        List<String[]> all;
-        try (var input = oss.getObject(bucket, sourceKey(id)).getObjectContent())
-        {
-            all = parse(input.readAllBytes());
-        }
+        List<Row> all = readAllRows(id);
         String term = query == null ? "" : query.trim();
         List<Row> matches = new ArrayList<>();
-        for (int i = 0; i < all.size(); i++)
+        for (Row row : all)
         {
-            String[] values = all.get(i);
+            String[] values = row.values();
             if (term.isEmpty() || matches(values, columnIndex, term))
-                matches.add(new Row(i + 2, values));
+                matches.add(row);
         }
         long start = (long) (page - 1) * size;
         int from = (int) Math.min(start, matches.size());
         int to = (int) Math.min(start + size, matches.size());
         return new Page(List.of(COLUMNS), matches.subList(from, to), matches.size(), page, size);
+    }
+
+    List<Row> readAllRows(String id) throws IOException
+    {
+        List<String[]> values = parse(sourceBytes(id));
+        List<Row> result = new ArrayList<>(values.size());
+        for (int i = 0; i < values.size(); i++) result.add(new Row(i + 2, values.get(i)));
+        return result;
+    }
+
+    private synchronized byte[] sourceBytes(String id) throws IOException
+    {
+        checkId(id);
+        synchronized (sourceCache)
+        {
+            CachedSource cached = sourceCache.get(id);
+            if (cached != null && System.currentTimeMillis() - cached.loadedAt() < CACHE_MILLIS)
+                return cached.bytes();
+            sourceCache.remove(id);
+        }
+
+        ReferenceTsvVersion metadata = version(id);
+        for (int attempt = 0; attempt < 2; attempt++)
+        {
+            try (var input = oss.getObject(bucket, sourceKey(id)).getObjectContent())
+            {
+                byte[] bytes = input.readAllBytes();
+                if (bytes.length != metadata.size() || !sha256(bytes).equals(metadata.sha256()))
+                    throw new IOException("字表原件与版本记录不一致");
+                synchronized (sourceCache)
+                {
+                    sourceCache.put(id, new CachedSource(bytes, System.currentTimeMillis()));
+                }
+                return bytes;
+            }
+            catch (SocketTimeoutException error)
+            {
+                if (attempt == 1) throw error;
+            }
+        }
+        throw new IOException("读取字表原件失败");
     }
 
     private static boolean matches(String[] values, int column, String term)
