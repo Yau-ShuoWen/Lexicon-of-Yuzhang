@@ -23,6 +23,13 @@ public class ReferenceTsvController
 {
     private final ReferenceTsvService service;
     private final ReferenceTsvDiffService diffService;
+    private final ReferenceTsvClassificationService classificationService;
+
+    @GetMapping("/versions/{id}/classify")
+    public APIResponse<ReferenceTsvClassificationService.Result> classify(@PathVariable String id) throws IOException
+    {
+        return APIResponse.success(classificationService.classify(id));
+    }
 
     @PostMapping("/versions")
     public APIResponse<ReferenceTsvVersion> upload(@RequestParam("file") MultipartFile file,
