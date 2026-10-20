@@ -16,6 +16,10 @@
         WHERE CAST(hanzi AS BINARY)=CAST(#{sc} AS BINARY) OR CAST(hanzi AS BINARY)=CAST(#{tc} AS BINARY)
         ORDER BY id
     </select>
+    <select id="getInfoByIds" resultType="com.shuowen.yuzong.dict.hanzi.model.MdrChar">
+        SELECT info, id AS mandarin_id FROM NC.mdr_char
+        WHERE id IN <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
     <select id="getMappedMandarinIds" resultType="Integer"><![CDATA[
         SELECT DISTINCT mapping.mandarin_id
         FROM NC.${dialect}_hanzi h

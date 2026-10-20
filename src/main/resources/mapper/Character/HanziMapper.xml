@@ -29,6 +29,9 @@
     <select id="getAllHanzi" resultType="com.shuowen.yuzong.dict.hanzi.model.HanziEntity">
         SELECT <include refid="fields"/>
     </select>
+    <select id="findForReferenceCheck" resultType="com.shuowen.yuzong.dict.hanzi.model.HanziEntity">
+        SELECT id, sc, tc, pinyin FROM NC.${dialect}_hanzi
+    </select>
     <select id="findHanziByCharId" resultType="com.shuowen.yuzong.dict.hanzi.model.HanziEntity">
         SELECT * FROM NC.${dialect}_hanzi WHERE id = #{id}
     </select>

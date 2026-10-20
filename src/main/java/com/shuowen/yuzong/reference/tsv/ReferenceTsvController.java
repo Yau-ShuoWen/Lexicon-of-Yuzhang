@@ -24,11 +24,18 @@ public class ReferenceTsvController
     private final ReferenceTsvService service;
     private final ReferenceTsvDiffService diffService;
     private final ReferenceTsvClassificationService classificationService;
+    private final ReferenceTsvAuditService auditService;
 
     @GetMapping("/versions/{id}/classify")
     public APIResponse<ReferenceTsvClassificationService.Result> classify(@PathVariable String id) throws IOException
     {
         return APIResponse.success(classificationService.classify(id));
+    }
+
+    @GetMapping("/versions/{id}/audit")
+    public APIResponse<ReferenceTsvAuditService.Result> audit(@PathVariable String id) throws IOException
+    {
+        return APIResponse.success(auditService.audit(id));
     }
 
     @PostMapping("/versions")
