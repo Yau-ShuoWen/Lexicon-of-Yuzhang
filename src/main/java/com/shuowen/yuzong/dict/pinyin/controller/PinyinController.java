@@ -3,6 +3,8 @@ package com.shuowen.yuzong.dict.pinyin.controller;
 import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import com.shuowen.yuzong.dict.pinyin.data.PinyinDetail;
 import com.shuowen.yuzong.dict.pinyin.data.PinyinTable;
+import com.shuowen.yuzong.dict.pinyin.PinyinDocumentService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
@@ -16,6 +18,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping ("/api/pinyin")
 public class PinyinController
 {
+    private final PinyinDocumentService documents;
+
+    public PinyinController(PinyinDocumentService documents)
+    {
+        this.documents = documents;
+    }
+
+    @GetMapping ("/document/{d}")
+    public APIResponse<JsonNode> getDocument(@PathVariable Dialect d)
+    {
+        return APIResponse.success(documents.get(d));
+    }
     @GetMapping ("/preview/{d}/{l}")
     public APIResponse<UString> preview(@PathVariable Dialect d, @PathVariable Language l, String pinyin)
     {
