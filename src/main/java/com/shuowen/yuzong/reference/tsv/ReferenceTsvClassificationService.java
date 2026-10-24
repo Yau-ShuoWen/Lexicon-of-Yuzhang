@@ -1,6 +1,8 @@
 package com.shuowen.yuzong.reference.tsv;
 
 import com.shuowen.yuzong.linguistics.Mandarin.HanPinyin;
+import com.shuowen.yuzong.linguistics.pinyinv2.lac.LACPinyin;
+import com.shuowen.yuzong.linguistics.util.KeyboardPinyin;
 import com.shuowen.yuzong.util.text.ScTcCharacterConverter;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,9 +54,24 @@ public class ReferenceTsvClassificationService
             boolean general = reasons.isEmpty();
             classified.add(new ClassifiedRow(row.line(), row.values(), general, reasons,
                     mandarinByCharacter.get(row.values()[0]),
-                    formRelationsByCharacter.getOrDefault(row.values()[0], List.of())));
+                    formRelationsByCharacter.getOrDefault(row.values()[0], List.of()),
+                    displayDialect(row.values()[2])));
         }
         return new Result(COLUMNS, classified, generalCount, groups.size() - generalCount);
+    }
+
+    private String displayDialect(String pinyin)
+    {
+        try
+        {
+            String standard = pinyin.trim().toLowerCase(Locale.ROOT).replace("eo", "ọ").replace("oe", "ọ");
+            return LACPinyin.tryOf(KeyboardPinyin.of(standard), LACPinyin.KeyboardScheme.STANDARD)
+                    .getValueDirectly("TSV 中的方言拼音无效：" + pinyin).toRPinyin().toHandleString();
+        }
+        catch (RuntimeException ignored)
+        {
+            return pinyin;
+        }
     }
 
     private List<String> reasons(String character, List<String[]> rows)
@@ -127,6 +145,6 @@ public class ReferenceTsvClassificationService
     }
 
     public record ClassifiedRow(int line, String[] values, boolean general, List<String> reasons,
-                                List<String> mandarinReadings, List<String> formRelations) {}
+                                List<String> mandarinReadings, List<String> formRelations, String dialectDisplay) {}
     public record Result(List<String> columns, List<ClassifiedRow> rows, int generalCount, int specialCount) {}
 }

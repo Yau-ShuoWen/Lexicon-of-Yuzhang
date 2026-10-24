@@ -12,6 +12,7 @@ import com.shuowen.yuzong.linguistics.pinyinv2.lac.LACPinyin;
 import com.shuowen.yuzong.linguistics.util.KeyboardPinyin;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.json.JsonTool;
+import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.ScTcCharacterConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -116,7 +117,7 @@ public class ReferenceTsvAuditService
         Map<String, List<BackendEntry>> result = new LinkedHashMap<>();
         for (HanziEntity entity : entities)
         {
-            BackendEntry entry = new BackendEntry(entity.getId(), entity.getSc(), entity.getTc());
+            BackendEntry entry = new BackendEntry(ObfInt.encode(entity.getId()), entity.getSc(), entity.getTc());
             for (String character : new LinkedHashSet<>(List.of(entity.getSc(), entity.getTc())))
                 if (characters.contains(character))
                     result.computeIfAbsent(character, ignored -> new ArrayList<>()).add(entry);
@@ -238,24 +239,37 @@ public class ReferenceTsvAuditService
     {
         List<String> result = new ArrayList<>();
         String dialects = readings.dialects().stream()
-                .map(this::displayStoredDialect)
+                .map(value -> "[" + displayStoredDialect(value) + "]")
                 .collect(java.util.stream.Collectors.joining("、"));
         result.add("方言：" + (dialects.isEmpty() ? "无" : dialects));
-        result.add("汉语：" + (readings.mandarin().isEmpty() ? "无" : String.join("、", readings.mandarin())));
+        result.add("汉语：" + (readings.mandarin().isEmpty() ? "无" : readings.mandarin().stream()
+                .map(value -> "[" + value + "]").collect(java.util.stream.Collectors.joining("、"))));
         return result;
     }
 
     private String displayStoredDialect(String pinyin)
     {
         LACPinyin value = DIALECT.trustedCreatePinyin(pinyin);
-        return value.toKeyboardPinyin().toString();
+        return value.toRPinyin().toHandleString();
     }
 
     private String mismatchReason(String dialect, String mandarin, boolean dialectMissing, boolean mandarinMissing)
     {
         if (dialectMissing && mandarinMissing)
-            return "后端缺方言拼音 " + dialect + "、汉语拼音 " + mandarin;
-        return dialectMissing ? "后端缺方言拼音 " + dialect : "后端缺汉语拼音 " + mandarin;
+            return "数据库缺方言拼音 [" + displayReferenceDialect(dialect) + "]、汉语拼音 [" + mandarin + "]";
+        return dialectMissing ? "数据库缺方言拼音 [" + displayReferenceDialect(dialect) + "]" : "数据库缺汉语拼音 [" + mandarin + "]";
+    }
+
+    private String displayReferenceDialect(String pinyin)
+    {
+        try
+        {
+            return displayStoredDialect(normalizeReferenceDialect(pinyin));
+        }
+        catch (RuntimeException ignored)
+        {
+            return pinyin;
+        }
     }
 
     private record Reading(String dialect, String mandarin) {}
@@ -266,7 +280,7 @@ public class ReferenceTsvAuditService
     public record FormMismatch(String simplified, List<String> expectedTraditional, List<String> actualTraditional,
                                List<String> missingTraditional, List<String> unexpectedTraditional) {}
     public record BackendSurplus(String character, String type, String pinyin) {}
-    public record BackendEntry(Integer id, String simplified, String traditional) {}
+    public record BackendEntry(ObfInt id, String simplified, String traditional) {}
     public record Result(int matchedBackendRows, List<MissingData> missingData,
                          List<ReadingMismatch> readingMismatches,
                          List<BackendSurplus> backendSurplus, List<FormMismatch> formMismatches,
