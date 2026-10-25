@@ -18,7 +18,6 @@ import lombok.Data;
 import lombok.Getter;
 
 import java.util.Map;
-import java.util.function.Function;
 
 public class LACPinyin extends UniPinyin
 {
@@ -168,11 +167,11 @@ public class LACPinyin extends UniPinyin
         t0(0, "", ""),
         t1(1, "̀", "↘"),
         t2(2, "́", "↗"),
-        t3(3, "̌", "↘↗"),
+        t3(3, "̌", "⇵"),
         t4(4, "̄", "→"),
         t5(5, "̉", "↓"),
-        t6(6, "̋", "↑↑"),
-        t7(7, "̏", "↓↓");
+        t6(6, "̋", "⇈"),
+        t7(7, "̏", "⇊");
 
         final Integer code;
         @Getter
@@ -410,14 +409,12 @@ public class LACPinyin extends UniPinyin
     {
         PinyinBlock block = new PinyinBlock();
 
-        Function<String, String> fun = s -> String.format("[%s]", PinyinCommon.e_A_G(s));
-
-        String display = fun.apply(LACDisplay.format(this));
-        String keyboard = fun.apply(toKeyboardPinyin().toOriginalString());
-        String introduce = fun.apply(LACIntro.format(this));
+        String display = LACDisplay.format(this).toShowString();
+        String keyboard = toKeyboardPinyin().toShowString();
+        String introduce = LACIntro.format(this).toString();
 
         block.setTitle(display);
-        block.add("putonghua", "讀起來像普通話的", introduce);
+        block.add("putonghua", "讀起來像", introduce);
         block.add("standard", "標準寫法", display);
         block.add("keyboard", "鍵盤輸入", keyboard);
         return block;
@@ -426,7 +423,7 @@ public class LACPinyin extends UniPinyin
     @Override
     public RPinyin toRPinyin()
     {
-        return RPinyin.of(PinyinCommon.e_A_G(LACPinyin.LACDisplay.format(this)));
+        return LACDisplay.format(this);
     }
 
     @Override
@@ -437,7 +434,7 @@ public class LACPinyin extends UniPinyin
 
     public KeyboardPinyin toKeyboardPinyin(KeyboardScheme scheme)
     {
-        return KeyboardPinyin.of(LACKeyboard.format(this, scheme));
+        return LACKeyboard.format(this, scheme);
     }
 
     @Override
@@ -452,18 +449,29 @@ public class LACPinyin extends UniPinyin
      */
     private static class LACDisplay
     {
-        public static String format(LACPinyin p)
+        public static RPinyin format(LACPinyin p)
+        {
+            return RPinyin.of(handleFormat(p));
+        }
+
+        public static String handleFormat(LACPinyin p)
         {
             String s = p.getSyll();
 
             s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
+            s = s.replace("ẹi", "ui");
+
+            s = s.replace("ọ", "ö");
+
+            s = s.replace("e", "ë");
+          //  s = s.replace("ẹ", "e");
 
             String t = p.getMark();
 
             if (s.contains("iu")) return s.replace("u", "u" + t);
 
-            for (String i : "aoọeẹiuü".split(""))
+            for (String i : "aoöeẹëiuü".split(""))
                 if (s.contains(i)) return s.replace(i, i + t);
 
             // 例外：没有主元音m n ng，只有ng要特殊处理
@@ -477,20 +485,37 @@ public class LACPinyin extends UniPinyin
      */
     private static class LACKeyboard
     {
-        public static String format(LACPinyin p)
+        public static KeyboardPinyin format(LACPinyin p)
         {
             return format(p, KeyboardScheme.STANDARD);
         }
 
-        public static String format(LACPinyin p, KeyboardScheme scheme)
+        public static KeyboardPinyin format(LACPinyin p, KeyboardScheme scheme)
+        {
+            return KeyboardPinyin.of(handleFormat(p, scheme));
+        }
+
+        public static String handleFormat(LACPinyin p)
+        {
+            return handleFormat(p, KeyboardScheme.STANDARD);
+        }
+
+        public static String handleFormat(LACPinyin p, KeyboardScheme scheme)
         {
             String s = p.getSyll();
 
+            s = s.replace("ẹi", "ui");
             s = s.replace("ü", "yu");
+
             if (scheme == KeyboardScheme.LEGACY)
+            {
                 s = s.replace("ẹ", "ee").replace("ọ", "oe");
+            }
             else
+            {
                 s = s.replace("e", "ee").replace("ẹ", "ir").replace("ọ", "eo");
+            }
+
             s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
 
@@ -514,15 +539,33 @@ public class LACPinyin extends UniPinyin
 
         public static SplitedPinyin normalize(KeyboardPinyin p, KeyboardScheme scheme)
         {
-            if (p.getTone().isEmpty())
-                p = ToneParser.parse(p.getSyll(), tones);
+            if (p.getTone().isEmpty()) p = ToneParser.parse(p.getSyll(), tones);
 
             String s = p.getSyll().toLowerCase();
 
+            s = PinyinCommon.d_A_G(s);
+
             if (scheme == KeyboardScheme.LEGACY)
-                s = s.replace("ee", "ẹ").replace("oe", "ọ");
+            {
+                s = s
+                        .replace("ee", "ẹ")
+                        .replace("oe", "ọ");
+            }
             else
-                s = s.replace("ee", "e").replace("eo", "ọ").replace("oe", "ọ").replace("ir", "ẹ");
+            {
+                // ee → ë , e → ẹ
+                s = s
+                        .replace("ee", "ë")
+                        .replace("e","ẹ").replace("ir", "ẹ")
+                        .replace("eo", "ọ").replace("oe", "ọ");
+            }
+
+
+            // 特殊汉字
+            s = s.replace("fui", "fẹi").replace("fi", "fẹi");
+
+            s = s.replace("ê", "e").replace("ë", "e");
+
             s = PinyinCommon.e_ZCS(s);
             s = PinyinCommon.e_Ng(s);
 
@@ -531,9 +574,6 @@ public class LACPinyin extends UniPinyin
             s = PinyinCommon.e_Wu(s);
             s = PinyinCommon.e_JQX_Ü_V_Yu_U(s);
             s = PinyinCommon.e_Ü_V_Yu(s);
-
-            // r->l 问题
-            s = s.replace("r", "l");
 
             // 双韵母的模糊处理
             // 匹配：普通话常见但是不符合的： ao->au  iau->ieu  ou->eu  iou->iu uei->ui
@@ -573,7 +613,12 @@ public class LACPinyin extends UniPinyin
      */
     private static class LACIntro
     {
-        public static String format(LACPinyin p)
+        public static RPinyin format(LACPinyin p)
+        {
+            return RPinyin.of(handleFormat(p));
+        }
+
+        public static String handleFormat(LACPinyin p)
         {
             String s = p.getSyll();
 

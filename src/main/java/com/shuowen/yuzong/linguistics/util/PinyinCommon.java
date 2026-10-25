@@ -130,6 +130,11 @@ public class PinyinCommon
         return s.replace("a", "ɑ").replace("g", "ɡ");
     }
 
+    public static String d_A_G(String s)
+    {
+        return s.replace("ɑ", "a").replace("ɡ", "g");
+    }
+
     public static char toSuperScript(Integer i)
     {
         return "⁰¹²³⁴⁵⁶⁷⁸⁹".charAt(i);

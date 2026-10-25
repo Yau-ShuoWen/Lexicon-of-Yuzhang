@@ -53,13 +53,16 @@ public final class Dict_Standard extends LACDictionary
 
     private String handleShengMu(LACPinyin.ShengMu shengmu, LACPinyin.JieMu jiemu)
     {
-        return (shengmu == LACPinyin.ShengMu.n) ?
-                switch (jiemu)
-                {
-                    case i, ü -> "ȵ";
-                    case $, u -> "n";
-                } :
-                super.handleShengMu(shengmu);
+        return switch (shengmu)
+        {
+            case f -> "ɸ";
+            case n -> switch (jiemu)
+            {
+                case i, ü -> "ȵ";
+                case $, u -> "n";
+            };
+            default -> handleShengMu(shengmu);
+        };
     }
 
     private String handleYunMu(LACPinyin.YunMu yunmu, LACPinyin.YunWei yunwei)
