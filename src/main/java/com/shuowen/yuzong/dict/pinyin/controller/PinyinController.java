@@ -9,7 +9,6 @@ import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.MaybeAPIResponse;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +33,7 @@ public class PinyinController
     public APIResponse<UString> preview(@PathVariable Dialect d, @PathVariable Language l, String pinyin)
     {
         String py = String.format("[%s]", pinyin);
-        String ans = TextPinyinIPA.format(py, new PinyinConfig(l, d), false,
-                Maybe.nothing(), false);
+        String ans = TextPinyinIPA.formatAllDictionaryVersions(py, new PinyinConfig(l, d));
         return APIResponse.success(UString.of(ans));
     }
 

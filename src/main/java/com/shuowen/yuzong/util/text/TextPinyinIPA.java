@@ -83,11 +83,23 @@ public class TextPinyinIPA
      */
     public static String format(String text, PinyinConfig data, boolean developer, Maybe<DictCode> dict, boolean isfromDB)
     {
+        return format(text, data, developer, dict, isfromDB, false);
+    }
+
+    /** 仅供拼音表的拼音转换使用，列出所有辞书的 IPA 版本。 */
+    public static String formatAllDictionaryVersions(String text, PinyinConfig data)
+    {
+        return format(text, data, false, Maybe.nothing(), false, true);
+    }
+
+    private static String format(String text, PinyinConfig data, boolean developer,
+                                 Maybe<DictCode> dict, boolean isfromDB, boolean allDictionaryVersions)
+    {
         Matcher m = pattern.matcher(text);
         StringBuilder sb = new StringBuilder();
         while (m.find())
         {
-            var handleAns = handle(normalize(m.group()), data, developer, dict, isfromDB);
+            var handleAns = handle(normalize(m.group()), data, developer, dict, isfromDB, allDictionaryVersions);
             var replace = Matcher.quoteReplacement(handleAns);
             m.appendReplacement(sb, replace);
         }
@@ -106,13 +118,14 @@ public class TextPinyinIPA
      */
     private static String handle(
             PinyinToken pinyin, PinyinConfig data,
-            boolean developer, Maybe<DictCode> dict, boolean isfromDB)
+            boolean developer, Maybe<DictCode> dict, boolean isfromDB,
+            boolean allDictionaryVersions)
     {
         Language l = data.getLanguage();
 
         if (pinyin.type == PinyinType.DIALECT)
         {
-            return handle(pinyin.body, data, developer, dict, isfromDB).toTheString(l);
+            return handle(pinyin.body, data, developer, dict, isfromDB, allDictionaryVersions).toTheString(l);
         }
 
         if (pinyin.body.contains(" "))
@@ -121,7 +134,7 @@ public class TextPinyinIPA
             for (String s : pinyin.body.trim().split("\\s+"))
             {
                 var smaller = new PinyinToken(pinyin.type, s);
-                str.append(handle(smaller, data, developer, dict, isfromDB));
+                str.append(handle(smaller, data, developer, dict, isfromDB, allDictionaryVersions));
             }
             return str.toString();
         }
@@ -186,13 +199,13 @@ public class TextPinyinIPA
                     if (developer)
                     {
                         return String.format("%s/%s",
-                                handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, true, dict, isfromDB),
-                                handle(new PinyinToken(PinyinType.IGNORE, py), data, true, dict, isfromDB)
+                                handle(new PinyinToken(PinyinType.OUT_IPA, ipa), data, true, dict, isfromDB, allDictionaryVersions),
+                                handle(new PinyinToken(PinyinType.IGNORE, py), data, true, dict, isfromDB, allDictionaryVersions)
                         );
                     }
                     else
                     {
-                        return handle(new PinyinToken(PinyinType.IGNORE, py), data, false, dict, isfromDB);
+                        return handle(new PinyinToken(PinyinType.IGNORE, py), data, false, dict, isfromDB, allDictionaryVersions);
                     }
                 } catch (StringIndexOutOfBoundsException e)
                 {
@@ -210,7 +223,8 @@ public class TextPinyinIPA
 
     private static PinyinBlock handle(
             String pyText, PinyinConfig data,
-            boolean developer, Maybe<DictCode> dict, boolean isfromDB
+            boolean developer, Maybe<DictCode> dict, boolean isfromDB,
+            boolean allDictionaryVersions
     )
     {
         Dialect d = data.getDialect();
@@ -221,7 +235,7 @@ public class TextPinyinIPA
             PinyinBlock block = new PinyinBlock();
             for (var i : pyText.trim().split("\\s+"))
             {
-                block.merge(handle(i, data, developer, dict, isfromDB));
+                block.merge(handle(i, data, developer, dict, isfromDB, allDictionaryVersions));
             }
             return block;
         }
@@ -242,7 +256,7 @@ public class TextPinyinIPA
 
                 if (!dict.isEmpty()) // 没有字典上下文，就是标准模式，不处理
                 {
-                    addDictionaryVersions(block, py, data, dictGroup, dict.getValue(), true);
+                    addDictionaryVersions(block, py, data, dictGroup, dict.getValue(), true, false);
                 }
                 return block;
             }
@@ -256,24 +270,27 @@ public class TextPinyinIPA
                         defaultIPA.handleIfExistAndGet(Object::toString, "—")
                 );
 
-                for (var i : dictGroup.getKeySet())
+                if (allDictionaryVersions)
                 {
-                    boolean currentDictionary = !dict.isEmpty() && i.equals(dict.getValue());
-                    addDictionaryVersions(block, py, data, dictGroup, i, currentDictionary);
+                    for (var i : dictGroup.getKeySet())
+                        addDictionaryVersions(block, py, data, dictGroup, i, false, true);
                 }
+                else if (!dict.isEmpty())
+                    addDictionaryVersions(block, py, data, dictGroup, dict.getValue(), true, false);
 
                 return block;
             }
         } catch (InvalidPinyinException | IllegalArgumentException e)
         {
-            return invalidPinyinBlock(developer, dict, dictGroup);
+            return invalidPinyinBlock(developer, dict, dictGroup, allDictionaryVersions);
         }
     }
 
     private static PinyinBlock invalidPinyinBlock(
             boolean developer,
             Maybe<DictCode> dict,
-            DictGroup dictGroup
+            DictGroup dictGroup,
+            boolean allDictionaryVersions
     )
     {
         PinyinBlock block = new PinyinBlock();
@@ -290,10 +307,10 @@ public class TextPinyinIPA
         }
         else
         {
-            for (var dictionary : dictGroup.getKeySet())
+            if (allDictionaryVersions)
             {
-                boolean currentDictionary = !dict.isEmpty() && dictionary.equals(dict.getValue());
-                addDictionaryVersionPlaceholders(block, dictGroup, dictionary, currentDictionary);
+                for (var dictionary : dictGroup.getKeySet())
+                    addDictionaryVersionPlaceholders(block, dictGroup, dictionary, false);
             }
         }
         return block;
@@ -306,7 +323,7 @@ public class TextPinyinIPA
             boolean useAsTitle
     )
     {
-        addDictionaryVersionRows(block, dictGroup, dictionary, useAsTitle, ignored -> "—");
+        addDictionaryVersionRows(block, dictGroup, dictionary, useAsTitle, true, ignored -> "—");
     }
 
     /**
@@ -319,7 +336,8 @@ public class TextPinyinIPA
             PinyinConfig data,
             DictGroup dictGroup,
             DictCode dictionary,
-            boolean useAsTitle
+            boolean useAsTitle,
+            boolean includeMissing
     )
     {
         addDictionaryVersionRows(
@@ -327,6 +345,7 @@ public class TextPinyinIPA
                 dictGroup,
                 dictionary,
                 useAsTitle,
+                includeMissing,
                 version -> data.searchIPA(pinyin, DictCode.of(version.toString()))
                         .handleIfExistAndGet(Object::toString, "—")
         );
@@ -337,6 +356,7 @@ public class TextPinyinIPA
             DictGroup dictGroup,
             DictCode dictionary,
             boolean useAsTitle,
+            boolean includeMissing,
             Function<com.shuowen.yuzong.linguistics.pinyinv2.DictCode, String> valueOf
     )
     {
@@ -355,6 +375,7 @@ public class TextPinyinIPA
         {
             boolean centralVersion = version == central;
             String ipaText = valueOf.apply(version);
+            if (!includeMissing && "—".equals(ipaText)) continue;
             String versionName = centralVersion
                     ? dictGroup.getName(DictCode.of(central.toString()), Language.TC)
                     : derivedVersionName(dictGroup, central, version);
