@@ -43,7 +43,7 @@ public class RPinyin implements RichTextPinyin
     @Override
     public String toHandleString()
     {
-        return Normalizer.normalize(PinyinCommon.e_A_G(pinyin), Normalizer.Form.NFC);
+        return Normalizer.normalize(pinyin, Normalizer.Form.NFC);
     }
 
     @Override

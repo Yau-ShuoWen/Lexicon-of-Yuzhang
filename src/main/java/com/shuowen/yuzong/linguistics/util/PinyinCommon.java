@@ -125,11 +125,6 @@ public class PinyinCommon
         return s;
     }
 
-    public static String e_A_G(String s)
-    {
-        return s.replace("a", "ɑ").replace("g", "ɡ");
-    }
-
     public static String d_A_G(String s)
     {
         return s.replace("ɑ", "a").replace("ɡ", "g");
