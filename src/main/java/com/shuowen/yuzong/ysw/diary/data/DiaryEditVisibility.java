@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.ysw.data.domain.diary;
+package com.shuowen.yuzong.ysw.diary.data;
 
 public enum DiaryEditVisibility
 {

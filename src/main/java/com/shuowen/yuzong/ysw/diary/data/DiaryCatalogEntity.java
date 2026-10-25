@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.ysw.data.model.diary;
+package com.shuowen.yuzong.ysw.diary.data;
 
 import lombok.Data;
 

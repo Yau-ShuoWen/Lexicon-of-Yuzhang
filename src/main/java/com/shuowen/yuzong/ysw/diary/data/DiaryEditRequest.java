@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.ysw.data.dto.diary;
+package com.shuowen.yuzong.ysw.diary.data;
 
 import java.time.LocalDate;
 

@@ -1,6 +1,5 @@
-package com.shuowen.yuzong.ysw.data.domain.diary;
+package com.shuowen.yuzong.ysw.diary.data;
 
-import com.shuowen.yuzong.ysw.data.model.diary.DiaryCatalogEntity;
 import lombok.Data;
 
 import java.time.LocalDate;

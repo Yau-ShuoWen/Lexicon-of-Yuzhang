@@ -1,7 +1,4 @@
-package com.shuowen.yuzong.ysw.data.dto.diary;
-
-import com.shuowen.yuzong.ysw.data.domain.diary.DiaryEditVisibility;
-import com.shuowen.yuzong.ysw.data.model.diary.DiaryEntity;
+package com.shuowen.yuzong.ysw.diary.data;
 
 import java.time.LocalDate;
 

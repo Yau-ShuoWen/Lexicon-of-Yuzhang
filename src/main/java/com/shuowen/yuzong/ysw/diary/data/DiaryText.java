@@ -1,10 +1,9 @@
-package com.shuowen.yuzong.ysw.data.domain.diary;
+package com.shuowen.yuzong.ysw.diary.data;
 
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Twin;
-import com.shuowen.yuzong.ysw.data.model.diary.DiaryEntity;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -28,16 +27,6 @@ public class DiaryText
     private String viewMode;
     private List<String> availableViews;
 
-    public DiaryText(DiaryEntity d, Language l)
-    {
-        this(d, l, d.getContent(), null, null);
-    }
-
-    public DiaryText(DiaryEntity d, Language l, String body)
-    {
-        this(d, l, body, null, null);
-    }
-
     public DiaryText(DiaryEntity d, Language l, String body, String viewMode, List<String> availableViews)
     {
         date = d.getDate();
@@ -59,16 +48,14 @@ public class DiaryText
 
     private Twin<ScTcText> initTitle(String text)
     {
-        if (text == null)
-        {
-            text = "";
-        }
+        if (text == null) text = "";
+
         String[] split = text.split("\\R\\R+", 2);
 
         String title, content;
         if (split.length == 1)
         {
-            title = split[0].replace(" ", "   ");
+            title = split[0].replaceAll(" +", "   ");
             content = "";
         }
         else

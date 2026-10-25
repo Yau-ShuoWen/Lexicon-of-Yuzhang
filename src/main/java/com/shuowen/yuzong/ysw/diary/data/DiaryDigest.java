@@ -1,9 +1,8 @@
-package com.shuowen.yuzong.ysw.data.domain.diary;
+package com.shuowen.yuzong.ysw.diary.data;
 
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.ysw.data.model.diary.DiaryEntity;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -18,11 +17,6 @@ public class DiaryDigest
     private LocalDate finalizeDate;
     private Integer id;
     private LocalDateTime updatedTime;
-
-    public DiaryDigest(DiaryEntity d, Language l)
-    {
-        this(d, l, d.getContent());
-    }
 
     public DiaryDigest(DiaryEntity d, Language l, String body)
     {

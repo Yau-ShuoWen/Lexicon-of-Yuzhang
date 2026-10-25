@@ -1,15 +1,15 @@
-package com.shuowen.yuzong.ysw.controller;
+package com.shuowen.yuzong.ysw.diary.controller;
 
 import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.MaybeAPIResponse;
 import com.shuowen.yuzong.util.tuple.NearbyResponse;
-import com.shuowen.yuzong.ysw.data.domain.diary.DiaryCatalog;
-import com.shuowen.yuzong.ysw.data.domain.diary.DiaryDigest;
-import com.shuowen.yuzong.ysw.data.domain.diary.DiaryText;
-import com.shuowen.yuzong.ysw.data.domain.diary.DiaryViewMode;
-import com.shuowen.yuzong.ysw.service.DiaryService;
+import com.shuowen.yuzong.ysw.diary.data.DiaryCatalog;
+import com.shuowen.yuzong.ysw.diary.data.DiaryDigest;
+import com.shuowen.yuzong.ysw.diary.data.DiaryText;
+import com.shuowen.yuzong.ysw.diary.data.DiaryViewMode;
+import com.shuowen.yuzong.ysw.diary.service.DiaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

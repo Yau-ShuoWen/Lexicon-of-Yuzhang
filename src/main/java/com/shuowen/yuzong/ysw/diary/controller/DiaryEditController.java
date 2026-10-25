@@ -1,4 +1,4 @@
-package com.shuowen.yuzong.ysw.controller;
+package com.shuowen.yuzong.ysw.diary.controller;
 
 import com.shuowen.yuzong.user.data.domain.AuthorityCode;
 import com.shuowen.yuzong.user.service.UserService;
@@ -8,10 +8,10 @@ import com.shuowen.yuzong.util.tuple.HTTPCode;
 import com.shuowen.yuzong.util.version.TextDiffRequest;
 import com.shuowen.yuzong.util.version.TextDiffResponse;
 import com.shuowen.yuzong.util.version.TextDiffService;
-import com.shuowen.yuzong.ysw.data.dto.diary.DiaryCreateRequest;
-import com.shuowen.yuzong.ysw.data.dto.diary.DiaryEditData;
-import com.shuowen.yuzong.ysw.data.dto.diary.DiaryEditRequest;
-import com.shuowen.yuzong.ysw.service.DiaryService;
+import com.shuowen.yuzong.ysw.diary.data.DiaryCreateRequest;
+import com.shuowen.yuzong.ysw.diary.data.DiaryEditData;
+import com.shuowen.yuzong.ysw.diary.data.DiaryEditRequest;
+import com.shuowen.yuzong.ysw.diary.service.DiaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
