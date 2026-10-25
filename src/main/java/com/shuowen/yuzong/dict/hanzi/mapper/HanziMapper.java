@@ -21,6 +21,7 @@ public interface HanziMapper
     HanziEntity findByUniqueKey(@Param ("ch") HanziEntity ch, @Param ("dialect") String dialect);
     List<HanziSimilar> findHanziSimilarByCharId(Integer id, String dialect);
     void insertChar(@Param ("ch") HanziEntity ch, @Param ("dialect") String dialect);
+    void insertImportedLacChar(@Param ("ch") HanziEntity ch);
     void insertCharSimilar(@Param ("ch") HanziSimilar ch, @Param ("dialect") String dialect);
     void updateCharById(@Param ("ch") HanziEntity ch, @Param ("dialect") String dialect);
     void updateCharSimilarById(@Param ("ch") HanziSimilar ch, @Param ("dialect") String dialect);

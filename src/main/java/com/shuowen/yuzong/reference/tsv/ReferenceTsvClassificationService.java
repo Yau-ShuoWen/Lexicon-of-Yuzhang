@@ -37,8 +37,9 @@ public class ReferenceTsvClassificationService
         Map<String, List<String>> formRelationsByCharacter = new HashMap<>();
         for (var entry : groups.entrySet())
         {
-            reasonsByCharacter.put(entry.getKey(), reasons(entry.getKey(), entry.getValue()));
-            mandarinByCharacter.put(entry.getKey(), mandarinReadings(entry.getKey()));
+            List<String> mandarin = mandarinReadings(entry.getKey());
+            mandarinByCharacter.put(entry.getKey(), mandarin);
+            reasonsByCharacter.put(entry.getKey(), reasons(entry.getKey(), entry.getValue(), mandarin));
             if (entry.getKey().codePointCount(0, entry.getKey().length()) == 1)
             {
                 var forms = ScTcCharacterConverter.lookup(entry.getKey());
@@ -74,7 +75,7 @@ public class ReferenceTsvClassificationService
         }
     }
 
-    private List<String> reasons(String character, List<String[]> rows)
+    private List<String> reasons(String character, List<String[]> rows, List<String> mandarin)
     {
         List<String> reasons = new ArrayList<>();
         if (character.codePointCount(0, character.length()) != 1)
@@ -86,12 +87,14 @@ public class ReferenceTsvClassificationService
             var forms = ScTcCharacterConverter.lookup(character);
             if (!isOneToOne(forms)) reasons.add("简繁非一一对应");
 
-            if (mandarinReadings(character).isEmpty()) reasons.add("普通话读音未收录");
+            if (mandarin.isEmpty()) reasons.add("普通话读音未收录");
+            else if (rows.stream().anyMatch(row -> !mandarin.contains(row[3].trim())))
+                reasons.add("普通话读音未对应");
         }
 
         Set<String> nanchang = new HashSet<>();
         for (String[] row : rows) nanchang.add(row[2].trim());
-        if (mandarinReadings(character).size() > 1 || nanchang.size() > 1)
+        if (mandarin.size() > 1 || nanchang.size() > 1)
             reasons.add("多音字");
         if (rows.stream().anyMatch(row -> !row[8].isBlank())) reasons.add("存在同义词");
         if (rows.stream().anyMatch(row -> !row[9].isBlank())) reasons.add("存在新旧标记");

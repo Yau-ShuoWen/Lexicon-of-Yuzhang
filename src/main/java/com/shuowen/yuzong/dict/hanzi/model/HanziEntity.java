@@ -21,4 +21,5 @@ public class HanziEntity
     private LocalDateTime updatedAt;
 
     private Integer status;
+    private Integer source;
 }

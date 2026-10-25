@@ -25,6 +25,7 @@ public class ReferenceTsvController
     private final ReferenceTsvDiffService diffService;
     private final ReferenceTsvClassificationService classificationService;
     private final ReferenceTsvAuditService auditService;
+    private final ReferenceTsvImportService importService;
 
     @GetMapping("/versions/{id}/classify")
     public APIResponse<ReferenceTsvClassificationService.Result> classify(@PathVariable String id) throws IOException
@@ -37,6 +38,14 @@ public class ReferenceTsvController
     {
         return APIResponse.success(auditService.audit(id));
     }
+
+    @PostMapping("/versions/{id}/import")
+    public APIResponse<Integer> importCharacters(@PathVariable String id, @RequestBody ImportRequest body) throws IOException
+    {
+        return APIResponse.success(importService.importCharacters(id, body == null ? null : body.characters()));
+    }
+
+    public record ImportRequest(List<String> characters) {}
 
     @PostMapping("/versions")
     public APIResponse<ReferenceTsvVersion> upload(@RequestParam("file") MultipartFile file,

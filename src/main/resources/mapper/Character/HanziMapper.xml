@@ -43,15 +43,20 @@
         SELECT id, hanzi_id, sc, tc FROM NC.${dialect}_hanzi_similar WHERE hanzi_id = #{id}
     </select>
     <insert id="insertChar" useGeneratedKeys="true" keyProperty="ch.id">
-        INSERT INTO NC.${dialect}_hanzi (sc, tc, pinyin, special, note, status)
-        VALUES (#{ch.sc}, #{ch.tc}, #{ch.pinyin}, #{ch.special}, #{ch.note}, #{ch.status})
+        INSERT INTO NC.${dialect}_hanzi (sc, tc, pinyin, special, note, status, source)
+        VALUES (#{ch.sc}, #{ch.tc}, #{ch.pinyin}, #{ch.special}, #{ch.note}, #{ch.status}, 1)
+    </insert>
+    <insert id="insertImportedLacChar" useGeneratedKeys="true" keyProperty="ch.id">
+        INSERT INTO NC.lac_hanzi (sc, tc, pinyin, special, note, status, source)
+        VALUES (#{ch.sc}, #{ch.tc}, #{ch.pinyin}, #{ch.special}, #{ch.note}, #{ch.status}, 2)
     </insert>
     <insert id="insertCharSimilar">
         INSERT INTO NC.${dialect}_hanzi_similar (hanzi_id, sc, tc) VALUES (#{ch.hanziId}, #{ch.sc}, #{ch.tc})
     </insert>
     <update id="updateCharById">
         UPDATE NC.${dialect}_hanzi SET sc=#{ch.sc}, tc=#{ch.tc}, pinyin=#{ch.pinyin}, special=#{ch.special},
-          note=#{ch.note}, status=#{ch.status} WHERE id=#{ch.id}
+          note=#{ch.note}, status=#{ch.status},
+          source=CASE WHEN source IN (2, 3) THEN 3 ELSE 1 END WHERE id=#{ch.id}
     </update>
     <update id="updateCharSimilarById">
         UPDATE NC.${dialect}_hanzi_similar SET hanzi_id=#{ch.hanziId}, sc=#{ch.sc}, tc=#{ch.tc} WHERE id=#{ch.id}
