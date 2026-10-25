@@ -1,17 +1,10 @@
 package com.shuowen.yuzong;
 
-import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.dict.controller.search.SearchController;
 import com.shuowen.yuzong.util.ext.other.ObjectTool;
-import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.util.tuple.Range;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @SpringBootTest
 public class TestRandomSearch
@@ -28,21 +21,21 @@ public class TestRandomSearch
     {
         if (ObjectTool.unchecked(true)) return;  // 开启测试请把true改成false
 
-        Map<Object, Integer> map = new HashMap<>();
-
-        int times=500;
-        for (var i: Range.of(times))
-        {
-            System.out.println(i+1);
-            var str=se.search(Dialect.LAC, Language.SC, UString.of("random")).get(0).get(0).getTitle();
-            if (map.containsKey(str)) map.put(str, map.get(str) + 1);
-            else map.put(str, 1);
-        }
-
-        System.out.println("随机次数："+times);
-        System.out.println("出现内容："+map.size());
-        map.entrySet().stream()
-                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
-                .forEach(e -> System.out.println(e.getKey() + " : " + e.getValue()));
+//        Map<Object, Integer> map = new HashMap<>();
+//
+//        int times=500;
+//        for (var i: Range.of(times))
+//        {
+//            System.out.println(i+1);
+//            var str=se.search(Dialect.LAC, Language.SC, UString.of("random")).get(0).get(0).getTitle();
+//            if (map.containsKey(str)) map.put(str, map.get(str) + 1);
+//            else map.put(str, 1);
+//        }
+//
+//        System.out.println("随机次数："+times);
+//        System.out.println("出现内容："+map.size());
+//        map.entrySet().stream()
+//                .sorted((e1, e2) -> e2.getValue().compareTo(e1.getValue()))
+//                .forEach(e -> System.out.println(e.getKey() + " : " + e.getValue()));
     }
 }
