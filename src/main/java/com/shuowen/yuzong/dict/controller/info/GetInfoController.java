@@ -10,8 +10,8 @@ import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.map.KV;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UString;
-import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.Twin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -100,7 +100,7 @@ public class GetInfoController
         List<Twin<String>> list = List.of(
                 Twin.of("項目立項已經", ChronoUnit.DAYS.between(LocalDate.of(2024, 10, 3), LocalDate.now()) + "天"),
                 Twin.of("項目上綫已經", ChronoUnit.DAYS.between(LocalDate.of(2026, 5, 28), LocalDate.now()) + "天"),
-                Twin.of("版本號", "1.9"),
+                Twin.of("版本號", "2.0.13"),
                 Twin.of("版本地標", "八一館"),
                 Twin.of("收錄" + DName + "用漢字", hz.findRowCountInHanziTable(dialect) + "個"),
                 Twin.of("收錄" + DName + "詞語", cy.findRowCountInCiyuTable(dialect) + "條"),
