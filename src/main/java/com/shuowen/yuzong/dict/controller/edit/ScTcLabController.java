@@ -31,8 +31,12 @@ public class ScTcLabController
         if (value.length() > 100_000) throw new IllegalArgumentException("测试文本过长");
         JsonNode pair = json.readTree(value);
         if (pair == null || !pair.isObject() || !pair.path("sc").isTextual() || !pair.path("tc").isTextual()
-                || pair.size() != 2)
-            throw new IllegalArgumentException("只接受包含 sc 和 tc 的 JSON 对象");
+                || pair.size() < 2 || pair.size() > 3
+                || (pair.size() == 3 && !pair.has("machineSide")))
+            throw new IllegalArgumentException("只接受 sc、tc 和可选的 machineSide");
+        if (pair.has("machineSide") && (!pair.path("machineSide").isTextual()
+                || !(pair.path("machineSide").asText().equals("sc") || pair.path("machineSide").asText().equals("tc"))))
+            throw new IllegalArgumentException("机翻状态只能是 sc 或 tc");
         String sc = pair.path("sc").asText();
         String tc = pair.path("tc").asText();
         if (sc.codePointCount(0, sc.length()) != tc.codePointCount(0, tc.length()))
