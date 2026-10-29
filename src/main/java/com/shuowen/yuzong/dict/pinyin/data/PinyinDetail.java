@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.dict.pinyin.data;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCodeExt;
 import com.shuowen.yuzong.dict.pinyin.PinyinItem;
@@ -9,6 +10,7 @@ import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import lombok.Data;
@@ -54,10 +56,11 @@ public class PinyinDetail
                 {
                     String num = IPAFormatter.mergeFiveDegreeNum(i.getValue(), true);
                     String line = IPAFormatter.mergeFiveDegree("", i.getValue(), false);
-                    ipa.put(data.getDictName(i.getKey()), String.format("[%-4s][%s]", num, line));
+                    ipa.put(data.getDictName(i.getKey()), String.format("[%-4s]%s", num, new IPA(line)));
                 }
             }
-            note = readJson(item.getNote(), new TypeReference<ScTcText>() {}).get(l);
+            var storedNote = readJson(item.getNote(), new TypeReference<ScTcText>() {}).get(l);
+            note = RichTextUtil.format(storedNote, data, false, Maybe.nothing(), true);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAFormatter;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
@@ -22,7 +23,7 @@ public abstract class LACDictionary implements PronunciationDictionary
     }
 
     @Override
-    public final Maybe<String> transcribe(
+    public final Maybe<IPA> transcribe(
             UniPinyin pinyin,
             IPASyllStyle syllStyle,
             IPAToneStyle toneStyle
@@ -33,7 +34,7 @@ public abstract class LACDictionary implements PronunciationDictionary
         return transcribe(lac, syllStyle, toneStyle);
     }
 
-    protected abstract Maybe<String> transcribe(
+    protected abstract Maybe<IPA> transcribe(
             LACPinyin pinyin,
             IPASyllStyle syllStyle,
             IPAToneStyle toneStyle

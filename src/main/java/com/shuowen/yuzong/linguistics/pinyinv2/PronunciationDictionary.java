@@ -1,5 +1,6 @@
 package com.shuowen.yuzong.linguistics.pinyinv2;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
 import com.shuowen.yuzong.util.core.Dialect;
@@ -28,7 +29,7 @@ public interface PronunciationDictionary
         return code().getLanguage();
     }
 
-    Maybe<String> transcribe(
+    Maybe<IPA> transcribe(
             UniPinyin pinyin,
             IPASyllStyle syllStyle,
             IPAToneStyle toneStyle

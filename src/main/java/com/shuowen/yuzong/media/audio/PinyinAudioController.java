@@ -1,7 +1,7 @@
 package com.shuowen.yuzong.media.audio;
 
 import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.APIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,14 +45,14 @@ public class PinyinAudioController
      * 返回：落库后的 Audio（含 id、objectName）。
      */
     @PostMapping ("/upload")
-    public Audio upload(
+    public APIResponse<Audio> upload(
             @RequestParam Dialect dialect,
             @RequestParam String code,
             MultipartFile file
     ) throws Exception
     {
         String folderPath = dialect + "/pinyin/" + code;
-        return audioService.replace(file, folderPath, "pronunciation");
+        return APIResponse.success(audioService.replace(file, folderPath, "pronunciation"));
     }
 
     /**
@@ -68,12 +68,12 @@ public class PinyinAudioController
      * 返回：List&lt;AudioVO&gt;，每项含 id/name/format/size/folderPath/url（签名链接）。
      */
     @GetMapping ("/list")
-    public List<AudioVO> list(
+    public APIResponse<List<AudioVO>> list(
             @RequestParam Dialect dialect,
             @RequestParam String code)
     {
         String folderPath = dialect + "/pinyin/" + code;
-        return audioService.list(folderPath);
+        return APIResponse.success(audioService.list(folderPath));
     }
 
     /**
@@ -90,7 +90,7 @@ public class PinyinAudioController
      * 一次数据库查询 + 批量生成签名 URL，避免前端逐个请求。
      */
     @GetMapping ("/batch")
-    public Map<String, String> batch(@RequestParam Dialect dialect)
+    public APIResponse<Map<String, String>> batch(@RequestParam Dialect dialect)
     {
         // folderPath = "lac/pinyin"，prefix = "audio/lac/pinyin/"
         String folderPath = dialect + "/pinyin";
@@ -105,7 +105,7 @@ public class PinyinAudioController
             urlMap.putIfAbsent(code, vo.getUrl());
         }
 
-        return urlMap;
+        return APIResponse.success(urlMap);
     }
 
     /**
@@ -118,18 +118,16 @@ public class PinyinAudioController
      * 1. dialect: 方言代号，如 lac / ced<br>
      * 2. code: 拼音 key<br>
      * <br>
-     * 返回：Maybe&lt;AudioVO&gt;（JSON 序列化为 {"empty": true} 或 {"empty": false, "value": {...}}）：<br>
-     * - 有音频：{@code {"empty": false, "value": {id, name, url, ...}}}，url 为签名链接可直接播放<br>
-     * - 无音频：{@code {"empty": true}}，前端据此不显示播放按钮
+     * 返回：有音频时 data 为 AudioVO，无音频时 data 为 null。
      */
     @GetMapping ("/check")
-    public Maybe<AudioVO> check(
+    public APIResponse<AudioVO> check(
             @RequestParam Dialect dialect,
             @RequestParam String code)
     {
         String folderPath = dialect + "/pinyin/" + code;
         List<AudioVO> list = audioService.list(folderPath);
-        return list.isEmpty() ? Maybe.nothing() : Maybe.exist(list.get(0));
+        return APIResponse.success(list.isEmpty() ? null : list.get(0));
     }
 
     /**
@@ -141,10 +139,10 @@ public class PinyinAudioController
      * 返回：success
      */
     @DeleteMapping ("/{id}")
-    public String delete(@PathVariable Long id)
+    public APIResponse<Void> delete(@PathVariable Long id)
     {
         audioService.delete(id);
-        return "success";
+        return APIResponse.success();
     }
 
 }

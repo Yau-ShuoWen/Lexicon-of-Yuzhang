@@ -2,6 +2,7 @@ package com.shuowen.yuzong.ysw.controller;
 
 import com.shuowen.yuzong.util.map.KV;
 import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.ysw.data.mapper.PersonalMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +17,9 @@ public class PersonalController
     PersonalMapper m;
 
     @GetMapping ("/hello")
-    public ScTcText greeting()
+    public APIResponse<ScTcText> greeting()
     {
-        return new ScTcText(KV.get("website-greeting:ysw"));
+        return APIResponse.success(new ScTcText(KV.get("website-greeting:ysw")));
     }
 
 //    @GetMapping ("/dict/search/{l}")

@@ -2,7 +2,7 @@ package com.shuowen.yuzong.dict.pinyin.data;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.linguistics.util.PinyinCommon;
+import com.shuowen.yuzong.linguistics.util.RPinyin;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
@@ -32,7 +32,7 @@ public class PinyinTable
         private Item(String standard, String code)
         {
             this.exist = !"-".equals(standard);
-            this.standard = exist ? String.format("[%s]", PinyinCommon.e_A_G(standard)) : "";
+            this.standard = exist ? RPinyin.of(standard).toString() : "";
             this.id = exist ? code + "-" + standard : "";
         }
     }

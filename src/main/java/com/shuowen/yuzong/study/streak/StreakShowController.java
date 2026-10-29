@@ -21,24 +21,16 @@ public class StreakShowController
             @RequestParam(required = false) LocalDate to
     )
     {
-        try
-        {
-            LocalDate end = to == null ? LocalDate.now().plusDays(6) : to;
-            LocalDate start = from == null ? LocalDate.now().minusDays(14) : from;
-            if (start.isAfter(end)) throw new IllegalArgumentException("日期范围无效");
-            return APIResponse.success(service.getOverview(t, start, end));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        LocalDate end = to == null ? LocalDate.now().plusDays(6) : to;
+        LocalDate start = from == null ? LocalDate.now().minusDays(14) : from;
+        if (start.isAfter(end)) throw new IllegalArgumentException("日期范围无效");
+        return APIResponse.success(service.getOverview(t, start, end));
     }
 
     @PostMapping("/activity/complete")
     public APIResponse<Void> complete(@RequestParam String t)
     {
-        try { service.markStudyCompleted(t); return APIResponse.success(); }
-        catch (Exception e) { return APIResponse.failure(e.getMessage()); }
+        service.markStudyCompleted(t);
+        return APIResponse.success();
     }
-
 }

@@ -9,6 +9,7 @@ import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.Maybe;
+import com.shuowen.yuzong.util.tuple.MaybeAPIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,26 +23,22 @@ public class EditCiyuController
     CiyuService cy;
 
     @GetMapping ("/filter/{d}")
-    public List<SearchResult> filter(@PathVariable Dialect d, @RequestParam UString query)
+    public APIResponse<List<SearchResult>> filter(@PathVariable Dialect d, @RequestParam UString query)
     {
-        return cy.getCiyuFilterInfo(query, d);
+        return APIResponse.success(cy.getCiyuFilterInfo(query, d));
     }
 
     /**
      * 获得精确的某一个字的信息
      */
     @GetMapping ("/get-info/{d}")
-    public APIResponse<Maybe<CiyuUpdate>> ciyufind(@PathVariable Dialect d, @RequestParam ObfInt id
+    public APIResponse<CiyuUpdate> ciyufind(@PathVariable Dialect d, @RequestParam ObfInt id
     )
     {
-        try
-        {
-            return APIResponse.success(Maybe.uncertain(cy.getCiyuById(id.decode(), d)));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return MaybeAPIResponse.of(
+                Maybe.uncertain(cy.getCiyuById(id.decode(), d)),
+                "没有找到词语"
+        );
     }
 
     /**
@@ -50,47 +47,23 @@ public class EditCiyuController
     @PostMapping ("/submit/{d}")
     public APIResponse<Void> edit(@PathVariable Dialect d, @RequestBody CiyuUpdate he)
     {
-        try
-        {
-            cy.editCiyu(he, d);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        cy.editCiyu(he, d);
+        return APIResponse.success();
     }
 
     @PostMapping ("/create/{d}")
     public APIResponse<Void> createCiyu(@PathVariable Dialect d, @RequestBody CiyuCreate ce)
     {
-        try
-        {
-            cy.createCiyu(ce, d);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            if (e instanceof IllegalArgumentException)
-            {
-            }
-            else e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        cy.createCiyu(ce, d);
+        return APIResponse.success();
     }
 
     @GetMapping ("/get-link/{d}/{dict}")
-    public APIResponse<Maybe<ObfInt>> getLink(
+    public APIResponse<ObfInt> getLink(
             @PathVariable Dialect d, @PathVariable DictCode dict,
             @RequestParam UString ciyu
     )
     {
-        try
-        {
-            return APIResponse.success(cy.getEditLinkIfExist(ciyu, d));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return MaybeAPIResponse.of(cy.getEditLinkIfExist(ciyu, d), "没有找到词语编辑链接");
     }
 }

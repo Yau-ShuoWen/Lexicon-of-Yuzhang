@@ -18,6 +18,7 @@ public interface PronunMapper
     List<Integer> getHanziCommonByPinyin(String pinyin, String language);
 
     List<MdrChar> getInfoByScTc(String sc, String tc);
+    List<MdrChar> getInfoByIds(@Param("ids") java.util.Set<Integer> ids);
 
     List<Integer> getMappedMandarinIds(@Param ("ids") List<Integer> ids,
                                        @Param ("excludeHanziId") Integer excludeHanziId,

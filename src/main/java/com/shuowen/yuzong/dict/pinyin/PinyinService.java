@@ -3,6 +3,7 @@ package com.shuowen.yuzong.dict.pinyin;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.json.JsonTool;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.ScTcText;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +24,14 @@ public class PinyinService
 
     public ScTcText getNote(Dialect d, String key)
     {
-        return JsonTool.readJson(m.getNote(d.toString(),key), new TypeReference<>() {});
+        ScTcText stored = JsonTool.readJson(m.getNote(d.toString(), key), new TypeReference<>() {});
+        return stored == null ? null : stored.map(text -> TextPinyinIPA.transferPinyin(text, d, true));
     }
 
     public void updateNote(Dialect d, String key, ScTcText note)
     {
-        m.updateNote(d.toString(), key, JsonTool.toJson(note));
+        ScTcText stored = note.map(text -> TextPinyinIPA.transferPinyin(text, d, false));
+        m.updateNote(d.toString(), key, JsonTool.toJson(stored));
     }
 
     private static PinyinService instance;

@@ -23,22 +23,18 @@ public class StudyController
     private WordCardEditService editService;
 
     @GetMapping("/word-cards/{language}/{dialect}")
-    public List<WordCardPractice> getWordCards(
+    public APIResponse<List<WordCardPractice>> getWordCards(
             @PathVariable Language language,
             @PathVariable Dialect dialect
     )
     {
-        return service.getRandomCards(dialect, language);
+        return APIResponse.success(service.getRandomCards(dialect, language));
     }
 
     @GetMapping("/edit/{dialect}")
     public APIResponse<List<WordCardUpdate>> getAllForEdit(@PathVariable Dialect dialect)
     {
-        try {
-            return APIResponse.success(editService.findAll(dialect));
-        } catch (Exception e) {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(editService.findAll(dialect));
     }
 
     @GetMapping("/edit/{dialect}/{id}")
@@ -46,11 +42,7 @@ public class StudyController
             @PathVariable Dialect dialect, @PathVariable Integer id
     )
     {
-        try {
-            return APIResponse.success(editService.findById(id, dialect));
-        } catch (Exception e) {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(editService.findById(id, dialect));
     }
 
     @PostMapping("/edit/{dialect}")
@@ -58,12 +50,8 @@ public class StudyController
             @PathVariable Dialect dialect, @RequestBody WordCardUpdate update
     )
     {
-        try {
-            editService.save(update, dialect);
-            return APIResponse.success();
-        } catch (Exception e) {
-            return APIResponse.failure(e.getMessage());
-        }
+        editService.save(update, dialect);
+        return APIResponse.success();
     }
 
     @DeleteMapping("/edit/{dialect}/{id}")
@@ -71,11 +59,7 @@ public class StudyController
             @PathVariable Dialect dialect, @PathVariable Integer id
     )
     {
-        try {
-            editService.delete(id, dialect);
-            return APIResponse.success();
-        } catch (Exception e) {
-            return APIResponse.failure(e.getMessage());
-        }
+        editService.delete(id, dialect);
+        return APIResponse.success();
     }
 }

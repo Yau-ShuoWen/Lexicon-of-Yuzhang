@@ -8,13 +8,12 @@ import com.shuowen.yuzong.dict.data.domain.Reference.RefProof;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.dict.service.Reference.DictService;
 import com.shuowen.yuzong.dict.service.Reference.RefService;
-import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.ext.sort.FractionIndex;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.APIResponse;
-import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.util.tuple.Twin;
+import com.shuowen.yuzong.util.tuple.NearbyResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,9 +33,9 @@ public class RefController
      * 获取词典列表
      */
     @GetMapping ("/get-dictionaries/{d}")
-    public List<Pair<UString, DictCode>> getDictionaries(@PathVariable Dialect d)
+    public APIResponse<List<Pair<UString, DictCode>>> getDictionaries(@PathVariable Dialect d)
     {
-        return dict.getDictionaryMenu(d);
+        return APIResponse.success(dict.getDictionaryMenu(d));
     }
 
     /**
@@ -47,51 +46,22 @@ public class RefController
     public APIResponse<List<SearchResult>> findContent(
             @PathVariable DictCode dict, @RequestParam String query)
     {
-        try
-        {
-            var ans = ck.findContent(dict, query);
-            return APIResponse.success(ans);
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(ck.findContent(dict, query));
     }
 
     @GetMapping ("/get-page/{dict}")
     public APIResponse<Page> getPage(
             @PathVariable DictCode dict, @RequestParam FractionIndex sort)
     {
-        try
-        {
-            return APIResponse.success(ck.getRefPage(dict, sort));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(ck.getRefPage(dict, sort));
     }
 
     @PostMapping ("/update-page/{dict}")
     public APIResponse<Void> updatePage(
             @PathVariable DictCode dict, @RequestBody RefDraft page)
     {
-        try
-        {
-            ck.overwritePage(dict, page);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            if (e instanceof InvalidPinyinException ignore)
-            {
-
-            }
-            else
-            {
-                e.printStackTrace();
-            }
-            return APIResponse.failure(e.getMessage());
-        }
+        ck.overwritePage(dict, page);
+        return APIResponse.success();
     }
 
     /**
@@ -100,14 +70,7 @@ public class RefController
     @PostMapping ("/lock-page/{dict}")
     public APIResponse<RefProof> lockPage(@PathVariable DictCode dict, @RequestParam FractionIndex sort)
     {
-        try
-        {
-            return APIResponse.success(ck.lockPage(dict, sort));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(ck.lockPage(dict, sort));
     }
 
     /**
@@ -118,75 +81,33 @@ public class RefController
             @PathVariable DictCode dict, @RequestParam FractionIndex sort,
             @RequestParam boolean before)
     {
-        try
-        {
-            return APIResponse.success(ck.insertPage(dict, sort, before));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(ck.insertPage(dict, sort, before));
     }
 
     @PostMapping ("/edit-page/{dict}")
     public APIResponse<Void> editPage(@PathVariable DictCode dict, @RequestBody RefProof page)
     {
-        try
-        {
-            ck.editPage(dict, page);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            if (e instanceof InvalidPinyinException ignore)
-            {
-
-            }
-            else
-            {
-                e.printStackTrace();
-            }
-            return APIResponse.failure(e.getMessage());
-        }
+        ck.editPage(dict, page);
+        return APIResponse.success();
     }
 
     @PostMapping ("/get-nearby/{dict}")
-    public APIResponse<Twin<Maybe<FractionIndex>>> getNearBy(
+    public APIResponse<NearbyResponse<FractionIndex>> getNearBy(
             @PathVariable DictCode dict, @RequestBody Twin<FractionIndex> sorts)
     {
-        try
-        {
-            return APIResponse.success(ck.getNearBy(dict, sorts));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(NearbyResponse.from(ck.getNearBy(dict, sorts)));
     }
 
     @PostMapping ("/delete-page/{dict}")
     public APIResponse<Page> deletePage(
             @PathVariable DictCode dict, @RequestParam FractionIndex frontSort)
     {
-        try
-        {
-            return APIResponse.success(ck.deletePage(dict, frontSort));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(ck.deletePage(dict, frontSort));
     }
 
     @GetMapping ("/get-catalog/{dict}")
     public APIResponse<List<Pair<FractionIndex, String>>> getCatalog(@PathVariable DictCode dict)
     {
-        try
-        {
-            return APIResponse.success(ck.getCatalog(dict));
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(ck.getCatalog(dict));
     }
 }

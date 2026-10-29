@@ -6,9 +6,11 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 /**
  * 《赣方言概要》的记音规则。
  */
-public final class Dict_GanFangyanGaiyao extends LACZuheCidian
+public final class Dict_GanFangyanGaiyao extends LACNormalDict
 {
     public static final Dict_GanFangyanGaiyao INSTANCE = new Dict_GanFangyanGaiyao();
+
+    private static final YunSupport SUPPORT = Dict_NanchangFangyanCidian.SUPPORT.remove("oi", "ei");
 
     private Dict_GanFangyanGaiyao()
     {
@@ -23,7 +25,7 @@ public final class Dict_GanFangyanGaiyao extends LACZuheCidian
     @Override
     protected boolean supports(LACPinyin.YinJie y)
     {
-        return Dict_NanchangFangyanCidian.INSTANCE.supports(y) && !"oi".equals(y.getYun()) && !"ei".equals(y.getYun());
+        return SUPPORT.contains(y);
     }
 
     @Override
@@ -52,9 +54,15 @@ public final class Dict_GanFangyanGaiyao extends LACZuheCidian
     {
         return Maybe.exist(switch (tone)
         {
-            case t0 -> "0"; case t1 -> "42"; case t2 -> "24"; case t3 -> "213";
-            case t4 -> "45"; case t5 -> "21"; case t6 -> "5"; case t7 -> "1";
-            case $ -> throw new IllegalStateException();
+            case t0 -> "0";
+            case t1 -> "42";
+            case t2 -> "24";
+            case t3 -> "213";
+            case t4 -> "45";
+            case t5 -> "21";
+            case t6 -> "5";
+            case t7 -> "1";
+            case $ -> throw new IllegalStateException("无声调的已经在之前处理过，此处为不应到达的位置");
         });
     }
 }

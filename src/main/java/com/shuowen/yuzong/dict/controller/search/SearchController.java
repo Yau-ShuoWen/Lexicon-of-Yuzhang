@@ -4,7 +4,6 @@ import com.shuowen.yuzong.dict.ciyu.CiyuService;
 import com.shuowen.yuzong.dict.ciyu.data.CiyuShow;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.dict.hanzi.domain.HanziShow;
 import com.shuowen.yuzong.dict.hanzi.service.HanziService;
@@ -12,10 +11,12 @@ import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
+import com.shuowen.yuzong.util.err.APIException;
 import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.APIResponse;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,9 +38,9 @@ public class SearchController
      * 适用于搜索时候整合所有信息列成一个列表供选择，所以这里的结果集是可插拔的
      */
     @GetMapping ("{l}/{d}/query")
-    public List<List<SearchResult>> search(@PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query)
+    public APIResponse<List<List<SearchResult>>> search(@PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query)
     {
-        if (query.contentEquals("random")) return List.of(c.getCiyuRandom(l, d));
+        if (query.contentEquals("random")) return APIResponse.success(List.of(c.getCiyuRandom(l, d)));
 
         var hanzi = h.getHanziSearchInfo(query, l, d);
         var ciyu = c.getCiyuSearchInfo(query, l, d);
@@ -48,7 +49,7 @@ public class SearchController
         ans.add(ListTool.merge(hanzi, ciyu.getLeft()));
         ans.add(ciyu.getRight());
 
-        return ans;
+        return APIResponse.success(ans);
     }
 
     /**
@@ -57,7 +58,6 @@ public class SearchController
     @GetMapping ("{l}/{d}/hanzi")
     public APIResponse<HanziShow> hanziSearch(
             @PathVariable Dialect d, @PathVariable Language l, @RequestParam UChar query,
-            @RequestParam PinyinMode phonogram,
             @RequestParam IPASyllStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
     )
@@ -65,22 +65,17 @@ public class SearchController
         try
         {
             return APIResponse.success(h.getHanziDetailInfo(
-                    query, l, d, new PinyinConfig(l, d, phonogram, syllableStyle, toneStyle)
+                    query, l, d, new PinyinConfig(l, d, syllableStyle, toneStyle)
             ));
-        } catch (Exception e)
+        } catch (NoSuchElementException e)
         {
-            if (e instanceof NoSuchElementException)
-                return APIResponse.failure(ScTcText.get("沒有查到漢字", l).toString());
-
-            e.printStackTrace();
-            return APIResponse.failure(ScTcText.get("查找漢字失敗", l).toString());
+            throw new APIException(HTTPCode.NotFound, ScTcText.get("沒有查到漢字", l).toString());
         }
     }
 
     @GetMapping ("{l}/{d}/ciyu")
     public APIResponse<CiyuShow> ciyuSearch(
             @PathVariable Dialect d, @PathVariable Language l, @RequestParam UString query,
-            @RequestParam PinyinMode phonogram,
             @RequestParam IPASyllStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
     )
@@ -89,15 +84,11 @@ public class SearchController
         {
             return APIResponse.success(c.getCiyuDetailInfo(
                     query, l, d,
-                    new PinyinConfig(l, d, phonogram, syllableStyle, toneStyle)
+                    new PinyinConfig(l, d, syllableStyle, toneStyle)
             ));
-        } catch (Exception e)
+        } catch (NoSuchElementException e)
         {
-            if (e instanceof NoSuchElementException)
-                return APIResponse.failure(ScTcText.get("沒有查到詞語 not found", l).toString());
-
-            e.printStackTrace();
-            return APIResponse.failure(ScTcText.get("查找詞語失敗", l).toString());
+            throw new APIException(HTTPCode.NotFound, ScTcText.get("沒有查到詞語", l).toString());
         }
     }
 }

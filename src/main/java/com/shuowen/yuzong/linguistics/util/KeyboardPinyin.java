@@ -10,7 +10,7 @@ import lombok.Data;
 import static com.shuowen.yuzong.linguistics.util.SplitedPinyin.trySplit;
 
 @Data
-public class KeyboardPinyin
+public class KeyboardPinyin implements RichTextPinyin
 {
     private final String syll;
     private final Maybe<Integer> tone;
@@ -48,6 +48,23 @@ public class KeyboardPinyin
     @Override
     public String toString()
     {
+        return toHandleString();
+    }
+
+    @Override
+    public String toOriginalString()
+    {
         return syll + (tone.isValid() ? tone.getValue() : "");
+    }
+
+    @Override
+    public String toHandleString()
+    {
+        return toOriginalString();
+    }
+
+    public String toShowString()
+    {
+        return String.format(" [%s] ", toOriginalString());
     }
 }

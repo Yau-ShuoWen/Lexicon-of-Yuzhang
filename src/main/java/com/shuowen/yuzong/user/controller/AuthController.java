@@ -27,124 +27,64 @@ public class AuthController
     @RequestMapping ("/login")
     public APIResponse<String> login(String username, String password)
     {
-        try
-        {
-            UserEntity u = user.checkIdentityByUsername(username, password);
-            return APIResponse.success(token.generateAndSaveToken(u.getUsername()));
-        } catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        UserEntity u = user.checkIdentityByUsername(username, password);
+        return APIResponse.success(token.generateAndSaveToken(u.getUsername()));
     }
 
     @RequestMapping("/login-by-phone")
     public APIResponse<String> loginByPhone(String phone, String password)
     {
-        try
-        {
-            UserEntity u = user.checkIdentityByPhone(phone, password);
-            return APIResponse.success(token.generateAndSaveToken(u.getUsername()));
-        } catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        UserEntity u = user.checkIdentityByPhone(phone, password);
+        return APIResponse.success(token.generateAndSaveToken(u.getUsername()));
     }
 
     @RequestMapping("/login-by-code")
     public APIResponse<String> loginByCode(String phone, String code)
     {
-        try
-        {
-            verificationCode.verifyLoginCode(phone, code);
-            UserEntity u = user.loginOrRegisterByPhoneCode(phone);
-            return APIResponse.success(token.generateAndSaveToken(u.getUsername()));
-        } catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        verificationCode.verifyLoginCode(phone, code);
+        UserEntity u = user.loginOrRegisterByPhoneCode(phone);
+        return APIResponse.success(token.generateAndSaveToken(u.getUsername()));
     }
 
     @RequestMapping ("/logout")
     public APIResponse<Void> logout(String t)
     {
-        try
-        {
-            token.removeToken(t);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        token.removeToken(t);
+        return APIResponse.success();
     }
 
     @RequestMapping ("/check-auth")
     public APIResponse<Void> checkAuth(String t)
     {
-        try
-        {
-            user.getUserByToken(t);
-            token.refreshToken(t);  // 每次验证时刷新Token过期时间
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure("登陆状态无效。Invalid login status.");
-        }
+        user.getUserByToken(t);
+        token.refreshToken(t);  // 每次验证时刷新Token过期时间
+        return APIResponse.success();
     }
 
     @RequestMapping ("/update-username")
     public APIResponse<Void> changeUsername(String t, String newUsername)
     {
-        try
-        {
-            user.updateUsername(t, newUsername);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        user.updateUsername(t, newUsername);
+        return APIResponse.success();
     }
 
     @RequestMapping ("/update-password")
     public APIResponse<Void> updatePassword(String t, String oldPassword, String newPassword)
     {
-        try
-        {
-            user.updatePassword(t, oldPassword, newPassword);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        user.updatePassword(t, oldPassword, newPassword);
+        return APIResponse.success();
     }
 
     // @RequestMapping ("/create-user")
     public APIResponse<Void> createUser(String username, String password)
     {
-        try
-        {
-            user.createUser(username, password);
-            return APIResponse.success();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            return APIResponse.failure(e.getMessage());
-        }
+        user.createUser(username, password);
+        return APIResponse.success();
     }
 
     @RequestMapping("/me")
     public APIResponse<UserProfileEntity> me(String t)
     {
-        try
-        {
-            return APIResponse.success(user.getUserProfileByToken(t));
-        }
-        catch (Exception e)
-        {
-            return APIResponse.failure(e.getMessage());
-        }
+        return APIResponse.success(user.getUserProfileByToken(t));
     }
 }

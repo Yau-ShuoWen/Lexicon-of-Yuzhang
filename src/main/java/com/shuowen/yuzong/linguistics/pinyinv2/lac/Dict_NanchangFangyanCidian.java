@@ -6,9 +6,28 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 /**
  * 《南昌方言词典》的记音规则。
  */
-public final class Dict_NanchangFangyanCidian extends LACZuheCidian
+public final class Dict_NanchangFangyanCidian extends LACNormalDict
 {
     public static final Dict_NanchangFangyanCidian INSTANCE = new Dict_NanchangFangyanCidian();
+
+    static final YunSupport SUPPORT = YunSupport.of(
+            "a", "o", "e", "ọ", "ı",
+            "i", "ia", "ie",
+            "u", "ua", "uo", "ue",
+            "ü", "üe",
+
+            "ai", "oi", "ẹi",
+            "ei", "ui", "uai",
+            "au", "iu", "eu", "ẹu", "ieu",
+
+            "an", "uan", "on", "uon", "üon",
+            "en", "ien", "ẹn", "in", "un", "ün",
+            "aŋ", "iaŋ", "uaŋ", "oŋ", "ioŋ", "uoŋ", "uŋ", "iuŋ",
+
+            "at", "uat", "ot", "uot", "üot",
+            "et", "iet", "uet", "ẹt", "it", "ut", "üt",
+            "ak", "iak", "uak", "ok", "iok", "uok", "uk", "iuk"
+    );
 
     private Dict_NanchangFangyanCidian()
     {
@@ -31,7 +50,12 @@ public final class Dict_NanchangFangyanCidian extends LACZuheCidian
             case $ -> "";
             case ı -> "ɿ";
             case a -> "a";
-            case o -> yunwei == LACPinyin.YunWei.ŋ || yunwei == LACPinyin.YunWei.k ? "ɔ" : "o";
+            case o -> switch (yunwei)
+            {
+                case ŋ, k -> "ɔ";
+                default -> "o";
+            };
+
             case e -> switch (yunwei)
             {
                 case u, n, t -> "ε";
@@ -57,18 +81,7 @@ public final class Dict_NanchangFangyanCidian extends LACZuheCidian
     @Override
     protected boolean supports(LACPinyin.YinJie syllable)
     {
-        return switch (syllable.getYun())
-        {
-            case "a", "o", "e", "i", "ia", "ie", "u", "ua", "uo", "ue",
-                 "ü", "üe", "ai", "oi", "ei", "ui", "uai", "au", "iu",
-                 "an", "on", "in", "un", "uan", "uon", "ün", "üon",
-                 "aŋ", "iaŋ", "iuŋ", "uŋ", "uaŋ", "at", "ot", "it", "ut",
-                 "uat", "uot", "üt", "üot", "ọ", "ı", "ẹi", "eu", "ẹu",
-                 "ieu", "en", "ẹn", "ien", "oŋ", "ioŋ", "uoŋ", "et", "ẹt",
-                 "iet", "uet", "ak", "ok", "iak", "iok", "iuk", "uk", "uak",
-                 "uok" -> true;
-            default -> false;
-        };
+        return SUPPORT.contains(syllable);
     }
 
     @Override
@@ -84,7 +97,7 @@ public final class Dict_NanchangFangyanCidian extends LACZuheCidian
             case t5 -> "11";
             case t6 -> "5";
             case t7 -> "2";
-            case $ -> throw new IllegalStateException("无声调不需要调值");
+            case $ -> throw new IllegalStateException("无声调的已经在之前处理过，此处为不应到达的位置");
         });
     }
 }

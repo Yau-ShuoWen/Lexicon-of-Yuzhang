@@ -7,6 +7,8 @@ import com.shuowen.yuzong.user.data.mapper.UserMapper;
 import com.shuowen.yuzong.user.data.model.UserEntity;
 import com.shuowen.yuzong.user.data.model.UserProfileEntity;
 import com.shuowen.yuzong.util.json.JsonTool;
+import com.shuowen.yuzong.util.err.APIException;
+import com.shuowen.yuzong.util.tuple.HTTPCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,18 +39,20 @@ public class UserService
     public UserEntity checkIdentityByUsername(String username, String password)
     {
         username = normalize(username);
-        var u = assertNotNull(user.getUserByName(username), new NoSuchElementException("用户不存在"));
+        var u = assertNotNull(user.getUserByName(username),
+                new APIException(HTTPCode.NotLogin, "用户名或者密码错误"));
         if (!isPasswordEqual(password, u.getPassword()))
-            throw new IllegalArgumentException("用户名或者密码错误");
+            throw new APIException(HTTPCode.NotLogin, "用户名或者密码错误");
         return u;
     }
 
     public UserEntity checkIdentityByPhone(String phone, String password)
     {
         phone = normalize(phone);
-        var u = assertNotNull(user.getUserByPhone(phone), new NoSuchElementException("手机号不存在"));
+        var u = assertNotNull(user.getUserByPhone(phone),
+                new APIException(HTTPCode.NotLogin, "手机号或者密码错误"));
         if (!isPasswordEqual(password, u.getPassword()))
-            throw new IllegalArgumentException("手机号或者密码错误");
+            throw new APIException(HTTPCode.NotLogin, "手机号或者密码错误");
         return u;
     }
 
@@ -78,8 +82,10 @@ public class UserService
      */
     public UserEntity getUserByToken(String t)
     {
-        var name = assertNotNull(token.getUsernameByToken(t), new NoSuchElementException("登陆状态无效"));
-        return assertNotNull(user.getUserByName(name), new NoSuchElementException("用户不存在"));
+        var name = assertNotNull(token.getUsernameByToken(t),
+                new APIException(HTTPCode.NotLogin, "登录状态无效"));
+        return assertNotNull(user.getUserByName(name),
+                new APIException(HTTPCode.NotLogin, "登录状态无效"));
     }
 
     public UserEntity getUserById(Integer id)

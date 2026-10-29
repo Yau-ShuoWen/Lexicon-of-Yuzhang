@@ -4,10 +4,13 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface PinyinMapper
 {
+    @Select("SELECT self_key AS `key`, root_key AS rootKey, title, note FROM NC.${dialect}_ipa_segment WHERE self_key IS NOT NULL ORDER BY code")
+    List<Map<String, Object>> getLegacyEntries(String dialect);
     @Select("""
              SELECT self_key as url, title, note, info
                     FROM NC.${dialect}_ipa_segment

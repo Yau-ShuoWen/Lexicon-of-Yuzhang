@@ -1,8 +1,8 @@
 package com.shuowen.yuzong.linguistics.pinyinv2.lac;
 
+import com.shuowen.yuzong.dict.data.domain.IPA.IPA;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPASyllStyle;
 import com.shuowen.yuzong.dict.data.domain.IPA.IPAToneStyle;
-import com.shuowen.yuzong.dict.data.domain.IPA.PinyinMode;
 import com.shuowen.yuzong.linguistics.pinyinv2.DictCode;
 import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.linguistics.util.*;
@@ -18,10 +18,12 @@ import lombok.Data;
 import lombok.Getter;
 
 import java.util.Map;
-import java.util.function.Function;
 
 public class LACPinyin extends UniPinyin
 {
+    public enum KeyboardScheme
+    {STANDARD, LEGACY}
+
     @AllArgsConstructor
     protected enum ShengMu
     {
@@ -165,11 +167,11 @@ public class LACPinyin extends UniPinyin
         t0(0, "", ""),
         t1(1, "̀", "↘"),
         t2(2, "́", "↗"),
-        t3(3, "̌", "↘↗"),
+        t3(3, "̌", "⇵"),
         t4(4, "̄", "→"),
         t5(5, "̉", "↓"),
-        t6(6, "̋", "↑↑"),
-        t7(7, "̏", "↓↓");
+        t6(6, "̋", "⇈"),
+        t7(7, "̏", "⇊");
 
         final Integer code;
         @Getter
@@ -314,7 +316,12 @@ public class LACPinyin extends UniPinyin
 
     public static Maybe<LACPinyin> tryOf(KeyboardPinyin p)
     {
-        return tryOf(LACKeyboard.normalize(p));
+        return tryOf(p, LacKeyboardSchemeContext.current());
+    }
+
+    public static Maybe<LACPinyin> tryOf(KeyboardPinyin p, KeyboardScheme scheme)
+    {
+        return tryOf(LACKeyboard.normalize(p, scheme));
     }
 
     protected LACPinyin(SplitedPinyin s)
@@ -380,63 +387,54 @@ public class LACPinyin extends UniPinyin
     }
 
     @Override
-    public Maybe<String> searchIPA()
+    public Maybe<IPA> searchIPA()
     {
         return LACIPA.query(this);
     }
 
     @Override
-    public Maybe<String> searchIPA(DictCode dict)
+    public Maybe<IPA> searchIPA(DictCode dict)
     {
         return LACIPA.query(this, dict);
     }
 
     @Override
-    public Maybe<String> searchIPA(DictCode dict, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
+    public Maybe<IPA> searchIPA(DictCode dict, IPASyllStyle syllStyle, IPAToneStyle toneStyle)
     {
         return LACIPA.query(this, dict, syllStyle, toneStyle);
     }
 
     @Override
-    public PinyinBlock format(PinyinMode md)
+    public PinyinBlock format()
     {
         PinyinBlock block = new PinyinBlock();
 
-        Function<String, String> fun = s -> String.format("[%s]", PinyinCommon.e_A_G(s));
+        String display = LACDisplay.format(this).toShowString();
+        String keyboard = toKeyboardPinyin().toShowString();
+        String introduce = LACIntro.format(this).toString();
 
-        String display = fun.apply(LACDisplay.format(this));
-        String keyboard = fun.apply(LACKeyboard.format(this));
-        String introduce = fun.apply(LACIntro.format(this));
-
-        switch (md)
-        {
-            case INTRODUCE ->
-            {
-                block.setTitle(introduce);
-                block.add("就像普通話的", introduce);
-                block.add("標準寫法", display);
-                block.add("鍵盤輸入", keyboard);
-            }
-            case STANDARD, PROFESSIONAL ->
-            {
-                block.setTitle(display);
-                block.add("印刷和書寫", display);
-                block.add("鍵盤輸入", keyboard);
-            }
-        }
+        block.setTitle(display);
+        block.add("putonghua", "讀起來像", introduce);
+        block.add("standard", "標準寫法", display);
+        block.add("keyboard", "鍵盤輸入", keyboard);
         return block;
     }
 
     @Override
     public RPinyin toRPinyin()
     {
-        return RPinyin.of(PinyinCommon.e_A_G(LACPinyin.LACDisplay.format(this)));
+        return LACDisplay.format(this);
     }
 
     @Override
     public KeyboardPinyin toKeyboardPinyin()
     {
-        return KeyboardPinyin.of(LACPinyin.LACKeyboard.format(this));
+        return toKeyboardPinyin(LacKeyboardSchemeContext.current());
+    }
+
+    public KeyboardPinyin toKeyboardPinyin(KeyboardScheme scheme)
+    {
+        return LACKeyboard.format(this, scheme);
     }
 
     @Override
@@ -451,18 +449,29 @@ public class LACPinyin extends UniPinyin
      */
     private static class LACDisplay
     {
-        public static String format(LACPinyin p)
+        public static RPinyin format(LACPinyin p)
+        {
+            return RPinyin.of(handleFormat(p));
+        }
+
+        public static String handleFormat(LACPinyin p)
         {
             String s = p.getSyll();
 
-            s = PinyinCommon.d_ZCSR(s);
+            s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
+            s = s.replace("ẹi", "ui");
+
+            s = s.replace("ọ", "ö");
+
+            s = s.replace("e", "ë");
+          //  s = s.replace("ẹ", "e");
 
             String t = p.getMark();
 
             if (s.contains("iu")) return s.replace("u", "u" + t);
 
-            for (String i : "aoọeẹiuü".split(""))
+            for (String i : "aoöeẹëiuü".split(""))
                 if (s.contains(i)) return s.replace(i, i + t);
 
             // 例外：没有主元音m n ng，只有ng要特殊处理
@@ -476,14 +485,38 @@ public class LACPinyin extends UniPinyin
      */
     private static class LACKeyboard
     {
-        public static String format(LACPinyin p)
+        public static KeyboardPinyin format(LACPinyin p)
+        {
+            return format(p, KeyboardScheme.STANDARD);
+        }
+
+        public static KeyboardPinyin format(LACPinyin p, KeyboardScheme scheme)
+        {
+            return KeyboardPinyin.of(handleFormat(p, scheme));
+        }
+
+        public static String handleFormat(LACPinyin p)
+        {
+            return handleFormat(p, KeyboardScheme.STANDARD);
+        }
+
+        public static String handleFormat(LACPinyin p, KeyboardScheme scheme)
         {
             String s = p.getSyll();
 
+            s = s.replace("ẹi", "ui");
             s = s.replace("ü", "yu");
-            s = s.replace("ẹ", "ee");
-            s = s.replace("ọ", "oe");
-            s = PinyinCommon.d_ZCSR(s);
+
+            if (scheme == KeyboardScheme.LEGACY)
+            {
+                s = s.replace("ẹ", "ee").replace("ọ", "oe");
+            }
+            else
+            {
+                s = s.replace("e", "ee").replace("ẹ", "ir").replace("ọ", "eo");
+            }
+
+            s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
 
             return s + p.getToneStr();
@@ -501,15 +534,39 @@ public class LACPinyin extends UniPinyin
 
         public static SplitedPinyin normalize(KeyboardPinyin p)
         {
-            if (p.getTone().isEmpty())
-                p = ToneParser.parse(p.getSyll(), tones);
+            return normalize(p, KeyboardScheme.STANDARD);
+        }
+
+        public static SplitedPinyin normalize(KeyboardPinyin p, KeyboardScheme scheme)
+        {
+            if (p.getTone().isEmpty()) p = ToneParser.parse(p.getSyll(), tones);
 
             String s = p.getSyll().toLowerCase();
 
-            // 标准替换
-            s = s.replace("ee", "ẹ");
-            s = s.replace("oe", "ọ");
-            s = PinyinCommon.e_ZCSR(s);
+            s = PinyinCommon.d_A_G(s);
+
+            if (scheme == KeyboardScheme.LEGACY)
+            {
+                s = s
+                        .replace("ee", "ẹ")
+                        .replace("oe", "ọ");
+            }
+            else
+            {
+                // ee → ë , e → ẹ
+                s = s
+                        .replace("ee", "ë")
+                        .replace("e","ẹ").replace("ir", "ẹ")
+                        .replace("eo", "ọ").replace("oe", "ọ");
+            }
+
+
+            // 特殊汉字
+            s = s.replace("fui", "fẹi").replace("fi", "fẹi");
+
+            s = s.replace("ê", "e").replace("ë", "e");
+
+            s = PinyinCommon.e_ZCS(s);
             s = PinyinCommon.e_Ng(s);
 
             // i u ü 问题
@@ -517,9 +574,6 @@ public class LACPinyin extends UniPinyin
             s = PinyinCommon.e_Wu(s);
             s = PinyinCommon.e_JQX_Ü_V_Yu_U(s);
             s = PinyinCommon.e_Ü_V_Yu(s);
-
-            // r->l 问题
-            s = s.replace("r", "l");
 
             // 双韵母的模糊处理
             // 匹配：普通话常见但是不符合的： ao->au  iau->ieu  ou->eu  iou->iu uei->ui
@@ -559,7 +613,12 @@ public class LACPinyin extends UniPinyin
      */
     private static class LACIntro
     {
-        public static String format(LACPinyin p)
+        public static RPinyin format(LACPinyin p)
+        {
+            return RPinyin.of(handleFormat(p));
+        }
+
+        public static String handleFormat(LACPinyin p)
         {
             String s = p.getSyll();
 
@@ -569,7 +628,7 @@ public class LACPinyin extends UniPinyin
             s = PinyinCommon.d_Yu_display(s);
             s = s.replace("ẹ", "e");
             s = s.replace("ọ", "o");
-            s = PinyinCommon.d_ZCSR(s);
+            s = PinyinCommon.d_ZCS(s);
             s = PinyinCommon.d_Ng(s);
 
             // 标音调
