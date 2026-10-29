@@ -62,10 +62,18 @@ public class PinyinDocumentService
             throw new IllegalArgumentException("未归类子项格式不正确");
         if (!document.path("noteLabels").isArray())
             throw new IllegalArgumentException("解释名称格式不正确");
+        if (document.has("faq") && !document.path("faq").isArray())
+            throw new IllegalArgumentException("问答格式不正确");
         Set<String> itemKeys = new HashSet<>();
         Set<String> childKeys = new HashSet<>();
         Set<String> audioKeys = new HashSet<>();
         Set<String> ids = new HashSet<>();
+        for (JsonNode entry : document.path("faq"))
+        {
+            requireId(entry, ids);
+            validatePair(entry.path("question"), "问答题目");
+            validatePair(entry.path("answer"), "问答解答");
+        }
         for (JsonNode label : document.path("noteLabels"))
         {
             JsonNode text = label.path("text");

@@ -42,4 +42,11 @@ public class ProofreadController
     {
         return APIResponse.success(ProofreadTool.translate(text, from, to));
     }
+
+    @PostMapping ("/sc-tc-machine/{d}")
+    public APIResponse<String> translateScTc(@PathVariable Dialect d, @RequestParam String from, @RequestBody String text)
+    {
+        return APIResponse.success(ProofreadTool.escapeCharTraslate(
+                UString.of(text), Language.of(from), OrthoCharset.of(d)).toString());
+    }
 }
