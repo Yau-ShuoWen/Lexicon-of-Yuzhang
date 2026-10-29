@@ -52,17 +52,9 @@ public class DiaryText
 
         String[] split = text.split("\\R\\R+", 2);
 
-        String title, content;
-        if (split.length == 1)
-        {
-            title = split[0].replaceAll(" +", "   ");
-            content = "";
-        }
-        else
-        {
-            title = split[0].replace(" ", "   ");
-            content = split[1];
-        }
+        String title= split[0].replaceAll(" +", "   ");
+        String content=(split.length == 1) ? "" :split[1];
+
         return Twin.of(title, content).map(ScTcText::new);
     }
 }
