@@ -2,8 +2,11 @@ package com.shuowen.yuzong.dict.pinyin;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.shuowen.yuzong.dict.data.mapper.KVSMapper;
 import com.shuowen.yuzong.util.core.Dialect;
+import com.shuowen.yuzong.util.err.IllegalStringException;
+import com.shuowen.yuzong.util.text.ScTcText;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -44,8 +47,9 @@ public class PinyinDocumentService
 
     public void save(Dialect dialect, JsonNode document)
     {
-        validate(document);
-        String value = document.toString();
+        JsonNode stored = document == null ? null : document.deepCopy();
+        validate(stored);
+        String value = stored.toString();
         if (value.length() > 1_000_000) throw new IllegalArgumentException("拼音表数据过大");
         documents.upsert(dialect.toString(), value);
     }
@@ -56,20 +60,29 @@ public class PinyinDocumentService
             throw new IllegalArgumentException("拼音表格式不正确");
         if (!document.path("unplaced").isArray())
             throw new IllegalArgumentException("未归类子项格式不正确");
+        if (!document.path("noteLabels").isArray())
+            throw new IllegalArgumentException("解释名称格式不正确");
         Set<String> itemKeys = new HashSet<>();
         Set<String> childKeys = new HashSet<>();
         Set<String> audioKeys = new HashSet<>();
         Set<String> ids = new HashSet<>();
+        for (JsonNode label : document.path("noteLabels"))
+        {
+            JsonNode text = label.path("text");
+            validatePair(text, "解释名称");
+        }
         for (JsonNode section : document.path("sections"))
         {
             requireId(section, ids);
             String sectionCode = section.path("code").asText("").trim();
             if (sectionCode.isBlank() || !section.path("name").isObject())
                 throw new IllegalArgumentException("分区名称或代码为空：" + sectionCode);
+            validatePair(section.path("name"), "分区“" + sectionCode + "”的名称");
             if (!section.path("rows").isArray()) throw new IllegalArgumentException("分区缺少行");
             for (JsonNode row : section.path("rows"))
             {
                 requireId(row, ids);
+                if (row.has("name")) validatePair(row.path("name"), "分区“" + sectionCode + "”的行名称");
                 if (!row.path("groups").isArray()) throw new IllegalArgumentException("拼音行格式不正确");
                 for (JsonNode group : row.path("groups"))
                 {
@@ -92,11 +105,15 @@ public class PinyinDocumentService
                             if (audioKey.isEmpty() || !audioKeys.add(audioKey)) throw new IllegalArgumentException("录音关联为空或重复：" + childKey);
                             if (child.path("title").asText("").isBlank()) throw new IllegalArgumentException("请填写子项标题：" + childKey);
                             if (!child.path("notes").isArray()) throw new IllegalArgumentException("解释项格式不正确");
+                            int noteIndex = 0;
                             for (JsonNode note : child.path("notes"))
                             {
+                                noteIndex++;
                                 requireId(note, ids);
                                 if (!note.path("label").isObject() || !note.path("value").isObject())
                                     throw new IllegalArgumentException("解释项缺少名称或内容");
+                                validatePair(note.path("label"), "子项“" + child.path("title").asText(childKey) + "”的第 " + noteIndex + " 行解释名称");
+                                validatePair(note.path("value"), "子项“" + child.path("title").asText(childKey) + "”的第 " + noteIndex + " 行解释内容");
                             }
                         }
                     }
@@ -111,13 +128,35 @@ public class PinyinDocumentService
             String audioKey = child.path("audioKey").asText("").trim();
             if (audioKey.isEmpty() || !audioKeys.add(audioKey)) throw new IllegalArgumentException("未归类子项录音关联为空或重复：" + key);
             if (!child.path("notes").isArray()) throw new IllegalArgumentException("未归类子项解释格式不正确：" + key);
+            int noteIndex = 0;
             for (JsonNode note : child.path("notes"))
             {
+                noteIndex++;
                 requireId(note, ids);
                 if (!note.path("label").isObject() || !note.path("value").isObject())
                     throw new IllegalArgumentException("未归类子项解释缺少名称或内容：" + key);
+                validatePair(note.path("label"), "未归类子项“" + child.path("title").asText(key) + "”的第 " + noteIndex + " 行解释名称");
+                validatePair(note.path("value"), "未归类子项“" + child.path("title").asText(key) + "”的第 " + noteIndex + " 行解释内容");
             }
         }
+    }
+
+    private void validatePair(JsonNode pair, String location)
+    {
+        if (!pair.isObject() || !pair.path("sc").isTextual() || !pair.path("tc").isTextual())
+            throw new IllegalArgumentException(location + "缺少简体或繁体内容");
+        try {
+            String sc = pair.path("sc").asText();
+            String tc = pair.path("tc").asText();
+            String machineSide = pair.path("machineSide").isTextual() ? pair.path("machineSide").asText() : null;
+            new ScTcText(sc, tc, machineSide);
+            ObjectNode stored = (ObjectNode) pair;
+            stored.removeAll();
+            stored.put("sc", sc);
+            stored.put("tc", tc);
+            if (machineSide != null) stored.put("machineSide", machineSide);
+        }
+        catch (IllegalStringException e) { throw new IllegalArgumentException(location + "：" + e.getMessage(), e); }
     }
 
     private void requireId(JsonNode node, Set<String> ids)

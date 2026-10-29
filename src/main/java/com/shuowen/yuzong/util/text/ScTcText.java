@@ -2,6 +2,7 @@ package com.shuowen.yuzong.util.text;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
@@ -25,17 +26,21 @@ public class ScTcText
 {
     private final UString sc;
     private final UString tc;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final String machineSide;
 
     /**
      * 标准构造方法，由json对象构造而来
      */
     @JsonCreator
     public ScTcText(@JsonProperty ("sc") String sc,
-                    @JsonProperty ("tc") String tc)
+                    @JsonProperty ("tc") String tc,
+                    @JsonProperty ("machineSide") String machineSide)
     {
         NullTool.checkNotNull(false, sc, tc);
         this.sc = UString.of(sc);
         this.tc = UString.of(tc);
+        this.machineSide = machineSide;
         if (this.sc.length() != this.tc.length()) throw new IllegalStringException(String.format("""
                         文本框错误：
                         繁体：%s
@@ -49,6 +54,11 @@ public class ScTcText
         ));
     }
 
+    public ScTcText(String sc, String tc)
+    {
+        this(sc, tc, null);
+    }
+
     /**
      * 给出繁体，繁体简体，自动机翻
      */
@@ -56,6 +66,7 @@ public class ScTcText
     {
         this.tc = UString.of(tc);
         this.sc = escapeCharTraslate(this.tc, Language.TC, OrthoCharset.of());
+        this.machineSide = null;
     }
 
     /**
@@ -65,6 +76,7 @@ public class ScTcText
     {
         this.tc = UString.of(tc);
         this.sc = escapeCharTraslate(this.tc, Language.TC, OrthoCharset.of(d));
+        this.machineSide = null;
     }
 
     public ScTcText(UString tc, UString sc)
@@ -72,6 +84,7 @@ public class ScTcText
         NullTool.checkNotNull(false, sc, tc);
         this.sc = sc;
         this.tc = tc;
+        this.machineSide = null;
     }
 
     /**
@@ -132,7 +145,7 @@ public class ScTcText
 
     public ScTcText map(Function<String, String> fun)
     {
-        return new ScTcText(fun.apply(sc.toString()), fun.apply(tc.toString()));
+        return new ScTcText(fun.apply(sc.toString()), fun.apply(tc.toString()), machineSide);
     }
 
     public <T> Twin<T> mapToOther(Function<String, T> fun)
