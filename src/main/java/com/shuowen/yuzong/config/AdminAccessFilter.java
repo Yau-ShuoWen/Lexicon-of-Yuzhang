@@ -33,7 +33,7 @@ public class AdminAccessFilter extends OncePerRequestFilter
             "/api/image",
             "/api/study/edit/",
             "/api/study/loading-text/manage",
-            "/api/study/curriculum/manage/",
+            "/api/study/curriculum/manage",
             "/api/user/update-username",
             "/api/admin/",
             "/upload",

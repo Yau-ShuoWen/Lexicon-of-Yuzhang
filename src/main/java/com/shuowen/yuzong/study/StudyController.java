@@ -1,9 +1,9 @@
-package com.shuowen.yuzong.study.controller;
+package com.shuowen.yuzong.study;
 
-import com.shuowen.yuzong.study.data.domain.WordCardUpdate;
-import com.shuowen.yuzong.study.data.dto.WordCardPractice;
-import com.shuowen.yuzong.study.service.WordCardEditService;
-import com.shuowen.yuzong.study.service.WordCardService;
+import com.shuowen.yuzong.study.wordcard.WordCardEditService;
+import com.shuowen.yuzong.study.wordcard.WordCardPractice;
+import com.shuowen.yuzong.study.wordcard.WordCardService;
+import com.shuowen.yuzong.study.wordcard.WordCardUpdate;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.tuple.APIResponse;

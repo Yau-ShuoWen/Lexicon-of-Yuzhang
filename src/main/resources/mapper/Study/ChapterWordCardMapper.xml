@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shuowen.yuzong.study.wordcard.ChapterWordCardMapper">
+    <select id="findAllByDialect" resultType="com.shuowen.yuzong.study.wordcard.data.ChapterWordCardEntity">
+        SELECT r.chapter_id, r.word_card_id, r.card_order
+        FROM NC.study_chapter_word_card r
+        INNER JOIN NC.study_chapter chapter ON chapter.id = r.chapter_id
+        INNER JOIN NC.study_part part ON part.id = chapter.part_id
+        WHERE part.dialect = #{dialect}
+        ORDER BY part.part_order, chapter.chapter_order, r.card_order
+    </select>
+
+    <delete id="deleteAllByDialect">
+        DELETE r FROM NC.study_chapter_word_card r
+        INNER JOIN NC.study_chapter chapter ON chapter.id = r.chapter_id
+        INNER JOIN NC.study_part part ON part.id = chapter.part_id
+        WHERE part.dialect = #{dialect}
+    </delete>
+
+    <delete id="deleteByWordCardId">
+        DELETE FROM NC.study_chapter_word_card WHERE word_card_id = #{wordCardId}
+    </delete>
+
+    <insert id="insert">
+        INSERT INTO NC.study_chapter_word_card (chapter_id, word_card_id, card_order)
+        VALUES (#{chapterId}, #{wordCardId}, #{cardOrder})
+    </insert>
+</mapper>

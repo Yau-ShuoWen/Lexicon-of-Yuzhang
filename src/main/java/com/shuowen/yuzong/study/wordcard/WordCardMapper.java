@@ -1,7 +1,7 @@
-package com.shuowen.yuzong.study.data.mapper;
+package com.shuowen.yuzong.study.wordcard;
 
-import com.shuowen.yuzong.study.data.model.WordCardEntity;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -9,6 +9,8 @@ import java.util.List;
 public interface WordCardMapper
 {
     List<WordCardEntity> findRandom(String dialect, int limit);
+
+    List<WordCardEntity> findByIds(@Param("ids") List<Integer> ids, @Param("dialect") String dialect);
 
     List<WordCardEntity> findAll(String dialect);
 

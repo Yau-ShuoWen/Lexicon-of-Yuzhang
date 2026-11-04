@@ -1,8 +1,5 @@
-package com.shuowen.yuzong.study.service;
+package com.shuowen.yuzong.study.wordcard;
 
-import com.shuowen.yuzong.study.data.domain.WordCardUpdate;
-import com.shuowen.yuzong.study.data.mapper.WordCardMapper;
-import com.shuowen.yuzong.study.data.model.WordCardEntity;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.err.APIException;
 import com.shuowen.yuzong.util.tuple.HTTPCode;
@@ -19,6 +16,9 @@ public class WordCardEditService
     @Autowired
     private WordCardMapper mapper;
 
+    @Autowired
+    private ChapterWordCardMapper chapterWordCardMapper;
+
     public List<WordCardUpdate> findAll(Dialect dialect)
     {
         return mapper.findAll(dialect.toString()).stream()
@@ -33,15 +33,17 @@ public class WordCardEditService
         return new WordCardUpdate(entity, dialect);
     }
 
-    public void save(WordCardUpdate update, Dialect dialect)
+    public WordCardUpdate save(WordCardUpdate update, Dialect dialect)
     {
         WordCardEntity entity = update.checkAndTransfer(dialect);
         if (entity.id == null || entity.id <= 0) mapper.insert(entity);
         else mapper.update(entity);
+        return new WordCardUpdate(mapper.findById(entity.id, dialect.toString()), dialect);
     }
 
     public void delete(Integer id, Dialect dialect)
     {
+        chapterWordCardMapper.deleteByWordCardId(id);
         mapper.delete(id, dialect.toString());
     }
 }

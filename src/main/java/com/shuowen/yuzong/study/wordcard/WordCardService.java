@@ -1,9 +1,6 @@
-package com.shuowen.yuzong.study.service;
+package com.shuowen.yuzong.study.wordcard;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.shuowen.yuzong.study.data.dto.WordCardPractice;
-import com.shuowen.yuzong.study.data.mapper.WordCardMapper;
-import com.shuowen.yuzong.study.data.model.WordCardEntity;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.json.JsonTool;
@@ -23,7 +20,22 @@ public class WordCardService
 
     public List<WordCardPractice> getRandomCards(Dialect dialect, Language language)
     {
-        return mapper.findRandom(dialect.toString(), PRACTICE_SIZE).stream()
+        return getRandomCards(dialect, language, PRACTICE_SIZE);
+    }
+
+    public List<WordCardPractice> getRandomCards(Dialect dialect, Language language, int limit)
+    {
+        if (limit <= 0) throw new IllegalArgumentException("词卡数量必须大于 0");
+        return mapper.findRandom(dialect.toString(), limit).stream()
+                .map(card -> toPractice(card, dialect, language))
+                .toList();
+    }
+
+    public List<WordCardPractice> getCardsByIds(Dialect dialect, Language language, List<Integer> ids)
+    {
+        if (ids == null || ids.isEmpty()) return List.of();
+        return mapper.findByIds(ids.stream().filter(id -> id != null && id > 0).distinct().toList(), dialect.toString())
+                .stream()
                 .map(card -> toPractice(card, dialect, language))
                 .toList();
     }
