@@ -36,6 +36,23 @@ public class ImageService
                 + "/" + pageMarkerId + "/");
     }
 
+    public ImageVO uploadDiary(MultipartFile file, Integer diaryId) throws IOException
+    {
+        return uploadToPrefix(file, "image/diary/" + diaryId + "/");
+    }
+
+    public ImageVO getDiaryImage(Long imageId, Integer diaryId)
+    {
+        Image image = imageMapper.findById(imageId);
+        if (image == null || image.getStatus() == null || image.getStatus() != 1
+                || image.getObjectName() == null
+                || !image.getObjectName().startsWith("image/diary/" + diaryId + "/"))
+        {
+            throw new IllegalArgumentException("图片不存在或不属于当前日记");
+        }
+        return toVO(image);
+    }
+
     private ImageVO uploadToPrefix(MultipartFile file, String prefix) throws IOException
     {
         if (file == null || file.isEmpty())

@@ -12,8 +12,12 @@ import com.shuowen.yuzong.ysw.diary.data.DiaryCreateRequest;
 import com.shuowen.yuzong.ysw.diary.data.DiaryEditData;
 import com.shuowen.yuzong.ysw.diary.data.DiaryEditRequest;
 import com.shuowen.yuzong.ysw.diary.service.DiaryService;
+import com.shuowen.yuzong.media.image.ImageService;
+import com.shuowen.yuzong.media.image.ImageVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/diary/edit")
@@ -21,6 +25,9 @@ public class DiaryEditController
 {
     @Autowired
     private DiaryService diaryService;
+
+    @Autowired
+    private ImageService imageService;
 
     @Autowired
     private UserService userService;
@@ -36,6 +43,30 @@ public class DiaryEditController
     {
         requireEditPermission(t, headerToken);
         return APIResponse.success(diaryService.getForEdit(id));
+    }
+
+    @PostMapping("/{id}/image")
+    public APIResponse<ImageVO> uploadImage(
+            @PathVariable Integer id,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(required = false) String t,
+            @RequestHeader(value = "X-Auth-Token", required = false) String headerToken) throws IOException
+    {
+        requireEditPermission(t, headerToken);
+        diaryService.getForEdit(id);
+        return APIResponse.success(imageService.uploadDiary(file, id));
+    }
+
+    @GetMapping("/{id}/image/{imageId}")
+    public APIResponse<ImageVO> getImage(
+            @PathVariable Integer id,
+            @PathVariable Long imageId,
+            @RequestParam(required = false) String t,
+            @RequestHeader(value = "X-Auth-Token", required = false) String headerToken)
+    {
+        requireEditPermission(t, headerToken);
+        diaryService.getForEdit(id);
+        return APIResponse.success(imageService.getDiaryImage(imageId, id));
     }
 
     @PostMapping

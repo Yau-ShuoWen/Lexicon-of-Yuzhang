@@ -8,6 +8,8 @@ import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Twin;
 import com.shuowen.yuzong.ysw.diary.data.*;
 import com.shuowen.yuzong.ysw.diary.mapper.DiaryMapper;
+import com.shuowen.yuzong.media.image.ImageService;
+import com.shuowen.yuzong.media.image.ImageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +17,37 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Service
 public class DiaryService
 {
     @Autowired
     private DiaryMapper m;
+    @Autowired
+    private ImageService imageService;
+    private static final Pattern PICTURE = Pattern.compile("(?m)^\\{p (?:(?:[^{}\\r\\n]*?)=>)?([1-9][0-9]*)}\\s*$");
+
+    private Map<String, ImageVO> imagesFor(Integer diaryId, String body)
+    {
+        Map<String, ImageVO> images = new LinkedHashMap<>();
+        if (body == null) return images;
+        var matcher = PICTURE.matcher(body);
+        while (matcher.find())
+        {
+            String id = matcher.group(1);
+            images.computeIfAbsent(id, key -> imageService.getDiaryImage(Long.valueOf(key), diaryId));
+        }
+        return images;
+    }
+
+    private DiaryEditData editData(DiaryEntity diary)
+    {
+        var data = DiaryEditData.of(diary);
+        return new DiaryEditData(data.id(), data.date(), data.sort(), data.content(), data.forFriend(),
+                data.forStranger(), data.startDate(), data.finalizeDate(), data.visibility(),
+                imagesFor(diary.getId(), diary.getContent()));
+    }
 
     public DiaryCatalog getCatalog()
     {
@@ -111,7 +138,7 @@ public class DiaryService
         {
             throw new IllegalArgumentException("日记不存在");
         }
-        return DiaryEditData.of(diary);
+        return editData(diary);
     }
 
     public DiaryEditData createForEdit(DiaryCreateRequest request)
@@ -136,7 +163,7 @@ public class DiaryService
         {
             throw new IllegalStateException("日记创建失败");
         }
-        return DiaryEditData.of(diary);
+        return editData(diary);
     }
 
     public DiaryEditData updateForEdit(Integer id, DiaryEditRequest request)
@@ -167,6 +194,7 @@ public class DiaryService
 
         diary.setDate(request.date());
         diary.setSort(request.sort());
+        imagesFor(id, request.content());
         diary.setContent(request.content());
         diary.setStartDate(request.startDate());
         diary.setFinalizeDate(request.finalizeDate());
@@ -177,7 +205,7 @@ public class DiaryService
         {
             throw new IllegalStateException("日记保存失败");
         }
-        return DiaryEditData.of(diary);
+        return editData(diary);
     }
 
     public Maybe<DiaryText> getDiaryById(Integer id, Language l)
@@ -200,7 +228,10 @@ public class DiaryService
             return Maybe.nothing();
         }
 
-        return Maybe.exist(new DiaryText(item, l, resolveBody(item, view), view.name().toLowerCase(), availableViews));
+        String body = resolveBody(item, view);
+        var result = new DiaryText(item, l, body, view.name().toLowerCase(), availableViews);
+        result.setImages(imagesFor(id, body));
+        return Maybe.exist(result);
     }
 
     public Twin<Maybe<Map>> getNearby(Integer id)

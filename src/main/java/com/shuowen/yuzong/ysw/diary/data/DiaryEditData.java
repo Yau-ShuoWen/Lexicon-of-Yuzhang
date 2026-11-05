@@ -1,6 +1,8 @@
 package com.shuowen.yuzong.ysw.diary.data;
 
 import java.time.LocalDate;
+import java.util.Map;
+import com.shuowen.yuzong.media.image.ImageVO;
 
 public record DiaryEditData(
         Integer id,
@@ -11,7 +13,8 @@ public record DiaryEditData(
         String forStranger,
         LocalDate startDate,
         LocalDate finalizeDate,
-        String visibility
+        String visibility,
+        Map<String, ImageVO> images
 )
 {
     public static DiaryEditData of(DiaryEntity diary)
@@ -31,7 +34,8 @@ public record DiaryEditData(
                 diary.getForStranger(),
                 diary.getStartDate(),
                 diary.getFinalizeDate(),
-                visibility
+                visibility,
+                Map.of()
         );
     }
 }

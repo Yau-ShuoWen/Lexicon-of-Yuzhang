@@ -9,6 +9,8 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import com.shuowen.yuzong.media.image.ImageVO;
 
 @Data
 public class DiaryText
@@ -26,6 +28,7 @@ public class DiaryText
     private LocalDateTime updatedTime;
     private String viewMode;
     private List<String> availableViews;
+    private Map<String, ImageVO> images = Map.of();
 
     public DiaryText(DiaryEntity d, Language l, String body, String viewMode, List<String> availableViews)
     {

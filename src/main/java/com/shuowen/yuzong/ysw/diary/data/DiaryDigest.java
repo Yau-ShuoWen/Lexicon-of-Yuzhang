@@ -22,7 +22,7 @@ public class DiaryDigest
     {
         date = d.getDate();
         String text = body == null ? "" : body;
-        intro = ScTcText.get(text.split("\\R\\R+", 2)[0].replace(" ", "   "), l);
+        intro = ScTcText.get(text.split("\\R\\R+", 2)[0].replaceAll(" +", "   "), l);
         startDate = d.getStartDate();
         finalizeDate = d.getFinalizeDate();
         id = d.getId();
