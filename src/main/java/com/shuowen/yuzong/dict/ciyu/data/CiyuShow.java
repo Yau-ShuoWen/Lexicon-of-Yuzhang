@@ -7,6 +7,7 @@ import com.shuowen.yuzong.linguistics.util.RPinyins;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.RichTextUtil;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Twin;
@@ -14,6 +15,7 @@ import lombok.Data;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 词语的展示类，传输之后用作内容展示界面使用
@@ -25,6 +27,7 @@ public class CiyuShow
     private final UString ciyu;
     private final Integer special;
     private final RPinyins mainPy;
+    private final String initialPinyinBlock;
     private final List<Twin<UString>> note;
     private final List<UString> mean;
     private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
@@ -46,6 +49,11 @@ public class CiyuShow
         mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->
                 d.trustedCreatePinyin(i).toRPinyin()
         ));
+        String rawPinyin = cy.getMainPy().stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(" "));
+        initialPinyinBlock = TextPinyinIPA.format("[" + rawPinyin + "]", data,
+                false, Maybe.nothing(), true);
 
         note = ListTool.mapping(cy.getNote(),
                 i -> Twin.of(i.getLeft(),
