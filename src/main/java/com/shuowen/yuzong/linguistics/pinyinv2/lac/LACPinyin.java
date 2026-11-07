@@ -414,7 +414,7 @@ public class LACPinyin extends UniPinyin
         String introduce = LACIntro.format(this).toString();
 
         block.setTitle(display);
-        block.add("putonghua", "讀起來像", introduce);
+        block.add("putonghua", "近似讀音", introduce);
         block.add("standard", "標準寫法", display);
         block.add("keyboard", "鍵盤輸入", keyboard);
         return block;

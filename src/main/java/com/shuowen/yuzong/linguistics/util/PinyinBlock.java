@@ -99,9 +99,9 @@ public class PinyinBlock
         return ScTcText.get(str, l).toString();
     }
 }
-// 读起来想普通话的 <putonghua>
+// 近似读音 <putonghua>
 // 标准写法 <standard>
 // 键盘输入 <keyboard>
-// 本词典标准IPA <yzcIPA>
+// 国际音标 <yzcIPA>
 // 其他版本拼音 <other>
-// 词语对应版本IPA <dictIPA>
+// 辞书里的国际音标 <dictIPA>
