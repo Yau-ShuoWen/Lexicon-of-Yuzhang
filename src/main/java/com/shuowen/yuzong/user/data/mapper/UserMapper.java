@@ -17,6 +17,8 @@ public interface UserMapper
 
     List<UserEntity> searchUsers(@Param("keyword") String keyword);
 
+    List<UserEntity> listUsersAfter(@Param("afterId") Integer afterId, @Param("limit") Integer limit);
+
     void insertUser(UserEntity user);
 
     void updateUsername(UserEntity user);
