@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.shuowen.yuzong.user.data.mapper.UserSettingMapper">
-    <select id="getLegacyPinyin" resultType="java.lang.String">
+    <select id="getKeyboardScheme" resultType="java.lang.String">
         SELECT setting_value
         FROM NC.user_setting
-        WHERE user_id = #{userId} AND setting_key = 'lacLegacyPinyinReadWrite'
+        WHERE user_id = #{userId} AND setting_key = 'lacKeyboardScheme'
     </select>
-    <insert id="upsertLegacyPinyin">
+    <insert id="upsertKeyboardScheme">
         INSERT INTO NC.user_setting (user_id, setting_key, setting_value)
-        VALUES (#{userId}, 'lacLegacyPinyinReadWrite', #{value})
+        VALUES (#{userId}, 'lacKeyboardScheme', #{value})
         ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)
     </insert>
     <insert id="ensureVersion">

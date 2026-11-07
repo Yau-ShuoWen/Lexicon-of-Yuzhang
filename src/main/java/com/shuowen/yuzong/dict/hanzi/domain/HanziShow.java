@@ -9,6 +9,7 @@ import com.shuowen.yuzong.linguistics.util.RPinyin;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.RichTextUtil;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -27,6 +28,7 @@ public class HanziShow
     private final Integer special;
     private final LinkedHashSet<UChar> similar;
     private final List<Pronunciation> pinyin = new ArrayList<>();
+    private final String initialPinyinBlock;
     private final List<Twin<UString>> note;
     private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
 
@@ -115,6 +117,13 @@ public class HanziShow
                 pinyin.add(value);
             }
         }
+        String rawPinyin = items.stream()
+                .flatMap(item -> item.getPinyin().stream())
+                .map(source -> source.getPinyin().toString())
+                .distinct()
+                .collect(Collectors.joining(" "));
+        initialPinyinBlock = TextPinyinIPA.format("[" + rawPinyin + "]", config,
+                false, Maybe.nothing(), true);
         ref.addAll(RefReadService.getRef(first.getHanzis().toText(), config));
     }
 }

@@ -250,7 +250,7 @@ public class TextPinyinIPA
                 var defaultIPA = data.searchDefaultIPA(py);
                 block.add(
                         "yzcIPA",
-                        "本詞典使用 IPA",
+                        "國際音標",
                         defaultIPA.handleIfExistAndGet(Object::toString, "—")
                 );
 
@@ -266,7 +266,7 @@ public class TextPinyinIPA
                 var defaultIPA = data.searchDefaultIPA(py);
                 block.add(
                         "yzcIPA",
-                        "本詞典使用 IPA",
+                        "國際音標",
                         defaultIPA.handleIfExistAndGet(Object::toString, "—")
                 );
 
@@ -295,10 +295,10 @@ public class TextPinyinIPA
     {
         PinyinBlock block = new PinyinBlock();
         block.setTitle("—");
-        block.add("putonghua", "讀起來像", "—");
+        block.add("putonghua", "近似讀音", "—");
         block.add("standard", "標準寫法", "—");
         block.add("keyboard", "鍵盤輸入", "—");
-        block.add("yzcIPA", "本詞典使用 IPA", "—");
+        block.add("yzcIPA", "國際音標", "—");
 
         if (developer)
         {
@@ -382,7 +382,6 @@ public class TextPinyinIPA
 
             if (centralVersion && useAsTitle)
             {
-                block.setTitle(ipaText);
                 block.addFirst("dictIPA", versionName, ipaText);
             }
             else block.add("dictIPA", versionName, ipaText);

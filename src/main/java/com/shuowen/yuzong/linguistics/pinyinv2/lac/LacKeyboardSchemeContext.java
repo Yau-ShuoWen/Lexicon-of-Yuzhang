@@ -10,7 +10,7 @@ public final class LacKeyboardSchemeContext
     public static LACPinyin.KeyboardScheme current()
     {
         var scheme = CURRENT.get();
-        return scheme == null ? LACPinyin.KeyboardScheme.STANDARD : scheme;
+        return scheme == null ? LACPinyin.KeyboardScheme.GON : scheme;
     }
 
     public static void set(LACPinyin.KeyboardScheme scheme)

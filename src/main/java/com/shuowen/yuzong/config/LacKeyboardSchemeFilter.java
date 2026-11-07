@@ -39,12 +39,12 @@ public class LacKeyboardSchemeFilter extends OncePerRequestFilter
     {
         String token = request.getHeader("X-Auth-Token");
         if (token == null || token.isBlank()) token = request.getParameter("t");
-        var scheme = LACPinyin.KeyboardScheme.STANDARD;
+        var scheme = LACPinyin.KeyboardScheme.GON;
         if (token != null && !token.isBlank())
         {
             try
             {
-                if (settings.usesLegacyPinyin(token)) scheme = LACPinyin.KeyboardScheme.LEGACY;
+                if ("yzc".equals(settings.getKeyboardScheme(token))) scheme = LACPinyin.KeyboardScheme.YZC;
             }
             catch (APIException ignored)
             {

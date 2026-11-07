@@ -14,14 +14,19 @@ public class UserSettingService
     private final UserService users;
     private final UserSettingMapper settings;
 
-    public record Values(boolean lacLegacyPinyinReadWrite, long version) {}
+    public record Values(String lacKeyboardScheme, long version) {}
 
-    public record Change(Boolean lacLegacyPinyinReadWrite, Long version) {}
+    public record Change(String lacKeyboardScheme, Long version) {}
 
-    public boolean usesLegacyPinyin(String token)
+    private String normalizeKeyboardScheme(String value)
+    {
+        return "yzc".equals(value) ? "yzc" : "gon";
+    }
+
+    public String getKeyboardScheme(String token)
     {
         Integer userId = users.getUserByToken(token).getId();
-        return Boolean.parseBoolean(settings.getLegacyPinyin(userId));
+        return normalizeKeyboardScheme(settings.getKeyboardScheme(userId));
     }
 
     @Transactional(readOnly = true)
@@ -29,20 +34,21 @@ public class UserSettingService
     {
         Integer userId = users.getUserByToken(token).getId();
         Long version = settings.getVersion(userId);
-        return new Values(Boolean.parseBoolean(settings.getLegacyPinyin(userId)), version == null ? 0 : version);
+        return new Values(normalizeKeyboardScheme(settings.getKeyboardScheme(userId)), version == null ? 0 : version);
     }
 
     @Transactional
     public Values update(String token, Change values)
     {
-        if (values == null || values.lacLegacyPinyinReadWrite() == null || values.version() == null)
+        if (values == null || !("gon".equals(values.lacKeyboardScheme()) || "yzc".equals(values.lacKeyboardScheme()))
+                || values.version() == null)
             throw new IllegalArgumentException("设置内容不完整");
         Integer userId = users.getUserByToken(token).getId();
         settings.ensureVersion(userId);
         Long currentVersion = settings.lockVersion(userId);
         if (!values.version().equals(currentVersion))
             throw new APIException(HTTPCode.Conflict, "设置已在其他页面更改，请刷新后重试");
-        settings.upsertLegacyPinyin(userId, Boolean.toString(values.lacLegacyPinyinReadWrite()));
+        settings.upsertKeyboardScheme(userId, values.lacKeyboardScheme());
         settings.incrementVersion(userId);
         return get(token);
     }
