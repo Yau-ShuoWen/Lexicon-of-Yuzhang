@@ -218,7 +218,7 @@ public class ReferenceTsvAuditService
     private String normalizeReferenceDialect(String pinyin)
     {
         String standard = pinyin.trim().toLowerCase(Locale.ROOT).replace("eo", "ọ").replace("oe", "ọ");
-        LACPinyin value = LACPinyin.tryOf(KeyboardPinyin.of(standard), LACPinyin.KeyboardScheme.STANDARD)
+        LACPinyin value = LACPinyin.tryOf(KeyboardPinyin.of(standard), LACPinyin.KeyboardScheme.GON)
                 .getValueDirectly("TSV 中的南昌话新方案拼音无效：" + pinyin);
         return value.toDatabasePinyin().toString(true);
     }

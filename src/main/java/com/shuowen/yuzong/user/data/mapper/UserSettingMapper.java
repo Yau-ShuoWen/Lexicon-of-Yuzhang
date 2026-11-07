@@ -6,9 +6,9 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface UserSettingMapper
 {
-    String getLegacyPinyin(@Param("userId") Integer userId);
+    String getKeyboardScheme(@Param("userId") Integer userId);
 
-    void upsertLegacyPinyin(@Param("userId") Integer userId, @Param("value") String value);
+    void upsertKeyboardScheme(@Param("userId") Integer userId, @Param("value") String value);
 
     void ensureVersion(@Param("userId") Integer userId);
 

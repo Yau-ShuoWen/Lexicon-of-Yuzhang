@@ -30,13 +30,15 @@ public class UserSettingController
             @RequestBody JsonNode body)
     {
         if (body == null || !body.isObject() || body.size() != 2
-                || !body.has("lacLegacyPinyinReadWrite") || !body.get("lacLegacyPinyinReadWrite").isBoolean()
+                || !body.has("lacKeyboardScheme") || !body.get("lacKeyboardScheme").isTextual()
+                || !("gon".equals(body.get("lacKeyboardScheme").textValue())
+                || "yzc".equals(body.get("lacKeyboardScheme").textValue()))
                 || !body.has("version") || !body.get("version").isIntegralNumber()
                 || !body.get("version").canConvertToLong()
                 || body.get("version").longValue() < 0)
             throw new IllegalArgumentException("设置内容无效");
         var change = new UserSettingService.Change(
-                body.get("lacLegacyPinyinReadWrite").booleanValue(),
+                body.get("lacKeyboardScheme").textValue(),
                 body.get("version").longValue());
         return APIResponse.success(settings.update(token, change));
     }

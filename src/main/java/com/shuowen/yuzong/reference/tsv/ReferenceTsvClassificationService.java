@@ -66,7 +66,7 @@ public class ReferenceTsvClassificationService
         try
         {
             String standard = pinyin.trim().toLowerCase(Locale.ROOT).replace("eo", "ọ").replace("oe", "ọ");
-            return LACPinyin.tryOf(KeyboardPinyin.of(standard), LACPinyin.KeyboardScheme.STANDARD)
+            return LACPinyin.tryOf(KeyboardPinyin.of(standard), LACPinyin.KeyboardScheme.GON)
                     .getValueDirectly("TSV 中的方言拼音无效：" + pinyin).toRPinyin().toHandleString();
         }
         catch (RuntimeException ignored)

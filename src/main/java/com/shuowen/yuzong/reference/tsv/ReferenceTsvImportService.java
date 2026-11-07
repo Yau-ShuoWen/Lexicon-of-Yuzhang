@@ -72,7 +72,7 @@ public class ReferenceTsvImportService
             {
                 String raw = row.values()[2];
                 String standard = raw.trim().toLowerCase(Locale.ROOT).replace("eo", "ọ").replace("oe", "ọ");
-                LACPinyin parsed = LACPinyin.tryOf(KeyboardPinyin.of(standard), LACPinyin.KeyboardScheme.STANDARD)
+                LACPinyin parsed = LACPinyin.tryOf(KeyboardPinyin.of(standard), LACPinyin.KeyboardScheme.GON)
                         .getValueDirectly("方言拼音无法解析：" + character + " " + raw);
                 String stored = parsed.toDatabasePinyin().toString(true);
                 if (seen.add(stored)) pronunciations.add(new HanziPronunciation(

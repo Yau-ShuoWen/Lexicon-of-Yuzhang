@@ -22,7 +22,7 @@ import java.util.Map;
 public class LACPinyin extends UniPinyin
 {
     public enum KeyboardScheme
-    {STANDARD, LEGACY}
+    {GON, YZC}
 
     @AllArgsConstructor
     protected enum ShengMu
@@ -487,7 +487,7 @@ public class LACPinyin extends UniPinyin
     {
         public static KeyboardPinyin format(LACPinyin p)
         {
-            return format(p, KeyboardScheme.STANDARD);
+            return format(p, KeyboardScheme.GON);
         }
 
         public static KeyboardPinyin format(LACPinyin p, KeyboardScheme scheme)
@@ -497,7 +497,7 @@ public class LACPinyin extends UniPinyin
 
         public static String handleFormat(LACPinyin p)
         {
-            return handleFormat(p, KeyboardScheme.STANDARD);
+            return handleFormat(p, KeyboardScheme.GON);
         }
 
         public static String handleFormat(LACPinyin p, KeyboardScheme scheme)
@@ -507,7 +507,7 @@ public class LACPinyin extends UniPinyin
             s = s.replace("ẹi", "ui");
             s = s.replace("ü", "yu");
 
-            if (scheme == KeyboardScheme.LEGACY)
+            if (scheme == KeyboardScheme.YZC)
             {
                 s = s.replace("ẹ", "ee").replace("ọ", "oe");
             }
@@ -534,7 +534,7 @@ public class LACPinyin extends UniPinyin
 
         public static SplitedPinyin normalize(KeyboardPinyin p)
         {
-            return normalize(p, KeyboardScheme.STANDARD);
+            return normalize(p, KeyboardScheme.GON);
         }
 
         public static SplitedPinyin normalize(KeyboardPinyin p, KeyboardScheme scheme)
@@ -545,7 +545,7 @@ public class LACPinyin extends UniPinyin
 
             s = PinyinCommon.d_A_G(s);
 
-            if (scheme == KeyboardScheme.LEGACY)
+            if (scheme == KeyboardScheme.YZC)
             {
                 s = s
                         .replace("ee", "ẹ")
