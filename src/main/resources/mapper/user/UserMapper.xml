@@ -28,6 +28,14 @@
         LIMIT 20
     </select>
 
+    <select id="listUsersAfter" resultType="com.shuowen.yuzong.user.data.model.UserListRow">
+        SELECT id, username, phone, authority
+        FROM NC.user
+        WHERE id &gt; #{afterId}
+        ORDER BY id
+        LIMIT #{limit}
+    </select>
+
     <insert id="insertUser" parameterType="com.shuowen.yuzong.user.data.model.UserEntity">
         INSERT INTO NC.user
         (username, phone, password, authority)
