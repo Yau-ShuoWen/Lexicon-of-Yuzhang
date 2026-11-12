@@ -1,6 +1,7 @@
 package com.shuowen.yuzong.user.data.mapper;
 
 import com.shuowen.yuzong.user.data.model.UserEntity;
+import com.shuowen.yuzong.user.data.model.UserListRow;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -17,7 +18,7 @@ public interface UserMapper
 
     List<UserEntity> searchUsers(@Param("keyword") String keyword);
 
-    List<UserEntity> listUsersAfter(@Param("afterId") Integer afterId, @Param("limit") Integer limit);
+    List<UserListRow> listUsersAfter(@Param("afterId") Integer afterId, @Param("limit") Integer limit);
 
     void insertUser(UserEntity user);
 

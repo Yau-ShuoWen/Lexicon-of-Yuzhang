@@ -28,7 +28,7 @@
         LIMIT 20
     </select>
 
-    <select id="listUsersAfter" resultType="com.shuowen.yuzong.user.data.model.UserEntity">
+    <select id="listUsersAfter" resultType="com.shuowen.yuzong.user.data.model.UserListRow">
         SELECT id, username, phone, authority
         FROM NC.user
         WHERE id &gt; #{afterId}

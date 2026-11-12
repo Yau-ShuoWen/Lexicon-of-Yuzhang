@@ -3,6 +3,7 @@ package com.shuowen.yuzong.user.controller;
 import com.shuowen.yuzong.user.data.mapper.UserMapper;
 import com.shuowen.yuzong.user.data.mapper.UserSettingMapper;
 import com.shuowen.yuzong.user.data.model.UserEntity;
+import com.shuowen.yuzong.user.data.model.UserListRow;
 import com.shuowen.yuzong.user.service.TokenService;
 import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.util.err.APIException;
@@ -35,10 +36,10 @@ public class AdminUserController
     public APIResponse<UserPage> list(@RequestParam(defaultValue = "0") Integer afterId)
     {
         if (afterId == null || afterId < 0) throw new IllegalArgumentException("用户编号无效");
-        List<UserEntity> rows = userMapper.listUsersAfter(afterId, 21);
+        List<UserListRow> rows = userMapper.listUsersAfter(afterId, 21);
         List<UserSummary> summaries = rows.stream().limit(20)
-                .map(user -> new UserSummary(user.getId(), user.getUsername(), user.getPhone(),
-                        users.hasAdminAuthority(user.getAuthority())))
+                .map(user -> new UserSummary(user.id(), user.username(), user.phone(),
+                        users.hasAdminAuthority(user.authority())))
                 .toList();
         Integer next = rows.size() > 20 ? summaries.get(summaries.size() - 1).id() : null;
         return APIResponse.success(new UserPage(summaries, next));
