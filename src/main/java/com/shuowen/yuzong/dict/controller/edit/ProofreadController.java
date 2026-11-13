@@ -22,15 +22,14 @@ public class ProofreadController
     )
     {
         return APIResponse.success(ProofreadTool.retainContextTranslate(
-                text.getLeft(), text.getMiddle(), text.getRight(),
-                OrthoCharset.of(d))
+                text.getLeft(), text.getMiddle(), text.getRight(), d)
         );
     }
 
     @PostMapping ("/check/{l}/{d}")
     public APIResponse<Pair<Boolean, UString>> check(@PathVariable Dialect d, @PathVariable Language l,
-                                        @RequestParam (required = false) DictCode dict,
-                                        @RequestParam UString text
+                                                     @RequestParam (required = false) DictCode dict,
+                                                     @RequestParam UString text
     )
     {
         var str = RichTextUtil.format(text, new PinyinConfig(l, d), true, Maybe.uncertain(dict), false);
@@ -40,13 +39,15 @@ public class ProofreadController
     @PostMapping ("/translate")
     public APIResponse<String> translate(@RequestParam String from, @RequestParam String to, @RequestBody String text)
     {
-        return APIResponse.success(ProofreadTool.translate(text, from, to));
+        return APIResponse.success(Translate.handle(text, from, to));
     }
 
     @PostMapping ("/sc-tc-machine/{d}")
     public APIResponse<String> translateScTc(@PathVariable Dialect d, @RequestParam String from, @RequestBody String text)
     {
-        return APIResponse.success(ProofreadTool.escapeCharTraslate(
-                UString.of(text), Language.of(from), OrthoCharset.of(d)).toString());
+        return APIResponse.success(from.equals("sc") ?
+                Translate.handle(text, "sc", "tc") :
+                Translate.toSc(text, d)
+        );
     }
 }

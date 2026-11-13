@@ -11,12 +11,7 @@ import com.shuowen.yuzong.util.ext.other.NullTool;
 import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 
-import java.util.Scanner;
 import java.util.function.Function;
-
-import static com.shuowen.yuzong.util.json.JsonTool.toJson;
-import static com.shuowen.yuzong.util.text.ProofreadTool.escapeCharTraslate;
-import static com.shuowen.yuzong.util.text.ProofreadTool.useHanlpTranslate;
 
 /**
  * 简体繁体对
@@ -26,7 +21,7 @@ public class ScTcText
 {
     private final UString sc;
     private final UString tc;
-    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude (JsonInclude.Include.NON_NULL)
     private final String machineSide;
 
     /**
@@ -65,7 +60,7 @@ public class ScTcText
     public ScTcText(String tc)
     {
         this.tc = UString.of(tc);
-        this.sc = escapeCharTraslate(this.tc, Language.TC, OrthoCharset.of());
+        this.sc = Translate.toSc(this.tc);
         this.machineSide = null;
     }
 
@@ -75,7 +70,7 @@ public class ScTcText
     public ScTcText(String tc, Dialect d)
     {
         this.tc = UString.of(tc);
-        this.sc = escapeCharTraslate(this.tc, Language.TC, OrthoCharset.of(d));
+        this.sc = Translate.toSc(this.tc, d);
         this.machineSide = null;
     }
 
@@ -92,7 +87,7 @@ public class ScTcText
      */
     public static ScTcText offline(String tc)
     {
-        return new ScTcText(useHanlpTranslate(tc, Language.TC), tc);
+        return new ScTcText(Translate.toSc(tc), tc);
     }
 
     public UString get(Language l)
@@ -111,9 +106,8 @@ public class ScTcText
      */
     public static UString get(String tc, Language l)
     {
-        return l.isSimplified() ?
-                escapeCharTraslate(UString.of(tc), Language.TC, OrthoCharset.of()) :
-                UString.of(tc);
+        var theTc = UString.of(tc);
+        return l.isSimplified() ? Translate.toSc(theTc) : theTc;
     }
 
     /**
@@ -127,7 +121,7 @@ public class ScTcText
     public static UString get(String tc, Dialect d, Language l)
     {
         return l.isSimplified() ?
-                escapeCharTraslate(UString.of(tc), Language.TC, OrthoCharset.of(d)) :
+                Translate.toSc(UString.of(tc), d) :
                 UString.of(tc);
     }
 
@@ -151,18 +145,5 @@ public class ScTcText
     public <T> Twin<T> mapToOther(Function<String, T> fun)
     {
         return Twin.of(fun.apply(sc.toString()), fun.apply(tc.toString()));
-    }
-
-    // 手动构造数据使用，但是不推荐，因为没有任何数据优化
-    public static void main(String[] args)
-    {
-        while (true)
-        {
-            Scanner sc = new Scanner(System.in);
-            String pyText = sc.nextLine();
-            if (pyText.equals("exit")) return;
-
-            System.out.println(toJson(ScTcText.offline(pyText)));
-        }
     }
 }
