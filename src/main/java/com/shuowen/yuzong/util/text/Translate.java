@@ -2,12 +2,8 @@ package com.shuowen.yuzong.util.text;
 
 import com.hankcs.hanlp.HanLP;
 import com.shuowen.yuzong.util.core.Dialect;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Translate
@@ -27,8 +23,8 @@ public class Translate
     private static final Map<String, RuleData> dialectData = Map.of(
             "lac", new RuleData(
                     List.of("箇", "嗰", "喫", "睏"),
-                    Map.of("託", "讬"),
-                    List.of())
+                    Map.of("託", "托"),
+                    List.of(new ContextData("談託|搭詻託", "託", "讬")))
     );
 
     // 统一构建规则；方言规则继承普通话，遇到同一字时方言配置覆盖。
