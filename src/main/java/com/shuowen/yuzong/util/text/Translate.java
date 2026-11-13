@@ -2,67 +2,98 @@ package com.shuowen.yuzong.util.text;
 
 import com.hankcs.hanlp.HanLP;
 import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.ext.list.ListTool;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class Translate
 {
+    // 规则数据：方言只填写相对普通话增加或覆盖的部分。
+    private record ContextData(String pattern, String origin, String target) {}
+    private record RuleData(List<String> keep, Map<String, String> replace, List<ContextData> context) {}
 
-    // 撤回规则按原文判断，避免 HanLP 转换后丢失原字（例如「」）。
-    private static final List<UChar> immove = ListTool.mapping(new String[]{"「", "」"}, UChar::of);
-    // 补充规则按转换结果判断，两表按相同下标对应。
-    private static final List<UChar> origin = ListTool.mapping(new String[]{"衹", "祇", "僊", "賸"}, UChar::of);
-    private static final List<UChar> target = ListTool.mapping(new String[]{"只", "只", "仙", "剩"}, UChar::of);
+    private static final RuleData commonData = new RuleData(
+            List.of("「", "」"),
+            Map.of("衹", "只", "祇", "只", "僊", "仙", "賸", "剩", "著", "着"),
+            List.of(new ContextData(
+                    "巨著|著名|著稱|顯著|卓著|昭著|著作|著書|著述|編著|撰著|名著|論著|譯著|專著|原著|合著|鉅著|拙著|土著|著雍|著書立說|彰明較著|見微知著",
+                    "著", "著"))
+    );
 
-    // 方言只配置相对普通话增加的规则。
-    private static final List<UChar> immoveLAC = ListTool.mapping(new String[]{"箇", "嗰", "喫", "睏"}, UChar::of);
-    private static final List<UChar> originLAC = ListTool.mapping(new String[]{"託"}, UChar::of);
-    private static final List<UChar> targetLAC = ListTool.mapping(new String[]{"讬"}, UChar::of);
+    private static final Map<String, RuleData> dialectData = Map.of(
+            "lac", new RuleData(
+                    List.of("箇", "嗰", "喫", "睏"),
+                    Map.of("託", "讬"),
+                    List.of())
+    );
 
-    private static final Pattern zhu = Pattern.compile("巨著|著名|著稱|顯著|卓著|昭著|著作|著書|著述|編著|撰著|名著|論著|譯著|專著|原著|合著|鉅著|拙著|土著|著雍|著書立說|彰明較著|見微知著|著");
+    // 统一构建规则；方言规则继承普通话，遇到同一字时方言配置覆盖。
+    private record ContextRule(Pattern context, UChar origin, UChar target) {}
+    private record Rules(Set<UChar> keep, Map<UChar, UChar> replace, List<ContextRule> context) {}
 
-    private static boolean contains(List<UChar> rules, UChar ch)
+    private static Rules buildRules(Rules base, RuleData data)
     {
-        for (var rule : rules)
-            if (rule.contentEquals(ch)) return true;
-        return false;
+        Set<UChar> keep = new HashSet<>();
+        Map<UChar, UChar> replace = new HashMap<>();
+        List<ContextRule> context = new ArrayList<>();
+        if (base != null)
+        {
+            keep.addAll(base.keep());
+            replace.putAll(base.replace());
+        }
+        data.replace().forEach((from, to) ->
+        {
+            UChar original = UChar.of(from);
+            keep.remove(original);
+            replace.put(original, UChar.of(to));
+        });
+        for (String ch : data.keep()) keep.add(UChar.of(ch));
+        for (var rule : data.context())
+            context.add(new ContextRule(Pattern.compile(rule.pattern()), UChar.of(rule.origin()), UChar.of(rule.target())));
+        if (base != null) context.addAll(base.context());
+        return new Rules(Set.copyOf(keep), Map.copyOf(replace), List.copyOf(context));
     }
 
-    private static UString convertPart(UString text, Dialect dialect)
+    private static final Rules commonRules = buildRules(null, commonData);
+    private static final Map<String, Rules> dialectRules = buildDialectRules();
+
+    private static Map<String, Rules> buildDialectRules()
     {
-        if (text.isEmpty()) return UString.of();
+        Map<String, Rules> rules = new HashMap<>();
+        dialectData.forEach((code, data) -> rules.put(code, buildRules(commonRules, data)));
+        return Map.copyOf(rules);
+    }
 
-        var converted = UString.of(HanLP.t2s(text.toString()));
-        var result = UString.of();
-        for (var ch : converted)
+    private static UChar[] contextTargets(UString text, Rules rules)
+    {
+        UChar[] targets = new UChar[text.length()];
+        String source = text.toString();
+        for (var rule : rules.context())
         {
-            boolean replaced = false;
-            // 方言补充规则覆盖普通话的同一原字。
-            if (dialect == Dialect.LAC)
+            var matcher = rule.context().matcher(source);
+            while (matcher.find())
             {
-                for (int i = 0; i < originLAC.size(); i++)
-                    if (originLAC.get(i).contentEquals(ch))
-                    {
-                        result.append(targetLAC.get(i));
-                        replaced = true;
-                        break;
-                    }
-            }
-            if (replaced) continue;
-            for (int i = 0; i < origin.size(); i++)
-                if (origin.get(i).contentEquals(ch))
+                int index = source.codePointCount(0, matcher.start());
+                for (int ch : matcher.group().codePoints().toArray())
                 {
-                    result.append(target.get(i));
-                    replaced = true;
-                    break;
+                    if (targets[index] == null && rule.origin().codePoint() == ch)
+                        targets[index] = rule.target();
+                    index++;
                 }
-            if (!replaced) result.append(ch);
+            }
         }
+        return targets;
+    }
 
-        return UString.of(zhu.matcher(result.toString()).replaceAll(m ->
-                m.group().equals("著") ? "着" : m.group()));
+    private static void appendConverted(UString result, UString part)
+    {
+        if (part.isEmpty()) return;
+        result.append(HanLP.t2s(part.toString()));
+        part.clear();
     }
 
     public static UString toSc(UString text)
@@ -72,19 +103,25 @@ public class Translate
 
     public static UString toSc(UString text, Dialect dialect)
     {
+        Rules rules = dialect == null ? commonRules : dialectRules.getOrDefault(dialect.toString(), commonRules);
         var result = UString.of();
         var part = UString.of();
+        UChar[] contextTargets = contextTargets(text, rules);
+        int index = 0;
         for (var ch : text)
         {
-            if (contains(immove, ch) || (dialect == Dialect.LAC && contains(immoveLAC, ch)))
+            boolean keep = rules.keep().contains(ch);
+            UChar replacement = keep ? ch : contextTargets[index] != null ?
+                    contextTargets[index] : rules.replace().get(ch);
+            if (replacement != null)
             {
-                result.append(convertPart(part, dialect));
-                part.clear();
-                result.append(ch);
+                appendConverted(result, part);
+                result.append(replacement);
             }
             else part.append(ch);
+            index++;
         }
-        result.append(convertPart(part, dialect));
+        appendConverted(result, part);
         return result;
     }
 
