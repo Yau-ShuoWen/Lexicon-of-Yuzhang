@@ -1,9 +1,8 @@
 package com.shuowen.yuzong.ysw.linguistic;
 
 import com.shuowen.yuzong.linguistics.Mandarin.HanPinyin;
-import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.util.text.ProofreadTool;
 import com.shuowen.yuzong.util.text.RichTextTable;
+import com.shuowen.yuzong.util.text.Translate;
 
 import java.text.Normalizer;
 import java.util.*;
@@ -324,7 +323,7 @@ public class JianTuan
 
     private static String toSimplified(String text)
     {
-        return ProofreadTool.useHanlpTranslate(text, Language.TC);
+        return Translate.toSc(text);
     }
 
     private static Map<String, Set<String>> unmodifiableReadings(Map<String, Set<String>> source)

@@ -1,9 +1,8 @@
 package com.shuowen.yuzong.util.text;
 
-import com.hankcs.hanlp.HanLP;
-import com.shuowen.yuzong.util.version.UStringCompareUtil;
-import com.shuowen.yuzong.util.core.Language;
+import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.tuple.Twin;
+import com.shuowen.yuzong.util.version.UStringCompareUtil;
 
 /**
  * 一个古籍简繁和格式管理工具类
@@ -18,48 +17,15 @@ public class ProofreadTool
     }
 
     /**
-     * 把全角引号更换成直角引号
-     */
-    public static String handleQuotationMark(String text)
-    {
-        return text.replace("“", "「").replace("”", "」");
-    }
-
-    /**
-     * 使用HanLP库机翻
-     */
-    public static String useHanlpTranslate(String text, Language from)
-    {
-        return from.isSimplified() ? HanLP.s2t(text) : HanLP.t2s(text);
-    }
-
-    /**
-     * 少数方言正字需要保留不要转换
-     */
-    public static UString escapeCharTraslate(UString text, Language from, final OrthoCharset charset)
-    {
-        // 先机翻，然后立刻转换成统一码字符串
-        var tmp = UString.of(useHanlpTranslate(text.toString(), from));
-
-        // 是否更换的标准取决于charset规则
-        var ans = UString.of();
-        for (int i = 0; i < text.length(); i++)
-        {
-            ans.append(charset.choose(text.uCharAt(i), tmp.uCharAt(i)));
-        }
-        return ans;
-    }
-
-    /**
      * 在不干扰不变区域的情况下对修改部分新增，防止全量更新导致的已经编辑的简体字部分在繁体更新后被覆盖
      */
     public static ScTcText retainContextTranslate(
-            UString oldTc, UString newTc, UString oldSc, final OrthoCharset charset)
+            UString oldTc, UString newTc, UString oldSc, Dialect d)
     {
         // 长度相等才能共用索引
         if (oldTc.length() != oldSc.length()) throw new IllegalArgumentException("旧字符串长度不等");
 
-        var newScTmp = escapeCharTraslate(newTc, Language.TC, charset);
+        var newScTmp = Translate.toSc(newTc, d);
         var changes = UStringCompareUtil.compare(oldTc, newTc);
         var newSc = UString.of();
 
@@ -116,25 +82,5 @@ public class ProofreadTool
                 """, oldTc, oldSc, newTc, newSc, newScTmp));
 
         return new ScTcText(newTc, newSc);
-    }
-
-    public static String translate(String text, String from, String to)
-    {
-        return switch (from + "->" + to)
-        {
-            case "sc->tc" -> HanLP.s2t(text);
-            case "sc->tw" -> HanLP.s2tw(text);
-            case "sc->hk" -> HanLP.s2hk(text);
-            case "tc->sc" -> HanLP.t2s(text);
-            case "tc->tw" -> HanLP.t2tw(text);
-            case "tc->hk" -> HanLP.t2hk(text);
-            case "tw->sc" -> HanLP.tw2s(text);
-            case "tw->tc" -> HanLP.tw2t(text);
-            case "tw->hk" -> HanLP.tw2hk(text);
-            case "hk->sc" -> HanLP.hk2s(text);
-            case "hk->tc" -> HanLP.hk2t(text);
-            case "hk->tw" -> HanLP.hk2tw(text);
-            default -> throw new IllegalArgumentException("");
-        };
     }
 }
