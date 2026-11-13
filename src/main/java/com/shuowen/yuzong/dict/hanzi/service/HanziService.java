@@ -13,7 +13,6 @@ import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.list.UniqueList;
 import com.shuowen.yuzong.util.json.JsonTool;
 import com.shuowen.yuzong.util.obfuscate.ObfInt;
-import com.shuowen.yuzong.util.text.ScTcText;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -57,7 +56,7 @@ public class HanziService
             for (var i : item)
             {
                 var tmp = new SearchResult();
-                tmp.setTitle(String.format("%s【%s】", i.getHanzi(), ScTcText.get("漢字", "汉字", l)));
+                tmp.setTitle(i.getHanzi());
                 tmp.setExplain(i.getPinyin());
                 tmp.setSpecial(i.isSpecial());
                 tmp.setTag("hanzi");
