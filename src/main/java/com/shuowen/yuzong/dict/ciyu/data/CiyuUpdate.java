@@ -38,12 +38,19 @@ public class CiyuUpdate
         Integer id;      // 新增的内容id设置为0
         ScTcText text;
         Integer type;
+        String mandarinRelation;
+        ScTcText description;
+        Integer sort;
 
         public Similar(CiyuSimilar sim)
         {
             id = sim.getId();
             text = new ScTcText(sim.getSc(), sim.getTc());
             type = sim.getType();
+            mandarinRelation = sim.getMandarinRelation();
+            description = sim.getDescription() == null ? new ScTcText("", "")
+                    : readJson(sim.getDescription(), new TypeReference<ScTcText>() {});
+            sort = sim.getSort();
         }
 
         public CiyuSimilar transfer()
@@ -53,6 +60,14 @@ public class CiyuUpdate
             ans.setSc(text.getSc().toString());
             ans.setTc(text.getTc().toString());
             ans.setType(type);
+            if (Integer.valueOf(1).equals(type))
+            {
+                if (mandarinRelation != null && !mandarinRelation.equals("=") && !mandarinRelation.equals("≈"))
+                    throw new IllegalArgumentException("普通话对应关系只能是 = 或 ≈");
+                ans.setMandarinRelation(mandarinRelation == null ? "=" : mandarinRelation);
+            }
+            ans.setDescription(description == null ? null : toJson(description));
+            ans.setSort(sort);
             return ans;
         }
     }

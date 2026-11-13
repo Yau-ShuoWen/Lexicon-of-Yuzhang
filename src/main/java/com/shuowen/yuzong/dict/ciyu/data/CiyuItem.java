@@ -35,6 +35,7 @@ public class CiyuItem
     // 结构组数据
     private final List<SplitedPinyin> mainPy;
     private final List<Pair<UString, Integer>> similar;
+    private final List<RelatedWord> relatedWords;
     private final List<Twin<UString>> note;
     private final List<UString> mean;
 
@@ -56,10 +57,18 @@ public class CiyuItem
         //check
         mainPy = readJson(cy.getMainPy(), new TypeReference<>() {});
 
+        List<CiyuSimilar> relations = readJson(cy.getSimilar(), new TypeReference<>() {});
+        relations.sort(Comparator.comparing(CiyuSimilar::getSort, Comparator.nullsLast(Integer::compareTo))
+                .thenComparing(CiyuSimilar::getId, Comparator.nullsLast(Integer::compareTo)));
         similar = ListTool.mapping(
-                readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}),
+                relations,
                 i -> Pair.of(new ScTcText(i.getSc(), i.getTc()).get(l), i.getType())
         );
+        relatedWords = ListTool.mapping(relations,
+                i -> new RelatedWord(new ScTcText(i.getSc(), i.getTc()).get(l),
+                        i.getType(), i.getMandarinRelation(),
+                        i.getDescription() == null ? null
+                                : readJson(i.getDescription(), new TypeReference<ScTcText>() {}).get(l)));
 
         note = ListTool.mapping(
                 readJson(cy.getNote(), new TypeReference<List<Pair<NoteTag, ScTcText>>>() {}),
@@ -76,11 +85,42 @@ public class CiyuItem
 
         // 通过DAO创建简繁文本，然后一起插入
         matchItem.addAll(ciyus.getTwin().toList());
-        for (var i : readJson(cy.getSimilar(), new TypeReference<List<CiyuSimilar>>() {}))
+        for (var i : relations)
         {
             matchItem.addAll(new ScTcText(i.getSc(), i.getTc())
                     .getTwin().toList());
         }
+    }
+
+    public record RelatedWord(UString word, Integer type, String mandarinRelation, UString description)
+    {
+        public String getRelationName()
+        {
+            if (!Integer.valueOf(1).equals(type)) return null;
+            return "≈".equals(mandarinRelation) ? "近义词" : "同义词";
+        }
+    }
+
+    public List<RelatedWord> getSynonyms()
+    {
+        return relatedWords.stream().filter(i -> Integer.valueOf(4).equals(i.type())).toList();
+    }
+
+    public String getSearchTitle()
+    {
+        List<RelatedWord> mandarin = relatedWords.stream()
+                .filter(i -> Integer.valueOf(1).equals(i.type())).toList();
+        if (mandarin.isEmpty()) return ciyu.toString();
+        StringBuilder title = new StringBuilder(ciyu.toString());
+        Map<String, List<String>> groups = new LinkedHashMap<>();
+        for (RelatedWord word : mandarin)
+        {
+            String relation = "≈".equals(word.mandarinRelation()) ? "≈" : "=";
+            groups.computeIfAbsent(relation, ignored -> new ArrayList<>()).add(word.word().toString());
+        }
+        groups.forEach((relation, words) -> title.append("〔").append(relation).append(" ")
+                .append(String.join("/", new LinkedHashSet<>(words))).append("〕"));
+        return title.toString();
     }
 
     public static CiyuItem of(CiyuEntity cy, Language lang)

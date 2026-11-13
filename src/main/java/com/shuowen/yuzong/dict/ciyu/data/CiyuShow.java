@@ -30,6 +30,8 @@ public class CiyuShow
     private final String initialPinyinBlock;
     private final List<Twin<UString>> note;
     private final List<UString> mean;
+    private final List<CiyuItem.RelatedWord> relatedWords;
+    private final List<CiyuItem.RelatedWord> synonyms;
     private final LinkedHashSet<RefItem> ref = new LinkedHashSet<>();
 
     public static CiyuShow of(CiyuItem cy, PinyinConfig data)
@@ -45,6 +47,8 @@ public class CiyuShow
         id = ObfInt.encode(cy.getId());
         ciyu = cy.getCiyus().get(l);
         special = cy.getSpecial();
+        relatedWords = cy.getRelatedWords();
+        synonyms = cy.getSynonyms();
 
         mainPy = RPinyins.of(ListTool.mapping(cy.getMainPy(), i ->
                 d.trustedCreatePinyin(i).toRPinyin()

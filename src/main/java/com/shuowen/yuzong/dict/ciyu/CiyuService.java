@@ -60,13 +60,12 @@ public class CiyuService
                 item ->
                 {
                     var ans = new SearchResult();
-                    ans.setTitle(item.getCiyu() +
-                            (item.vague(query) ? String.format("（%s）", item.getSortKey(query)) : "")
-                    );
+                    ans.setTitle(item.getSearchTitle());
                     ans.setExplain(item.getPinyin(d));
                     ans.setSpecial(item.getSpecial() != 0);
                     ans.setTag("ciyu");
-                    ans.setInfo(Map.of("query", item.getCiyu()));
+                    ans.setInfo(Map.of("query", item.getCiyu(), "relatedWords", item.getRelatedWords(),
+                            "synonyms", item.getSynonyms()));
                     return ans;
                 }
         ));
@@ -90,11 +89,12 @@ public class CiyuService
                 item ->
                 {
                     var ans = new SearchResult();
-                    ans.setTitle(item.getCiyu());
+                    ans.setTitle(item.getSearchTitle());
                     ans.setExplain(item.getPinyin(d));
                     ans.setSpecial(item.getSpecial() != 0);
                     ans.setTag("ciyu");
-                    ans.setInfo(Map.of("query", item.getCiyu()));
+                    ans.setInfo(Map.of("query", item.getCiyu(), "relatedWords", item.getRelatedWords(),
+                            "synonyms", item.getSynonyms()));
                     return ans;
                 }
         );
@@ -161,10 +161,15 @@ public class CiyuService
         int id = wd.getId();
 
         var sim = data.getRight();
-        for (var i : sim) i.setWordId(id);
+        for (int index = 0; index < sim.size(); index++)
+        {
+            sim.get(index).setWordId(id);
+            sim.get(index).setSort(index + 1);
+        }
+        var existingSim = sim.stream().filter(i -> i.getId() != null && i.getId() > 0).toList();
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(cy.findCiyuSimilarByWordId(id, d.toString())),
-                new HashSet<>(sim)))
+                new HashSet<>(existingSim)))
         {
             switch (i.getChangeType())
             {
@@ -173,6 +178,9 @@ public class CiyuService
                 case DELETED -> cy.deleteWordSimilarById(i.getOldItem().getId(), d.toString());
             }
         }
+        for (var item : sim)
+            if (item.getId() == null || item.getId() <= 0)
+                cy.insertWordSimilar(item, d.toString());
 
         log.insertWord(d.toString(), JsonTool.toJson(getCiyuById(id, d)), JsonTool.toJson(data), "U");
     }

@@ -16,6 +16,9 @@ public class CiyuSimilar implements ChangeDetectable<CiyuSimilar>
     String sc;
     String tc;
     Integer type;
+    String mandarinRelation;
+    String description;
+    Integer sort;
 
     // 比较内容
 
@@ -25,7 +28,15 @@ public class CiyuSimilar implements ChangeDetectable<CiyuSimilar>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CiyuSimilar ct = (CiyuSimilar) o;
-        return Objects.equals(sc, ct.sc) && Objects.equals(tc, ct.tc);
+        if (id != null && id > 0 || ct.id != null && ct.id > 0)
+            return id != null && id > 0 && id.equals(ct.id);
+        return Objects.equals(sc, ct.sc) && Objects.equals(tc, ct.tc) && Objects.equals(type, ct.type);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return id != null && id > 0 ? id.hashCode() : Objects.hash(sc, tc, type);
     }
 
     @JsonIgnore
@@ -42,6 +53,9 @@ public class CiyuSimilar implements ChangeDetectable<CiyuSimilar>
         if (!Objects.equals(sc, other.sc)) res.add("sc");
         if (!Objects.equals(tc, other.tc)) res.add("tc");
         if (!Objects.equals(type, other.type)) res.add("type");
+        if (!Objects.equals(mandarinRelation, other.mandarinRelation)) res.add("mandarinRelation");
+        if (!Objects.equals(description, other.description)) res.add("description");
+        if (!Objects.equals(sort, other.sort)) res.add("sort");
         return res;
     }
 

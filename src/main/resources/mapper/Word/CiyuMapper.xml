@@ -9,7 +9,9 @@
         <![CDATA[
         main.*,(
             SELECT JSON_ARRAYAGG(
-            JSON_OBJECT('sc', s.sc, 'tc', s.tc, 'type', s.type)
+            JSON_OBJECT('sc', s.sc, 'tc', s.tc, 'type', s.type,
+                        'mandarinRelation', s.mandarin_relation, 'description', s.description,
+                        'sort', s.sort_order, 'id', s.id)
             ) FROM NC.${dialect}_word_similar s
             WHERE s.word_id = main.id
         ) AS similar
@@ -92,8 +94,11 @@
 
     <!-- 通过外键寻找：附表里的模糊识别汉字 -->
     <select id="findCiyuSimilarByWordId" resultType="com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar">
-        SELECT * FROM NC.${dialect}_word_similar
+        SELECT id, word_id AS wordId, sc, tc, type,
+               mandarin_relation AS mandarinRelation, description, sort_order AS sort
+        FROM NC.${dialect}_word_similar
         WHERE word_id = #{id}
+        ORDER BY sort_order IS NULL, sort_order, id
     </select>
 
     <select id="findByUniqueKey"
@@ -117,8 +122,8 @@
     <!--  插入新的内容（相似汉字表）  -->
     <insert id="insertWordSimilar" parameterType="com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar">
         INSERT into NC.${dialect}_word_similar
-        (word_id, sc, tc, type)
-        VALUES (#{wd.wordId}, #{wd.sc}, #{wd.tc}, #{wd.type})
+        (word_id, sc, tc, type, mandarin_relation, description, sort_order)
+        VALUES (#{wd.wordId}, #{wd.sc}, #{wd.tc}, #{wd.type}, #{wd.mandarinRelation}, #{wd.description}, #{wd.sort})
     </insert>
 
     <!--  更新内容（主表）  -->
@@ -137,7 +142,8 @@
     <update id="updateWordSimilarById" parameterType="com.shuowen.yuzong.dict.data.model.Word.CiyuSimilar">
         UPDATE NC.${dialect}_word_similar
         SET
-        word_id = #{wd.wordId}, sc = #{wd.sc}, tc = #{wd.tc}, type = #{wd.type}
+        word_id = #{wd.wordId}, sc = #{wd.sc}, tc = #{wd.tc}, type = #{wd.type},
+        mandarin_relation = #{wd.mandarinRelation}, description = #{wd.description}, sort_order = #{wd.sort}
         WHERE id = #{wd.id}
     </update>
 
