@@ -57,15 +57,17 @@ public class SearchController
      */
     @GetMapping ("{l}/{d}/hanzi")
     public APIResponse<HanziShow> hanziSearch(
-            @PathVariable Dialect d, @PathVariable Language l, @RequestParam UChar query,
+            @PathVariable Dialect d, @PathVariable Language l, @RequestParam String query,
             @RequestParam IPASyllStyle syllableStyle,
             @RequestParam IPAToneStyle toneStyle
     )
     {
+        if (query.codePointCount(0, query.length()) != 1)
+            throw new APIException(HTTPCode.NotFound, ScTcText.get("沒有查到漢字", l).toString());
         try
         {
             return APIResponse.success(h.getHanziDetailInfo(
-                    query, l, d, new PinyinConfig(l, d, syllableStyle, toneStyle)
+                    UChar.of(query), l, d, new PinyinConfig(l, d, syllableStyle, toneStyle)
             ));
         } catch (NoSuchElementException e)
         {
