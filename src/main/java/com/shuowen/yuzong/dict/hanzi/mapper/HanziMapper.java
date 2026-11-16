@@ -16,6 +16,8 @@ public interface HanziMapper
     List<HanziEntity> findHanziByScOrTc(String hanzi, String lang, String dialect);
     Set<HanziEntity> findHanziByScTcBatch(Set<String> hanzi, String dialect);
     List<HanziEntity> getAllHanzi(String dialect);
+    List<HanziEntity> listForEditor(@Param("dialect") String dialect, @Param("afterId") Integer afterId,
+                                   @Param("characters") List<String> characters, @Param("limit") int limit);
     List<HanziEntity> findForReferenceCheck(String dialect);
     HanziEntity findHanziByCharId(Integer id, String dialect);
     HanziEntity findByUniqueKey(@Param ("ch") HanziEntity ch, @Param ("dialect") String dialect);

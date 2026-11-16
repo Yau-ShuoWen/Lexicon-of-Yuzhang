@@ -1,6 +1,11 @@
 package com.shuowen.yuzong.dict.hanzi.service;
 
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
+import com.shuowen.yuzong.dict.data.domain.setting.NoteTag;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.dict.data.mapper.LogMapper;
 import com.shuowen.yuzong.dict.hanzi.domain.*;
 import com.shuowen.yuzong.dict.hanzi.mapper.HanziMapper;
@@ -84,6 +89,41 @@ public class HanziService
 
 
     // 编辑界面 ---------------------------------------------------------------------------------------------------------
+
+    public List<HanziEditorRow> listForEditor(Dialect dialect, int afterId, String query)
+    {
+        var characters = new LinkedHashSet<String>();
+        for (var character : UString.of(query).chars()) characters.add(character);
+        var entities = hz.listForEditor(dialect.toString(), afterId, new ArrayList<>(characters), 50);
+        var rows = new ArrayList<HanziEditorRow>();
+        for (var entity : entities)
+        {
+            var candidates = mdr.getHanziMenu(entity.getSc(), entity.getTc(), dialect);
+            var mandarinById = new HashMap<Integer, String>();
+            candidates.forEach(item -> mandarinById.put(item.getMandarinId(), item.getInfo()));
+            var stored = JsonTool.<List<HanziPronunciation>>readJson(entity.getPinyin(), new TypeReference<>() {});
+            var pronunciations = new ArrayList<HanziEditorRow.Pronunciation>();
+            for (var item : stored)
+            {
+                var mandarin = new ArrayList<String>();
+                if (item.getMandarin() != null)
+                    item.getMandarin().forEach(id -> {
+                        if (mandarinById.containsKey(id)) mandarin.add(mandarinById.get(id));
+                    });
+                if (stored.size() == 1 && candidates.size() == 1 && mandarin.isEmpty())
+                    mandarin.add(candidates.get(0).getInfo());
+                pronunciations.add(new HanziEditorRow.Pronunciation(
+                        dialect.trustedCreatePinyin(item.getPinyin().toString()).toRPinyin().toString(),
+                        item.getTag(), mandarin));
+            }
+            var storedNotes = JsonTool.<List<Pair<NoteTag, ScTcText>>>readJson(entity.getNote(), new TypeReference<>() {});
+            var notes = ListTool.mapping(storedNotes, note -> Pair.of(note.getLeft(),
+                    note.getRight().map(text -> TextPinyinIPA.transferPinyin(text, dialect, true))));
+            rows.add(new HanziEditorRow(entity.getId(), ObfInt.encode(entity.getId()).toString(),
+                    entity.getSc(), entity.getTc(), pronunciations, notes));
+        }
+        return rows;
+    }
 
     /**
      * 在编辑界面的时候，给一个非常宽松的筛选

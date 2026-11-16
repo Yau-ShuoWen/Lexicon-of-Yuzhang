@@ -29,6 +29,21 @@
     <select id="getAllHanzi" resultType="com.shuowen.yuzong.dict.hanzi.model.HanziEntity">
         SELECT <include refid="fields"/>
     </select>
+    <select id="listForEditor" resultType="com.shuowen.yuzong.dict.hanzi.model.HanziEntity">
+        SELECT main.id, main.sc, main.tc, main.pinyin, main.note
+        FROM NC.${dialect}_hanzi main
+        WHERE main.id &gt; #{afterId}
+        <if test="characters != null and !characters.isEmpty()">
+            AND <foreach collection="characters" item="character" open="(" separator=" OR " close=")">
+                (CAST(main.sc AS BINARY) = CAST(#{character} AS BINARY)
+                 OR CAST(main.tc AS BINARY) = CAST(#{character} AS BINARY)
+                 OR EXISTS (SELECT 1 FROM NC.${dialect}_hanzi_similar s WHERE s.hanzi_id = main.id
+                            AND (CAST(s.sc AS BINARY) = CAST(#{character} AS BINARY)
+                                 OR CAST(s.tc AS BINARY) = CAST(#{character} AS BINARY))))
+            </foreach>
+        </if>
+        ORDER BY main.id LIMIT #{limit}
+    </select>
     <select id="findForReferenceCheck" resultType="com.shuowen.yuzong.dict.hanzi.model.HanziEntity">
         SELECT id, sc, tc, pinyin FROM NC.${dialect}_hanzi
     </select>
