@@ -29,6 +29,8 @@ public interface HanziMapper
     void updateCharById(@Param ("ch") HanziEntity ch, @Param ("dialect") String dialect);
     void updateCharSimilarById(@Param ("ch") HanziSimilar ch, @Param ("dialect") String dialect);
     void deleteCharSimilarById(Integer id, String dialect);
+    int deleteCharSimilarsByHanziId(@Param("id") Integer id, @Param("dialect") String dialect);
+    int deleteCharById(@Param("id") Integer id, @Param("dialect") String dialect);
     Integer getRandomId(String dialect);
     Integer findPrevId(Integer id, String dialect);
     Integer findNextId(Integer id, String dialect);

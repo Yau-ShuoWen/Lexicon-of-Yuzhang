@@ -273,6 +273,18 @@ public class HanziService
         log.insertChar(d.toString(), JsonTool.toJson(before), JsonTool.toJson(getHanziById(id, d)), "U");
     }
 
+    @Transactional (rollbackFor = {Exception.class})
+    public void deleteHanzi(int id, Dialect dialect)
+    {
+        var before = getHanziById(id, dialect);
+        if (before == null) throw new NoSuchElementException("未找到汉字");
+
+        hz.deleteCharSimilarsByHanziId(id, dialect.toString());
+        if (hz.deleteCharById(id, dialect.toString()) != 1)
+            throw new NoSuchElementException("汉字已被删除");
+        log.insertChar(dialect.toString(), JsonTool.toJson(before), null, "D");
+    }
+
     public Twin<Maybe<ObfInt>> getNearBy(int id, Dialect d)
     {
         var prevId = Maybe.uncertain(hz.findPrevId(id, d.toString()));

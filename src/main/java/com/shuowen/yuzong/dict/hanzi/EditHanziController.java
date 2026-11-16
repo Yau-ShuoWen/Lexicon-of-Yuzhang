@@ -71,6 +71,13 @@ public class EditHanziController
         return APIResponse.success();
     }
 
+    @DeleteMapping ("/{d}/{id}")
+    public APIResponse<Void> delete(@PathVariable Dialect d, @PathVariable ObfInt id)
+    {
+        hz.deleteHanzi(id.decode(), d);
+        return APIResponse.success();
+    }
+
 
     /**
      * 获得普通话汉字信息

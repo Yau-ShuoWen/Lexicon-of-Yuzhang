@@ -106,6 +106,8 @@
           sort_order=#{ch.sort} WHERE id=#{ch.id}
     </update>
     <delete id="deleteCharSimilarById">DELETE FROM NC.${dialect}_hanzi_similar WHERE id=#{id}</delete>
+    <delete id="deleteCharSimilarsByHanziId">DELETE FROM NC.${dialect}_hanzi_similar WHERE hanzi_id=#{id}</delete>
+    <delete id="deleteCharById">DELETE FROM NC.${dialect}_hanzi WHERE id=#{id}</delete>
     <select id="getRandomId" resultType="int">SELECT id FROM NC.${dialect}_hanzi ORDER BY RAND() LIMIT 1</select>
     <select id="findPrevId" resultType="Integer"><![CDATA[
         SELECT id FROM NC.${dialect}_hanzi
