@@ -9,6 +9,7 @@ import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.dict.data.mapper.LogMapper;
 import com.shuowen.yuzong.dict.hanzi.domain.*;
 import com.shuowen.yuzong.dict.hanzi.mapper.HanziMapper;
+import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
 import com.shuowen.yuzong.dict.hanzi.model.HanziEntity;
 import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
@@ -92,13 +93,23 @@ public class HanziService
 
     public List<HanziEditorRow> listForEditor(Dialect dialect, int afterId, String query)
     {
-        var characters = new LinkedHashSet<String>();
-        for (var character : UString.of(query).chars()) characters.add(character);
-        var entities = hz.listForEditor(dialect.toString(), afterId, new ArrayList<>(characters), 50);
+        var condition = HanziEditorQuery.parse(query);
+        var entities = hz.listForEditor(dialect.toString(), afterId,
+                condition.characters(), condition.syllable(), condition.tone(), 50);
+        var characters = new HashSet<String>();
+        for (var entity : entities)
+        {
+            characters.add(entity.getSc());
+            characters.add(entity.getTc());
+        }
+        var candidateMap = mdr.getHanziMenus(characters);
         var rows = new ArrayList<HanziEditorRow>();
         for (var entity : entities)
         {
-            var candidates = mdr.getHanziMenu(entity.getSc(), entity.getTc(), dialect);
+            var candidates = new ArrayList<MdrChar>(candidateMap.getOrDefault(entity.getSc(), List.of()));
+            if (!entity.getSc().equals(entity.getTc()))
+                candidates.addAll(candidateMap.getOrDefault(entity.getTc(), List.of()));
+            candidates.sort(Comparator.comparing(MdrChar::getMandarinId));
             var mandarinById = new HashMap<Integer, String>();
             candidates.forEach(item -> mandarinById.put(item.getMandarinId(), item.getInfo()));
             var stored = JsonTool.<List<HanziPronunciation>>readJson(entity.getPinyin(), new TypeReference<>() {});

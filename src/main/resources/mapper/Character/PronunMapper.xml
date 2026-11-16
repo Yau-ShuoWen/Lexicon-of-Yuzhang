@@ -16,6 +16,11 @@
         WHERE CAST(hanzi AS BINARY)=CAST(#{sc} AS BINARY) OR CAST(hanzi AS BINARY)=CAST(#{tc} AS BINARY)
         ORDER BY id
     </select>
+    <select id="getInfoByCharacters" resultType="com.shuowen.yuzong.dict.hanzi.model.MdrCharWithHanzi">
+        SELECT hanzi, info, id AS mandarin_id FROM NC.mdr_char
+        WHERE hanzi IN <foreach collection="characters" item="character" open="(" separator="," close=")">#{character}</foreach>
+        ORDER BY id
+    </select>
     <select id="getInfoByIds" resultType="com.shuowen.yuzong.dict.hanzi.model.MdrChar">
         SELECT info, id AS mandarin_id FROM NC.mdr_char
         WHERE id IN <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>

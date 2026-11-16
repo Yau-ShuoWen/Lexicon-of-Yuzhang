@@ -42,6 +42,31 @@
                                  OR CAST(s.tc AS BINARY) = CAST(#{character} AS BINARY))))
             </foreach>
         </if>
+        <if test="syllable != null">
+            AND EXISTS (
+                SELECT 1 FROM NC.mdr_char m
+                WHERE m.hanzi IN (main.sc, main.tc)
+                  AND (CAST(m.hanzi AS BINARY) = CAST(main.sc AS BINARY)
+                       OR CAST(m.hanzi AS BINARY) = CAST(main.tc AS BINARY))
+                  AND m.pinyin = #{syllable}
+                  <if test="tone != null and tone != 0">AND m.tone = #{tone}</if>
+                  <if test="tone != null and tone == 0">AND m.tone IN (0, 5)</if>
+                  AND (
+                      EXISTS (
+                          SELECT 1
+                          FROM JSON_TABLE(main.pinyin, '$[*]' COLUMNS (mandarin JSON PATH '$.mandarin')) py
+                          JOIN JSON_TABLE(py.mandarin, '$[*]' COLUMNS (mandarin_id INT PATH '$')) mapping
+                            ON mapping.mandarin_id = m.id
+                      )
+                      OR (JSON_LENGTH(main.pinyin) = 1
+                          AND COALESCE(JSON_LENGTH(JSON_EXTRACT(main.pinyin, '$[0].mandarin')), 0) = 0
+                          AND (SELECT COUNT(*) FROM NC.mdr_char candidate
+                               WHERE candidate.hanzi IN (main.sc, main.tc)
+                                 AND (CAST(candidate.hanzi AS BINARY) = CAST(main.sc AS BINARY)
+                                      OR CAST(candidate.hanzi AS BINARY) = CAST(main.tc AS BINARY))) = 1)
+                  )
+            )
+        </if>
         ORDER BY main.id LIMIT #{limit}
     </select>
     <select id="findForReferenceCheck" resultType="com.shuowen.yuzong.dict.hanzi.model.HanziEntity">
