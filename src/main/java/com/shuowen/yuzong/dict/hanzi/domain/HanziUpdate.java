@@ -37,11 +37,13 @@ public class HanziUpdate
     {
         private Integer id;
         private ScTcChar text;
+        private Integer sort;
 
         public Similar(HanziSimilar value)
         {
             id = value.getId();
             text = new ScTcChar(value.getSc(), value.getTc());
+            sort = value.getSort();
         }
 
         public HanziSimilar transfer(int hanziId)
@@ -51,6 +53,7 @@ public class HanziUpdate
             value.setHanziId(hanziId);
             value.setSc(text.getSc().toString());
             value.setTc(text.getTc().toString());
+            value.setSort(sort);
             return value;
         }
     }

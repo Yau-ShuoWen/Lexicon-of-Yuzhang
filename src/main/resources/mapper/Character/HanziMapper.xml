@@ -3,7 +3,8 @@
 <mapper namespace="com.shuowen.yuzong.dict.hanzi.mapper.HanziMapper">
     <sql id="fields"><![CDATA[
         main.*,
-        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT('sc', s.sc, 'tc', s.tc))
+        COALESCE((SELECT JSON_ARRAYAGG(JSON_OBJECT('sc', s.sc, 'tc', s.tc, 'id', s.id,
+                                                  'sort', s.sort_order))
                   FROM NC.${dialect}_hanzi_similar s WHERE s.hanzi_id = main.id), JSON_ARRAY()) AS similar
         FROM NC.${dialect}_hanzi main
     ]]></sql>
@@ -80,7 +81,8 @@
           AND CAST(tc AS BINARY) = CAST(#{ch.tc} AS BINARY)
     </select>
     <select id="findHanziSimilarByCharId" resultType="com.shuowen.yuzong.dict.hanzi.model.HanziSimilar">
-        SELECT id, hanzi_id, sc, tc FROM NC.${dialect}_hanzi_similar WHERE hanzi_id = #{id}
+        SELECT id, hanzi_id, sc, tc, sort_order AS sort FROM NC.${dialect}_hanzi_similar
+        WHERE hanzi_id = #{id} ORDER BY sort_order IS NULL, sort_order, id
     </select>
     <insert id="insertChar" useGeneratedKeys="true" keyProperty="ch.id">
         INSERT INTO NC.${dialect}_hanzi (sc, tc, pinyin, special, note, status, source)
@@ -91,7 +93,8 @@
         VALUES (#{ch.sc}, #{ch.tc}, #{ch.pinyin}, #{ch.special}, #{ch.note}, #{ch.status}, 2)
     </insert>
     <insert id="insertCharSimilar">
-        INSERT INTO NC.${dialect}_hanzi_similar (hanzi_id, sc, tc) VALUES (#{ch.hanziId}, #{ch.sc}, #{ch.tc})
+        INSERT INTO NC.${dialect}_hanzi_similar (hanzi_id, sc, tc, sort_order)
+        VALUES (#{ch.hanziId}, #{ch.sc}, #{ch.tc}, #{ch.sort})
     </insert>
     <update id="updateCharById">
         UPDATE NC.${dialect}_hanzi SET sc=#{ch.sc}, tc=#{ch.tc}, pinyin=#{ch.pinyin}, special=#{ch.special},
@@ -99,7 +102,8 @@
           source=CASE WHEN source IN (2, 3) THEN 3 ELSE 1 END WHERE id=#{ch.id}
     </update>
     <update id="updateCharSimilarById">
-        UPDATE NC.${dialect}_hanzi_similar SET hanzi_id=#{ch.hanziId}, sc=#{ch.sc}, tc=#{ch.tc} WHERE id=#{ch.id}
+        UPDATE NC.${dialect}_hanzi_similar SET hanzi_id=#{ch.hanziId}, sc=#{ch.sc}, tc=#{ch.tc},
+          sort_order=#{ch.sort} WHERE id=#{ch.id}
     </update>
     <delete id="deleteCharSimilarById">DELETE FROM NC.${dialect}_hanzi_similar WHERE id=#{id}</delete>
     <select id="getRandomId" resultType="int">SELECT id FROM NC.${dialect}_hanzi ORDER BY RAND() LIMIT 1</select>

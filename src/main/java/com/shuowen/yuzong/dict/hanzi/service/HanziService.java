@@ -249,9 +249,15 @@ public class HanziService
          * 2. 比较并且处理
          * */
         var sim = data.getRight();
+        for (int index = 0; index < sim.size(); index++)
+        {
+            sim.get(index).setHanziId(id);
+            sim.get(index).setSort(index + 1);
+        }
+        var existingSim = sim.stream().filter(item -> item.getId() != null && item.getId() > 0).toList();
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziSimilarByCharId(id, d.toString())),
-                new HashSet<>(sim)))
+                new HashSet<>(existingSim)))
         {
             switch (i.getChangeType())
             {
@@ -260,6 +266,9 @@ public class HanziService
                 case DELETED -> hz.deleteCharSimilarById(i.getOldItem().getId(), d.toString());
             }
         }
+        for (var item : sim)
+            if (item.getId() == null || item.getId() <= 0)
+                hz.insertCharSimilar(item, d.toString());
 
         log.insertChar(d.toString(), JsonTool.toJson(before), JsonTool.toJson(getHanziById(id, d)), "U");
     }

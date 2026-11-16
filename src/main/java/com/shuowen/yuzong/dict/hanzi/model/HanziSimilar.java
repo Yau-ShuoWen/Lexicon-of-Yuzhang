@@ -22,6 +22,7 @@ public class HanziSimilar implements ChangeDetectable<HanziSimilar>
     Integer hanziId; // 永远不可以在前端修改
     String sc;
     String tc;
+    Integer sort;
 
     // 比较内容 -------------------------------------
 
@@ -31,8 +32,15 @@ public class HanziSimilar implements ChangeDetectable<HanziSimilar>
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         HanziSimilar ct = (HanziSimilar) o;
-        return Objects.equals(sc, ct.sc) &&
-                Objects.equals(tc, ct.tc);
+        if (id != null && id > 0 || ct.id != null && ct.id > 0)
+            return id != null && id > 0 && id.equals(ct.id);
+        return Objects.equals(sc, ct.sc) && Objects.equals(tc, ct.tc);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return id != null && id > 0 ? id.hashCode() : Objects.hash(sc, tc);
     }
 
     @JsonIgnore
@@ -48,6 +56,7 @@ public class HanziSimilar implements ChangeDetectable<HanziSimilar>
         List<String> res = new ArrayList<>();
         if (!Objects.equals(sc, other.sc)) res.add("sc");
         if (!Objects.equals(tc, other.tc)) res.add("tc");
+        if (!Objects.equals(sort, other.sort)) res.add("sort");
         return res;
     }
 
