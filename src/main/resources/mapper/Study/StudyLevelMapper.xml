@@ -41,4 +41,9 @@
             card_ids = #{cardIds}, status = #{status}
         WHERE id = #{id}
     </update>
+
+    <update id="updateOrder">
+        UPDATE NC.study_level SET level_order = #{levelOrder}
+        WHERE id = #{id} AND part_id = #{partId}
+    </update>
 </mapper>
