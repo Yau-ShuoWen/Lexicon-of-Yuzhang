@@ -3,6 +3,7 @@ package com.shuowen.yuzong.dict.hanzi.domain;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.shuowen.yuzong.dict.data.domain.setting.NoteTag;
 import com.shuowen.yuzong.dict.hanzi.model.HanziEntity;
+import com.shuowen.yuzong.dict.hanzi.model.HanziSimilar;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.json.JsonTool;
@@ -15,6 +16,7 @@ import com.shuowen.yuzong.util.tuple.Twin;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Data
@@ -37,9 +39,10 @@ public class HanziItem
         hanzi = hanzis.get(language);
         pinyin = JsonTool.readJson(entity.getPinyin(), new TypeReference<>() {});
         special = entity.getSpecial();
-        similar = ListTool.mapping(
-                JsonTool.readJson(entity.getSimilar(), new TypeReference<List<ScTcChar>>() {}),
-                i -> i.get(language));
+        var similarItems = JsonTool.<List<HanziSimilar>>readJson(entity.getSimilar(), new TypeReference<>() {});
+        similarItems.sort(Comparator.comparing(HanziSimilar::getSort, Comparator.nullsLast(Integer::compareTo))
+                .thenComparing(HanziSimilar::getId, Comparator.nullsLast(Integer::compareTo)));
+        similar = ListTool.mapping(similarItems, i -> new ScTcChar(i.getSc(), i.getTc()).get(language));
         note = ListTool.mapping(
                 JsonTool.readJson(entity.getNote(), new TypeReference<List<Pair<NoteTag, ScTcText>>>() {}),
                 i -> Twin.of(i.getLeft().getName().get(language), i.getRight().get(language))

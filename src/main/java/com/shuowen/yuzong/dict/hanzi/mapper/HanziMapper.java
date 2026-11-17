@@ -16,6 +16,9 @@ public interface HanziMapper
     List<HanziEntity> findHanziByScOrTc(String hanzi, String lang, String dialect);
     Set<HanziEntity> findHanziByScTcBatch(Set<String> hanzi, String dialect);
     List<HanziEntity> getAllHanzi(String dialect);
+    List<HanziEntity> listForEditor(@Param("dialect") String dialect, @Param("afterId") Integer afterId,
+                                   @Param("characters") List<String> characters, @Param("syllable") String syllable,
+                                   @Param("tone") Integer tone, @Param("limit") int limit);
     List<HanziEntity> findForReferenceCheck(String dialect);
     HanziEntity findHanziByCharId(Integer id, String dialect);
     HanziEntity findByUniqueKey(@Param ("ch") HanziEntity ch, @Param ("dialect") String dialect);
@@ -26,6 +29,8 @@ public interface HanziMapper
     void updateCharById(@Param ("ch") HanziEntity ch, @Param ("dialect") String dialect);
     void updateCharSimilarById(@Param ("ch") HanziSimilar ch, @Param ("dialect") String dialect);
     void deleteCharSimilarById(Integer id, String dialect);
+    int deleteCharSimilarsByHanziId(@Param("id") Integer id, @Param("dialect") String dialect);
+    int deleteCharById(@Param("id") Integer id, @Param("dialect") String dialect);
     Integer getRandomId(String dialect);
     Integer findPrevId(Integer id, String dialect);
     Integer findNextId(Integer id, String dialect);

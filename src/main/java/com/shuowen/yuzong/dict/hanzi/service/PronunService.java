@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Set;
 
 @Service
 public class PronunService
@@ -57,6 +60,20 @@ public class PronunService
         var list = getRawCandidates(sc, tc);
         ListTool.handle(list, i -> i.setInfo(MdrTool.initWithPinyin(i.getInfo())));
         return list;
+    }
+
+    /** 列表页一次读取本页所有汉字的普通话候选。 */
+    public Map<String, List<MdrChar>> getHanziMenus(Set<String> characters)
+    {
+        if (characters.isEmpty()) return Map.of();
+        Map<String, List<MdrChar>> result = new HashMap<>();
+        for (var item : m.getInfoByCharacters(characters))
+        {
+            if (!characters.contains(item.getHanzi())) continue;
+            item.setInfo(MdrTool.initWithPinyin(item.getInfo()));
+            result.computeIfAbsent(item.getHanzi(), ignored -> new ArrayList<>()).add(item);
+        }
+        return result;
     }
 
     public List<MdrChar> getRawCandidates(String sc, String tc)

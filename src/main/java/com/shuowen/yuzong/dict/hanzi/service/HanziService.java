@@ -1,9 +1,15 @@
 package com.shuowen.yuzong.dict.hanzi.service;
 
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
+import com.shuowen.yuzong.dict.data.domain.setting.NoteTag;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.shuowen.yuzong.util.text.ScTcText;
+import com.shuowen.yuzong.util.text.TextPinyinIPA;
+import com.shuowen.yuzong.util.tuple.Pair;
 import com.shuowen.yuzong.dict.data.mapper.LogMapper;
 import com.shuowen.yuzong.dict.hanzi.domain.*;
 import com.shuowen.yuzong.dict.hanzi.mapper.HanziMapper;
+import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
 import com.shuowen.yuzong.dict.hanzi.model.HanziEntity;
 import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
@@ -84,6 +90,51 @@ public class HanziService
 
 
     // 编辑界面 ---------------------------------------------------------------------------------------------------------
+
+    public List<HanziEditorRow> listForEditor(Dialect dialect, int afterId, String query)
+    {
+        var condition = HanziEditorQuery.parse(query);
+        var entities = hz.listForEditor(dialect.toString(), afterId,
+                condition.characters(), condition.syllable(), condition.tone(), 50);
+        var characters = new HashSet<String>();
+        for (var entity : entities)
+        {
+            characters.add(entity.getSc());
+            characters.add(entity.getTc());
+        }
+        var candidateMap = mdr.getHanziMenus(characters);
+        var rows = new ArrayList<HanziEditorRow>();
+        for (var entity : entities)
+        {
+            var candidates = new ArrayList<MdrChar>(candidateMap.getOrDefault(entity.getSc(), List.of()));
+            if (!entity.getSc().equals(entity.getTc()))
+                candidates.addAll(candidateMap.getOrDefault(entity.getTc(), List.of()));
+            candidates.sort(Comparator.comparing(MdrChar::getMandarinId));
+            var mandarinById = new HashMap<Integer, String>();
+            candidates.forEach(item -> mandarinById.put(item.getMandarinId(), item.getInfo()));
+            var stored = JsonTool.<List<HanziPronunciation>>readJson(entity.getPinyin(), new TypeReference<>() {});
+            var pronunciations = new ArrayList<HanziEditorRow.Pronunciation>();
+            for (var item : stored)
+            {
+                var mandarin = new ArrayList<String>();
+                if (item.getMandarin() != null)
+                    item.getMandarin().forEach(id -> {
+                        if (mandarinById.containsKey(id)) mandarin.add(mandarinById.get(id));
+                    });
+                if (stored.size() == 1 && candidates.size() == 1 && mandarin.isEmpty())
+                    mandarin.add(candidates.get(0).getInfo());
+                pronunciations.add(new HanziEditorRow.Pronunciation(
+                        dialect.trustedCreatePinyin(item.getPinyin().toString()).toRPinyin().toString(),
+                        item.getTag(), mandarin));
+            }
+            var storedNotes = JsonTool.<List<Pair<NoteTag, ScTcText>>>readJson(entity.getNote(), new TypeReference<>() {});
+            var notes = ListTool.mapping(storedNotes, note -> Pair.of(note.getLeft(),
+                    note.getRight().map(text -> TextPinyinIPA.transferPinyin(text, dialect, true))));
+            rows.add(new HanziEditorRow(entity.getId(), ObfInt.encode(entity.getId()).toString(),
+                    entity.getSc(), entity.getTc(), pronunciations, notes));
+        }
+        return rows;
+    }
 
     /**
      * 在编辑界面的时候，给一个非常宽松的筛选
@@ -198,9 +249,15 @@ public class HanziService
          * 2. 比较并且处理
          * */
         var sim = data.getRight();
+        for (int index = 0; index < sim.size(); index++)
+        {
+            sim.get(index).setHanziId(id);
+            sim.get(index).setSort(index + 1);
+        }
+        var existingSim = sim.stream().filter(item -> item.getId() != null && item.getId() > 0).toList();
         for (var i : SetCompareUtil.compare(
                 new HashSet<>(hz.findHanziSimilarByCharId(id, d.toString())),
-                new HashSet<>(sim)))
+                new HashSet<>(existingSim)))
         {
             switch (i.getChangeType())
             {
@@ -209,8 +266,23 @@ public class HanziService
                 case DELETED -> hz.deleteCharSimilarById(i.getOldItem().getId(), d.toString());
             }
         }
+        for (var item : sim)
+            if (item.getId() == null || item.getId() <= 0)
+                hz.insertCharSimilar(item, d.toString());
 
         log.insertChar(d.toString(), JsonTool.toJson(before), JsonTool.toJson(getHanziById(id, d)), "U");
+    }
+
+    @Transactional (rollbackFor = {Exception.class})
+    public void deleteHanzi(int id, Dialect dialect)
+    {
+        var before = getHanziById(id, dialect);
+        if (before == null) throw new NoSuchElementException("未找到汉字");
+
+        hz.deleteCharSimilarsByHanziId(id, dialect.toString());
+        if (hz.deleteCharById(id, dialect.toString()) != 1)
+            throw new NoSuchElementException("汉字已被删除");
+        log.insertChar(dialect.toString(), JsonTool.toJson(before), null, "D");
     }
 
     public Twin<Maybe<ObfInt>> getNearBy(int id, Dialect d)

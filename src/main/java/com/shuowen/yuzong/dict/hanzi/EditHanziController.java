@@ -3,6 +3,7 @@ package com.shuowen.yuzong.dict.hanzi;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.dict.hanzi.domain.HanziCreate;
 import com.shuowen.yuzong.dict.hanzi.domain.HanziUpdate;
+import com.shuowen.yuzong.dict.hanzi.domain.HanziEditorRow;
 import com.shuowen.yuzong.dict.hanzi.domain.HanziPinyinSuggestion;
 import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
 import com.shuowen.yuzong.dict.hanzi.service.HanziService;
@@ -38,6 +39,13 @@ public class EditHanziController
         return APIResponse.success(hz.getHanziFilterInfo(hanzi, d));
     }
 
+    @GetMapping ("/list/{d}")
+    public APIResponse<List<HanziEditorRow>> list(@PathVariable Dialect d,
+            @RequestParam(defaultValue = "0") int afterId, @RequestParam(defaultValue = "") String query)
+    {
+        return APIResponse.success(hz.listForEditor(d, Math.max(0, afterId), query.trim()));
+    }
+
 
     /**
      * 获得精确的某一个字的信息
@@ -60,6 +68,13 @@ public class EditHanziController
     public APIResponse<Void> edit(@PathVariable Dialect d, @RequestBody HanziUpdate he)
     {
         hz.editHanzi(he, d);
+        return APIResponse.success();
+    }
+
+    @DeleteMapping ("/{d}/{id}")
+    public APIResponse<Void> delete(@PathVariable Dialect d, @PathVariable ObfInt id)
+    {
+        hz.deleteHanzi(id.decode(), d);
         return APIResponse.success();
     }
 
