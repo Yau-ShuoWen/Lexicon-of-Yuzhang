@@ -18,4 +18,7 @@ public interface StudyLevelMapper
     void insert(StudyLevelEntity entity);
 
     void update(StudyLevelEntity entity);
+
+    void updateOrder(@Param("id") Integer id, @Param("partId") Integer partId,
+                     @Param("levelOrder") Integer levelOrder);
 }

@@ -181,6 +181,41 @@ public class StudyCurriculumService
         return levelMapper.findByPartId(partId).stream().map(StudyLevelUpdate::new).toList();
     }
 
+    public List<StudyLevelUpdate> saveLevels(Integer partId, List<StudyLevelUpdate> updates,
+                                              Dialect dialect)
+    {
+        requirePart(partId, dialect);
+        if (updates == null || updates.stream().anyMatch(item -> item == null))
+            throw new IllegalArgumentException("关卡列表不能为空");
+
+        List<StudyLevelEntity> existing = levelMapper.findByPartId(partId);
+        Set<Integer> existingIds = existing.stream().map(StudyLevelEntity::getId).collect(Collectors.toSet());
+        List<Integer> submittedIdList = updates.stream().map(StudyLevelUpdate::getId)
+                .filter(id -> id != null && id > 0).toList();
+        if (!Set.copyOf(submittedIdList).equals(existingIds) || submittedIdList.size() != existingIds.size())
+            throw new IllegalArgumentException("当前关卡暂时不允许删除或重复提交");
+        if (updates.stream().anyMatch(item -> !partId.equals(item.getPartId())))
+            throw new IllegalArgumentException("关卡所属部分不一致");
+
+        List<StudyLevelEntity> entities = new java.util.ArrayList<>();
+        for (int index = 0; index < updates.size(); index++)
+        {
+            StudyLevelUpdate update = updates.get(index);
+            update.setLevelOrder(index + 1);
+            entities.add(update.toEntity());
+        }
+
+        for (int index = 0; index < existing.size(); index++)
+            levelMapper.updateOrder(existing.get(index).getId(), partId, -(index + 1));
+
+        for (StudyLevelEntity entity : entities)
+        {
+            if (entity.getId() == null || entity.getId() <= 0) levelMapper.insert(entity);
+            else levelMapper.update(entity);
+        }
+        return findLevels(partId, dialect);
+    }
+
     public StudyLevelUpdate findLevel(Integer id, Dialect dialect)
     {
         StudyLevelEntity entity = levelMapper.findById(id, dialect.toString());

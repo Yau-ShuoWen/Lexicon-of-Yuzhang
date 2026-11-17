@@ -43,6 +43,21 @@ public class StudyCurriculumController
         }
     }
 
+    @GetMapping("/{language}/{dialect}/parts/{partId}/chapters")
+    public APIResponse<List<StudyChapterCatalog>> publicChapters(
+            @PathVariable Language language, @PathVariable Dialect dialect,
+            @PathVariable Integer partId)
+    {
+        try
+        {
+            return APIResponse.success(service.findChapters(partId, dialect));
+        }
+        catch (Exception e)
+        {
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
     @GetMapping("/manage/{dialect}/parts")
     public APIResponse<List<StudyPartCatalog>> findParts(@PathVariable Dialect dialect)
     {
@@ -168,6 +183,21 @@ public class StudyCurriculumController
         try
         {
             return APIResponse.success(service.findLevels(partId, dialect));
+        }
+        catch (Exception e)
+        {
+            return APIResponse.failure(e.getMessage());
+        }
+    }
+
+    @PutMapping("/manage/{dialect}/levels")
+    public APIResponse<List<StudyLevelUpdate>> saveLevels(
+            @PathVariable Dialect dialect, @RequestParam Integer partId,
+            @RequestBody List<StudyLevelUpdate> updates)
+    {
+        try
+        {
+            return APIResponse.success(service.saveLevels(partId, updates, dialect));
         }
         catch (Exception e)
         {
