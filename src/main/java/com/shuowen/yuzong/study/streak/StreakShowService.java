@@ -33,6 +33,15 @@ public class StreakShowService
         return getOverviewForUser(user.getId(), from, to);
     }
 
+    public StreakOverview getCalendarOverview(String token)
+    {
+        UserEntity user = userService.getUserByToken(token);
+        LocalDate today = LocalDate.now();
+        settleExpiredDays(user.getId(), today);
+        List<StreakRecordEntity> records = mapper.findAllByUser(user.getId());
+        return buildOverview(records, records, today, protectionBalance(user.getId()));
+    }
+
     public StreakOverview getOverviewForUser(Integer userId, LocalDate from, LocalDate to)
     {
         if (userId == null) throw new IllegalArgumentException("用户编号不能为空");

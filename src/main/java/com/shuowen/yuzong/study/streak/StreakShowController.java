@@ -27,6 +27,12 @@ public class StreakShowController
         return APIResponse.success(service.getOverview(t, start, end));
     }
 
+    @GetMapping("/calendar")
+    public APIResponse<StreakOverview> calendar(@RequestParam String t)
+    {
+        return APIResponse.success(service.getCalendarOverview(t));
+    }
+
     @PostMapping("/activity/complete")
     public APIResponse<Void> complete(@RequestParam String t)
     {
