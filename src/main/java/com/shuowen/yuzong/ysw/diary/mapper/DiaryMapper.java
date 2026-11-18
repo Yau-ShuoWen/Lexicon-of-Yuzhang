@@ -19,6 +19,17 @@ public interface DiaryMapper
     @Select ("SELECT * FROM NC.ysw_diary WHERE id = #{id}")
     DiaryEntity getDiaryById(int id);
 
+    @Select ("SELECT * FROM NC.ysw_diary WHERE id = #{id} FOR UPDATE")
+    DiaryEntity getDiaryByIdForUpdate(int id);
+
+    @Insert("""
+            INSERT INTO NC.ysw_diary_history
+                (id, date, sort, content, for_friend, for_stranger, start_date, finalize_date, created_time, updated_time)
+            SELECT id, date, sort, content, for_friend, for_stranger, start_date, finalize_date, created_time, updated_time
+            FROM NC.ysw_diary WHERE id = #{id}
+            """)
+    int archiveCurrent(int id);
+
     @Update("""
             UPDATE NC.ysw_diary
             SET date = #{date},

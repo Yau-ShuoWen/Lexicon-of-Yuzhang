@@ -12,6 +12,7 @@ import com.shuowen.yuzong.media.image.ImageService;
 import com.shuowen.yuzong.media.image.ImageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -166,6 +167,7 @@ public class DiaryService
         return editData(diary);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public DiaryEditData updateForEdit(Integer id, DiaryEditRequest request)
     {
         if (request == null)
@@ -186,7 +188,7 @@ public class DiaryService
         }
 
         var visibility = DiaryEditVisibility.of(request.visibility());
-        var diary = m.getDiaryById(id);
+        var diary = m.getDiaryByIdForUpdate(id);
         if (diary == null)
         {
             throw new IllegalArgumentException("日记不存在");
@@ -201,6 +203,10 @@ public class DiaryService
         diary.setForFriend(visibility == DiaryEditVisibility.PRIVATE ? null : request.forFriend());
         diary.setForStranger(visibility == DiaryEditVisibility.STRANGER ? request.forStranger() : null);
 
+        if (m.archiveCurrent(id) != 1)
+        {
+            throw new IllegalStateException("日记历史记录保存失败");
+        }
         if (m.updateForEdit(diary) != 1)
         {
             throw new IllegalStateException("日记保存失败");
