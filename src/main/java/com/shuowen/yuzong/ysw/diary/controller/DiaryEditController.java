@@ -16,8 +16,12 @@ import com.shuowen.yuzong.media.image.ImageService;
 import com.shuowen.yuzong.media.image.ImageVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.CacheControl;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/diary/edit")
@@ -60,13 +64,43 @@ public class DiaryEditController
     @GetMapping("/{id}/image/{imageId}")
     public APIResponse<ImageVO> getImage(
             @PathVariable Integer id,
-            @PathVariable Long imageId,
+            @PathVariable String imageId,
             @RequestParam(required = false) String t,
             @RequestHeader(value = "X-Auth-Token", required = false) String headerToken)
     {
         requireEditPermission(t, headerToken);
         diaryService.getForEdit(id);
-        return APIResponse.success(imageService.getDiaryImage(imageId, id));
+        return APIResponse.success(imageId.matches("[1-9][0-9]*")
+                ? imageService.getDiaryImage(Long.valueOf(imageId), id)
+                : imageService.getDiaryImage(imageId, id));
+    }
+
+    @GetMapping("/{id}/image/{imageId}/original")
+    public ResponseEntity<byte[]> getOriginalImage(
+            @PathVariable Integer id,
+            @PathVariable String imageId,
+            @RequestParam(required = false) String t,
+            @RequestHeader(value = "X-Auth-Token", required = false) String headerToken) throws IOException
+    {
+        requireEditPermission(t, headerToken);
+        diaryService.getForEdit(id);
+        ImageVO image = imageId.matches("[1-9][0-9]*")
+                ? imageService.getDiaryImage(Long.valueOf(imageId), id)
+                : imageService.getDiaryImage(imageId, id);
+        String format = image.getFormat();
+        MediaType type = "png".equals(format) ? MediaType.IMAGE_PNG
+                : "webp".equals(format) ? MediaType.parseMediaType("image/webp") : MediaType.IMAGE_JPEG;
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).contentType(type)
+                .body(imageService.readDiaryOriginal(imageId, id));
+    }
+
+    @GetMapping("/images/recycle")
+    public APIResponse<List<ImageVO>> listRecycle(
+            @RequestParam(required = false) String t,
+            @RequestHeader(value = "X-Auth-Token", required = false) String headerToken)
+    {
+        requireEditPermission(t, headerToken);
+        return APIResponse.success(imageService.listDiaryRecycle());
     }
 
     @PostMapping

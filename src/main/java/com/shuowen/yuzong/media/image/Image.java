@@ -15,4 +15,6 @@ public class Image
     private Integer status;
     private Date createTime;
     private Date updateTime;
+    private Date recycleTime;
+    private Boolean hasThumbnail;
 }
