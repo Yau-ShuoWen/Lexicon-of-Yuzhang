@@ -5,6 +5,8 @@ import com.shuowen.yuzong.util.err.InvalidPinyinException;
 import com.shuowen.yuzong.util.err.APIException;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.HTTPCode;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
@@ -20,6 +22,9 @@ import java.util.NoSuchElementException;
 @RestControllerAdvice
 public class GlobalExceptionHandler
 {
+    @Autowired
+    private ApiErrorLogService errorLog;
+
     @ExceptionHandler(APIException.class)
     public ResponseEntity<APIResponse<Void>> handleAPIException(APIException exception)
     {
@@ -107,9 +112,9 @@ public class GlobalExceptionHandler
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<APIResponse<Void>> handleUnexpected(Exception exception)
+    public ResponseEntity<APIResponse<Void>> handleUnexpected(Exception exception, HttpServletRequest request)
     {
-        exception.printStackTrace();
+        errorLog.record(request.getRequestURI(), "unhandled", exception);
         return failure(HTTPCode.InternalError, "服务暂时不可用，请稍后重试");
     }
 
