@@ -6,9 +6,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
+import javax.imageio.IIOImage;
+import javax.imageio.ImageWriteParam;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -38,7 +45,28 @@ public class ImageService
 
     public ImageVO uploadDiary(MultipartFile file, Integer diaryId) throws IOException
     {
-        return uploadToPrefix(file, "image/diary/" + diaryId + "/");
+        ImageVO image = uploadToPrefix(file, "image/diary/" + diaryId + "/");
+        imageMapper.markUnreferenced(image.getId());
+        return image;
+    }
+
+    public List<ImageVO> listDiaryRecycle()
+    {
+        return imageMapper.listDiaryRecycle().stream().map(this::toVO).toList();
+    }
+
+    public void syncDiaryReferences(Integer diaryId, Set<String> references)
+    {
+        for (Image image : imageMapper.listDiaryImages(diaryId))
+        {
+            String filename = image.getObjectName().substring(image.getObjectName().lastIndexOf('/') + 1);
+            int dot = filename.lastIndexOf('.');
+            String publicId = dot > 0 ? filename.substring(0, dot) : "";
+            if (references.contains(String.valueOf(image.getId())) || references.contains(publicId))
+                imageMapper.markReferenced(image.getId());
+            else
+                imageMapper.markUnreferenced(image.getId());
+        }
     }
 
     public ImageVO getDiaryImage(Long imageId, Integer diaryId)
@@ -51,6 +79,28 @@ public class ImageService
             throw new IllegalArgumentException("图片不存在或不属于当前日记");
         }
         return toVO(image);
+    }
+
+    public ImageVO getDiaryImage(String publicId, Integer diaryId)
+    {
+        if (publicId == null || !publicId.matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"))
+        {
+            throw new IllegalArgumentException("图片标识无效");
+        }
+        Image image = imageMapper.findDiaryByPublicId(diaryId, publicId);
+        if (image == null || image.getStatus() == null || image.getStatus() != 1)
+        {
+            throw new IllegalArgumentException("图片不存在或不属于当前日记");
+        }
+        return toVO(image);
+    }
+
+    public byte[] readDiaryOriginal(String imageId, Integer diaryId) throws IOException
+    {
+        ImageVO image = imageId.matches("[1-9][0-9]*")
+                ? getDiaryImage(Long.valueOf(imageId), diaryId)
+                : getDiaryImage(imageId, diaryId);
+        return ossService.read(image.getObjectName());
     }
 
     private ImageVO uploadToPrefix(MultipartFile file, String prefix) throws IOException
@@ -84,10 +134,41 @@ public class ImageService
         image.setObjectName(objectName);
         image.setFormat(format);
         image.setSize(file.getSize());
+        image.setStatus(1);
+
+        String thumbnailName = null;
+        byte[] thumbnail = null;
+        if (prefix.startsWith("image/diary/") && !"webp".equals(format))
+        {
+            var decoded = ImageIO.read(new ByteArrayInputStream(bytes));
+            if (decoded != null && Math.max(decoded.getWidth(), decoded.getHeight()) > 2000)
+            {
+                double ratio = 1600.0 / Math.max(decoded.getWidth(), decoded.getHeight());
+                int width = Math.max(1, (int) Math.round(decoded.getWidth() * ratio));
+                int height = Math.max(1, (int) Math.round(decoded.getHeight() * ratio));
+                BufferedImage scaled = new BufferedImage(width, height,
+                        "png".equals(format) ? BufferedImage.TYPE_INT_ARGB : BufferedImage.TYPE_INT_RGB);
+                Graphics2D graphics = scaled.createGraphics();
+                try
+                {
+                    graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                    graphics.drawImage(decoded, 0, 0, width, height, null);
+                }
+                finally { graphics.dispose(); }
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                if (writeThumbnail(scaled, format, output))
+                {
+                    thumbnail = output.toByteArray();
+                    thumbnailName = objectName.replace("image/diary/", "image/diary-thumbnail/");
+                }
+            }
+        }
+        image.setHasThumbnail(thumbnail != null);
 
         ossService.upload(new ByteArrayInputStream(bytes), objectName);
         try
         {
+            if (thumbnail != null) ossService.upload(new ByteArrayInputStream(thumbnail), thumbnailName);
             if (imageMapper.insert(image) != 1)
             {
                 throw new IllegalStateException("图片记录保存失败");
@@ -98,6 +179,7 @@ public class ImageService
             try
             {
                 ossService.delete(objectName);
+                if (thumbnailName != null) ossService.delete(thumbnailName);
             }
             catch (RuntimeException cleanupFailure)
             {
@@ -145,17 +227,44 @@ public class ImageService
     {
         ImageVO vo = new ImageVO();
         vo.setId(image.getId());
+        if (image.getObjectName() != null && image.getObjectName().startsWith("image/diary/"))
+        {
+            String filename = image.getObjectName().substring(image.getObjectName().lastIndexOf('/') + 1);
+            int dot = filename.lastIndexOf('.');
+            if (dot > 0) vo.setPublicId(filename.substring(0, dot));
+        }
         vo.setOriginalName(image.getOriginalName());
         vo.setObjectName(image.getObjectName());
         vo.setFormat(image.getFormat());
         vo.setSize(image.getSize());
         vo.setStatus(image.getStatus());
         vo.setCreateTime(image.getCreateTime());
+        vo.setRecycleTime(image.getRecycleTime());
         if (image.getStatus() != null && image.getStatus() == 1)
         {
             vo.setUrl(ossService.getUrl(image.getObjectName()));
+            if (Boolean.TRUE.equals(image.getHasThumbnail()))
+                vo.setThumbnailUrl(ossService.getUrl(image.getObjectName().replace("image/diary/", "image/diary-thumbnail/")));
         }
         return vo;
+    }
+
+    private boolean writeThumbnail(BufferedImage image, String format, ByteArrayOutputStream output) throws IOException
+    {
+        if ("png".equals(format)) return ImageIO.write(image, format, output);
+        var writers = ImageIO.getImageWritersByFormatName("jpeg");
+        if (!writers.hasNext()) return false;
+        var writer = writers.next();
+        try (var stream = ImageIO.createImageOutputStream(output))
+        {
+            writer.setOutput(stream);
+            ImageWriteParam options = writer.getDefaultWriteParam();
+            options.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+            options.setCompressionQuality(0.92f);
+            writer.write(null, new IIOImage(image, null, null), options);
+            return true;
+        }
+        finally { writer.dispose(); }
     }
 
     private String safeName(String name)

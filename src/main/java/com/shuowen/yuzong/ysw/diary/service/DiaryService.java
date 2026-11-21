@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.regex.Pattern;
 
 @Service
@@ -27,7 +29,8 @@ public class DiaryService
     private DiaryMapper m;
     @Autowired
     private ImageService imageService;
-    private static final Pattern PICTURE = Pattern.compile("(?m)^\\{p (?:(?:[^{}\\r\\n]*?)=>)?([1-9][0-9]*)}\\s*$");
+    // 旧版本标记为 {p 数字ID}，仅作兼容读取；新上传使用 OSS 对象名中的 UUID。
+    private static final Pattern PICTURE = Pattern.compile("\\{p (?:(?:[^{}\\r\\n]*?)=>)?([1-9][0-9]*|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:~[0-9]{2,3})?}");
 
     private Map<String, ImageVO> imagesFor(Integer diaryId, String body)
     {
@@ -37,9 +40,18 @@ public class DiaryService
         while (matcher.find())
         {
             String id = matcher.group(1);
-            images.computeIfAbsent(id, key -> imageService.getDiaryImage(Long.valueOf(key), diaryId));
+            images.computeIfAbsent(id, key -> key.matches("[1-9][0-9]*")
+                    ? imageService.getDiaryImage(Long.valueOf(key), diaryId)
+                    : imageService.getDiaryImage(key, diaryId));
         }
         return images;
+    }
+
+    private void collectPictureIds(String body, Set<String> ids)
+    {
+        if (body == null) return;
+        var matcher = PICTURE.matcher(body);
+        while (matcher.find()) ids.add(matcher.group(1));
     }
 
     private DiaryEditData editData(DiaryEntity diary)
@@ -197,6 +209,8 @@ public class DiaryService
         diary.setDate(request.date());
         diary.setSort(request.sort());
         imagesFor(id, request.content());
+        if (visibility != DiaryEditVisibility.PRIVATE) imagesFor(id, request.forFriend());
+        if (visibility == DiaryEditVisibility.STRANGER) imagesFor(id, request.forStranger());
         diary.setContent(request.content());
         diary.setStartDate(request.startDate());
         diary.setFinalizeDate(request.finalizeDate());
@@ -211,6 +225,11 @@ public class DiaryService
         {
             throw new IllegalStateException("日记保存失败");
         }
+        Set<String> references = new HashSet<>();
+        collectPictureIds(diary.getContent(), references);
+        collectPictureIds(diary.getForFriend(), references);
+        collectPictureIds(diary.getForStranger(), references);
+        imageService.syncDiaryReferences(id, references);
         return editData(diary);
     }
 

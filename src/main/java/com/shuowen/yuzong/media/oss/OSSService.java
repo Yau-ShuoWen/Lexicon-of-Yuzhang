@@ -113,6 +113,15 @@ public class OSSService
         return objectName;
     }
 
+    /** 读取已由业务层校验权限与归属的对象原始字节。 */
+    public byte[] read(String objectName) throws IOException
+    {
+        try (InputStream in = ossClient.getObject(bucketName, objectName).getObjectContent())
+        {
+            return in.readAllBytes();
+        }
+    }
+
     /**
      * 默认 30 分钟有效期的签名 URL。
      */
