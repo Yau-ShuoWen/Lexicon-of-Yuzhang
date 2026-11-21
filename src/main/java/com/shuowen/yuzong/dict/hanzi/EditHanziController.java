@@ -8,6 +8,7 @@ import com.shuowen.yuzong.dict.hanzi.domain.HanziPinyinSuggestion;
 import com.shuowen.yuzong.dict.hanzi.model.MdrChar;
 import com.shuowen.yuzong.dict.hanzi.service.HanziService;
 import com.shuowen.yuzong.dict.hanzi.service.PronunService;
+import com.shuowen.yuzong.dict.hanzi.service.PronunciationAuditService;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.obfuscate.ObfInt;
@@ -29,6 +30,15 @@ public class EditHanziController
 
     @Autowired
     PronunService p;
+
+    @Autowired
+    PronunciationAuditService pronunciationAudit;
+
+    @GetMapping ("/pronunciation-audit/{d}")
+    public APIResponse<List<PronunciationAuditService.Finding>> pronunciationAudit(@PathVariable Dialect d)
+    {
+        return APIResponse.success(pronunciationAudit.check(d));
+    }
 
     /**
      * 在编辑之前筛选内容
