@@ -57,7 +57,6 @@ public class AuthController
     public APIResponse<Void> checkAuth(String t)
     {
         user.getUserByToken(t);
-        token.refreshToken(t);  // 每次验证时刷新Token过期时间
         return APIResponse.success();
     }
 

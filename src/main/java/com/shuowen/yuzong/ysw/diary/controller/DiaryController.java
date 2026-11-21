@@ -1,5 +1,7 @@
 package com.shuowen.yuzong.ysw.diary.controller;
 
+import com.shuowen.yuzong.config.ApiErrorLogService;
+import com.shuowen.yuzong.util.err.APIException;
 import com.shuowen.yuzong.user.service.UserService;
 import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.tuple.APIResponse;
@@ -10,6 +12,7 @@ import com.shuowen.yuzong.ysw.diary.data.DiaryDigest;
 import com.shuowen.yuzong.ysw.diary.data.DiaryText;
 import com.shuowen.yuzong.ysw.diary.data.DiaryViewMode;
 import com.shuowen.yuzong.ysw.diary.service.DiaryService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,6 +43,12 @@ public class DiaryController
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ApiErrorLogService errorLog;
+
+    @Autowired
+    private HttpServletRequest request;
 
     /**
      * 获取日记目录归档。<br>
@@ -259,8 +268,10 @@ public class DiaryController
                 return DiaryViewMode.STRANGER;
             }
         }
-        catch (Exception ignored)
+        catch (APIException exception)
         {
+            errorLog.record(request.getRequestURI(), "diary-auth", exception);
+            throw exception;
         }
         return DiaryViewMode.STRANGER;
     }

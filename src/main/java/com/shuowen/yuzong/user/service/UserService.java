@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.shuowen.yuzong.user.utils.PasswordUtil.encodePassword;
 import static com.shuowen.yuzong.user.utils.PasswordUtil.isPasswordEqual;
-import static com.shuowen.yuzong.util.ext.other.NullTool.assertNotNull;
 
 @Service
 @Transactional (rollbackFor = {Exception.class})
@@ -39,8 +38,8 @@ public class UserService
     public UserEntity checkIdentityByUsername(String username, String password)
     {
         username = normalize(username);
-        var u = assertNotNull(user.getUserByName(username),
-                new APIException(HTTPCode.NotLogin, "用户名或者密码错误"));
+        var u = user.getUserByName(username);
+        if (u == null) throw new APIException(HTTPCode.NotLogin, "用户名或者密码错误");
         if (!isPasswordEqual(password, u.getPassword()))
             throw new APIException(HTTPCode.NotLogin, "用户名或者密码错误");
         return u;
@@ -49,8 +48,8 @@ public class UserService
     public UserEntity checkIdentityByPhone(String phone, String password)
     {
         phone = normalize(phone);
-        var u = assertNotNull(user.getUserByPhone(phone),
-                new APIException(HTTPCode.NotLogin, "手机号或者密码错误"));
+        var u = user.getUserByPhone(phone);
+        if (u == null) throw new APIException(HTTPCode.NotLogin, "手机号或者密码错误");
         if (!isPasswordEqual(password, u.getPassword()))
             throw new APIException(HTTPCode.NotLogin, "手机号或者密码错误");
         return u;
@@ -74,7 +73,9 @@ public class UserService
                 DEFAULT_AUTHORITY
         );
         user.insertUser(newUser);
-        return assertNotNull(user.getUserByPhone(phone), new NoSuchElementException("手机号注册失败"));
+        var created = user.getUserByPhone(phone);
+        if (created == null) throw new NoSuchElementException("手机号注册失败");
+        return created;
     }
 
     /**
@@ -82,10 +83,13 @@ public class UserService
      */
     public UserEntity getUserByToken(String t)
     {
-        var name = assertNotNull(token.getUsernameByToken(t),
-                new APIException(HTTPCode.NotLogin, "登录状态无效"));
-        return assertNotNull(user.getUserByName(name),
-                new APIException(HTTPCode.NotLogin, "登录状态无效"));
+        var name = token.getUsernameByToken(t);
+        if (name == null) throw new APIException(HTTPCode.NotLogin, "登录状态无效");
+        var account = user.getUserByName(name);
+        if (account == null) throw new APIException(HTTPCode.NotLogin, "登录状态无效");
+        // 只有成功识别用户后才续期；普通页面调用 /me 也能保持会话有效。
+        token.refreshToken(t);
+        return account;
     }
 
     public UserEntity getUserById(Integer id)
