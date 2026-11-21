@@ -19,7 +19,7 @@ public class PronunciationAuditService
 {
     public record Finding(String type, Integer wordId, String word, int position, String character,
                           String wordPinyin, List<String> hanziPinyins,
-                          String wordDisplay, List<String> hanziDisplays) {}
+                          String wordDisplay, List<String> hanziDisplays, Integer hanziId) {}
 
     private final HanziMapper hanziMapper;
     private final CiyuMapper ciyuMapper;
@@ -33,25 +33,30 @@ public class PronunciationAuditService
     public List<Finding> check(Dialect dialect)
     {
         Map<String, List<String>> table = new HashMap<>();
+        Map<String, Set<Integer>> hanziIds = new HashMap<>();
         for (var row : hanziMapper.getAllHanzi(dialect.toString()))
         {
             List<HanziPronunciation> pronunciations = JsonTool.readJson(row.getPinyin(), new TypeReference<>() {});
             if (pronunciations == null) continue;
             for (String character : new String[]{row.getSc(), row.getTc()})
                 if (character != null && !character.isEmpty())
+                {
+                    hanziIds.computeIfAbsent(character, ignored -> new LinkedHashSet<>()).add(row.getId());
                     for (var pronunciation : pronunciations)
                         if (pronunciation != null && pronunciation.getPinyin() != null)
                             table.computeIfAbsent(character, ignored -> new ArrayList<>())
                                     .add(pronunciation.getPinyin().toString());
+                }
         }
 
         List<Finding> result = new ArrayList<>();
         for (CiyuEntity word : ciyuMapper.getAllCiyu(dialect.toString()))
-            checkWord(dialect, word, table, result);
+            checkWord(dialect, word, table, hanziIds, result);
         return result;
     }
 
-    private void checkWord(Dialect dialect, CiyuEntity word, Map<String, List<String>> table, List<Finding> result)
+    private void checkWord(Dialect dialect, CiyuEntity word, Map<String, List<String>> table,
+                           Map<String, Set<Integer>> hanziIds, List<Finding> result)
     {
         List<SplitedPinyin> pinyins = JsonTool.readJson(word.getMainPy(), new TypeReference<>() {});
         if (pinyins == null) pinyins = List.of();
@@ -59,24 +64,27 @@ public class PronunciationAuditService
         String[] tc = codePoints(word.getTc());
         if (sc.length != tc.length || sc.length != pinyins.size())
         {
-            result.add(new Finding("UNALIGNED", word.getId(), word.getSc(), -1, null, null, List.of(), null, List.of()));
+            result.add(new Finding("UNALIGNED", word.getId(), word.getSc(), -1, null, null, List.of(), null, List.of(), null));
             return;
         }
         for (int i = 0; i < pinyins.size(); i++)
         {
             String raw = pinyins.get(i) == null ? null : pinyins.get(i).toString();
+            Set<String> characters = new LinkedHashSet<>(Arrays.asList(sc[i], tc[i]));
+            Set<Integer> ids = new LinkedHashSet<>();
+            for (String character : characters) ids.addAll(hanziIds.getOrDefault(character, Set.of()));
+            Integer hanziId = ids.size() == 1 ? ids.iterator().next() : null;
             UniPinyin actual = parse(dialect, raw);
             if (actual == null)
             {
-                result.add(new Finding("INVALID_WORD_PINYIN", word.getId(), word.getSc(), i, sc[i], raw, List.of(), null, List.of()));
+                result.add(new Finding("INVALID_WORD_PINYIN", word.getId(), word.getSc(), i, sc[i], raw, List.of(), null, List.of(), hanziId));
                 continue;
             }
-            Set<String> characters = new LinkedHashSet<>(Arrays.asList(sc[i], tc[i]));
             List<String> candidates = new ArrayList<>();
             for (String character : characters) candidates.addAll(table.getOrDefault(character, List.of()));
             if (candidates.isEmpty())
             {
-                result.add(new Finding("MISSING_HANZI", word.getId(), word.getSc(), i, sc[i], raw, List.of(), display(actual), List.of()));
+                result.add(new Finding("MISSING_HANZI", word.getId(), word.getSc(), i, sc[i], raw, List.of(), display(actual), List.of(), null));
                 continue;
             }
             boolean variant = false;
@@ -95,7 +103,7 @@ public class PronunciationAuditService
                         word.getId(), word.getSc(), i,
                         sc[i], raw, List.copyOf(new LinkedHashSet<>(candidates)), display(actual),
                         candidates.stream().map(candidate -> display(parse(dialect, candidate)))
-                                .filter(Objects::nonNull).distinct().toList()));
+                                .filter(Objects::nonNull).distinct().toList(), hanziId));
         }
     }
 

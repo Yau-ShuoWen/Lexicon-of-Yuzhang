@@ -5,7 +5,6 @@ import com.shuowen.yuzong.dict.pinyin.data.PinyinConfig;
 import com.shuowen.yuzong.dict.service.Reference.RefReadService;
 import com.shuowen.yuzong.linguistics.util.RPinyins;
 import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.UString;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 @Data
 public class CiyuShow
 {
-    private final ObfInt id;
+    private final Integer id;
     private final UString ciyu;
     private final Integer special;
     private final RPinyins mainPy;
@@ -44,7 +43,7 @@ public class CiyuShow
         var l = data.getLanguage();
         var d = data.getDialect();
 
-        id = ObfInt.encode(cy.getId());
+        id = cy.getId();
         ciyu = cy.getCiyus().get(l);
         special = cy.getSpecial();
         relatedWords = cy.getRelatedWords();

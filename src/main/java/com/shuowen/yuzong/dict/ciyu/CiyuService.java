@@ -13,7 +13,6 @@ import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.list.UniqueList;
 import com.shuowen.yuzong.util.json.JsonTool;
-import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.Twin;
@@ -116,7 +115,7 @@ public class CiyuService
                 {
                     var ans = new SearchResult();
                     ans.setTitle(Objects.equals(i.getSc(), i.getTc()) ? i.getSc() : i.getSc() + " / " + i.getTc());
-                    ans.setInfo(Map.of("query", ObfInt.encode(i.getId())));
+                    ans.setInfo(Map.of("query", i.getId()));
                     return ans;
                 }
         );
@@ -204,13 +203,13 @@ public class CiyuService
         }
     }
 
-    public Maybe<ObfInt> getEditLinkIfExist(UString ciyu, Dialect d)
+    public Maybe<Integer> getEditLinkIfExist(UString ciyu, Dialect d)
     {
         try
         {
             var entity = ListTool.checkSizeOne(cy.findCiyuByScOrTc(ciyu.toString(), d.toString(), Language.TC.toString()),
                     "没有找到词语", "查到了过多的数据");
-            return Maybe.exist(ObfInt.encode(entity.getId()));
+            return Maybe.exist(entity.getId());
         } catch (NoSuchElementException e)
         {
             return Maybe.nothing();

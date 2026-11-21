@@ -11,7 +11,6 @@ import com.shuowen.yuzong.dict.hanzi.service.PronunService;
 import com.shuowen.yuzong.dict.hanzi.service.PronunciationAuditService;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.core.Language;
-import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.Maybe;
 import com.shuowen.yuzong.util.tuple.MaybeAPIResponse;
@@ -61,11 +60,11 @@ public class EditHanziController
      * 获得精确的某一个字的信息
      */
     @GetMapping ("/get-info/{d}")
-    public APIResponse<HanziUpdate> hanzifind(@PathVariable Dialect d, @RequestParam ObfInt id
+    public APIResponse<HanziUpdate> hanzifind(@PathVariable Dialect d, @RequestParam Integer id
     )
     {
         return MaybeAPIResponse.of(
-                Maybe.uncertain(hz.getHanziById(id.decode(), d)),
+                Maybe.uncertain(hz.getHanziById(id, d)),
                 "没有找到汉字"
         );
     }
@@ -82,9 +81,9 @@ public class EditHanziController
     }
 
     @DeleteMapping ("/{d}/{id}")
-    public APIResponse<Void> delete(@PathVariable Dialect d, @PathVariable ObfInt id)
+    public APIResponse<Void> delete(@PathVariable Dialect d, @PathVariable Integer id)
     {
-        hz.deleteHanzi(id.decode(), d);
+        hz.deleteHanzi(id, d);
         return APIResponse.success();
     }
 
@@ -103,16 +102,16 @@ public class EditHanziController
      * 获得上一号和下一号的号码给跳转
      */
     @GetMapping ("/get-nearby/{d}")
-    public APIResponse<NearbyResponse<ObfInt>> getNearBy(@PathVariable Dialect d, @RequestParam ObfInt id)
+    public APIResponse<NearbyResponse<Integer>> getNearBy(@PathVariable Dialect d, @RequestParam Integer id)
     {
-        return APIResponse.success(NearbyResponse.from(hz.getNearBy(id.decode(), d)));
+        return APIResponse.success(NearbyResponse.from(hz.getNearBy(id, d)));
     }
 
     @GetMapping ("/get-word-suggestions/{d}")
     public APIResponse<List<HanziPinyinSuggestion>> getWordSuggestions(
-            @PathVariable Dialect d, @RequestParam ObfInt id, @RequestParam Language language)
+            @PathVariable Dialect d, @RequestParam Integer id, @RequestParam Language language)
     {
-        return APIResponse.success(hz.getWordPinyinSuggestions(id.decode(), language, d));
+        return APIResponse.success(hz.getWordPinyinSuggestions(id, language, d));
     }
 
     @PostMapping ("/create/{d}")
