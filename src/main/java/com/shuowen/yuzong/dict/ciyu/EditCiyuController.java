@@ -5,7 +5,6 @@ import com.shuowen.yuzong.dict.ciyu.data.CiyuUpdate;
 import com.shuowen.yuzong.dict.data.domain.Reference.DictCode;
 import com.shuowen.yuzong.dict.data.dto.SearchResult;
 import com.shuowen.yuzong.util.core.Dialect;
-import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.APIResponse;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -32,11 +31,11 @@ public class EditCiyuController
      * 获得精确的某一个字的信息
      */
     @GetMapping ("/get-info/{d}")
-    public APIResponse<CiyuUpdate> ciyufind(@PathVariable Dialect d, @RequestParam ObfInt id
+    public APIResponse<CiyuUpdate> ciyufind(@PathVariable Dialect d, @RequestParam Integer id
     )
     {
         return MaybeAPIResponse.of(
-                Maybe.uncertain(cy.getCiyuById(id.decode(), d)),
+                Maybe.uncertain(cy.getCiyuById(id, d)),
                 "没有找到词语"
         );
     }
@@ -59,7 +58,7 @@ public class EditCiyuController
     }
 
     @GetMapping ("/get-link/{d}/{dict}")
-    public APIResponse<ObfInt> getLink(
+    public APIResponse<Integer> getLink(
             @PathVariable Dialect d, @PathVariable DictCode dict,
             @RequestParam UString ciyu
     )

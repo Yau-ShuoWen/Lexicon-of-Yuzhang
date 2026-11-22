@@ -18,7 +18,6 @@ import com.shuowen.yuzong.util.core.Language;
 import com.shuowen.yuzong.util.ext.list.ListTool;
 import com.shuowen.yuzong.util.ext.list.UniqueList;
 import com.shuowen.yuzong.util.json.JsonTool;
-import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.UChar;
 import com.shuowen.yuzong.util.text.UString;
 import com.shuowen.yuzong.util.tuple.Maybe;
@@ -130,7 +129,7 @@ public class HanziService
             var storedNotes = JsonTool.<List<Pair<NoteTag, ScTcText>>>readJson(entity.getNote(), new TypeReference<>() {});
             var notes = ListTool.mapping(storedNotes, note -> Pair.of(note.getLeft(),
                     note.getRight().map(text -> TextPinyinIPA.transferPinyin(text, dialect, true))));
-            rows.add(new HanziEditorRow(entity.getId(), ObfInt.encode(entity.getId()).toString(),
+            rows.add(new HanziEditorRow(entity.getId(),
                     entity.getSc(), entity.getTc(), pronunciations, notes));
         }
         return rows;
@@ -156,7 +155,7 @@ public class HanziService
                 tmp.setExplain(String.join("/", ListTool.mapping(pinyin,
                         py -> d.trustedCreatePinyin(py.getPinyin().toString()).toRPinyin().toString())));
                 tmp.setTag("");
-                tmp.setInfo(Map.of("query", ObfInt.encode(i.getId())));
+                tmp.setInfo(Map.of("query", i.getId()));
 
                 ans.add(tmp);
             }
@@ -285,15 +284,12 @@ public class HanziService
         log.insertChar(dialect.toString(), JsonTool.toJson(before), null, "D");
     }
 
-    public Twin<Maybe<ObfInt>> getNearBy(int id, Dialect d)
+    public Twin<Maybe<Integer>> getNearBy(int id, Dialect d)
     {
         var prevId = Maybe.uncertain(hz.findPrevId(id, d.toString()));
         var nextId = Maybe.uncertain(hz.findNextId(id, d.toString()));
 
-        return Twin.of(  // 编码
-                prevId.handleIfExist(ObfInt::encode),
-                nextId.handleIfExist(ObfInt::encode)
-        );
+        return Twin.of(prevId, nextId);
     }
 
     @Transactional (rollbackFor = {Exception.class})

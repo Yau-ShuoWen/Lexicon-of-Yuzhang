@@ -7,7 +7,6 @@ import com.shuowen.yuzong.dict.service.Reference.RefReadService;
 import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.linguistics.util.RPinyin;
 import com.shuowen.yuzong.util.ext.list.ListTool;
-import com.shuowen.yuzong.util.obfuscate.ObfInt;
 import com.shuowen.yuzong.util.text.RichTextUtil;
 import com.shuowen.yuzong.util.text.TextPinyinIPA;
 import com.shuowen.yuzong.util.text.UChar;
@@ -23,7 +22,7 @@ import java.util.stream.Collectors;
 @Data
 public class HanziShow
 {
-    private final ObfInt id;
+    private final Integer id;
     private final UChar hanzi;
     private final Integer special;
     private final LinkedHashSet<UChar> similar;
@@ -71,7 +70,7 @@ public class HanziShow
                       List<HanziWordUsage> wordUsages)
     {
         var first = items.get(0);
-        id = ObfInt.encode(first.getId());
+        id = first.getId();
         hanzi = first.getHanzi();
         special = first.getSpecial();
         similar = new LinkedHashSet<>();

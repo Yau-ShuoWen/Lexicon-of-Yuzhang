@@ -381,6 +381,16 @@ public class LACPinyin extends UniPinyin
     }
 
     @Override
+    public boolean matches(UniPinyin other)
+    {
+        if (!(other instanceof LACPinyin)) return false;
+        if (equals(other)) return true;
+        // 轻声与同音节的本调是变体，完整相等仍由 equals 判断。
+        return getSyll().equals(other.getSyll()) &&
+                (getTone().toStringOrEmpty().equals("0") || other.getTone().toStringOrEmpty().equals("0"));
+    }
+
+    @Override
     public String toString()
     {
         return String.format("南昌话拼音：%s%s", getSyll(), getTone().toStringOrEmpty());
