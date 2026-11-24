@@ -25,6 +25,15 @@ public class RichTextTable
 
     private final List<Column> columns = new ArrayList<>();
     private final List<List<String>> rows = new ArrayList<>();
+    private boolean leftHeader;
+
+    /** 无顶部表头时，将第一列标记为左侧表头。 */
+    public RichTextTable leftHeader()
+    {
+        if (!rows.isEmpty()) throw new IllegalStateException("添加数据行后不能设置左侧表头");
+        leftHeader = true;
+        return this;
+    }
 
     /** 添加没有表头文字的列。 */
     public RichTextTable addColumn(Alignment alignment, Width width)
@@ -72,7 +81,11 @@ public class RichTextTable
                     .map(column -> column.header() == null ? "" : column.header())
                     .toList()));
 
-        lines.add(buildRow(columns.stream().map(RichTextTable::formatColumn).toList()));
+        if (leftHeader && columns.stream().anyMatch(column -> column.header() != null))
+            throw new IllegalStateException("左侧表头不能与顶部表头同时使用");
+        List<String> alignmentRow = new ArrayList<>(columns.stream().map(RichTextTable::formatColumn).toList());
+        if (leftHeader) alignmentRow.set(0, alignmentRow.get(0) + "$");
+        lines.add(buildRow(alignmentRow));
         for (List<String> row : rows) lines.add(buildRow(row));
         return String.join("\n", lines);
     }
