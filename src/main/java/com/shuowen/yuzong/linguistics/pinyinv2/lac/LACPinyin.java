@@ -420,13 +420,11 @@ public class LACPinyin extends UniPinyin
         PinyinBlock block = new PinyinBlock();
 
         String display = LACDisplay.format(this).toShowString();
-        String keyboard = toKeyboardPinyin().toShowString();
-        String introduce = LACIntro.format(this).toString();
+        String ganCommon = LACGanCommon.format(this);
 
         block.setTitle(display);
-        block.add("putonghua", "近似讀音", introduce);
         block.add("standard", "標準寫法", display);
-        block.add("keyboard", "鍵盤輸入", keyboard);
+        block.add("ganCommon", "贛語通用拼音", "[" + ganCommon + "]");
         return block;
     }
 
@@ -621,6 +619,42 @@ public class LACPinyin extends UniPinyin
     /**
      * 简化拼音
      */
+    private static class LACGanCommon
+    {
+        private static String format(LACPinyin p)
+        {
+            String syllable = p.yinjieOrDandu.fold(DanDu::toString, y -> {
+                String s = y.toString();
+                if (y.shengmu != ShengMu.$) return s;
+
+                if (y.jiemu == JieMu.i)
+                {
+                    String rest = s.substring(1);
+                    if (rest.startsWith("a") || rest.startsWith("o") || rest.startsWith("ọ")
+                            || rest.startsWith("e") || rest.startsWith("ẹ")) return "y" + rest;
+                    if (rest.equals("u") || rest.equals("ut") || rest.equals("uk")) return "yiu" + rest.substring(1);
+                    return "yi" + rest;
+                }
+                if (y.jiemu == JieMu.u)
+                {
+                    String rest = s.substring(1);
+                    if (rest.startsWith("a") || rest.startsWith("o") || rest.startsWith("ọ")
+                            || rest.startsWith("e") || rest.startsWith("ẹ") || rest.startsWith("i")) return "w" + rest;
+                    return "wu" + rest;
+                }
+                return s;
+            });
+
+            syllable = PinyinCommon.d_ZCS(syllable);
+            syllable = PinyinCommon.d_Ng(syllable);
+            syllable = syllable.replace("ẹi", "ui")
+                    .replace("e", "ê").replace("ẹ", "e")
+                    .replace("ọ", "eo").replace("ü", "yu");
+            syllable = syllable.replaceFirst("^([zcs])i", "$1ï");
+            return syllable + p.getToneStr();
+        }
+    }
+
     private static class LACIntro
     {
         public static RPinyin format(LACPinyin p)
