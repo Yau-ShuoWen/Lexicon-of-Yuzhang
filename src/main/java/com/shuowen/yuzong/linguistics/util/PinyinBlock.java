@@ -99,9 +99,8 @@ public class PinyinBlock
         return ScTcText.get(str, l).toString();
     }
 }
-// 近似读音 <putonghua>
-// 标准写法 <standard>
-// 键盘输入 <keyboard>
+// 词典式拼音 <standard>
+// 赣语通用拼音 <ganCommon>
 // 国际音标 <yzcIPA>
 // 其他版本拼音 <other>
 // 辞书里的国际音标 <dictIPA>

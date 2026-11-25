@@ -8,7 +8,6 @@ import com.shuowen.yuzong.linguistics.pinyinv2.UniPinyin;
 import com.shuowen.yuzong.linguistics.util.*;
 import com.shuowen.yuzong.util.core.Dialect;
 import com.shuowen.yuzong.util.err.InvalidPinyinException;
-import com.shuowen.yuzong.util.ext.other.ObjectTool;
 import com.shuowen.yuzong.util.text.StringRef;
 import com.shuowen.yuzong.util.text.StringTool;
 import com.shuowen.yuzong.util.tuple.Either;
@@ -420,13 +419,11 @@ public class LACPinyin extends UniPinyin
         PinyinBlock block = new PinyinBlock();
 
         String display = LACDisplay.format(this).toShowString();
-        String keyboard = toKeyboardPinyin().toShowString();
-        String introduce = LACIntro.format(this).toString();
+        String ganCommon = LACGanCommon.format(this);
 
         block.setTitle(display);
-        block.add("putonghua", "近似讀音", introduce);
-        block.add("standard", "標準寫法", display);
-        block.add("keyboard", "鍵盤輸入", keyboard);
+        block.add("standard", "詞典式拼音", display);
+        block.add("ganCommon", "贛語通用拼音", "[" + ganCommon + "]");
         return block;
     }
 
@@ -619,64 +616,42 @@ public class LACPinyin extends UniPinyin
     }
 
     /**
-     * 简化拼音
+     * 赣语通用拼音
      */
-    private static class LACIntro
+    private static class LACGanCommon
     {
-        public static RPinyin format(LACPinyin p)
+        private static String format(LACPinyin p)
         {
-            return RPinyin.of(handleFormat(p));
-        }
+            String syllable = p.yinjieOrDandu.fold(DanDu::toString, y -> {
+                String s = y.toString();
+                if (y.shengmu != ShengMu.$) return s;
 
-        public static String handleFormat(LACPinyin p)
-        {
-            String s = p.getSyll();
+                if (y.jiemu == JieMu.i)
+                {
+                    String rest = s.substring(1);
+                    if (rest.startsWith("a") || rest.startsWith("o") || rest.startsWith("ọ")
+                            || rest.startsWith("e") || rest.startsWith("ẹ")) return "y" + rest;
+                    if (rest.equals("u") || rest.equals("ut") || rest.equals("uk")) return "yiu" + rest.substring(1);
+                    return "yi" + rest;
+                }
+                if (y.jiemu == JieMu.u)
+                {
+                    String rest = s.substring(1);
+                    if (rest.startsWith("a") || rest.startsWith("o") || rest.startsWith("ọ")
+                            || rest.startsWith("e") || rest.startsWith("ẹ") || rest.startsWith("i")) return "w" + rest;
+                    return "wu" + rest;
+                }
+                return s;
+            });
 
-            s = s.replace("ien", "ian").replace("üon", "üan");
-            s = s.replaceAll("[tk]$", ""); // 删除入声韵尾
-            s = handleYW(s);
-            s = PinyinCommon.d_Yu_display(s);
-            s = s.replace("ẹ", "e");
-            s = s.replace("ọ", "o");
-            s = PinyinCommon.d_ZCS(s);
-            s = PinyinCommon.d_Ng(s);
-
-            // 标音调
-            String t = p.getMark();
-            String a = p.getArrow();
-
-            if (s.contains("iu")) return s.replace("u", "u" + t) + a;
-
-            for (String i : "aoọeẹiuü".split(""))
-                if (s.contains(i)) return s.replace(i, i + t) + a;
-
-            // 例外：没有主元音m n ng，只有ng要特殊处理
-            if ("ng".equals(s)) return StringTool.insert(s, 1, t) + a;
-            else return s + t + a;
-        }
-
-        /**
-         * 合理添加yw，使得看起来更符合普通话规律
-         */
-        private static String handleYW(String s)
-        {
-            char c = s.charAt(0);
-            if (c == 'i')
-            {
-                // i ->yi it->yit iu->yiu in->yin
-                if (ObjectTool.existEqual(s, "i", "it", "in"))
-                    s = "y" + s;
-                else if (s.equals("iu")) s = "yiu";
-                else s = "y" + s.substring(1);
-            }
-            if (c == 'u')
-            {
-                if (s.length() >= 2 && ObjectTool.existEqual(s.charAt(1), 'a', 'o'))
-                    s = "w" + s.substring(1);
-                else if (s.equals("ui")) s = "wi";
-                else s = "w" + s;
-            }
-            return s;
+            syllable = PinyinCommon.d_ZCS(syllable);
+            syllable = PinyinCommon.d_Ng(syllable);
+            syllable = syllable.replace("ẹi", "ui")
+                    .replace("e", "ê").replace("ẹ", "e")
+                    .replace("ọ", "eo").replace("ü", "yu");
+            syllable = syllable.replaceFirst("^([zcs])i", "$1ï");
+            return syllable + p.getToneStr();
         }
     }
+
 }
