@@ -295,7 +295,7 @@ public class TextPinyinIPA
     {
         PinyinBlock block = new PinyinBlock();
         block.setTitle("—");
-        block.add("standard", "標準寫法", "—");
+        block.add("standard", "詞典式拼音", "—");
         block.add("ganCommon", "贛語通用拼音", "—");
         block.add("yzcIPA", "國際音標", "—");
 

@@ -422,7 +422,7 @@ public class LACPinyin extends UniPinyin
         String ganCommon = LACGanCommon.format(this);
 
         block.setTitle(display);
-        block.add("standard", "標準寫法", display);
+        block.add("standard", "詞典式拼音", display);
         block.add("ganCommon", "贛語通用拼音", "[" + ganCommon + "]");
         return block;
     }
